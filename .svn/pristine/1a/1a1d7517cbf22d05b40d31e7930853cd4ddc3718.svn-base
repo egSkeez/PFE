@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<title>Liste Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/js/jquery-1.9.1.js" type="text/javascript">
+</script>
+<script src="../framGraphique/js/jquery-ui.js" type="text/javascript">
+</script>
+<script src="../framGraphique/js/highcharts.js" type="text/javascript">
+</script>
+<script src="../framGraphique/js/exporting.js" type="text/javascript">
+</script>
+<script src="../framGraphique/js/charts1.js" type="text/javascript" charset="utf-8">
+</script>
+<script src="../framGraphique/js/charts2.js" type="text/javascript" charset="utf-8">
+</script>
+<script>
+jQuery.noConflict();
+jQuery(document).ready(function(){
+	jQuery("#hide").click(function(){
+		jQuery("#corpsGauche").css("float","left");
+		jQuery("#corpsDroite").css("float","right");
+		jQuery("#tabPanelId").css("direction","ltr");
+  });
+	jQuery("#show").click(function(){
+		jQuery("#corpsGauche").css("float","right");
+		jQuery("#corpsDroite").css("float","left");
+		jQuery("#tabPanelId").css("direction","rtl");
+  });
+});
+</script>
+</head>
+<body>
+
+	<div>
+		<div id="corpsGauche" style="widht: 50%; float: left;">
+			c'est le corps gauche merci
+			<rich:tabPanel switchType="client" id="tabPanelId">
+				<rich:tab label="First">
+	            Here is tab #1
+	         </rich:tab>
+				<rich:tab label="Second">
+	            Here is tab #2
+	         </rich:tab>
+				<rich:tab label="Third">
+	            Here is tab #3
+	         </rich:tab>
+			</rich:tabPanel>
+		</div>
+		<div id="corpsDroite" style="widht: 50%; float: right;">c'est le
+			corps droite merci</div>
+	</div>
+	<div style="clear: both;" align="center">
+		<button id="hide">ltr</button>
+		<button id="show">rtl</button>
+	</div>
+	<div id="container"
+		style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+	<div id="container2"
+		style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+</body>
+	</html>
+</ui:composition>

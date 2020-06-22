@@ -1,0 +1,468 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+</head>
+<body>
+
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.cssmobile}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/headerWeb.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbarr2.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form id="frmglobale" >
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+								<h:form id="fr1">
+									<a4j:commandLink id="retour"
+										onclick="document.location.href='accueilWeb.jsf'">
+										<h:graphicImage value="../framGraphique/images/retour.png"
+											onclick="this.src='../framGraphique/images/retourClick.png'"
+											onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+											onmouseout="this.src='../framGraphique/images/retour.png'" />
+									</a4j:commandLink>
+									<rich:toolTip for="retour" value="#{msg.Retour}"
+										direction="top-right" />
+										<a4j:commandLink id="suivi"
+										onclick="document.location.href='courrierSuiviDestinataireWeb.jsf'">
+										<h:graphicImage style=" width : 24px;heigth:24px;"
+											rendered="#{variableGlobale.rendered}"
+											value="../framGraphique/images/suivi.png"
+											onmouseover="this.src='../framGraphique/images/suiviMouseOver.png'"
+											onmouseout="this.src='../framGraphique/images/suivi.png'"
+											alt="suivi" />
+									</a4j:commandLink>
+									<rich:spacer width="15" />
+								
+														
+														     
+								<rich:modalPanel id="msgPanal1" autosized="true" height="100"
+								width="400">
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+
+										<h:outputText value="#{msg.labelInfo}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink1" />
+										<rich:componentControl for="msgPanal1" attachTo="hidelink1"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<a4j:keepAlive beanName="courrierDetailsBean" />
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.CourrierTransferMsg}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center">
+											<h:outputText  value="#{courrierDetailsBean.ci.courrierAValider}"></h:outputText>
+											<a4j:commandButton
+													value="#{msg.bouttonOk}"
+													onclick="Richfaces.hideModalPanel('msgPanal1');"
+													reRender="frmglobale" ajaxSingle="true"
+													type="submit" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+
+							<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+								width="400">
+								<a4j:keepAlive beanName="courrierConsultationJourBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelError}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink2" />
+										<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreurrrrr.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.erreurTransfert}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													onclick="Richfaces.hideModalPanel('msgPanal2')"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+							</h:form>
+				</div></div>
+						</h:form>
+						<rich:modalPanel id="askDelete1" autosized="true" height="100"
+							width="350">
+							<a4j:keepAlive beanName="documentConsultationBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink222" />
+									<rich:componentControl for="askDelete1" attachTo="hidelink222"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="Ce courrier est déjà envoyé, vous ne pouvez pas le supprimer." />
+									</td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('askDelete1');"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<rich:modalPanel id="askDelete2" autosized="true" height="110"
+							width="390">
+							<a4j:keepAlive beanName="courrierDetailsBean" ajaxOnly="true" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkdel1" alt="Fermer" />
+									<rich:componentControl for="askDelete2" attachTo="hidelinkdel1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{courrierDetailsBean.message}" /></td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('askDelete2'); "
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<!-- MM -->
+						
+						<!-- c'est une alerte pour la modification d'un courrier deja recu -->
+						
+						<rich:modalPanel id="askDelete3" autosized="true" height="110"
+							width="390">
+							<a4j:keepAlive beanName="courrierDetailsBean" ajaxOnly="true" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkdel45" alt="Fermer" />
+									<rich:componentControl for="askDelete3" attachTo="hidelinkdel45"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{courrierDetailsBean.messageModif}" /></td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('askDelete3'); "
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						
+						
+						
+						
+						
+						
+							<!-- FIN  MM -->
+						
+						<rich:modalPanel id="askAccuseReception" autosized="true"
+							height="110" width="390">
+							<a4j:keepAlive beanName="courrierDetailsBean" ajaxOnly="true" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkdelAck" alt="Fermer" />
+									<rich:componentControl for="askAccuseReception"
+										attachTo="hidelinkdelAck" operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{courrierDetailsBean.message}" /></td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('askAccuseReception'); "
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+					</rich:panel>
+					<h:form>
+
+                      
+                      <div>
+								<ui:include src="../GBO/courrierDetailsIncludeWeb.xhtml"></ui:include>
+							</div>
+						
+						
+					
+						<!-- popoup wait -->
+						<a4j:status id="ajaxStatusWait" forceId="true"
+							onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+							onstop="#{rich:component('waitPanel')}.hide()" />
+				
+					
+					</h:form>
+					
+					<rich:panel id="panelListDoc" styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="1">
+								<h:outputText value="#{msg.RechercherDocumentfacet}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<h:form>
+						 <div style="overflow: auto;">
+							<rich:dataTable value="#{documentConsultationBean.listDDM}"
+								var="document" id="dataDocument" rows="10"
+								styleClass="rich-datatable">
+
+								<rich:column sortBy="#{document.ordre}"
+									rendered="#{not(variableGlobale.sonede)}"
+									filterBy="#{document.ordre}" filterEvent="onkeyup" label="id2"
+									width="5%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ordre}" />
+									</f:facet>
+									<h:inputText value="#{document.ordre}" style=" width : 59px;">
+										<a4j:support id="supportEtages1" event="onchange"
+											action="#{documentConsultationBean.modifierListeDocument}"
+											ajaxSingle="true" />
+
+									</h:inputText>
+								</rich:column>
+
+								<rich:column sortBy="#{document.ordre}"
+									style="width : 3px !important;" filterBy="#{document.ordre}"
+									filterEvent="onkeyup" label="id2">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ordre}" />
+									</f:facet>
+									<h:outputText value="#{document.ordre}" style=" width : 59px;">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column sortBy="#{document.document.documentReference}"
+									filterBy="#{document.document.documentReference}"
+									filterEvent="onkeyup" label="id2">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocRef}" />
+									</f:facet>
+									<h:outputText value="#{document.document.documentReference}" />
+								</rich:column>
+
+								<rich:column sortBy="#{document.document.documentNom}"
+									filterBy="#{document.document.documentNom}"
+									filterEvent="onkeyup" label="nom">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocNom}" />
+									</f:facet>
+									<h:outputText value="#{document.document.documentNom}" />
+								</rich:column>
+
+								<rich:column sortBy="#{document.document.documentObjet}"
+									filterBy="#{document.document.documentObjet}"
+									filterEvent="onkeyup" label="obj">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocObjet}" />
+									</f:facet>
+									<h:outputText value="#{document.document.documentObjet}" />
+								</rich:column>
+								<rich:column sortBy="#{document.document.documentNombreCopie}"
+									filterBy="#{document.document.documentNombreCopie}"
+									filterEvent="onkeyup" label="CIN">
+									<f:facet name="header">
+										<h:outputText value="#{msg.documentNombreCopie}" />
+									</f:facet>
+									<h:outputText value="#{document.document.documentNombreCopie}" />
+								</rich:column>
+								<rich:column>
+									<f:facet name="header">
+										<h:outputText value="#{msg.lienDocument}" />
+									</f:facet>
+									<h:commandLink
+										disabled="#{document.document.documentNom eq 'non disponible'}"
+										rendered="#{not(document.document.documentTypeUpload eq 'Physique')}"
+										value="#{document.document.documentNom}"
+										action="#{documentConsultationBean.downloadDocument}"
+										styleClass="xteDetailLabelOutput" target="_blank" />
+								</rich:column>
+								<rich:column sortBy="#{document.document.documentCommentaire}"
+									filterBy="#{document.document.documentCommentaire}"
+									filterEvent="onkeyup" label="CIN">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocCommentaire}" />
+									</f:facet>
+									<h:outputText value="#{document.document.documentCommentaire}" />
+								</rich:column>
+								<rich:column sortBy="#{document.document.documentTypeUpload}"
+									filterBy="#{document.document.documentTypeUpload}"
+									filterEvent="onkeyup" label="CIN">
+									<f:facet name="header">
+										<h:outputText value="#{msg.typeLabel}" />
+									</f:facet>
+									<h:outputText value="#{document.document.documentTypeUpload}" />
+								</rich:column>
+								
+								
+								
+							</rich:dataTable>
+							
+							
+							</div>
+							<rich:datascroller for="dataDocument" id="scroller" />
+							<div align="center">
+								<h:outputText value="#{msg.NombreEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="compt"
+									value="#{documentConsultationBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+
+
+
+
+							<rich:spacer height="5px" width="100%" />
+							<div align="center">
+								<h:outputText value="#{msg.labelMessage}"
+									rendered="#{not(variableGlobale.sonede)}"
+									styleClass="xteDetailLabel" style=" width :100px;" />
+								<br />
+								<a4j:commandButton value="#{msg.bouttonOrdre}" type="submit"
+									rendered="false" action="documentConsultationBean.goUp"
+									onclick="document.location.href='courrierConsulterDetails.jsf'"></a4j:commandButton>
+							</div>
+						</h:form>
+					</rich:panel>
+
+				</div>
+<div id="corpsDroite">
+					
+				
+					
+				
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,159 @@
+package xtensus.beans.common.GBO;
+
+import java.util.Date;
+import java.util.List;
+
+import xtensus.beans.utils.RapportEnteteDePage;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+import xtensus.beans.utils.RapportPiedDePage;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.entity.Entite;
+
+public class RapportRetardBean extends Entite{
+	public String title;
+	private String ref;
+	private String expDest;
+	private String expedeteur;
+	private String listDestinataire;
+	private String obj;
+	private String nature;
+	private Date dateRep;
+	private Date dateRecep;
+	private String delais;
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinataire;
+	// KHA : sous titre
+	private List<RapportEnteteDePage> enteteDePage;
+	
+	private List<RapportSociete> listeSociete;
+	private List<RapportPiedDePage>piedDePage;
+	private String adresse;
+	
+	public String getRef() {
+		return ref;
+	}
+	public void setRef(String ref) {
+		this.ref = ref;
+	}
+	public String getExpDest() {
+		return expDest;
+	}
+	public void setExpDest(String expDest) {
+		this.expDest = expDest;
+	}
+	public String getObj() {
+		return obj;
+	}
+	public void setObj(String obj) {
+		this.obj = obj;
+	}
+	public String getNature() {
+		return nature;
+	}
+	public void setNature(String nature) {
+		this.nature = nature;
+	}
+	public Date getDateRep() {
+		return dateRep;
+	}
+	public void setDateRep(Date dateRep) {
+		this.dateRep = dateRep;
+	}
+	public Date getDateRecep() {
+		return dateRecep;
+	}
+	public void setDateRecep(Date dateRecep) {
+		this.dateRecep = dateRecep;
+	}
+	public String getDelais() {
+		return delais;
+	}
+	public void setDelais(String delais) {
+		this.delais = delais;
+	}
+	public String getExpedeteur() {
+		return expedeteur;
+	}
+	public void setExpedeteur(String expedeteur) {
+		this.expedeteur = expedeteur;
+	}
+	public String getListDestinataire() {
+		return listDestinataire;
+	}
+	public void setListDestinataire(String listDestinataire) {
+		this.listDestinataire = listDestinataire;
+	}
+	public String getSocieteNom() {
+		return societeNom;
+	}
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+	public String getSocieteVille() {
+		return societeVille;
+	}
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+	public String getNomProjet() {
+		return nomProjet;
+	}
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+	public List<RapportExpediteurDestinataire> getRapportExpediteurDestinataire() {
+		return rapportExpediteurDestinataire;
+	}
+	public void setRapportExpediteurDestinataire(List<RapportExpediteurDestinataire> rapportExpediteurDestinataire) {
+		this.rapportExpediteurDestinataire = rapportExpediteurDestinataire;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+	public void setPiedDePage(List<RapportPiedDePage> piedDePage) {
+		this.piedDePage = piedDePage;
+	}
+	public List<RapportPiedDePage> getPiedDePage() {
+		return piedDePage;
+	}
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+	public String getAdresse() {
+		return adresse;
+	}
+	public List<RapportEnteteDePage> getEnteteDePage() {
+		return enteteDePage;
+	}
+	public void setEnteteDePage(List<RapportEnteteDePage> enteteDePage) {
+		this.enteteDePage = enteteDePage;
+	}
+	
+	
+
+}

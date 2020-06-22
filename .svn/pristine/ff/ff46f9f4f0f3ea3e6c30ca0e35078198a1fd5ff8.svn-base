@@ -1,0 +1,612 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.GBO_LDAP.ListeUtilisateurBean;
+import xtensus.beans.common.GBO_LDAP.UniteBocGestionBean;
+import xtensus.beans.common.GBO_LDAP.UtilisateurGestionBean;
+import xtensus.entity.Employe;
+import xtensus.entity.Unite;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class EmployeGestionBean {
+
+	private DataModel listEmployesUtilisateurDM;
+	private DataModel listEmployesUtilisateurModifieDM;
+	private DataModel listEmployesDM;
+	private Employe employe;
+	private List<Employe> listEmployesUtilisateur;
+	private List<Employe> listEmployesUtilisateurModifie;
+	private List<Employe> listEmployes;
+	private long listEmployesNbr = 0;
+	private long listEmployesUtilisateurNbr = 0;
+	private long listEmployesUtilisateurModifieNbr = 0;
+	private String hideAccor;
+	private Person utilisateur;
+
+	private String userSurName;
+
+	private String userAbv;
+	private String prenomUserAr;
+	private String nomUserAr;
+	private String userLogin;
+	private String userPWD;
+
+	private String userTelephoneNumber;
+	private String userFax;
+	private String userEmail;
+	private String userAdress;
+	private Integer userPostalCode;
+
+	public boolean ajoutCompteOK;
+	private String utilisateurStructure;
+	@Autowired
+	private ListeUtilisateurBean listeUtilisateurBean;
+	
+	@Autowired
+	private UniteBocGestionBean uniteBocGestionBean;
+
+	@Autowired
+	private UtilisateurGestionBean utilisateurGestionBean;
+
+	private boolean ficheMembreArabe;
+
+	@Autowired
+	private ApplicationManager appMgr;
+
+	@Autowired
+	private VariableGlobale vb;
+	private Employe employeUtilisateur;
+	private boolean affecteStructure;
+	private boolean structureExiste;
+	private boolean structureExisteLDAP;
+	private Unit uniteLDAP;
+
+	public EmployeGestionBean() {
+
+	}
+
+	@Autowired
+	public EmployeGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		ldapOperation= new LdapOperation();
+		listEmployesUtilisateur = new ArrayList<Employe>();
+		listEmployesUtilisateurModifie = new ArrayList<Employe>();
+		listEmployes = new ArrayList<Employe>();
+
+		listEmployesUtilisateurDM = new ListDataModel();
+		listEmployesUtilisateurModifieDM = new ListDataModel();
+		listEmployesDM = new ListDataModel();
+		listeUtilisateurBean = new ListeUtilisateurBean();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		ficheMembreArabe = false;
+		List<Variables> variables = new ArrayList<Variables>();
+		variables = appMgr
+				.listVariablesByLibelle("gestion_fiche_membre_en_arabe");
+		if (variables != null && variables.size() > 0)
+			if ((variables.get(0).getVaraiablesValeur().toLowerCase())
+					.equals("oui")) {
+				ficheMembreArabe = true;
+			}
+		listEmployesUtilisateur = new ArrayList<Employe>();
+		listEmployesUtilisateurModifie = new ArrayList<Employe>();
+		listEmployes = new ArrayList<Employe>();
+		hideAccor = "none";
+		try {
+			listEmployes = appMgr.getList(Employe.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		int i = 0;
+		while (listEmployes != null && i < listEmployes.size()) {
+			Employe emp = listEmployes.get(i);
+			// System.out.println(emp.getEmployerNom());
+			boolean existe = false;
+			//chercher personne par codeSonede car c'est UID (code unique) dans LDAP
+			for (Person pers : vb.getCopyLdapListAllUser()) {
+				
+				if (pers.getId() == Integer.parseInt(emp.getEmployerCodeSonede())) {
+					System.out.println("cette person existe déjà "
+							+ pers.getId());
+					existe = true;
+					
+					listEmployesUtilisateur.add(emp);
+					listEmployes.remove(emp);
+					System.out.println("NOM LDAP :"+pers.getNom()+":");
+					System.out.println("NOM BD :"+emp.getEmployerNom().trim()+":");
+					if (!(pers.getNom().trim()).equals(emp.getEmployerNom().trim())){
+						System.out.println("Modifié "+pers.getId());
+						listEmployesUtilisateurModifie.add(emp);
+					}
+					break;
+
+				}
+
+			}
+			if (!existe)
+				i++;
+		}
+
+		listEmployesUtilisateurDM.setWrappedData(listEmployesUtilisateur);
+		listEmployesUtilisateurModifieDM
+				.setWrappedData(listEmployesUtilisateurModifie);
+		listEmployesDM.setWrappedData(listEmployes);
+
+	}
+
+	public void getSelectionRowEmployes() {
+		try {
+
+			structureExiste = true;
+			affecteStructure = true;
+			structureExisteLDAP = true;
+			employe = (Employe) listEmployesDM.getRowData();
+			utilisateur = new Person();
+			utilisateur.setNom(employe.getEmployerNom());
+			//C'est le Matricule
+			//utilisateur.setShortName(employe.getEmployerId() + "");
+			utilisateur.setShortName(employe.getEmployeMatricule());
+			utilisateur.setPrenom("");
+			utilisateurStructure = "";
+
+			String codeUniteRattachement = employe.getUniteCodeSonede();
+			System.out.println("codeUniteRattachement  "+codeUniteRattachement);
+			if (codeUniteRattachement != null
+					&& codeUniteRattachement.length() > 0) {
+				// Chercher l'unité qui a ce code dans LDAP
+				int idUnite =Integer.parseInt(codeUniteRattachement);
+				Unit u =ldapOperation.getUnitByIdUnit(idUnite);
+					boolean exist = false;
+				if(u!=null ){
+					uniteLDAP=u;
+					exist = true;
+				}
+				if (!exist) {
+					structureExisteLDAP = false;
+					utilisateurStructure = uniteLDAP.getIdUnit()+" : "+" Cette Sructure n'est pas encore ajoutée à l'organigramme";
+				} else
+					utilisateurStructure = uniteLDAP.getIdUnit()+" : "+uniteLDAP.getNameUnit();
+				
+//				List<Unite> listeUnite = appMgr
+//						.getUniteByCodeSONEDE(codeUniteRattachement);
+//				if (listeUnite != null && listeUnite.size() > 0) {
+////					System.out.println("lunité de l'utilisateur "
+////							+ listeUnite.get(0).getUniteNom());
+//					// Chercher si cette Structure déjà ajoutée dans LDAP
+//					//le Code Centre coud est le UID de l'unité
+////					List<Unit> listeUniteLDAP = vb.getCopyLdapListUnit();
+//				
+////					for (Unit u : listeUniteLDAP) {
+////						if (listeUnite.get(0).getUniteNom().equals(u.getNameUnit())) {
+////							uniteLDAP=u;
+////							exist = true;
+////							break;
+////						}
+////
+////					}
+//					
+//					if (!exist) {
+//						structureExisteLDAP = false;
+//						utilisateurStructure = "La Sructure à la quelle l'employé est affecté n'est pas ajoutée à l'organigramme";
+//					} else
+//						utilisateurStructure = listeUnite.get(0).getUniteNom();
+//
+//				}
+//				else {
+//					System.out
+//							.println("Cette Structure n'existe pas dans la base");
+//					structureExiste = false;
+//					utilisateurStructure="La structure à laquelle il est affecté n'existe pas dans la liste des Structures";
+//				}
+			} else {
+				System.out
+						.println("Cet employé n'est pas rattaché à une Structure");
+				affecteStructure = false;
+				utilisateurStructure = "Cet employé n'est pas rattaché à une Structure";
+			}
+
+			utilisateur.setId(Integer.parseInt(employe.getEmployerCodeSonede()));
+			hideAccor = "inline";
+		} catch (Exception e) {
+			System.out.println("*******Erreur De Selection Employe*******");
+			e.printStackTrace();
+		}
+
+	}
+
+
+	public void affecterCompte() {
+
+		// Si les conditions lié à l'affectation à la structure sont bien le
+		// compte est ajouté en lui affectant en tant que agent
+		if (structureExiste && affecteStructure && structureExisteLDAP) {
+			// Appel methode ajout Utilisateur LDAP
+			utilisateur=listeUtilisateurBean.saveEmploye(utilisateur, ficheMembreArabe);
+			uniteBocGestionBean.affectAgent(utilisateur,uniteLDAP);
+			//Mettre à jour les données de l'employer dans la BD
+			if (ficheMembreArabe) {
+			//	Employe employe= new Employe();
+				List<Employe> es=appMgr.getEmployerByCodeSonede(utilisateur.getId()+"");
+				
+				if(es!=null &&es.size()>0){
+					Employe empl=es.get(0);
+					//empl.setEmployerNomAr(utilisateur.getPrenomUserAr()+ " "+utilisateur.getNomUserAr());
+					empl.setEmployerNomAr(utilisateur.getPrenomUserAr());
+					try {
+						System.out.println("empl ajouté  "+empl);
+						appMgr.update(empl);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			ajoutCompteOK = true;
+			// Mettre à jour la liste des Employés récupérés de LDAP
+		} else {
+			ajoutCompteOK = false;
+			System.out.println("vous ne pouvez pas ajouter ce compte");
+			System.out.println("Raisons : ");
+			if (!structureExiste)
+				System.out
+						.println("La structure à laquelle il est affecté n'existe pas dans la liste des Structures");
+			if (!affecteStructure)
+				System.out
+						.println("L'employé n'est affecté à aucune Structure");
+			if (!structureExisteLDAP)
+				System.out
+						.println("La Sructure à la quelle l'employé est affecté n'est pas ajoutée à l'organigramme");
+		}
+
+	}
+
+	public void updateSelectedRow() {
+
+	}
+
+	// ///////////////////////////////////////////////////
+
+	public DataModel getListEmployesUtilisateurDM() {
+		return listEmployesUtilisateurDM;
+	}
+
+	public void setListEmployesUtilisateurDM(DataModel listEmployesUtilisateurDM) {
+		this.listEmployesUtilisateurDM = listEmployesUtilisateurDM;
+	}
+
+	public DataModel getListEmployesDM() {
+		return listEmployesDM;
+	}
+
+	public void setListEmployesDM(DataModel listEmployesDM) {
+		this.listEmployesDM = listEmployesDM;
+	}
+
+	public Employe getEmploye() {
+		return employe;
+	}
+
+	public void setEmploye(Employe employe) {
+		this.employe = employe;
+	}
+
+	public List<Employe> getListEmployesUtilisateur() {
+		return listEmployesUtilisateur;
+	}
+
+	public void setListEmployesUtilisateur(List<Employe> listEmployesUtilisateur) {
+		this.listEmployesUtilisateur = listEmployesUtilisateur;
+	}
+
+	public List<Employe> getListEmployes() {
+		return listEmployes;
+	}
+
+	public void setListEmployes(List<Employe> listEmployes) {
+		this.listEmployes = listEmployes;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getListEmployesNbr() {
+
+		if (listEmployesDM != null && listEmployesDM.getWrappedData() != null)
+			listEmployesNbr = ((List<Employe>) listEmployesDM.getWrappedData())
+					.size();
+		else
+			listEmployesNbr = 0;
+		return listEmployesNbr;
+
+	}
+
+	public void setListEmployesNbr(long listEmployesNbr) {
+		this.listEmployesNbr = listEmployesNbr;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getListEmployesUtilisateurNbr() {
+
+		if (listEmployesUtilisateurDM != null
+				&& listEmployesUtilisateurDM.getWrappedData() != null)
+			listEmployesUtilisateurNbr = ((List<Employe>) listEmployesUtilisateurDM
+					.getWrappedData()).size();
+		else
+			listEmployesUtilisateurNbr = 0;
+		return listEmployesUtilisateurNbr;
+	}
+
+	public void setListEmployesUtilisateurNbr(long listEmployesUtilisateurNbr) {
+		this.listEmployesUtilisateurNbr = listEmployesUtilisateurNbr;
+	}
+
+	public Employe getEmployeUtilisateur() {
+		return employeUtilisateur;
+	}
+
+	public void setEmployeUtilisateur(Employe employeUtilisateur) {
+		this.employeUtilisateur = employeUtilisateur;
+	}
+
+	public Person getUtilisateur() {
+		return utilisateur;
+	}
+
+	public void setUtilisateur(Person utilisateur) {
+		this.utilisateur = utilisateur;
+	}
+
+	public String getUserSurName() {
+		return userSurName;
+	}
+
+	public void setUserSurName(String userSurName) {
+		this.userSurName = userSurName;
+	}
+
+	public String getUserAbv() {
+		return userAbv;
+	}
+
+	public void setUserAbv(String userAbv) {
+		this.userAbv = userAbv;
+	}
+
+	public String getPrenomUserAr() {
+		return prenomUserAr;
+	}
+
+	public void setPrenomUserAr(String prenomUserAr) {
+		this.prenomUserAr = prenomUserAr;
+	}
+
+	public String getNomUserAr() {
+		return nomUserAr;
+	}
+
+	public void setNomUserAr(String nomUserAr) {
+		this.nomUserAr = nomUserAr;
+	}
+
+	public String getUserLogin() {
+		return userLogin;
+	}
+
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
+	}
+
+	public String getUserPWD() {
+		return userPWD;
+	}
+
+	public void setUserPWD(String userPWD) {
+		this.userPWD = userPWD;
+	}
+
+	public String getUserTelephoneNumber() {
+		return userTelephoneNumber;
+	}
+
+	public void setUserTelephoneNumber(String userTelephoneNumber) {
+		this.userTelephoneNumber = userTelephoneNumber;
+	}
+
+	public String getUserFax() {
+		return userFax;
+	}
+
+	public void setUserFax(String userFax) {
+		this.userFax = userFax;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
+	public String getUserAdress() {
+		return userAdress;
+	}
+
+	public void setUserAdress(String userAdress) {
+		this.userAdress = userAdress;
+	}
+
+	public Integer getUserPostalCode() {
+		return userPostalCode;
+	}
+
+	public void setUserPostalCode(Integer userPostalCode) {
+		this.userPostalCode = userPostalCode;
+	}
+
+	// public ListeUtilisateurBean getListeUtilisateurBean() {
+	// return listeUtilisateurBean;
+	// }
+	//
+	// public void setListeUtilisateurBean(
+	// ListeUtilisateurBean listeUtilisateurBean) {
+	// this.listeUtilisateurBean = listeUtilisateurBean;
+	// }
+
+	public boolean isAjoutCompteOK() {
+		return ajoutCompteOK;
+	}
+
+	public void setAjoutCompteOK(boolean ajoutCompteOK) {
+		this.ajoutCompteOK = ajoutCompteOK;
+	}
+
+	public boolean isFicheMembreArabe() {
+		return ficheMembreArabe;
+	}
+
+	public void setFicheMembreArabe(boolean ficheMembreArabe) {
+		this.ficheMembreArabe = ficheMembreArabe;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	private LdapOperation ldapOperation;
+
+	private boolean status3;
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void synchronisation() {
+		status3 = false;
+		try {
+			employe = (Employe) listEmployesUtilisateurModifieDM.getRowData();
+			String ancienNom = "";
+			System.out.println("ID Employe "+employe.getEmployerId());
+			for (Person pers : vb.getCopyLdapListAllUser()) {
+				if (pers.getId() == employe.getEmployerId()) {
+					ancienNom = pers.getNom();
+					pers.setNom(employe.getEmployerNom());
+					break;
+				}
+			}
+
+			utilisateurGestionBean.updateUser(employe, ancienNom);
+
+			status3 = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	
+	public DataModel getListEmployesUtilisateurModifieDM() {
+		return listEmployesUtilisateurModifieDM;
+	}
+
+	public void setListEmployesUtilisateurModifieDM(
+			DataModel listEmployesUtilisateurModifieDM) {
+		this.listEmployesUtilisateurModifieDM = listEmployesUtilisateurModifieDM;
+	}
+
+	public List<Employe> getListEmployesUtilisateurModifie() {
+		return listEmployesUtilisateurModifie;
+	}
+
+	public void setListEmployesUtilisateurModifie(
+			List<Employe> listEmployesUtilisateurModifie) {
+		this.listEmployesUtilisateurModifie = listEmployesUtilisateurModifie;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getListEmployesUtilisateurModifieNbr() {
+
+		if (listEmployesUtilisateurModifieDM != null
+				&& listEmployesUtilisateurModifieDM.getWrappedData() != null)
+			listEmployesUtilisateurModifieNbr = ((List<Employe>) listEmployesUtilisateurModifieDM
+					.getWrappedData()).size();
+		else
+			listEmployesUtilisateurModifieNbr = 0;
+
+		return listEmployesUtilisateurModifieNbr;
+	}
+
+	public void setListEmployesUtilisateurModifieNbr(
+			long listEmployesUtilisateurModifieNbr) {
+		this.listEmployesUtilisateurModifieNbr = listEmployesUtilisateurModifieNbr;
+	}
+
+	public String getUtilisateurStructure() {
+		return utilisateurStructure;
+	}
+
+	public void setUtilisateurStructure(String utilisateurStructure) {
+		this.utilisateurStructure = utilisateurStructure;
+	}
+
+	public boolean isAffecteStructure() {
+		return affecteStructure;
+	}
+
+	public void setAffecteStructure(boolean affecteStructure) {
+		this.affecteStructure = affecteStructure;
+	}
+
+	public boolean isStructureExiste() {
+		return structureExiste;
+	}
+
+	public void setStructureExiste(boolean structureExiste) {
+		this.structureExiste = structureExiste;
+	}
+
+	public boolean isStructureExisteLDAP() {
+		return structureExisteLDAP;
+	}
+
+	public void setStructureExisteLDAP(boolean structureExisteLDAP) {
+		this.structureExisteLDAP = structureExisteLDAP;
+	}
+
+}

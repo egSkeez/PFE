@@ -1,0 +1,1693 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<title>Liste Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<script type="text/javascript"
+	src="../framGraphique/jquery-1.10.2.min.js" />
+<script type="text/javascript">
+	jQuery.noConflict();
+	jQuery(document).ready(function() {
+		jQuery("#formm\\:selectoneRadioId1Ancien").change(function() {
+			jQuery("#formm\\:panelGridId").css("display", "inline");
+		});
+		jQuery("#formm\\:selectoneRadioIdAncien").change(function() {
+			jQuery("#formm\\:panelGridId").css("display", "none");
+		});
+	});
+</script>
+<style type="text/css">
+/* disable column resize */
+.extdt-hsep {
+    display: none;
+}
+</style>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form id="frmBtn">
+						<rich:panel styleClass="rich-panel">
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:status id="ajaxStatus"
+										onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+										onstop="#{rich:component('waitPanel')}.hide()" />
+
+									<rich:modalPanel id="waitPanel" style="text-align:center">
+										<h:outputText value="#{msg.messageAttente}"
+											style="font-weight:bold;font-size:large" />
+
+										<div align="center">
+											<h:graphicImage value="../framGraphique/images/timeOut.gif"
+												alt="timeOut" />
+										</div>
+									</rich:modalPanel>
+								</div>
+								<div id="barreIconeDroite">
+									<h:commandLink id="pdf"
+										action="#{rapportCourriersListe.printPDFFR}"
+										status="ajaxStatusRapport">
+										<h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf" />
+									</h:commandLink>
+									<a4j:commandLink id="ajouter"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="pdf" value="#{msg.pdfExport}"
+										styleClass="direction:#{languageManager.direction};" />
+								</div>
+							</div>
+						</rich:panel>
+						<a4j:status id="ajaxStatusRapport" forceId="true"
+							onstart="#{rich:component('waitPanelRapport')}.show('',{height:'85px', width:'250px'})"
+							onstop="#{rich:component('waitPanelRapport')}.hide()" />
+						<rich:modalPanel id="waitPanelRapport" style="text-align:center"
+							autosized="true">
+							<h:outputText value="#{msg.messageAttente}"
+								style="font-weight:bold;font-size:large" />
+							<div align="center">
+								<h:graphicImage value="../framGraphique/images/timeOut.gif"
+									alt="timeOut" />
+							</div>
+						</rich:modalPanel>
+
+					</h:form>
+					<!--					<h:form>-->
+
+					<rich:tabPanel id="tabPanelCourrier"
+						selectedTab="#{variableGlobale.selectedListCourrier}"
+						styleClass="rich-tab-panel"
+						headerAlignment="#{languageManager.headerAlignment}"
+						switchType="ajax">
+						<rich:tab name="CRjour"
+							label="#{msg.MsgAujourdhuiCourrier} (#{courrierJourDataModel.totalCount})">
+							<h:form id="formm">
+
+								<h:panelGrid columns="5"
+									rendered="#{courrierConsultationJourBean.userOption}">
+									<h:selectOneRadio id="selectoneRadioId"
+										styleClass="xteDetailLabelOutput"
+										style="direction:#{languageManager.direction};"
+										value="#{courrierJourDataModel.typeCourrierJour}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierJourDataModel.permitionWalkVisit}"
+											reRender="formm,data,scroller,record" ajaxSingle="true" />
+
+										<f:selectItem itemLabel="#{msg.accueiltoutLescourriersLabel}"
+											itemValue="Tous" />
+										<f:selectItem itemLabel="#{msg.acceuilcourriersRecuLabel}"
+											itemValue="Recu" />
+										<f:selectItem itemLabel="#{msg.acceuilcourriersenvoyésLabel}"
+											itemValue="Envoyes" />
+									</h:selectOneRadio>
+									<rich:separator lineType="dashed" height="25px" width="3px"
+										align="center" />
+									<rich:spacer width="5" />
+									<h:selectBooleanCheckbox id="selectoneRadioId1"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{courrierJourDataModel.checkedTypeCourrierValidationJour}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierJourDataModel.permitionWalkVisit}"
+											reRender="data,scroller,record,selectoneRadioId"
+											ajaxSingle="true" />
+										<a4j:keepAlive beanName="courrierJourDataModel" />
+									</h:selectBooleanCheckbox>
+									<h:outputText value="#{msg.acceuilcourriersDeValidationLbel}"
+										styleClass="xteDetailLabelOutput" />
+								</h:panelGrid>
+
+								<h:panelGrid columns="4"
+									rendered="#{courrierConsultationJourBean.bocOption}">
+									<h:selectOneRadio id="selectoneRadioIdBoc"
+										styleClass="xteDetailLabelOutput"
+										style="direction:#{languageManager.direction};"
+										value="#{courrierJourDataModel.transmissionCourrierJour}">
+										<a4j:support event="onchange"
+											actionListener="#{courrierJourDataModel.permitionWalkVisit}"
+											reRender="data,scroller,record,commandLinkIdJour,graphiqueImageIdJour,selectoneRadioId1"
+											ajaxSingle="true" />
+										<f:selectItems
+											value="#{courrierConsultationJourBean.selectItemsTr}" />
+									</h:selectOneRadio>
+								</h:panelGrid>
+								<h:panelGrid columns="7"
+									rendered="#{courrierConsultationJourBean.bocOption}"
+									style="float:left;">
+									<h:selectOneRadio id="s" styleClass="xteDetailLabelOutput"
+										style="direction:#{languageManager.direction};"
+										value="#{courrierJourDataModel.categorieCourrierJour}"
+										layout="lineDirection">
+										<a4j:support id="sel" event="onchange"
+											actionListener="#{courrierJourDataModel.permitionWalkVisit}"
+											reRender="data,scroller,record,commandLinkIdJour,graphiqueImageIdJour,selectoneRadioId1"
+											ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.acceuilTousLabel}"
+											itemValue="T" />
+										<f:selectItem itemLabel="#{msg.acceuilarrivéLabel}"
+											itemValue="A" />
+										<f:selectItem itemLabel="#{msg.acceuildépartLabel}"
+											itemValue="D" />
+									</h:selectOneRadio>
+									<rich:separator lineType="dashed" height="25px" width="3px"
+										align="center" />
+									<h:selectOneRadio id="selectoneRadioId111"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{courrierJourDataModel.typeCourrierTraitementJour}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierJourDataModel.permitionWalkVisit}"
+											reRender="data,scroller,record,commandLinkIdJour,graphiqueImageIdJour,selectoneRadioId1"
+											ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.acceuilTousLabel}"
+											itemValue="tous" />
+										<f:selectItem itemLabel="#{msg.acceuilTraitéLabel}"
+											itemValue="traite" />
+										<f:selectItem itemLabel="#{msg.acceuilNonTraitéLabel}"
+											itemValue="nonTraite" />
+									</h:selectOneRadio>
+
+								</h:panelGrid>
+
+								<rich:spacer width="100%" height="2" />
+								<h:panelGrid
+									rendered="#{courrierConsultationJourBean.vb.person.responsable}">
+									<h:selectOneRadio id="selectoneRadioRubriqueJour"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{courrierJourDataModel.courrierRubriqueJour}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierJourDataModel.permitionWalkVisit}"
+											reRender="formm,data,scroller,record" ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.accueiltoutLescourriersLabel}"
+											itemValue="6" />
+										<f:selectItem itemLabel="#{msg.mesCourriers}" itemValue="1" />
+										<f:selectItem itemLabel="#{msg.courrierMonUnite}"
+											itemValue="2" />
+										<f:selectItem
+											itemDisabled="#{courrierJourDataModel.courrierConsultation.consultationCourrierSubordonne ne 'Oui'}"
+											itemLabel="#{msg.courrierMesSubordonne}" itemValue="3" />
+										<f:selectItem
+											itemDisabled="#{courrierJourDataModel.courrierConsultation.consultationCourrierSecretaire ne 'Oui'}"
+											itemLabel="#{msg.courrierMaSecretaire}" itemValue="4" />
+										<f:selectItem
+											itemDisabled="#{courrierJourDataModel.courrierConsultation.consultationCourrierSousUnite ne 'Oui'}"
+											itemLabel="#{msg.courrierMesSousUnite}" itemValue="5" />
+									</h:selectOneRadio>
+								</h:panelGrid>
+								<div>
+
+									<rich:extendedDataTable enableContextMenu="false"
+										noDataLabel="#{msg.acceuilPasDecourriersLabel}"
+										value="#{courrierJourDataModel}" var="cr" id="data" rows="10"
+										style=" margin-left:-10px; margin-right:-10px;direction:#{languageManager.direction};"
+										onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+										onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+										height="400">
+										<f:facet name="header">
+											<h:outputText value="#{msg.listCourriersJour}" />
+										</f:facet>
+										<rich:column width="10%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.Reference}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.courrierReference}" />
+										</rich:column>
+										<rich:column width="21%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.ColonneObjet}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.courrierObjet}" />
+										</rich:column>
+										<rich:column width="14%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.ColonneNature}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.courrierNature}" />
+										</rich:column>
+										<rich:column width="10%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.dateReception}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.courrierDateReceptionEnvoi}" />
+										</rich:column>
+										<rich:column width="17%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.expediteurReelListeCourrier}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.courrierExpediteur}" />
+										</rich:column>
+										<rich:column width="18%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.destReelle}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.courrierDestinataireReelle}" />
+										</rich:column>
+										<rich:column>
+											<f:facet name="header">
+												<h:outputText value="#{msg.ColonneOperation}"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<div align="center">
+												<h:panelGrid columns="6" style="margin-left:-4px;"
+													rendered="#{courrierConsultationJourBean.userOption}">
+													<h:column>
+														<a4j:commandLink id="consult" ajaxSingle="true"
+															action="#{courrierConsultationJourBean.getSelectionRowJour}"
+															oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}"></f:setPropertyActionListener>
+															<h:graphicImage
+																rendered="#{(cr.transactionDateConsultation ne null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation ne null and cr.courrierRecu eq 1)}"
+																value="../framGraphique/images/ConsulterLu.png" />
+															<h:graphicImage
+																rendered="#{(cr.transactionDateConsultation eq null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation eq null and cr.courrierRecu eq 1)}"
+																value="../framGraphique/images/ConsulterNonLu.png"
+																alt="#{msg.Consult}" style=" height : 16px;" />
+														</a4j:commandLink>
+														<rich:toolTip for="consult" value="#{msg.ReConsult}"
+															rendered="#{(cr.transactionDateConsultation ne null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation ne null and cr.courrierRecu eq 1)}" />
+														<rich:toolTip for="consult" value="#{msg.Consult}"
+															rendered="#{(cr.transactionDateConsultation eq null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation eq null and cr.courrierRecu eq 1)}" />
+													</h:column>
+													<h:column>
+														<a4j:commandLink id="aValider"
+															rendered="#{cr.courrierAValider eq 1}" ajaxSingle="true"
+															action="#{courrierConsultationJourBean.getSelectionRowJourForValidate}"
+															oncomplete="document.location.href='courrierValidation.jsf'">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}"></f:setPropertyActionListener>
+															<h:graphicImage
+																value="../framGraphique/images/courrierAValider.png"
+																alt="aValider" />
+														</a4j:commandLink>
+														<rich:toolTip for="aValider" value="#{msg.aValider}" />
+
+														<h:graphicImage rendered="#{cr.courrierAValider eq 0}"
+															value="../framGraphique/images/courrierAValiderDisabled.png"
+															alt="aValiderDisabled" />
+													</h:column>
+													<h:column>
+														<a4j:commandLink id="reponse"
+															rendered="#{cr.courrierRecu eq 1}" ajaxSingle="true"
+															action="#{courrierConsultationJourBean.repondre}"
+															oncomplete="document.location.href='courrierRepondre.jsf'">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}"></f:setPropertyActionListener>
+															<h:graphicImage
+																value="../framGraphique/images/RepondreIconSmall.png"
+																alt="reponse" />
+														</a4j:commandLink>
+														<rich:toolTip for="reponse" value="#{msg.Reponse}" />
+
+														<h:graphicImage rendered="#{cr.courrierRecu eq 0}"
+															value="../framGraphique/images/RepondreIconSmallDisab.png"
+															alt="reponseDisabled" />
+													</h:column>
+													<h:column>
+														<a4j:commandLink id="trans" ajaxSingle="true"
+															action="#{courrierConsultationJourBean.getSelectionRowJour}"
+															oncomplete="document.location.href='courrierTransfere.jsf'">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}"></f:setPropertyActionListener>
+															<h:graphicImage
+																value="../framGraphique/images/TransfereIconSmall.png"
+																alt="trans" />
+														</a4j:commandLink>
+														<rich:toolTip for="trans" value="#{msg.Trans}" />
+													</h:column>
+
+													<h:column
+														rendered="#{cr.transactionDestinationReelID ne null}">
+														<h:graphicImage id="valide" rendered="#{cr.etatID eq 4}"
+															value="../framGraphique/images/vert.png" alt="trans" />
+														<rich:toolTip for="valide" value="#{msg.courrierValide}" />
+														<h:graphicImage id="nonValide"
+															rendered="#{cr.etatID eq 3}"
+															value="../framGraphique/images/rouge.png" alt="trans" />
+														<rich:toolTip for="nonValide"
+															value="#{msg.courrierNonValide}" />
+														<h:graphicImage id="attenteTraitement"
+															rendered="#{cr.treated}"
+															value="../framGraphique/images/bleu.png" alt="trans"
+															style=" height : 10px;" />
+														<rich:toolTip for="attenteTraitement"
+															value="#{msg.courrierTraite}" />
+														<h:graphicImage id="traite" rendered="#{cr.untreated}"
+															value="../framGraphique/images/gris.png" alt="trans" />
+														<rich:toolTip for="traite" value="#{msg.courrierATraiter}" />
+														<h:graphicImage id="attenteValidation"
+															rendered="#{cr.etatID eq 2}"
+															value="../framGraphique/images/oranger.png" alt="trans" />
+														<rich:toolTip for="attenteValidation"
+															value="#{msg.courrierAValide}" />
+													</h:column>
+												</h:panelGrid>
+												<h:panelGrid columns="6"
+													rendered="#{courrierConsultationJourBean.bocOption}">
+													<h:column>
+														<a4j:commandLink id="consultBoc"
+															rendered="#{(cr.transactionDateConsultation ne null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation ne null and cr.courrierRecu eq 1)}"
+															action="#{courrierConsultationJourBean.getSelectionRowJour}"
+															ajaxSingle="true"
+															oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}"></f:setPropertyActionListener>
+															<h:graphicImage
+																value="../framGraphique/images/ConsulterLu.png"
+																alt="Consulter" />
+														</a4j:commandLink>
+														<rich:toolTip for="consultBoc" value="#{msg.ReConsult}" />
+														<a4j:commandLink id="consultBoc1"
+															rendered="#{(cr.transactionDateConsultation eq null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation eq null and cr.courrierRecu eq 1)}"
+															action="#{courrierConsultationJourBean.getSelectionRowJour}"
+															ajaxSingle="true"
+															oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}"></f:setPropertyActionListener>
+															<h:graphicImage
+																value="../framGraphique/images/ConsulterNonLu.png"
+																alt="Consulter" />
+														</a4j:commandLink>
+														<rich:toolTip for="consultBoc1" value="#{msg.Consult}" />
+													</h:column>
+													<h:column>
+														<a4j:commandLink id="aValiderBoc"
+															rendered="#{cr.courrierAValider eq 1}"
+															action="#{courrierConsultationJourBean.executeJour}"
+															ajaxSingle="true"
+															oncomplete="if(#{courrierConsultationJourBean.showResponsableResponse}==true)
+																			#{rich:component('panelSelectRespResponsible')}.show();
+																		if(#{courrierConsultationJourBean.status1}==true)
+																			#{rich:component('msgPanal1')}.show();
+																		if(#{courrierConsultationJourBean.status2}==true)
+																			#{rich:component('msgPanal2')}.show();"
+															reRender="msgPanal1,msgPanal2">
+															<f:setPropertyActionListener value="#{cr}"
+																target="#{courrierConsultationJourBean.selectedCourrier}">
+															</f:setPropertyActionListener>
+															<h:graphicImage
+																value="../framGraphique/images/executeIcon.png"
+																alt="aValider1" />
+														</a4j:commandLink>
+														<rich:toolTip for="aValiderBoc" value="#{msg.aExecuter}" />
+														<h:graphicImage rendered="#{cr.courrierAValider eq 0}"
+															value="../framGraphique/images/executeIconGrised.png"
+															alt="aValiderDisabled1" />
+													</h:column>
+												</h:panelGrid>
+											</div>
+										</rich:column>
+										<rich:column visible="false" sortBy="#{cr.typeCourrier}"
+											id="job">
+											<f:facet name="header">
+												<h:outputText value="Type courrier"
+													onmousemove="event.cancelBubble = true;return false;"
+													onmousedown="event.cancelBubble = true;return false;" />
+											</f:facet>
+											<h:outputText value="#{cr.typeCourrier}"
+												styleClass="xteDetailLabel" />
+										</rich:column>
+									</rich:extendedDataTable>
+								</div>
+								<div align="center">
+									<rich:datascroller stepControls="hide" for="data" id="scroller"
+										page="#{courrierJourDataModel.firstPage}"
+										actionListener="#{courrierJourDataModel.permitionWalkScroller}"
+										style="direction:#{languageManager.direction};" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="record"
+										value="(#{courrierJourDataModel.rowCount})"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+								</div>
+
+								<rich:spacer width="100%" height="8" />
+							</h:form>
+							<rich:modalPanel id="panelSelectRespResponsible" autosized="true"
+								height="100" width="400">
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+
+										<h:outputText value="#{msg.labelAlerte}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/closePopup.png"
+											width="15" height="15"
+											id="hidelinkpanelSelectRespResponsible" />
+										<rich:componentControl for="panelSelectRespResponsible"
+											attachTo="hidelinkpanelSelectRespResponsible"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/avertissement.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.responseResponsibleMustBeSelected}" />
+											</td>
+										</tr>
+									</table>
+
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('panelSelectRespResponsible');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+							<rich:modalPanel id="msgPanal1" autosized="true" height="100"
+								width="400">
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+
+										<h:outputText value="#{msg.labelInfo}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink1" />
+										<rich:componentControl for="msgPanal1" attachTo="hidelink1"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<a4j:keepAlive beanName="courrierConsultationJourBean" />
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.CourrierTransferMsg}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													onclick="Richfaces.hideModalPanel('msgPanal1');"
+													reRender="formm,data,scroller,record" ajaxSingle="true"
+													type="submit" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+
+							<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+								width="400">
+								<a4j:keepAlive beanName="courrierConsultationJourBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelError}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink2" />
+										<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreurrrrr.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.erreurTransfert}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													onclick="Richfaces.hideModalPanel('msgPanal2')"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+						</rich:tab>
+						<rich:tab name="CRancien"
+							label="#{msg.MsgDernierCourrier} (#{courrierAncienDataModel.totalCount})">
+
+							<h:form id="frmCourrierAncien">
+								<h:panelGrid columns="5"
+									rendered="#{courrierConsultationAncienBean.userOption}">
+									<h:selectOneRadio id="selectoneRadioIdAncien"
+										styleClass="xteDetailLabelOutput"
+										style="direction:#{languageManager.direction};"
+										value="#{courrierAncienDataModel.typeCourrier}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierAncienDataModel.permitionWalkVisit}"
+											reRender="frmCourrierAncien,data1,scroller1,record1,selectoneRadioId1Ancien,panelGridId"
+											ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.accueiltoutLescourriersLabel}"
+											itemValue="Tous" />
+										<f:selectItem itemLabel="#{msg.acceuilcourriersRecuLabel}"
+											itemValue="Recu" />
+										<f:selectItem itemLabel="#{msg.acceuilcourriersenvoyésLabel}"
+											itemValue="Envoyes" />
+									</h:selectOneRadio>
+									<rich:separator lineType="dashed" height="25px" width="3px"
+										align="center" />
+									<rich:spacer width="5" />
+									<h:selectBooleanCheckbox id="selectoneRadioId1Ancien"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{courrierAncienDataModel.checkedTypeCourrierValidation}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierAncienDataModel.permitionWalkVisit}"
+											reRender="frmCourrierAncien,data1,scroller1,record1,selectoneRadioIdAncien,panelGridId"
+											ajaxSingle="true" />
+										<a4j:keepAlive beanName="courrierAncienDataModel" />
+									</h:selectBooleanCheckbox>
+									<h:outputText value="#{msg.acceuilcourriersDeValidationLbel}"
+										styleClass="xteDetailLabelOutput" />
+								</h:panelGrid>
+								<h:panelGrid id="panelGridId"
+									style="float:right; height:10px; margin-top:-20px; padding-right:1px;"
+									rendered="#{courrierConsultationAncienBean.userOption}">
+									<h:column>
+										<h:panelGrid columns="6" style="margin-top:10px;"
+											rendered="#{courrierConsultationAncienBean.moreChoices}">
+											<h:column>
+												<h:selectBooleanCheckbox
+													value="#{courrierConsultationAncienBean.allMailChecked}"
+													id="allMail">
+													<a4j:support event="onchange"
+														reRender="checkBox1,checkBox2,checkBox3,checkBox4"
+														ajaxSingle="true" />
+												</h:selectBooleanCheckbox>
+												<h:outputText value="#{msg.acceuilTousLabel}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:selectBooleanCheckbox id="checkBox1"
+													value="#{courrierConsultationAncienBean.toValidateMailChecked}">
+													<a4j:support event="onchange" reRender="allMail"
+														ajaxSingle="true" />
+												</h:selectBooleanCheckbox>
+												<h:graphicImage id="valid1"
+													value="../framGraphique/images/oranger.png" alt="trans" />
+												<h:outputText value="#{msg.aValiderLabel}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:selectBooleanCheckbox id="checkBox2"
+													value="#{courrierConsultationAncienBean.validatedMailChecked}">
+													<a4j:support event="onchange" reRender="allMail"
+														ajaxSingle="true" />
+												</h:selectBooleanCheckbox>
+												<h:graphicImage id="valid2"
+													value="../framGraphique/images/vert.png" alt="trans" />
+												<h:outputText value="#{msg.acceuilValidéLabel}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:selectBooleanCheckbox id="checkBox3"
+													value="#{courrierConsultationAncienBean.notValidatedMailChecked}">
+													<a4j:support event="onchange" reRender="allMail"
+														ajaxSingle="true" />
+												</h:selectBooleanCheckbox>
+												<h:graphicImage id="valid3"
+													value="../framGraphique/images/rouge.png" alt="trans" />
+												<h:outputText value="#{msg.acceuilNonValidéLabel}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:selectBooleanCheckbox id="checkBox4"
+													value="#{courrierConsultationAncienBean.treatedMailChecked}">
+													<a4j:support event="onchange" reRender="allMail"
+														ajaxSingle="true" />
+												</h:selectBooleanCheckbox>
+												<h:graphicImage id="valid4"
+													value="../framGraphique/images/bleu.png" alt="trans" />
+												<h:outputText value="#{msg.acceuilTraitéLabel}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<rich:spacer width="10" />
+												<a4j:commandLink
+													reRender="panelGridId,data1,scroller1,record1"
+													status="ajaxStatus1">
+													<h:graphicImage
+														value="../framGraphique/images/iconeVal.png" alt="details" />
+												</a4j:commandLink>
+											</h:column>
+											<a4j:status id="ajaxStatus1" forceId="true"
+												onstart="#{rich:component('waitPanel1')}.show('',{height:'85px', width:'250px'})"
+												onstop="#{rich:component('waitPanel1')}.hide()" />
+											<rich:modalPanel id="waitPanel1" style="text-align:center"
+												autosized="true">
+												<h:outputText value="#{msg.messageChargement}"
+													style="font-weight:bold;font-size:large" />
+												<div align="center">
+													<h:graphicImage value="../framGraphique/images/timeOut.gif"
+														alt="timeOut" />
+												</div>
+											</rich:modalPanel>
+										</h:panelGrid>
+									</h:column>
+								</h:panelGrid>
+								<h:panelGrid columns="4"
+									rendered="#{courrierConsultationAncienBean.bocOption}">
+									<h:selectOneRadio id="selectoneRadioIdBocAncien"
+										styleClass="xteDetailLabelOutput"
+										style="direction:#{languageManager.direction};"
+										value="#{courrierAncienDataModel.transmissionCourrier}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierAncienDataModel.permitionWalkVisit}"
+											reRender="frmCourrierAncien,data1,scroller1,record1"
+											ajaxSingle="true" />
+										<f:selectItems
+											value="#{courrierConsultationAncienBean.selectItemsTr}" />
+									</h:selectOneRadio>
+								</h:panelGrid>
+								<h:panelGrid columns="7"
+									rendered="#{courrierConsultationAncienBean.bocOption}"
+									style="float:left;">
+									<h:selectOneRadio id="selectoneRadioIdBoc4Ancien"
+										styleClass="xteDetailLabelOutput"
+										style="direction:#{languageManager.direction};"
+										value="#{courrierAncienDataModel.categorieCourrier}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierAncienDataModel.permitionWalkVisit}"
+											reRender="frmCourrierAncien,data1,scroller1,record1,commandLinkId,graphiqueImageId,selectoneRadioId1Ancien,panelGridId"
+											ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.acceuilTousLabel}"
+											itemValue="T" />
+										<f:selectItem itemLabel="#{msg.acceuilarrivéLabel}"
+											itemValue="A" />
+										<f:selectItem itemLabel="#{msg.acceuildépartLabel}"
+											itemValue="D" />
+									</h:selectOneRadio>
+									<rich:separator lineType="dashed" height="25px" width="3px"
+										align="center" />
+									<h:selectOneRadio id="selectoneRadioId111Ancien"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{courrierAncienDataModel.typeCourrierTraitement}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierAncienDataModel.permitionWalkVisit}"
+											reRender="frmCourrierAncien,data1,scroller1,record1,commandLinkId,graphiqueImageId,selectoneRadioId1Ancien,panelGridId"
+											ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.acceuilTousLabel}"
+											itemValue="tous" />
+										<f:selectItem itemLabel="#{msg.acceuilTraitéLabel}"
+											itemValue="traite" />
+										<f:selectItem itemLabel="#{msg.acceuilNonTraitéLabel}"
+											itemValue="nonTraite" />
+									</h:selectOneRadio>
+
+								</h:panelGrid>
+								<h:panelGrid id="commandLinkId" style="float:right;" columns="3"
+									rendered="#{courrierConsultationAncienBean.bocOption}">
+									<a4j:commandLink id="cl"
+										action="#{courrierConsultationAncienBean.executeAllTransaction}"
+										rendered="#{courrierConsultationAncienBean.showExecuteAllButton}"
+										reRender="panelGridId,data1,scroller1,record1">
+										<h:graphicImage
+											value="../framGraphique/images/executeAllIcon.png"
+											alt="details" />
+									</a4j:commandLink>
+									<h:graphicImage
+										value="../framGraphique/images/executeAllDisabledIcon.png"
+										alt="details"
+										rendered="#{courrierConsultationAncienBean.hideExecuteAllButton}" />
+									<rich:toolTip for="cl" value="#{msg.executeAll}" />
+								</h:panelGrid>
+								<rich:spacer width="100%" height="2" />
+
+								<h:panelGrid
+									rendered="#{courrierConsultationAncienBean.vb.person.responsable}">
+									<h:selectOneRadio id="selectoneRadioRubriqueAncien"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{courrierAncienDataModel.courrierRubrique}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{courrierAncienDataModel.permitionWalkVisit}"
+											reRender="frmCourrierAncien,data1,scroller1,record1,selectoneRadioId1Ancien,panelGridId"
+											ajaxSingle="true" />
+										<f:selectItem itemLabel="#{msg.accueiltoutLescourriersLabel}"
+											itemValue="6" />
+										<f:selectItem itemLabel="#{msg.mesCourriers}" itemValue="1" />
+										<f:selectItem itemLabel="#{msg.courrierMonUnite}"
+											itemValue="2" />
+										<f:selectItem
+											itemDisabled="#{courrierAncienDataModel.courrierAncienConsultation.consultationCourrierSubordonne ne 'Oui'}"
+											itemLabel="#{msg.courrierMesSubordonne}" itemValue="3" />
+										<f:selectItem
+											itemDisabled="#{courrierAncienDataModel.courrierAncienConsultation.consultationCourrierSecretaire ne 'Oui'}"
+											itemLabel="#{msg.courrierMaSecretaire}" itemValue="4" />
+										<f:selectItem
+											itemDisabled="#{courrierAncienDataModel.courrierAncienConsultation.consultationCourrierSousUnite ne 'Oui'}"
+											itemLabel="#{msg.courrierMesSousUnite}" itemValue="5" />
+									</h:selectOneRadio>
+								</h:panelGrid>
+
+								<rich:extendedDataTable value="#{courrierAncienDataModel}"
+									enableContextMenu="false" var="cr" id="data1" rows="10"
+									noDataLabel="#{msg.acceuilPasDecourriersLabel}"
+									style="width=:730px; margin-left:-10px; margin-right:-10px;"
+									onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+									onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+									height="400">
+									<f:facet name="header">
+										<h:outputText value="#{msg.listCourriers}" />
+									</f:facet>
+									<rich:column label="#{msg.Reference}" width="10%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierReference}" />
+									</rich:column>
+									<rich:column label="#{msg.ColonneObjet}" width="21%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneObjet}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierObjet}" />
+									</rich:column>
+									<rich:column label="#{msg.ColonneNature}" width="14%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneNature}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierNature}" />
+									</rich:column>
+									<rich:column label="#{msg.dateReception}" width="10%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.dateReception}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierDateReceptionEnvoi}" />
+									</rich:column>
+									<rich:column label="#{msg.expediteur}" width="17%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.expediteurReelListeCourrier}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierExpediteur}" />
+									</rich:column>
+									<rich:column label="#{msg.destReelle}" width="18%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.destReelle}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierDestinataireReelle}" />
+									</rich:column>
+									<rich:column>
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneOperation}"
+												onmousemove="event.cancelBubble = true;return false;"
+												onmousedown="event.cancelBubble = true;return false;" />
+										</f:facet>
+										<div align="center">
+											<h:panelGrid columns="6" style="margin-left:-4px;"
+												rendered="#{courrierConsultationAncienBean.userOption}">
+												<h:column>
+													<a4j:commandLink id="consult1"
+														action="#{courrierConsultationAncienBean.getSelectionRow}"
+														ajaxSingle="true"
+														oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															rendered="#{(cr.transactionDateConsultation ne null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation ne null and cr.courrierRecu eq 1)}"
+															value="../framGraphique/images/ConsulterLu.png" />
+														<h:graphicImage
+															rendered="#{(cr.transactionDateConsultation eq null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation eq null and cr.courrierRecu eq 1)}"
+															value="../framGraphique/images/ConsulterNonLu.png" />
+													</a4j:commandLink>
+													<rich:toolTip for="consult1" value="#{msg.ReConsult}"
+														rendered="#{(cr.transactionDateConsultation ne null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation ne null and cr.courrierRecu eq 1)}" />
+													<rich:toolTip for="consult1" value="#{msg.Consult}"
+														rendered="#{(cr.transactionDateConsultation eq null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation eq null and cr.courrierRecu eq 1)}" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="aValider1"
+														rendered="#{cr.courrierAValider eq 1}" ajaxSingle="true"
+														action="#{courrierConsultationAncienBean.getSelectionRowForValidate}"
+														oncomplete="document.location.href='courrierValidation.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/courrierAValider.png"
+															alt="aValider1" />
+													</a4j:commandLink>
+													<rich:toolTip for="aValider1" value="#{msg.aValider}" />
+
+													<h:graphicImage rendered="#{cr.courrierAValider eq 0}"
+														value="../framGraphique/images/courrierAValiderDisabled.png"
+														alt="aValiderDisabled1" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="reponse1"
+														rendered="#{cr.courrierRecu eq 1}" ajaxSingle="true"
+														action="#{courrierConsultationAncienBean.repondre}"
+														oncomplete="document.location.href='courrierRepondre.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/RepondreIconSmall.png"
+															alt="reponse1" />
+													</a4j:commandLink>
+													<rich:toolTip for="reponse1" value="#{msg.Reponse}" />
+
+													<h:graphicImage rendered="#{cr.courrierRecu eq 0}"
+														value="../framGraphique/images/RepondreIconSmallDisab.png"
+														alt="reponseDisabled1" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="trans1" ajaxSingle="true"
+														action="#{courrierConsultationAncienBean.getSelectionRow}"
+														oncomplete="document.location.href='courrierTransfere.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/TransfereIconSmall.png"
+															alt="trans1" />
+													</a4j:commandLink>
+													<rich:toolTip for="trans1" value="#{msg.Trans}" />
+												</h:column>
+												<h:column rendered="#{cr.forValidating}">
+													<h:graphicImage id="valide" rendered="#{cr.etatID eq 4}"
+														value="../framGraphique/images/vert.png" alt="trans" />
+													<rich:toolTip for="valide" value="#{msg.courrierValide}" />
+													<h:graphicImage id="nonValide" rendered="#{cr.etatID eq 3}"
+														value="../framGraphique/images/rouge.png" alt="trans" />
+													<rich:toolTip for="nonValide"
+														value="#{msg.courrierNonValide}" />
+													<h:graphicImage id="attenteTraitement"
+														rendered="#{cr.treated}"
+														value="../framGraphique/images/bleu.png" alt="trans" />
+													<rich:toolTip for="attenteTraitement"
+														value="#{msg.courrierTraite}" />
+													<h:graphicImage id="traite" rendered="#{cr.untreated}"
+														value="../framGraphique/images/gris.png" alt="trans" />
+													<rich:toolTip for="traite" value="#{msg.courrierATraiter}" />
+													<h:graphicImage id="attenteValidation"
+														rendered="#{cr.etatID eq 2}"
+														value="../framGraphique/images/oranger.png" alt="trans" />
+													<rich:toolTip for="attenteValidation"
+														value="#{msg.courrierAValide}" />
+												</h:column>
+											</h:panelGrid>
+
+											<h:panelGrid columns="6"
+												rendered="#{courrierConsultationAncienBean.bocOption}"
+												style="margin-left:6px;">
+												<h:column>
+													<a4j:commandLink id="consultBoc"
+														rendered="#{(cr.transactionDateConsultation ne null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation ne null and cr.courrierRecu eq 1)}"
+														action="#{courrierConsultationAncienBean.getSelectionRow}"
+														ajaxSingle="true"
+														oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/ConsulterLu.png"
+															alt="Consulter" />
+													</a4j:commandLink>
+													<rich:toolTip for="consultBoc" value="#{msg.ReConsult}" />
+													<a4j:commandLink id="consultBoc1"
+														rendered="#{(cr.transactionDateConsultation eq null and cr.courrierRecu ne 1) or (cr.transactionDestination.transactionDestDateConsultation eq null and cr.courrierRecu eq 1)}"
+														action="#{courrierConsultationAncienBean.getSelectionRow}"
+														ajaxSingle="true"
+														oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/ConsulterNonLu.png"
+															alt="Consulter" />
+													</a4j:commandLink>
+													<rich:toolTip for="consultBoc1" value="#{msg.Consult}" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="aValiderBoc"
+														rendered="#{cr.courrierAValider eq 1}" ajaxSingle="true"
+														action="#{courrierConsultationAncienBean.execute}"
+														oncomplete="if(#{courrierConsultationAncienBean.status1}==true)
+																		#{rich:component('msgPanal11')}.show();
+																	if(#{courrierConsultationAncienBean.status2}==true)
+																		#{rich:component('msgPanal22')}.show();"
+														reRender="msgPanal11,msgPanal22">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierConsultationAncienBean.selectedCourrier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/executeIcon.png"
+															alt="aValider1" />
+													</a4j:commandLink>
+													<rich:toolTip for="aValiderBoc" value="#{msg.aExecuter}" />
+													<h:graphicImage rendered="#{cr.courrierAValider eq 0}"
+														value="../framGraphique/images/executeIconGrised.png"
+														alt="aValiderDisabled1" style=" width : 16px;" />
+												</h:column>
+											</h:panelGrid>
+										</div>
+									</rich:column>
+									<rich:column label="Courriers" id="type1"
+										filterBy="#{cr.typeCourrier}" filterEvent="onkeyup"
+										sortBy="#{cr.typeCourrier}" visible="false">
+										<h:outputText value="#{cr.typeCourrier}"
+											styleClass="xteDetailLabel" />
+									</rich:column>
+								</rich:extendedDataTable>
+
+								<div align="center">
+									<rich:datascroller stepControls="hide" for="data1"
+										id="scroller1" page="#{courrierAncienDataModel.firstPage}"
+										actionListener="#{courrierAncienDataModel.permitionWalkScroller}" />
+									<h:outputText
+										value="#{msg.nbEnregistrement}  #{courrierAncienDataModel.rowCount}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+
+								</div>
+							</h:form>
+							<rich:spacer width="100%" height="8" />
+
+							<rich:modalPanel id="msgPanal11" autosized="true" height="100"
+								width="400">
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+
+										<h:outputText value="#{msg.labelInfo}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink11" />
+										<rich:componentControl for="msgPanal11" attachTo="hidelink11"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<a4j:keepAlive beanName="courrierConsultationAncienBean" />
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.CourrierTransferMsg}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													onclick="Richfaces.hideModalPanel('msgPanal11');"
+													reRender="frmCourrierAncien,data1,scroller1,record1"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+
+							<rich:modalPanel id="msgPanal22" autosized="true" height="100"
+								width="400">
+								<a4j:keepAlive beanName="courrierConsultationAncienBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelError}"
+											styleClass="popupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink22" />
+										<rich:componentControl for="msgPanal22" attachTo="hidelink22"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreurrrrr.png"
+													alt="confirm" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.erreurTransfert}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													onclick="Richfaces.hideModalPanel('msgPanal22')"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+						</rich:tab>
+						<rich:tab name="DSjour"
+							label="#{msg.MsgAujourdhuiDossier} (#{dossierJourDataModel.totalCount})"
+							rendered="#{courrierConsultationJourBean.showTab}">
+							<h:form>
+
+								<h:panelGrid columns="3">
+									<h:column>
+										<h:selectOneRadio
+											value="#{dossierJourDataModel.typeDossierJour}"
+											styleClass="xteDetailLabelOutput" layout="lineDirection">
+											<a4j:support event="onchange"
+												actionListener="#{dossierJourDataModel.permitionWalkVisit}"
+												reRender="dataDossier,scrollerDossier,recordDossier"
+												ajaxSingle="true" status="ajaxStatusWaitDossierJour" />
+											<f:selectItem itemLabel="#{msg.acceuilToutLesdossiersLabel}"
+												itemValue="Tous" />
+											<f:selectItem itemLabel="#{msg.acceuilDossiersRecuLabel}"
+												itemValue="Recu" />
+											<f:selectItem itemLabel="#{msg.acceuilDossierEnvoyéLabel}"
+												itemValue="Envoyes" />
+										</h:selectOneRadio>
+									</h:column>
+								</h:panelGrid>
+								<h:panelGrid
+									rendered="#{dossierJourConsultationBean.vb.person.responsable}">
+									<h:selectOneRadio id="selectoneRadioRubriqueAncien"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{dossierJourDataModel.dossierRubriqueJour}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{dossierJourDataModel.permitionWalkVisit}"
+											reRender="dataDossier,scrollerDossier,recordDossier"
+											ajaxSingle="true" status="ajaxStatusWaitDossierJour" />
+										<f:selectItem itemLabel="#{msg.mesDossiers}" itemValue="1" />
+										<f:selectItem itemLabel="#{msg.dossierMonUnite}" itemValue="2" />
+										<f:selectItem
+											itemDisabled="#{dossierJourDataModel.dossierJourBean.consultationCourrierSubordonne ne 'Oui'}"
+											itemLabel="#{msg.dossierMesSubordonne}" itemValue="3" />
+										<f:selectItem
+											itemDisabled="#{dossierJourDataModel.dossierJourBean.consultationCourrierSecretaire ne 'Oui'}"
+											itemLabel="#{msg.dossierMaSecretaire}" itemValue="4" />
+										<f:selectItem
+											itemDisabled="#{dossierJourDataModel.dossierJourBean.consultationCourrierSousUnite ne 'Oui'}"
+											itemLabel="#{msg.dossierMesSousUnite}" itemValue="5" />
+									</h:selectOneRadio>
+								</h:panelGrid>
+								<rich:spacer width="100%" height="10" />
+								<rich:extendedDataTable noDataLabel="#{msg.PasDeDossier}"
+									value="#{dossierJourDataModel}" var="cr" id="dataDossier"
+									rows="10" style="margin-left:-10px; margin-right:-10px;"
+									onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+									onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+									height="400">
+									<f:facet name="header">
+										<h:outputText value="#{msg.listDossiersJour}" />
+									</f:facet>
+									<rich:column label="#{msg.Reference}" width="15%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierReference}" />
+									</rich:column>
+									<rich:column label="#{msg.ColonneIntitule}" width="13%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneIntitule}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierObjet}" />
+									</rich:column>
+									<rich:column label="#{msg.ColonneDes}" width="17%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.comment}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierCommentaire}" />
+									</rich:column>
+									<rich:column label="#{msg.dateReception}" width="12%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.dateReception}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierDateReceptionEnvoi}" />
+									</rich:column>
+									<rich:column sortBy="#{cr.courrierExpediteur}"
+										label="#{msg.expediteur}" width="17%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.expediteur}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierExpediteur}" />
+									</rich:column>
+									<rich:column label="#{msg.destReelle}" width="16%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.destReelle}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierDestinataireReelle}" />
+									</rich:column>
+									<rich:column>
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneOperation}" />
+										</f:facet>
+										<div align="center">
+											<h:panelGrid columns="4">
+												<h:column>
+													<a4j:commandLink id="consultJP" ajaxSingle="true"
+														status="ajaxStatusWaitDossierJour"
+														action="#{dossierJourConsultationBean.getSelectionRowDossierJour}"
+														oncomplete="document.location.href='dossierCourrierAffecter.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierJourConsultationBean.selectedDossierJour}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/icone-detail.png"
+															alt="Consulter" />
+													</a4j:commandLink>
+													<rich:toolTip for="consultJP" value="#{msg.Consult}"
+														styleClass="tooltip-item"
+														style="direction:#{languageManager.direction};" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="transJP" rendered="#{cr.notShared}"
+														ajaxSingle="true"
+														action="#{dossierJourConsultationBean.getSelectionRowDossierForSharedJour}"
+														oncomplete="document.location.href='dossierPartage.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierJourConsultationBean.selectedDossierJour}"></f:setPropertyActionListener>
+
+														<h:graphicImage
+															value="../framGraphique/images/dossierPartagerPI.png"
+															alt="transJ" />
+													</a4j:commandLink>
+													<rich:toolTip for="transJP" value="#{msg.partage}" />
+													<a4j:commandLink id="transJP1" rendered="#{cr.shared}"
+														ajaxSingle="true"
+														action="#{dossierJourConsultationBean.getSelectionRowDossierForDetailsSharedJour}"
+														oncomplete="document.location.href='dossierConsulterDetailsPartage.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierJourConsultationBean.selectedDossierJour}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/dossierDetailPartagePI.png"
+															alt="transJ" />
+													</a4j:commandLink>
+													<rich:toolTip for="transJP1" value="#{msg.partage}" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="reponseJ"
+														rendered="#{cr.courrierRecu eq 1}" ajaxSingle="true"
+														action="#{dossierJourConsultationBean.getSelectionRowJourDossierForResponse}"
+														oncomplete="document.location.href='dossierTransfere.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierJourConsultationBean.selectedDossierJour}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/TransfereIconDataTable.png"
+															alt="reponseJ" />
+													</a4j:commandLink>
+													<rich:toolTip for="reponseJ" value="#{msg.Reponse}" />
+
+													<h:graphicImage rendered="#{cr.courrierRecu eq 0}"
+														value="../framGraphique/images/TransfereIconDataTableDisabled.png"
+														alt="reponseDisabledJ" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="transD1" ajaxSingle="true"
+														action="#{dossierJourConsultationBean.getSelectionRowDossierJour}"
+														oncomplete="document.location.href='dossierTransfere.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierJourConsultationBean.selectedDossierJour}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/RepondreIconDataTable.png"
+															alt="trans1" />
+													</a4j:commandLink>
+													<rich:toolTip for="transD1" value="#{msg.Trans}" />
+													<a4j:commandLink id="reponseDisabledJ11" rendered="false">
+														<h:graphicImage
+															value="../framGraphique/images/TransfereIconDataTableDisabled.png"
+															alt="reponseDisabledJ" />
+													</a4j:commandLink>
+												</h:column>
+
+											</h:panelGrid>
+										</div>
+									</rich:column>
+									<rich:column label="#{msg.acceuilDossiersLabel}" id="jobJ"
+										visible="false" filterBy="#{cr.typeCourrier}"
+										filterEvent="onkeyup" sortBy="#{cr.typeCourrier}">
+										<h:outputText value="#{cr.typeCourrier}"
+											styleClass="xteDetailLabel" />
+									</rich:column>
+								</rich:extendedDataTable>
+								<div align="center">
+									<rich:datascroller stepControls="hide" for="dataDossier"
+										page="#{dossierJourDataModel.firstPage}"
+										id="scrollerDossier" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="recordDossier"
+										value="#{dossierJourDataModel.rowCount}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+								</div>
+
+								<rich:spacer width="100%" height="8" />
+							</h:form>
+							<!-- popoup wait -->
+							<a4j:status id="ajaxStatusWaitDossierJour" forceId="true"
+								onstart="#{rich:component('waitPanelDossierJour')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanelDossierJour')}.hide()" />
+							<rich:modalPanel id="waitPanelDossierJour"
+								style="text-align:center">
+								<h:outputText value="#{msg.messageAttente}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+						</rich:tab>
+						<rich:tab name="DSancien"
+							label="#{msg.MsgDernierDossier} (#{dossierAncienDataModel.totalCount})"
+							rendered="#{courrierConsultationJourBean.showTab}">
+							<h:form>
+
+								<h:panelGrid columns="2">
+									<h:column>
+										<h:selectOneRadio id="checkRoleDossier1"
+											value="#{dossierAncienDataModel.typeDossier}"
+											styleClass="xteDetailLabelOutput" layout="lineDirection">
+											<a4j:support event="onchange"
+												actionListener="#{dossierAncienDataModel.permitionWalkVisit}"
+												reRender="dataDossier1,scrollerDossier1,recordDossier1"
+												ajaxSingle="true" status="ajaxStatusWait" />
+											<f:selectItem itemLabel="#{msg.acceuilToutLesdossiersLabel}"
+												itemValue="Tous" />
+											<f:selectItem itemLabel="#{msg.acceuilDossiersRecuLabel}"
+												itemValue="Recu" />
+											<f:selectItem itemLabel="#{msg.acceuilDossierEnvoyéLabel}"
+												itemValue="Envoyes" />
+										</h:selectOneRadio>
+									</h:column>
+								</h:panelGrid>
+
+
+
+
+								<h:panelGrid
+									rendered="#{dossierAncienConsultationBean.vb.person.responsable}">
+									<h:selectOneRadio id="selectoneRadioRubriqueAncien"
+										styleClass="xteDetailLabelOutput"
+										style="margin-left:-7px; direction:#{languageManager.direction};"
+										value="#{dossierAncienDataModel.dossierRubrique}"
+										layout="lineDirection">
+										<a4j:support event="onchange"
+											actionListener="#{dossierAncienDataModel.permitionWalkVisit}"
+											reRender="dataDossier1,scrollerDossier1,recordDossier1"
+											ajaxSingle="true" status="ajaxStatusWait" />
+										<f:selectItem itemLabel="#{msg.mesDossiers}" itemValue="1" />
+										<f:selectItem itemLabel="#{msg.dossierMonUnite}" itemValue="2" />
+										<f:selectItem
+											itemDisabled="#{dossierAncienDataModel.dossierAncienBean.consultationCourrierSubordonne ne 'Oui'}"
+											itemLabel="#{msg.dossierMesSubordonne}" itemValue="3" />
+										<f:selectItem
+											itemDisabled="#{dossierAncienDataModel.dossierAncienBean.consultationCourrierSecretaire ne 'Oui'}"
+											itemLabel="#{msg.dossierMaSecretaire}" itemValue="4" />
+										<f:selectItem
+											itemDisabled="#{dossierAncienDataModel.dossierAncienBean.consultationCourrierSousUnite ne 'Oui'}"
+											itemLabel="#{msg.dossierMesSousUnite}" itemValue="5" />
+									</h:selectOneRadio>
+
+
+
+
+
+								</h:panelGrid>
+								<rich:spacer width="100%" height="10" />
+								<rich:extendedDataTable noDataLabel="#{msg.PasDeDossier}"
+									value="#{dossierAncienDataModel}" var="cr" id="dataDossier1"
+									rows="10"
+									style="width=:730px; margin-left:-10px; margin-right:-10px;"
+									onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+									onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+									height="400">
+									<f:facet name="header">
+										<h:outputText value="#{msg.listDossiers}" />
+									</f:facet>
+									<rich:column label="#{msg.Reference}" width="15%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierReference}" />
+									</rich:column>
+									<rich:column label="#{msg.ColonneIntitule}" width="13%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneIntitule}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierObjet}" />
+									</rich:column>
+									<rich:column label="#{msg.ColonneDes}" width="17%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.comment}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierCommentaire}" />
+									</rich:column>
+									<rich:column label="#{msg.dateReception}"
+										sortBy="#{cr.courrierDateReceptionEnvoi}" width="12%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.dateReception}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierDateReceptionEnvoi}" />
+									</rich:column>
+									<rich:column label="#{msg.expediteur}" width="17%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.expediteur}" />
+
+
+
+
+
+
+										</f:facet>
+										<h:outputText value="#{cr.courrierExpediteur}" />
+									</rich:column>
+									<rich:column label="#{msg.destReelle}" width="16%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.destReelle}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierDestinataireReelle}" />
+									</rich:column>
+									<rich:column>
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneOperation}" />
+										</f:facet>
+										<div align="center">
+											<h:panelGrid columns="4">
+												<h:column>
+													<a4j:commandLink id="consultJP1" ajaxSingle="true"
+														status="ajaxStatusWait"
+														action="#{dossierAncienConsultationBean.getSelectionRowDossier}"
+														oncomplete="document.location.href='dossierCourrierAffecter.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierAncienConsultationBean.selectedDossier}"></f:setPropertyActionListener>
+														<h:graphicImage
+
+
+
+
+
+															value="../framGraphique/images/icone-detail.png"
+															alt="Consulter" />
+													</a4j:commandLink>
+													<rich:toolTip for="consultJP1" value="#{msg.Consult}" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="transJP11" rendered="#{cr.notShared}"
+														ajaxSingle="true"
+														action="#{dossierAncienConsultationBean.getSelectionRowDossierForShared}"
+														oncomplete="document.location.href='dossierPartage.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierAncienConsultationBean.selectedDossier}"></f:setPropertyActionListener>
+
+														<h:graphicImage
+															value="../framGraphique/images/dossierPartagerPI.png"
+															alt="transJ" />
+													</a4j:commandLink>
+													<rich:toolTip for="transJP11" value="#{msg.partage}" />
+													<a4j:commandLink id="transJP2" rendered="#{cr.shared}"
+														ajaxSingle="true"
+														action="#{dossierAncienConsultationBean.getSelectionRowDossierForDetailsShared}"
+														oncomplete="document.location.href='dossierConsulterDetailsPartage.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierAncienConsultationBean.selectedDossier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/dossierDetailPartagePI.png"
+															alt="transJ" />
+													</a4j:commandLink>
+													<rich:toolTip for="transJP2" value="#{msg.partage}" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="reponseJ1"
+														rendered="#{cr.courrierRecu eq 1}" ajaxSingle="true"
+														action="#{dossierAncienConsultationBean.getSelectionRowDossierForResponse}"
+														oncomplete="document.location.href='dossierTransfere.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierAncienConsultationBean.selectedDossier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/TransfereIconDataTable.png"
+															alt="reponseJ" />
+													</a4j:commandLink>
+													<rich:toolTip for="reponseJ1" value="#{msg.Reponse}" />
+
+													<h:graphicImage rendered="#{cr.courrierRecu eq 0}"
+														value="../framGraphique/images/TransfereIconDataTableDisabled.png"
+														alt="reponseDisabledJ" />
+												</h:column>
+												<h:column>
+													<a4j:commandLink id="transD12" ajaxSingle="true"
+														action="#{dossierAncienConsultationBean.getSelectionRowDossier}"
+														oncomplete="document.location.href='dossierTransfere.jsf'">
+														<f:setPropertyActionListener value="#{cr}"
+															target="#{dossierAncienConsultationBean.selectedDossier}"></f:setPropertyActionListener>
+														<h:graphicImage
+															value="../framGraphique/images/RepondreIconDataTable.png"
+															alt="trans1" />
+													</a4j:commandLink>
+													<rich:toolTip for="transD12" value="#{msg.Trans}" />
+													<a4j:commandLink id="reponseDisabledJ2" rendered="false">
+														<h:graphicImage
+															value="../framGraphique/images/TransfereIconDataTableDisabled.png"
+															alt="reponseDisabledJ" />
+													</a4j:commandLink>
+												</h:column>
+
+											</h:panelGrid>
+										</div>
+									</rich:column>
+									<rich:column label="Dossiers" id="typeDossier1" visible="false"
+										filterBy="#{cr.typeCourrier}" filterEvent="onkeyup"
+										sortBy="#{cr.typeCourrier}">
+										<h:outputText value="#{cr.typeCourrier}"
+											styleClass="xteDetailLabel" />
+									</rich:column>
+								</rich:extendedDataTable>
+								<div align="center">
+									<rich:datascroller stepControls="hide" for="dataDossier1"
+										page="#{dossierAncienDataModel.firstPage}"
+										id="scrollerDossier1" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="recordDossier1"
+										value="#{dossierAncienDataModel.rowCount}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+
+
+
+
+
+
+
+
+
+
+
+
+								</div>
+
+								<rich:spacer width="100%" height="8" />
+							</h:form>
+
+						</rich:tab>
+					</rich:tabPanel>
+					<!-- popoup wait -->
+					<a4j:status id="ajaxStatusWait" forceId="true"
+						onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+						onstop="#{rich:component('waitPanel')}.hide()" />
+					<rich:modalPanel id="waitPanel" style="text-align:center">
+						<h:outputText value="#{msg.messageAttente}"
+							style="font-weight:bold;font-size:large" />
+						<div align="center">
+							<h:graphicImage value="../framGraphique/images/timeOut.gif"
+								alt="timeOut" />
+						</div>
+					</rich:modalPanel>
+					<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="#{msg.acceuilAideLabel} : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+									value="../framGraphique/images/AideEnLigne/GBO-List-Courrier-FR.png"
+									width="790" height="700" id="aidehidelink" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+									value="../framGraphique/images/AideEnLigne/GBO-List-Courriers-AR.png"
+									width="750" height="490" id="aidehidelinkAR" />
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+
+							</h:form>
+						</div>
+					</rich:modalPanel>
+
+					<!--					</h:form>-->
+				</div>
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<a href="document.location.href='Accueil.jsf'"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="document.location.href='Accueil.jsf'"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

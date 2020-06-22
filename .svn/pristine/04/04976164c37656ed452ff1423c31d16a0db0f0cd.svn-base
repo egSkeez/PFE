@@ -1,0 +1,18 @@
+package xtensus.beans.utils;
+
+public class RapportPiedDePage {
+	private String adresse;
+
+
+
+	public String getAdresse() {
+		return adresse;
+	}
+
+
+
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+	
+}

@@ -1,0 +1,56 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<table align="center" width="60%">
+	<tr>
+	<td>
+	
+	<center><h:form>
+		<div align="center">
+		
+		<rich:toolBar itemSeparator="line">
+			<rich:toolBarGroup>
+				<h:graphicImage id="retour" value="images/icone-previous.gif" />
+				<h:outputLabel value="Retour" for="retour" />
+			</rich:toolBarGroup>
+			
+			<rich:toolBarGroup>
+				<h:graphicImage id="save" value="images/icone-save.gif" />
+				<h:outputLabel value="Enregistrer" for="save" />
+			</rich:toolBarGroup>
+
+			<rich:toolBarGroup>
+				<h:graphicImage id="retablir" value="images/clear.png" />
+				<h:outputLabel value="Retablir" for="retablir" />
+			</rich:toolBarGroup>
+
+			<rich:toolBarGroup>
+				<h:graphicImage id="modifier" value="images/icone-edit.gif" />
+				<h:outputLabel value="Modifier" for="modifier" />
+			</rich:toolBarGroup>
+			
+			<rich:toolBarGroup>
+				<h:graphicImage id="supprimer" value="images/icone-delete.gif" />
+				<h:outputLabel value="Supprimer" for="supprimer" />
+			</rich:toolBarGroup>
+			
+			<rich:toolBarGroup>
+				<h:graphicImage id="print" value="images/icone-print.gif" />
+				<h:outputLabel value="Print" for="print" />
+			</rich:toolBarGroup>
+			
+			<rich:toolBarGroup>
+				<h:graphicImage id="quitter" value="images/exit.bmp" />
+				<h:outputLabel value="Quitter" for="quitter" />
+			</rich:toolBarGroup>
+
+		</rich:toolBar>
+		</div>
+	</h:form></center>
+</td>
+</tr>
+</table>
+</ui:composition>

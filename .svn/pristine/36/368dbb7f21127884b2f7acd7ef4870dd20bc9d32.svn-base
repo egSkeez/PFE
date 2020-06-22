@@ -1,0 +1,36 @@
+package xtensus.beans.utils;
+
+import xtensus.ldap.model.Person;
+
+
+
+public class StatistiqueCourrierUtilisateur {
+
+	private Integer idutilisateur;
+	private Integer nbrCourrier;
+	private Person agent;
+	public Integer getIdutilisateur() {
+		return idutilisateur;
+	}
+	public void setIdutilisateur(Integer idutilisateur) {
+		this.idutilisateur = idutilisateur;
+	}
+	public Integer getNbrCourrier() {
+		return nbrCourrier;
+	}
+	public void setNbrCourrier(Integer nbrCourrier) {
+		this.nbrCourrier = nbrCourrier;
+	}
+	public void setAgent(Person agent) {
+		this.agent = agent;
+	}
+	public Person getAgent() {
+		return agent;
+	}
+	
+
+
+
+	
+	
+}

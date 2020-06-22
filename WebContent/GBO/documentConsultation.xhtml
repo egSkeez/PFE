@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+
+							<h:panelGrid columns="20">
+								<a4j:commandLink id="retour"
+									action="#{documentDetailsBean.retourPage}"
+									oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+							</h:panelGrid>
+
+						</rich:panel>
+						<ui:include src="informationCourrier.xhtml"></ui:include>
+
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.ConsultDocfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<h:outputText rendered="#{documentDetailsBean.showGedErrorMessage}"
+								value="#{msg.errorCodeGedConnexion}" styleClass="error"
+								style="margin-left: 3px; padding-bottom: 3px;" />
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top">
+									
+									<h:panelGrid columns="2">
+											<h:outputText value="#{msg.DocumentRef}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.vb.document.documentReference}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.DocumentNom}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.vb.document.documentNom}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.DateInsertion}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.vb.document.documentDateInsertion}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="Document" styleClass="xteDetailLabel" />
+											<h:commandLink id="doc" disabled="#{documentDetailsBean.showGedErrorMessage}"
+												value="#{documentDetailsBean.docName}"
+												action="#{documentDetailsBean.downloadDocument}"
+												styleClass="xteDetailLabelOutput" target="_blank" />
+											<rich:toolTip for="doc"
+												value="#{documentDetailsBean.versionDoc}" />
+												
+										</h:panelGrid>
+									</td>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+											<h:outputText value="#{msg.DocumentObjet}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.vb.document.documentObjet}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.documentNombreCopie} #{msg.deuxpointsLabel}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.vb.document.documentNombreCopie}"
+												styleClass="xteDetailLabelOutput" />
+								
+											<h:outputText value="#{msg.DocumentCommentaire}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.vb.document.documentCommentaire}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.documentProprietaire}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{documentDetailsBean.loginPropretaireDoc}"
+												styleClass="xteDetailLabelOutput" />
+										</h:panelGrid>
+									</td>
+								</tr>
+							</table>
+						</rich:panel>
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+				</div>
+
+
+
+
+				<div id="footer">
+					<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+				</div>
+
+			</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,37 @@
+package xtensus.beans.utils;
+
+public class CountStatistique {
+
+	private int objetId;
+	private String libelleObjet;
+	private Integer countObjet;
+	public String getLibelleObjet() {
+		return libelleObjet;
+	}
+	public void setLibelleObjet(String libelleObjet) {
+		this.libelleObjet = libelleObjet;
+	}
+	public Integer getCountObjet() {
+		return countObjet;
+	}
+	public void setCountObjet(Integer countObjet) {
+		this.countObjet = countObjet;
+	}
+	public int getObjetId() {
+		return objetId;
+	}
+	public void setObjetId(int objetId) {
+		this.objetId = objetId;
+	}
+	@Override
+	public String toString() {
+		return "CountStatistique [objetId=" + objetId + ", libelleObjet="
+				+ libelleObjet + ", countObjet=" + countObjet + "]";
+	}
+
+	
+	
+	
+	
+	
+}

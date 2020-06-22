@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Transférer Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<table align="center" id="t1" style="width: 100%;">
+						<tr>
+							<td id="content"><rich:panel styleClass="rich-panel">
+									<f:facet name="header">
+										<h:panelGrid columns="1" styleClass="xtePanelGrid">
+										
+											<h:outputText value="#{msg.transfertDossier}"
+												styleClass="xteEnregistrementLabelOutput" />
+										</h:panelGrid>
+									</f:facet>
+									<table align="center" class="frameTableClient"
+										style="width: 100%;">
+										<rich:messages ajaxRendered="true" errorClass="msgError"
+											styleClass="error" />
+										<h:form>
+											<tr>
+												<td>
+														<rich:simpleTogglePanel switchType="client" style="margin:-4px;"
+														label="#{msg.PanelBarItem3}">
+														<table width="100%">
+															<tr>
+																<td width="50%"><h:panelGrid columns="4">
+																		<h:column>
+																			<h:outputText value="#{msg.CourrierExp}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<h:column>
+																							<h:outputText value="#{variableGlobale.person.prenom} #{variableGlobale.person.nom}"
+																								styleClass="xteDetailLabelOutput" />
+																		</h:column>
+																	</h:panelGrid>
+																</td>
+																<td width="50%"><h:panelGrid columns="4">
+																		<a4j:commandLink
+																			action="#{dossierTransfereBean.goToListSender}"
+																			ajaxSingle="true">
+																			<h:graphicImage
+																				value="../framGraphique/images/Loupe-2---26pix.png" />
+																		</a4j:commandLink>
+																		<h:column>
+																			<rich:spacer width="10px" />
+																			<h:outputText value="#{msg.CourrierDest}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																			<rich:spacer width="10px" />
+																			<h:outputText value="*" styleClass="error" />
+																		</h:column>
+																			<h:outputText value="#{variableGlobale.destNom}" 
+																			styleClass="xteDetailLabelOutput" 
+																			required="true"
+																			style="margin-left: 2px; margin-right: 2px; width: 180px; margin-top: 2px; margin-bottom: 2px; height: 46px; "
+																			requiredMessage="* #{msg.ColonneDest} #{msg.champsobligatoire}"/>
+																	</h:panelGrid></td>
+															</tr>
+														</table>
+													</rich:simpleTogglePanel></td>
+											</tr>
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client" style="margin:-4px;"
+														label="#{msg.infomDossier}">
+														<h:panelGrid columns="4" style=" width : 100%">
+
+															<h:outputText value="#{msg.Reference}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+
+															<h:outputText id="ref"
+																value="#{dossierTransfereBean.dossier.dossierReference}"
+																styleClass="xteDetailLabelOutput">
+															</h:outputText>
+															<h:column>
+
+																<h:outputText value="#{msg.dossierTransfereDateCréationLabel} :"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:outputText id="courrierDateReception"
+																value="#{dossierTransfereBean.dossier.dossierDateCreation}"
+																styleClass="xteDetailLabelOutput">
+															</h:outputText>
+															<h:column>
+																<h:outputText value="#{msg.dossierTransfereNombredesCourriersLabel} :"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+
+															</h:column>
+															<h:outputText id="obj"
+																value="#{dossierTransfereBean.nombreCourrier}"
+																styleClass="xteDetailLabelOutput" />
+															<h:column />
+															<h:column />
+															<h:outputText value="#{msg.CourrierDes}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:outputText id="desc"
+																value="#{dossierTransfereBean.dossier.dossierDescription}"
+																styleClass="xteDetailLabelOutput" />
+
+
+															<h:outputText value="#{msg.ColonneIntitule} :"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+
+															<h:outputText id="Intitule"
+																value="#{dossierTransfereBean.dossier.dossierIntitule}"
+																styleClass="xteDetailLabelOutput" />
+
+															<h:column>
+																<h:outputText value="#{msg.CourrierConfidentialite}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="conf"
+																value="#{dossierTransfereBean.selectedItemConf}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneConfidentialite} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{dossierTransfereBean.selectItemsConf}" />
+																<a4j:support id="confidentialitesupp" event="onblur" action="#{dossierTransfereBean.saveTempValue}" ajaxSingle="true"/>
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierUrgence}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="urg"
+																value="#{dossierTransfereBean.selectedItemUg}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.CourrierUrgence} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{dossierTransfereBean.selectItemsUg}" />
+																<a4j:support id="urgencesupp" event="onblur" action="#{dossierTransfereBean.saveTempValue}" ajaxSingle="true"/>
+															</h:selectOneMenu>
+															<h:outputText value="#{msg.DocumentCommentaire}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:inputTextarea id="commentaire" styleClass="textarea"
+																value="#{dossierTransfereBean.commentaireTransaction}"
+																style=" width : 133px;">
+															<a4j:support id="commentairesupp" event="onblur" action="#{dossierTransfereBean.saveTempValue}" ajaxSingle="true"/>
+															</h:inputTextarea>
+														</h:panelGrid>
+														
+
+														<h:panelGrid columns="22" style=" width : 100%">
+															<h:outputText value="#{msg.CourrierAnnot}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<rich:pickList listsHeight="90px" sourceListWidth="170"
+																targetListWidth="165" styleClass="xteDetailLabelOutput"
+																copyAllControlLabel="#{msg.PickListCopierTout}"
+																copyControlLabel="#{msg.PickListCopier}"
+																removeAllControlLabel="#{msg.PickListEnleverTout}"
+																removeControlLabel="#{msg.PickListEnlever} "
+																value="#{dossierTransfereBean.selectedItemsAnnotation}"
+																showButtonsLabel="false" id="annot">
+																<f:selectItems
+																	value="#{dossierTransfereBean.selectItems1}" />
+																<a4j:support id="picklistsupp" event="onlistchanged" action="#{dossierTransfereBean.saveTempValue}" ajaxSingle="true"/>
+															</rich:pickList>
+														</h:panelGrid>
+													</rich:simpleTogglePanel></td>
+											</tr>
+
+											<tr>
+												<td align="center" colspan="2">
+												<rich:spacer height="20px"/>
+												<a4j:commandButton
+														value="#{msg.bouttonValider}" type="submit"
+														action="#{dossierTransfereBean.transferer}"
+														oncomplete="if(#{dossierTransfereBean.status}==true)
+									 #{rich:component('msgPanal')}.show(); 
+									 if(#{dossierTransfereBean.status1}==true)
+									  #{rich:component('msgPanal2')}.show();"
+														reRender="msgPanal,msgPanal2">
+													</a4j:commandButton> <rich:spacer width="10px" /> <a4j:commandButton
+														value="#{msg.bouttonAnnuler}" type="submit"
+														action="#{dossierTransfereBean.viderVariable}"
+														oncomplete="document.location.href='dossierCourrierAffecter.jsf'"
+														ajaxSingle="true"></a4j:commandButton></td>
+											</tr>
+										</h:form>
+									</table>
+									<rich:spacer height="10" />
+									<div align="left">
+										<h:outputText value="#{msg.infoChampObligatoir}" />
+									</div>
+									<!-- *****popup Info******* -->
+									<rich:modalPanel id="msgPanal" autosized="true" height="100"
+										width="400">
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelInfo}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink1" />
+												<rich:componentControl for="msgPanal" attachTo="hidelink1"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<a4j:keepAlive beanName="dossierTransfereBean" />
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/interrogation.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.CourrierTransferMsg}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															onclick="document.location.href='dossierCourrierAffecter.jsf'"
+															oncomplete="Richfaces.hideModalPanel('msgPanal');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<!-- *****popup Erreur****** -->
+									<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+										width="400">
+										<a4j:keepAlive beanName="dossierTransfereBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink2" />
+												<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.labelError}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanal3" autosized="true" height="100"
+										width="400">
+										<a4j:keepAlive beanName="dossierTransfereBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage
+													value="../framGraphique/images/closePopup.png" width="15"
+													height="15" id="hidelink3" />
+												<rich:componentControl for="msgPanal3" attachTo="hidelink3"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.MsgErreurDateRecep}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal3');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanal4" autosized="true" height="90"
+										width="300">
+										<a4j:keepAlive beanName="dossierTransfereBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage
+													value="../framGraphique/images/closePopup.png" width="15"
+													height="15" id="hidelink4" />
+												<rich:componentControl for="msgPanal4" attachTo="hidelink4"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.CourrierAjoutMsgErreur}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal4');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanalExpDest" autosized="true"
+										height="90" width="300">
+										<a4j:keepAlive beanName="dossierTransfereBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage
+													value="../framGraphique/images/closePopup.png" width="15"
+													height="15" id="hidelink5" />
+												<rich:componentControl for="msgPanalExpDest"
+													attachTo="hidelink5" operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="destinataite invalide" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanalExpDest');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+								</rich:panel></td>
+						</tr>
+					</table>
+				</div>
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,1020 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+import javax.naming.Binding;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.MethdesGeneriques.MethodesGenerique;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.GBO_LDAP.UniteBocGestionBean;
+import xtensus.entity.Unite;
+
+import xtensus.ldap.business.LdapFunction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class UniteGestionBean {
+	private static final String CONTEXT_BOC = null;
+	private static final String CONTEXT_UNIT = null;
+	private DataModel listUnites;
+	private boolean openaccor1;
+	private Unite unite;
+	private boolean status1;
+	private boolean status2;
+	private String message;
+	private String hideAccor;
+	@Autowired
+	private ApplicationManager appMgr;
+	private List<Unite> listUnite;
+	private List<Unite> listUniteLDAP = new ArrayList<Unite>();
+
+	List<Unite> listNouvellesUnites = new ArrayList<Unite>();
+	List<Unite> listUnitesModifiees = new ArrayList<Unite>();
+
+	@Autowired
+	private MessageSource messageSource;
+	DataModel listNouvellesUnitesDM;
+	DataModel listUnitesModifieesDM;
+	DataModel listUnitesLDAPDM;
+
+	private long listNouvellesUnitesNB;
+	private long listUnitesModifieesNB;
+	private long listUnitesLDAPNB;
+	private long records = 0;
+	private List<BOC> listBOC;
+
+	@Autowired
+	private VariableGlobale vb;
+
+	@Autowired
+	private UniteBocGestionBean uniteBocGestionBean;
+	private ArrayList<String> listeNomStructures;
+	private LdapOperation ldapOperation;
+	private List<Unite> copieListUnite;
+
+	public UniteGestionBean() {
+
+	}
+
+	@Autowired
+	public UniteGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listUnites = new ListDataModel();
+		listNouvellesUnitesDM = new ListDataModel();
+		listUnitesModifieesDM = new ListDataModel();
+		listUnitesLDAPDM = new ListDataModel();
+		// listUniteLDAP = new ArrayList<Unite>();
+		// hashtable = new Hashtable<String, String>();
+		uniteBocGestionBean = new UniteBocGestionBean();
+		selectItemsBOCsDirect = new ArrayList<SelectItem>();
+		// try {
+		// hashtable = ConnexionLdap.getConnection();
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		selectItemsUnits = new ArrayList<SelectItem>();
+		selectItemsBOCs = new ArrayList<SelectItem>();
+		listUnite = new ArrayList<Unite>();
+		listUnitesModifiees = new ArrayList<Unite>();
+		listUniteLDAP = new ArrayList<Unite>();
+		copieListUnite = new ArrayList<Unite>();
+		ldapOperation = vb.getLdapOperation();
+
+		try {
+			listUnite = appMgr.getList(Unite.class);
+			copieListUnite = appMgr.getList(Unite.class);
+			// System.out.println(listUnite.size());
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+			e.printStackTrace();
+		}
+		List<BOC> listeBOCS = vb.getListTousBos();
+		List<Unit> unites = new ArrayList<Unit>();
+		unites = vb.getListTousUnit();
+		listeNomStructures = new ArrayList<String>();
+		for (Unit unite : unites) {
+			if (!listeNomStructures.contains(unite.getNameUnit().trim()))
+				listeNomStructures.add(unite.getNameUnit().trim());
+		}
+		// for (Unit uu : unites) {
+		// System.out.println("uu ================ : " + uu);
+		// }
+		// if (listeBOCS != null)
+		// System.out.println(listeBOCS.size());
+		// else
+		// System.out.println("c'est null");
+
+		int i = 0;
+		// Charger la liste des UNITE dans LDAP
+		while (listUnite != null && i < listUnite.size()) {
+			Unite u = listUnite.get(i);
+			
+			int idUniteBD = Integer.parseInt(u.getUniteCodeSonede().trim());
+			
+			if (u.getUniteType() == 2) {
+				for (Unit uni : unites) {
+					// System.out.println("uni " + uni.getIdUnit());
+					if (uni.getIdUnit() == idUniteBD) {
+						
+						//u=appMgr.getUniteByCodeSONEDE(idUniteBD+"").get(0);
+									
+						
+						System.out.println(">>>>>" + uni.getIdUnit());
+						Unite uLDAP= new Unite();
+						uLDAP.setUniteId(uni.getIdUnit());
+						uLDAP.setUniteAccronyme(uni.getShortNameUnit());
+						uLDAP.setUniteNom(uni.getNameUnit());
+						uLDAP.setUniteCodeSonede(u.getUniteCodeSonede());
+						uLDAP.setUniteNomAr(u.getUniteNomAr());
+						uLDAP.setUniteLDAP(uni);
+						listUniteLDAP.add(uLDAP);
+						
+						listUnitesLDAPDM.setWrappedData(listUniteLDAP);
+						
+						
+						break;
+					}
+
+				}
+
+			}
+			i++;
+		}
+		i = 0;
+//		System.out.println("uni.getNameUnit().trim():"+uni.getNameUnit().trim());
+//		System.out.println("u.getUniteNom().trim():"+u.getUniteNom().trim());
+//		if ((!(uni.getNameUnit().trim()).equals(u.getUniteNom().trim()) || (!(uni
+//				.getShortNameUnit().trim()).equals(u.getUniteAccronyme().trim())))) {
+//			listUnitesModifiees.add(u);
+//			 System.out.println("Modifiée  " + u);
+//			listUnitesModifieesDM
+//					.setWrappedData(listUnitesModifiees);
+//		}
+		while (copieListUnite != null && i < copieListUnite.size()) {
+			Unite u = copieListUnite.get(i);
+			
+			int idUniteBD = Integer.parseInt(u.getUniteCodeSonede().trim());
+			boolean existe = false;
+			
+			for (Unit uni : vb.getListTousUnit()) {
+				//System.out.println("idUniteBD 2: BD "+idUniteBD +" ---LDAP "+uni.getIdUnit());
+				if (uni.getIdUnit() == idUniteBD) {
+					existe = true;
+					//System.out.println("UUUUUUU "+u);
+					// Tester si elle est modifiée soit le nom ou
+					// l'accronyme
+					System.out.println("uni.getNameUnit().trim():"+uni.getNameUnit().trim());
+					System.out.println("u.getUniteNom().trim():"+u.getUniteNom().trim());
+					String uniteBD=u.getUniteNom().trim();
+					uniteBD=MethodesGenerique.modificationStringPourLDAP(uniteBD);
+					
+					if ((!(uni.getNameUnit().trim()).equals(uniteBD) || (!(uni
+							.getShortNameUnit().trim()).equals(u.getUniteAccronyme().trim())))) {
+						listUnitesModifiees.add(u);
+						 System.out.println("Modifiée  " + u);
+						listUnitesModifieesDM
+								.setWrappedData(listUnitesModifiees);
+					}
+
+					break;
+				}
+			}
+			if (!existe) {
+				// System.out.println("cette unité !existe " +
+				// u.getUniteId());
+				listNouvellesUnites.add(u);
+			}
+
+			i++;
+		}
+
+		listBOC = new ArrayList<BOC>();
+		// LdapFunction lf = new LdapFunction();
+		BOC bocCentrale = uniteBocGestionBean.getCentralBoc();
+
+		listBOC = vb.getListTousBos();
+
+		if (bocCentrale != null) {
+			if (!listBOC.contains(bocCentrale))
+				listBOC.add(bocCentrale);
+
+			for (int k = 0; bocCentrale.getListChildBOCsBOC() != null
+					&& k < bocCentrale.getListChildBOCsBOC().size(); k++) {
+				if (!listBOC.contains(bocCentrale.getListChildBOCsBOC().get(k)))
+					listBOC.add(bocCentrale.getListChildBOCsBOC().get(k));
+
+			}
+		}
+
+		// lf.getLdapListBOCs();
+
+		listNouvellesUnitesDM.setWrappedData(listNouvellesUnites);
+
+		hideAccor = "none";
+
+	}
+
+	private boolean status3;
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	private String selectedAssociatedUnit;
+	private List<SelectItem> selectItemsUnits;
+	private List<SelectItem> selectItemsBOCs;
+	private List<SelectItem> selectItemsBOCsDirect;
+	private String selectedBoc;
+	private String selectedBocDirecte;
+
+	public void synchronisationTous() {
+		status3 = false;
+		try {
+
+			for (Unite u : listNouvellesUnites) {
+				uniteBocGestionBean.AjoutUniteSousBOS(u, "Bureau d'Ordre 1");
+				if (!(u.getUniteAccronyme() != null && u.getUniteAccronyme()
+						.length() > 0))
+					u.setUniteAccronyme(u.getUniteCodeSonede());
+				appMgr.update(u);
+				listNouvellesUnites.remove(unite);
+				listUniteLDAP.add(unite);
+			}
+			try {
+				appMgr.update(unite);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			status3 = true;
+		} catch (Exception e) {
+			System.out.println("*******Erreur De Selection Unité*******");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void synchronisation() {
+		status3 = false;
+		try {
+			unite = (Unite) listUnitesModifieesDM.getRowData();
+			String nomUnite = unite.getUniteNom();
+			nomUnite=MethodesGenerique.modificationStringPourLDAP(nomUnite);
+			unite.setUniteNom(nomUnite);
+			uniteBocGestionBean.updateUnite(unite);
+			for (Unit uni : vb.getListTousUnit()) {
+				if (uni.getIdUnit() == unite.getUniteId()) {
+					uni.setShortNameUnit(unite.getUniteAccronyme());
+					uni.setNameUnit(unite.getUniteNom());
+
+					break;
+				}
+			}
+			status3 = true;
+			// listUnitesModifieesDM.setWrappedData(arg0)
+		} catch (Exception e) {
+			System.out.println("*******Erreur De Selection Unité*******");
+			e.printStackTrace();
+		}
+
+	}
+
+	private boolean affectation;
+	private boolean modification;
+	private String uniteParenteName;
+	private boolean existeLdap;
+	private String selectedAssociatedUnitCopy;
+	private String selectedBocDirecteCopy;
+	private String selectedBocCopy;
+	private boolean pasStructureRattachement;
+	private String etatStructureParente;
+	@Autowired
+	private LanguageManagerBean lm;
+
+	public String getSelectedAssociatedUnit() {
+		return selectedAssociatedUnit;
+	}
+
+	public void setSelectedAssociatedUnit(String selectedAssociatedUnit) {
+		this.selectedAssociatedUnit = selectedAssociatedUnit;
+	}
+
+	public List<SelectItem> getSelectItemsUnits() {
+		return selectItemsUnits;
+	}
+
+	public void setSelectItemsUnits(List<SelectItem> selectItemsUnits) {
+		this.selectItemsUnits = selectItemsUnits;
+	}
+
+	public boolean isAffectation() {
+		return affectation;
+	}
+
+	public void setAffectation(boolean affectation) {
+		this.affectation = affectation;
+	}
+
+	public void getSelectionRowAffectation() {
+		selectedAssociatedUnit = "";
+		selectedBoc = "";
+		selectedBocDirecte = "";
+		try {
+			unite = (Unite) listNouvellesUnitesDM.getRowData();
+			String nomUnite = unite.getUniteNom();
+			nomUnite=MethodesGenerique.modificationStringPourLDAP(nomUnite);
+			unite.setUniteNom(nomUnite);
+			affectation = true;
+			modification = false;
+			hideAccor = "inline";
+			selectItemsUnits = new ArrayList<SelectItem>();
+			selectItemsBOCs = new ArrayList<SelectItem>();
+			selectItemsBOCsDirect = new ArrayList<SelectItem>();
+			String idUniteparente = unite.getUniteParenteCodeSonede();
+			System.out.println("idUniteparente : " + idUniteparente);
+			// chercher si cette unité déjà dans LDAP:
+			List<Unite> listeParents = appMgr.getUniteByCodeSONEDE(idUniteparente);
+			
+			selectItemsUnits = new ArrayList<SelectItem>();
+			selectItemsUnits.add(new SelectItem(""));
+		
+			for (String unite : listeNomStructures) {
+				selectItemsUnits.add(new SelectItem(unite));
+				System.out.println(unite+".");
+			}
+			if (listeParents != null && listeParents.size() > 0) {
+				System.out.println(listeParents.get(0).getUniteNom().trim());
+				boolean existeDansLdap=false;
+				for (int i = 0; i < selectItemsUnits.size(); i++) {
+					System.out.println(">>>>>> "+selectItemsUnits.get(i).getValue());
+					if (selectItemsUnits.get(i).getValue().equals(listeParents.get(0).getUniteNom().trim())) {
+						System.out.println("##### "+ listeParents.get(0).getUniteNom().trim());
+						selectedAssociatedUnit = listeParents.get(0).getUniteNom().trim();
+						Unit uniteSelectionnee = ldapOperation.getUnitByName(selectedAssociatedUnit);
+						System.out.println("uniteSelectionnee.getIdUnit() "+uniteSelectionnee.getIdUnit());
+						int codeSonedeEntere = Integer.parseInt(listeParents.get(0).getUniteCodeSonede().trim());
+						Unit u = ldapOperation.getUnitById(codeSonedeEntere);
+												
+//						Unit u = ldapOperation.getUnitById(uniteSelectionnee.getIdUnit());
+						if (u.getAssociatedBOC() != null) {
+							
+							selectedBoc = u.getAssociatedBOC().getNameBOC();
+							System.out.println("Unité avec BO associé" + selectedBoc);
+							selectedBocDirecte = "";
+						} else {
+
+							BOC nouveauBoc = getBocAssocieByUnit(u);
+							if (nouveauBoc != null) {
+								selectedBoc = nouveauBoc.getNameBOC();
+								selectedBocDirecte = "";
+							}
+						}
+						existeDansLdap=true;
+						break;
+
+					} 
+				}
+				if(existeDansLdap){
+					etatStructureParente= " : "+listeParents.get(0).getUniteNom().trim();
+					
+				}else {
+					System.out.println("Structure non encore ajoutée "
+							+ listeParents.get(0).getUniteNom().trim());
+					etatStructureParente = " : Cette Sructure n'est pas encore ajoutée à l'organigramme";
+				}
+			} else {
+				System.out.println("cette unité n'existe pas  la BD");
+				etatStructureParente = " : Cette Sructure n'existe pas  la base de données";
+			}
+			selectItemsBOCs.add(new SelectItem(""));
+			// System.out.println("List BOS : ");
+			for (BOC b : listBOC) {
+				// System.out.println(b.getIdBOC() + ") " + b.getNameBOC());
+				selectItemsBOCs.add(new SelectItem(b.getNameBOC()));
+			}
+
+			selectItemsBOCsDirect.add(new SelectItem(""));
+			List<String> listBOSLibelle = new ArrayList<String>();
+			for (BOC bo : listBOC) {
+				if (!listBOSLibelle.contains(bo.getNameBOC()))
+					listBOSLibelle.add(bo.getNameBOC());
+
+			}
+			for (String bostr : listBOSLibelle) {
+				// System.out.println(b.getIdBOC() + ") " + b.getNameBOC());
+				selectItemsBOCsDirect.add(new SelectItem(bostr));
+			}
+		} catch (Exception e) {
+			System.out.println("*******Erreur De Selection Unité*******");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+		pasStructureRattachement = false;
+		if (selectedBocDirecte.equals("Bureau d'Ordre Central")) {
+			// Dans ce cas on n'a pas une direction associée
+			pasStructureRattachement = true;
+
+		} else if (!selectedBocDirecte.equals("Bureau d'Ordre Central")
+				&& !selectedAssociatedUnit.equals("")) {
+			pasStructureRattachement = true;
+		} else {
+			pasStructureRattachement = false;
+		}
+
+		if (pasStructureRattachement) {	
+			try {
+				// vérification si l'emplacement est modifié ==> Modification
+				// dans LDAP
+				// if()
+				if (selectedBocDirecte != null
+						&& !selectedBocDirecte.equals("")
+						&& !selectedBocDirecte.equals(selectedBocDirecteCopy)) {
+					// Le BO attaché a changé
+					// System.out.println("#############Le BO attaché a changé");
+					// mettre à jour dans LDAP l'associatedName de la Direction
+
+					Unit uniteLDAPAModifier = unite.getUniteLDAP();
+
+					uniteBocGestionBean.updateEmplacementUnite(
+							uniteLDAPAModifier, selectedBocDirecte,
+							selectedBocDirecteCopy);
+
+				} else if (selectedBocDirecte != null
+						&& selectedBocDirecte.equals("")) {
+					// la direction était sous BO et maintenant non donc on
+					// raisone sur la direction
+					// System.out.println("############# Le BO a changé à vide ");
+					Unit uniteLDAPAModifier = unite.getUniteLDAP();
+					uniteBocGestionBean.updateEmplacementUniteSousUnite(
+							uniteLDAPAModifier, selectedAssociatedUnit,
+							selectedBocDirecteCopy);
+				} else {
+
+					System.out.println("############# Le BO et le même ");
+					// verifie si la direction a changé
+
+				}
+System.out.println("Unite modifié "+unite);
+				appMgr.update(unite);
+
+				status1 = true;
+
+				System.out.println("UpdateTerminee");
+				Initialize();
+				unite = new Unite();
+			} catch (Exception e) {
+				status2 = true;
+				e.printStackTrace();
+			}
+		} else {
+			setMessage(messageSource.getMessage("uniteRattachementObligatoire",
+					new Object[] {}, lm.createLocal()));
+			FacesContext.getCurrentInstance().addMessage("messages",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, message, ""));
+		}
+
+	}
+
+	public void eventChangeUnite(ActionEvent evt) {
+		System.out.println("DANS eventChangeUnite");
+
+		if (selectedAssociatedUnit != null
+				&& !selectedAssociatedUnit.equals("")
+				&& !selectedAssociatedUnit.equals(selectedAssociatedUnitCopy)) {
+			// System.out.println("La direction a changé ");
+			// ==> Mettre à jour le BO de rattachement et le BO directe
+			Unit uniteSelectionnee = ldapOperation
+					.getUnitByName(selectedAssociatedUnit);
+			//Unit u = ldapOperation.getUnitById(uniteSelectionnee.getIdUnit());
+			
+			//Construire le code de recherche de l'unite
+			
+			Unit u = ldapOperation.getUnitById(uniteSelectionnee.getIdUnit());
+			if (u.getAssociatedBOC() != null) {
+				selectedBoc = u.getAssociatedBOC().getNameBOC();
+				selectedBocDirecte = "";
+			} else {
+
+				BOC nouveauBoc = getBocAssocieByUnit(u);
+				if (nouveauBoc != null) {
+					selectedBoc = nouveauBoc.getNameBOC();
+					selectedBocDirecte = "";
+				}
+			}
+		}
+
+	}
+
+	public void eventChangeBocUnite(ActionEvent evt) {
+		System.out.println("DANS eventChangeBocUnite");
+		if (selectedBocDirecte != null && !selectedBocDirecte.equals("")
+				&& !selectedBocDirecte.equals(selectedBocDirecteCopy)) {
+			selectedBoc = selectedBocDirecte;
+			// System.out.println("Le BO choisi a changé.");
+			// System.out.println("Chercher l'unité de rattachement de "
+			// + selectedBocDirecte);
+			for (BOC bo : listBOC) {
+				// System.out.println("Name BOC :: " + bo.getNameBOC());
+				if (bo.getNameBOC().equals(selectedBocDirecte)) {
+
+					if (bo.getAssociatedDirection() != null) {
+
+						selectedAssociatedUnit = bo.getAssociatedDirection()
+								.getNameUnit().trim();
+
+						// System.out.println("selectedAssociatedUnit  : "
+						// + selectedAssociatedUnit);
+
+					} else {
+						// PAS DE UNITE ASSOCIE
+						// System.out.println("PAS DE UNITE ASSOCIE");
+						selectedAssociatedUnit = "";
+					}
+
+					break;
+				}
+
+			}
+		} else {
+			// System.out.println("Le BO et le même ou la pas de BO de ratachement directe");
+			// le selectedBoc prend le BO de la Structure
+
+			// reprendre la direction si c'est changé
+			selectedAssociatedUnit = selectedAssociatedUnitCopy;
+			selectedBoc = selectedBocCopy;
+		}
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		// List<Unit> unites = vb.getCopyLdapListUnit();
+
+		List<Unit> unites = new ArrayList<Unit>();
+		unites = vb.getListTousUnit();
+		selectItemsUnits = new ArrayList<SelectItem>();
+		selectItemsBOCs = new ArrayList<SelectItem>();
+		selectItemsBOCsDirect = new ArrayList<SelectItem>();
+		selectItemsUnits.add(new SelectItem(""));
+
+		// List<String> listeDirectionLDAP= new ArrayList<String>()
+		for (String unite : listeNomStructures) {
+			// System.out.println(unite+"|");
+			selectItemsUnits.add(new SelectItem(unite));
+		}
+
+		selectItemsBOCs.add(new SelectItem(""));
+		// System.out.println("List BOS : ");
+		for (BOC b : listBOC) {
+			selectItemsBOCs.add(new SelectItem(b.getNameBOC()));
+		}
+
+		selectItemsBOCsDirect.add(new SelectItem(""));
+
+		List<String> listBOSLibelle = new ArrayList<String>();
+		for (BOC bo : listBOC) {
+			if (!listBOSLibelle.contains(bo.getNameBOC()))
+				listBOSLibelle.add(bo.getNameBOC());
+
+		}
+		for (String bostr : listBOSLibelle) {
+			selectItemsBOCsDirect.add(new SelectItem(bostr));
+		}
+		selectedBoc = "";
+		selectedBocDirecte = "";
+		selectedBocDirecteCopy = "";
+		selectedBocCopy = "";
+		selectedAssociatedUnit = "";
+		selectedAssociatedUnitCopy = "";
+
+		try {
+			unite = (Unite) listUnitesLDAPDM.getRowData();
+			
+			Unit u = unite.getUniteLDAP();
+			unite=appMgr.getUniteConnecteeById(unite.getUniteCodeSonede());
+			unite.setUniteLDAP(u);
+			
+			etatStructureParente="";
+			Unite uniteParente = appMgr.getUniteConnecteeById(unite.getUniteParenteCodeSonede());
+			etatStructureParente=" : "+uniteParente.getUniteNom();
+			if (u != null && u.getAssociatedBOC() != null) {
+				selectedBoc = u.getAssociatedBOC().getNameBOC();
+				selectedBocDirecte = u.getAssociatedBOC().getNameBOC();
+				selectedBocDirecteCopy = u.getAssociatedBOC().getNameBOC();
+				selectedBocCopy = u.getAssociatedBOC().getNameBOC();
+				// Chercher la direction Associée
+				Unit uniteAssocie = getUniteAssocieByBoc(u.getAssociatedBOC());
+				selectedAssociatedUnit="";
+				selectedAssociatedUnitCopy="";
+				if(uniteAssocie!=null && uniteAssocie.getNameUnit()!=null){
+				selectedAssociatedUnit = uniteAssocie.getNameUnit().trim();
+				selectedAssociatedUnitCopy = uniteAssocie.getNameUnit().trim();
+				}
+				System.out.println("selectedAssociatedUnit  1"
+						+ selectedAssociatedUnit);
+				// selectedAssociatedUnit="";
+			}
+			if (u != null && u.getAssociatedUnit() != null) {
+				selectedAssociatedUnit = u.getAssociatedUnit().getNameUnit()
+						.trim();
+				System.out.println("selectedAssociatedUnit  1"
+						+ selectedAssociatedUnit);
+				selectedAssociatedUnitCopy = u.getAssociatedUnit()
+						.getNameUnit().trim();
+				// Chercher le BO associé
+				BOC bocAssocie = getBocAssocieByUnit(u.getAssociatedUnit());
+				selectedBoc = bocAssocie.getNameBOC();
+				selectedBocCopy = bocAssocie.getNameBOC();
+				selectedBocDirecte = "";
+				selectedBocDirecteCopy = "";
+				// selectedBoc="";
+			}
+
+			affectation = false;
+			modification = true;
+			hideAccor = "inline";
+			// noeud de rattachement
+			// à récupérer le BO de rattachement en cas d'existence
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur De Selection Unité*******");
+			e.printStackTrace();
+		}
+
+		openaccor1 = true;
+
+		hideAccor = "inline";
+
+	}
+
+	public BOC getBocAssocieByUnit(Unit unit) {
+
+		if (unit.getAssociatedUnit() != null && unit.getIdUnit() != null) {
+
+			Unit unite = ldapOperation.getUnitById(unit.getAssociatedUnit()
+					.getIdUnit());
+			return getBocAssocieByUnit(unite);
+
+		} else if (unit.getAssociatedBOC() != null) {
+			return unit.getAssociatedBOC();
+
+		} else {
+
+			System.out
+					.println("DANS else unit.getAssociatedUnit() != null && unit.getAssociatedBOC()!=null ");
+			return null;
+		}
+	}
+
+	public Unit getUniteAssocieByBoc(BOC associatedBOC) {
+		Unit uniteAssociee = new Unit();
+
+		if (associatedBOC.getAssociatedBOC() != null) {
+			getUniteAssocieByBoc(associatedBOC.getAssociatedBOC());
+
+		} else if (associatedBOC.getAssociatedDirection() != null) {
+			uniteAssociee = associatedBOC.getAssociatedDirection();
+
+		} else {
+			System.out
+					.println("DANS else BO.getAssociatedUnit() != null && BO.getAssociatedBOC()!=null ");
+		}
+		return uniteAssociee;
+	}
+
+	public void affecterSelectedRow() {
+		// System.out.println("################ DAND affecterSelectedRow");
+		// System.out.println("selectedBocDirecte "+selectedBocDirecte );
+
+		pasStructureRattachement = false;
+		if (selectedBocDirecte.equals("Bureau d'Ordre Central")) {
+			// Dans ce cas on n'a pas une direction associée
+			pasStructureRattachement = true;
+
+		} else if (!selectedBocDirecte.equals("Bureau d'Ordre Central")
+				&& !selectedAssociatedUnit.equals("")) {
+			pasStructureRattachement = true;
+		} else {
+			pasStructureRattachement = false;
+		}
+		if (pasStructureRattachement) {
+			if (selectedBocDirecte != null && selectedBocDirecte.length() > 0) {
+				// System.out.println("c'est un ajout sous un BOS");
+				uniteBocGestionBean
+						.AjoutUniteSousBOS(unite, selectedBocDirecte);
+
+			} else if (selectedBocDirecte != null
+					&& selectedBocDirecte.length() == 0) {
+				// System.out.println("On n'a pas sélectionné un BO de rattachement");
+				// on l'affecte à la structure de rattachement
+				// System.out.println("selectedAssociatedUnit "+selectedAssociatedUnit.trim());
+				if (selectedAssociatedUnit != null
+						&& selectedAssociatedUnit.length() > 0) {
+					// System.out.println("c'est un ajout sous un Unité");
+					uniteBocGestionBean.AjoutUnite(unite,
+							selectedAssociatedUnit);
+				}
+			}
+			listNouvellesUnites.remove(unite);
+			listNouvellesUnitesDM.setWrappedData(listNouvellesUnites);
+			listUniteLDAP.add(unite);
+
+			listUnitesLDAPDM.setWrappedData(listUniteLDAP);
+			try {
+				appMgr.update(unite);
+				status1 = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			final LdapFunction ldapFunction = new LdapFunction();
+			ldapFunction.getDataFromDirectory();
+			vb.setCopyLdapData(ldapFunction.ldapData);
+			vb.setCentralBoc(ldapFunction.centralBoc);
+			vb.setListTousBos(ldapFunction.listTousBos);
+			vb.setListTousUnit(ldapFunction.listTousUnit);
+			BOC centralBoc = new BOC();
+			centralBoc = vb.getCentralBoc();
+			Initialize();
+		} else {
+			setMessage(messageSource.getMessage("uniteRattachementObligatoire",
+					new Object[] {}, lm.createLocal()));
+			FacesContext.getCurrentInstance().addMessage("messages",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, message, ""));
+		}
+
+	}
+
+	public void viderchamp() {
+
+		status1 = false;
+		status2 = false;
+		unite = new Unite();
+		openaccor1 = true;
+
+		hideAccor = "inline";
+
+	}
+	
+
+
+	public DataModel getListUnites() {
+		return listUnites;
+	}
+
+	public void setListUnites(DataModel listUnites) {
+		this.listUnites = listUnites;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public Unite getUnite() {
+		return unite;
+	}
+
+	public void setUnite(Unite unite) {
+		this.unite = unite;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public List<Unite> getListUnite() {
+		return listUnite;
+	}
+
+	public void setListUnite(List<Unite> listUnite) {
+		this.listUnite = listUnite;
+	}
+
+	public List<Unite> getListUniteLDAP() {
+		return listUniteLDAP;
+	}
+
+	public void setListUniteLDAP(List<Unite> listUniteLDAP) {
+		this.listUniteLDAP = listUniteLDAP;
+	}
+
+	public List<Unite> getListNouvellesUnites() {
+		return listNouvellesUnites;
+	}
+
+	public void setListNouvellesUnites(List<Unite> listNouvellesUnites) {
+		this.listNouvellesUnites = listNouvellesUnites;
+	}
+
+	public List<Unite> getListUnitesModifiees() {
+		return listUnitesModifiees;
+	}
+
+	public void setListUnitesModifiees(List<Unite> listUnitesModifiees) {
+		this.listUnitesModifiees = listUnitesModifiees;
+	}
+
+	public DataModel getListNouvellesUnitesDM() {
+		return listNouvellesUnitesDM;
+	}
+
+	public void setListNouvellesUnitesDM(DataModel listNouvellesUnitesDM) {
+		this.listNouvellesUnitesDM = listNouvellesUnitesDM;
+	}
+
+	public DataModel getListUnitesModifieesDM() {
+		return listUnitesModifieesDM;
+	}
+
+	public void setListUnitesModifieesDM(DataModel listUnitesModifieesDM) {
+		this.listUnitesModifieesDM = listUnitesModifieesDM;
+	}
+
+	public DataModel getListUnitesLDAPDM() {
+		return listUnitesLDAPDM;
+	}
+
+	public void setListUnitesLDAPDM(DataModel listUnitesLDAPDM) {
+		this.listUnitesLDAPDM = listUnitesLDAPDM;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getListNouvellesUnitesNB() {
+
+		if (listNouvellesUnitesDM != null
+				&& listNouvellesUnitesDM.getWrappedData() != null)
+			listNouvellesUnitesNB = ((List<Unite>) listNouvellesUnitesDM
+					.getWrappedData()).size();
+		else
+			return 0;
+		return listNouvellesUnitesNB;
+	}
+
+	public void setListNouvellesUnitesNB(long listNouvellesUnitesNB) {
+		this.listNouvellesUnitesNB = listNouvellesUnitesNB;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getListUnitesModifieesNB() {
+
+		if (listUnitesModifieesDM != null
+				&& listUnitesModifieesDM.getWrappedData() != null)
+			listUnitesModifieesNB = ((List<Unite>) listUnitesModifieesDM
+					.getWrappedData()).size();
+		else
+			return 0;
+		return listUnitesModifieesNB;
+	}
+
+	public void setListUnitesModifieesNB(long listUnitesModifieesNB) {
+		this.listUnitesModifieesNB = listUnitesModifieesNB;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getListUnitesLDAPNB() {
+		if (listUnitesLDAPDM != null
+				&& listUnitesLDAPDM.getWrappedData() != null)
+			listUnitesLDAPNB = ((List<Unite>) listUnitesLDAPDM.getWrappedData())
+					.size();
+		else
+			return 0;
+		return listUnitesLDAPNB;
+	}
+
+	public void setListUnitesLDAPNB(long listUnitesLDAPNB) {
+		this.listUnitesLDAPNB = listUnitesLDAPNB;
+	}
+
+	public long getRecords() {
+		return records;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isModification() {
+		return modification;
+	}
+
+	public void setModification(boolean modification) {
+		this.modification = modification;
+	}
+
+	public List<SelectItem> getSelectItemsBOCs() {
+		return selectItemsBOCs;
+	}
+
+	public void setSelectItemsBOCs(List<SelectItem> selectItemsBOCs) {
+		this.selectItemsBOCs = selectItemsBOCs;
+	}
+
+	public List<SelectItem> getSelectItemsBOCsDirect() {
+		return selectItemsBOCsDirect;
+	}
+
+	public void setSelectItemsBOCsDirect(List<SelectItem> selectItemsBOCsDirect) {
+		this.selectItemsBOCsDirect = selectItemsBOCsDirect;
+	}
+
+	public String getSelectedBoc() {
+		return selectedBoc;
+	}
+
+	public void setSelectedBoc(String selectedBoc) {
+		this.selectedBoc = selectedBoc;
+	}
+
+	public String getUniteParenteName() {
+		return uniteParenteName;
+	}
+
+	public void setUniteParenteName(String uniteParenteName) {
+		this.uniteParenteName = uniteParenteName;
+	}
+
+	public String getSelectedBocDirecte() {
+		return selectedBocDirecte;
+	}
+
+	public void setSelectedBocDirecte(String selectedBocDirecte) {
+		this.selectedBocDirecte = selectedBocDirecte;
+	}
+
+	public String getEtatStructureParente() {
+		return etatStructureParente;
+	}
+
+	public void setEtatStructureParente(String etatStructureParente) {
+		this.etatStructureParente = etatStructureParente;
+	}
+
+}

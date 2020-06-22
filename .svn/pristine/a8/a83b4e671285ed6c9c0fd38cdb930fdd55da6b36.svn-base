@@ -1,0 +1,501 @@
+package xtensus.faxmail.beans;
+
+import java.io.FileInputStream;
+import java.util.Collections;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ComparatorFaxMail;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Fax;
+import xtensus.entity.FaxMail;
+import xtensus.entity.Mail;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.faxmail.utils.FaxConnection;
+import xtensus.faxmail.utils.GedUtils;
+import xtensus.faxmail.utils.MailConnection;
+import xtensus.services.ApplicationManager;
+
+/**
+ * 
+ * @author HB , Xtensus Tunisie
+ * 
+ */
+
+@Component
+@Scope("request")
+public class ConsulterFaxBean {
+
+	// ** pour FAX FAX
+//	private List<Fax> faxList;
+//	private DataModel listfaxDM;
+//	private Fax fax;
+	// ** pour FAX FAX
+	// ** pour FAX MAIL
+	private FaxMail mail;
+	private List<FaxMail> mailList;
+	private List<FaxMail> oldMailList;
+	private DataModel listfaxDM;
+	private List<MailBean> newMailList;
+	public boolean status;
+	// ** pour FAX MAIL
+	private FaxConnection faxConnection;
+	private int compteur;
+	private ApplicationManager appMgr;
+	private GedUtils gedUtils;
+	@Autowired
+	private VariableGlobale vb;
+	public boolean status2;
+
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	
+	// **
+	Properties props;
+    // **
+
+	@Autowired
+	public ConsulterFaxBean(
+			@Qualifier("applicationManager") ApplicationManager applicationManager) {
+		this.compteur = 0;
+		this.appMgr = applicationManager;
+		this.mailList = new ArrayList<FaxMail>();
+		oldMailList = new ArrayList<FaxMail>();
+		listfaxDM = new ListDataModel();
+		mail = new FaxMail();
+		props = new Properties();
+		//this.faxList = new ArrayList<Fax>();
+		
+		//setFax(new Fax());
+	}
+
+	@PostConstruct
+	public void Initialize(){
+		try {
+			// **
+			Resource rsrc = new ClassPathResource("/paramAlfresco.properties");
+			String pathConfigFile = rsrc.getFile().getAbsolutePath();
+			props.load(new FileInputStream(pathConfigFile));
+			// **
+			 // liste des mails a afficher
+			this.oldMailList = appMgr.getListUnique(FaxMail.class);
+			gedUtils = vb.getGedUtils();
+			if (gedUtils == null) {
+				gedUtils = new GedUtils(
+						props.getProperty("alfresco.Url"), props.getProperty("alfresco.login"),
+						props.getProperty("alfresco.password"));
+				vb.setGedUtils(gedUtils);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		compteur = oldMailList.size();
+		Collections.reverse(oldMailList);
+		listfaxDM.setWrappedData(oldMailList);
+	}
+
+	
+	public void synchroniseFax() {
+		System.out.println("Synchronizing FAX");
+		try {
+			gedUtils = new GedUtils();
+			mail = new FaxMail();
+			gedUtils = vb.getGedUtils();
+			if (gedUtils == null) {
+				gedUtils = new GedUtils(
+						props.getProperty("alfresco.Url"), props.getProperty("alfresco.login"),
+						props.getProperty("alfresco.password"));
+				vb.setGedUtils(gedUtils);
+			}
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			this.mailList = new ArrayList<FaxMail>(); // liste des mails a afficher
+			this.faxConnection = new FaxConnection();
+			Date lastDate = new Date();
+
+			if (oldMailList.isEmpty()) {
+				this.newMailList = faxConnection.getAllMails(); // Recuperation
+																	// les mails
+			} else {
+				lastDate = this.oldMailList.get(0)
+						.getFaxMailReceivedDate(); // recuperation de la date du
+				this.newMailList = faxConnection.getMailsAfter(lastDate); // recuperaiton
+			}
+			mailList = oldMailList;
+
+			for (MailBean mailBean : newMailList) {
+//				long dateTime = mailBean.getReceivedDate().getTime();
+//				java.sql.Date sqlDate = new java.sql.Date(dateTime);
+
+				if (mailBean.getAttachmentFileMap() != null) {
+					map = mailBean.getAttachmentFileMap();
+					/*
+					 * int nb = map.size(); if (nb != 0) {
+					 * 
+					 * for (AttachmentFileBean attachmentFile : mailBean
+					 * .getAttachmentFileList()) {
+					 * gedUtils.saveAttachFile(attachmentFile); } }
+					 */
+				}
+
+				mail = new FaxMail(mailBean.getFromName(), mailBean.getFromAddress(), mailBean.getFromOrganization(), mailBean.getToAddress(), mailBean.getSubject(), mailBean.getReceivedDate(), mailBean.getContent(), mailBean.getOriginalContent(),  mailBean.getReplyTo(), mailBean.getPriority(),0);
+//				mail = new FaxMail(mailBean.getFromName(),
+//						mailBean.getFromAddress(),
+//						mailBean.getFromOrganization(),
+//						mailBean.getToAddress(), mailBean.getSubject(),
+//						sqlDate, mailBean.getContent(),
+//						mailBean.getOriginalContent(), mailBean.getReplyTo(),
+//						mailBean.getPriority());
+
+				mailList.add(mail);
+				appMgr.insert(mail);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		compteur = mailList.size();
+		Collections.sort(mailList, new ComparatorFaxMail());
+		//Collections.reverse(mailList);
+		listfaxDM.setWrappedData(mailList);
+//		listfaxDM.setWrappedData(faxList);
+//		compteur = faxList.size();
+	
+	}
+	
+	public String details() {
+		mail = (FaxMail) listfaxDM.getRowData();
+		vb.setFaxMail(mail);
+		return ("details");
+	}
+	
+	
+	public String getSelectionRow() {
+		String res = "nopass";
+		status = false;
+		try {
+			mail = (FaxMail) listfaxDM.getRowData();
+			vb.setFaxMail(mail);
+			vb.setMail(null);
+			if (mail.getFaxMailIsTreated() == 0) {
+				String mailPPPM = mail.getFaxMailFromAdress();
+				Pp pp = new Pp();
+				Pm pm = new Pm();
+				Expdestexterne expdestexterne = new Expdestexterne();
+				int nb = appMgr.listExpdestexterneByMail(mailPPPM).size();
+				if (nb == 0) {
+					setMessage(messageSource.getMessage("erreurTransfereMail",
+							new Object[] {}, lm.createLocal()));
+					status = true;
+				} else {
+					List<Object> copyListSelectedObjectExp = new ArrayList<Object>();
+					expdestexterne = appMgr.listExpdestexterneByMail(mailPPPM)
+							.get(0);
+					int refExp = expdestexterne.getIdExpDestExterne();
+					int nbPP = appMgr.getPPByReferenceExpediteur(refExp).size();
+					int nbPM = appMgr.getPMByReferenceExpediteur(refExp).size();
+					if (nbPP != 0) {
+						pp = appMgr.getPPByReferenceExpediteur(refExp).get(0);
+						copyListSelectedObjectExp.add(pp);
+					}
+					if (nbPM != 0) {
+						pm = appMgr.getPMByReferenceExpediteur(refExp).get(0);
+						copyListSelectedObjectExp.add(pm);
+					}
+					vb.setCopyListSelectedObjectExp(copyListSelectedObjectExp);
+					res = "pass";
+				}
+			} else {
+				setMessage(messageSource.getMessage("confirmTransfereMail",
+						new Object[] {}, lm.createLocal()));
+				status = true;
+			}
+			System.out.println("*******SelectionSucces*********");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		vb.setRedirect("FromFax");
+		return res;
+	}
+	
+	
+	
+	
+	
+	
+	
+//	@PostConstruct
+//	public void Initialize() {
+//		try {
+//
+//			faxList = applicationManager.getList(Fax.class);
+//			gedUtils = vb.getGedUtils();
+//			if (gedUtils == null) {
+//				gedUtils = new GedUtils(
+//						"http://localhost:8081/alfresco/service/cmis", "ADMIN",
+//						"ADMIN");
+//				vb.setGedUtils(gedUtils);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		listfaxDM.setWrappedData(faxList);
+//		compteur = faxList.size();
+//	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+    // Nader Kassas
+//	public void synchroniseFax() {
+//		faxConnection = new FaxConnection();
+//		gedUtils = new GedUtils();
+//		try {
+//			gedUtils = vb.getGedUtils();
+//
+//			if ((faxList = applicationManager.getList(Fax.class)).isEmpty()) {
+//				if (!faxConnection.getAllFaxs().isEmpty()) {
+//					for (FaxBean faxBean : faxConnection.getAllFaxs()) {
+//						Fax fax = new Fax(faxBean.getFileName(),
+//								faxBean.getSenderNumber(), new java.sql.Date(
+//										faxBean.getReceivedDate().getTime()),
+//								1, 0);
+//						this.faxList.add(fax);
+//						applicationManager.insert(fax);
+//						compteur = faxList.size();
+//					}
+//				}
+//			} else {
+//				if (!faxConnection.getAllFaxs().isEmpty()) {
+//					Date date = faxList.get(faxList.size() - 1)
+//							.getFaxReceivedDate();
+//					// faxList.clear();
+//					for (FaxBean faxBean : faxConnection.getFaxsAfterDate(date)) {
+//						Fax fax = new Fax(faxBean.getFileName(),
+//								faxBean.getSenderNumber(), new java.sql.Date(
+//										faxBean.getReceivedDate().getTime()),
+//								faxBean.getNumberOfPages(), 0);
+//						this.faxList.add(fax);
+//						gedUtils.saveFaxRecu(fax);
+//						applicationManager.insert(fax);
+//
+//					}
+//				}
+//			}
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		listfaxDM.setWrappedData(faxList);
+//		compteur = faxList.size();
+//	}
+	
+//	public String details() {
+//		setFax((Fax) listfaxDM.getRowData());
+//		vb.setFax(fax);
+//		return ("details");
+//	}
+
+//	public String getSelectionRow() {
+//		String res = "nopass";
+//
+//		status2 = false;
+//		try {
+//			setFax((Fax) listfaxDM.getRowData());
+//			vb.setFax(fax);
+//			if (fax.getFaxIs_treated() == 0) {
+//				res = "pass";
+//			} else {
+//				setMessage(messageSource.getMessage("confirmTransfereFax",
+//						new Object[] {}, lm.createLocal()));
+//				status2 = true;
+//			}
+//			System.out.println("*******SelectionSucces*********");
+//		} catch (Exception e) {
+//			System.out.println("*******ErreurDeSelection*******");
+//		}
+//		return res;
+//	}
+
+//	byte[] download(String faxname) {
+//		return faxConnection.getFaxByName(faxname).getData();
+//	}
+
+	public String retour() {
+		return ("retour");
+	}
+
+	/********** Getters && Setters ***********/
+//	public List<Fax> getFaxList() {
+//		return faxList;
+//	}
+//
+//	public void setFaxList(List<Fax> faxList) {
+//		this.faxList = faxList;
+//	}
+
+	public int getCompteur() {
+		return compteur;
+	}
+
+	public void setGedUtils(GedUtils gedUtils) {
+		this.gedUtils = gedUtils;
+	}
+
+	public GedUtils getGedUtils() {
+		return gedUtils;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+//	public void setListfaxDM(DataModel listfaxDM) {
+//		this.listfaxDM = listfaxDM;
+//	}
+//
+//	public DataModel getListfaxDM() {
+//		return listfaxDM;
+//	}
+//
+//	public void setFax(Fax fax) {
+//		this.fax = fax;
+//	}
+//
+//	public Fax getFax() {
+//		return fax;
+//	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+
+	public DataModel getListfaxDM() {
+		return listfaxDM;
+	}
+
+	public void setListfaxDM(DataModel listfaxDM) {
+		this.listfaxDM = listfaxDM;
+	}
+
+	public List<MailBean> getNewMailList() {
+		return newMailList;
+	}
+
+	public void setNewMailList(List<MailBean> newMailList) {
+		this.newMailList = newMailList;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public FaxConnection getFaxConnection() {
+		return faxConnection;
+	}
+
+	public void setFaxConnection(FaxConnection faxConnection) {
+		this.faxConnection = faxConnection;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public FaxMail getMail() {
+		return mail;
+	}
+
+	public void setMail(FaxMail mail) {
+		this.mail = mail;
+	}
+
+	public List<FaxMail> getMailList() {
+		return mailList;
+	}
+
+	public void setMailList(List<FaxMail> mailList) {
+		this.mailList = mailList;
+	}
+
+	public List<FaxMail> getOldMailList() {
+		return oldMailList;
+	}
+
+	public void setOldMailList(List<FaxMail> oldMailList) {
+		this.oldMailList = oldMailList;
+	}
+
+}

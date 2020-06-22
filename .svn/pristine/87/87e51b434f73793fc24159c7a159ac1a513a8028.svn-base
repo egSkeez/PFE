@@ -1,0 +1,628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "/WEB-INF/lib/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+<body>
+	<rich:simpleTogglePanel id="accor1" styleClass="rich-panel"
+		switchType="client" label="Détails Courrier">
+
+		<table width="100%">
+			<tr>
+				<td width="50%" valign="top"><h:panelGrid columns="2"
+						columnClasses="colStyle1,colStyle2">
+						<h:outputText value="#{msg.CourrierExpOr} "
+							styleClass="xteDetailLabel" style=" width :100px;" />
+						<h:outputText
+							value="#{variableGlobale.copyExpReelNom} [#{courrierDetailsIncludeBean.courrier.courrierReferenceCorrespondant}]"
+							styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+					</h:panelGrid>
+				</td>
+				<td width="50%" valign="top"><h:panelGrid columns="2"
+						columnClasses="colStyle1,colStyle2">
+						<h:outputText value="#{msg.CourrierDestReel} "
+							styleClass="xteDetailLabel" style=" width :100px;" />
+						<!--                              //2019-06-24-->
+						<h:outputText
+							value="#{variableGlobale.destinataireReel} [#{courrierDetailsIncludeBean.transaction.courrierReferenceCorrespondant}]"
+							escape="false" styleClass="xteDetailLabelOutput"
+							style=" width : 128px;" />
+						<h:column>
+							<h:outputText value="#{msg.sentAlsoTO}"
+								styleClass="xteDetailLabel" style=" width :100px;"
+								rendered="#{courrierDetailsBean.etatEnvoyerAuxAutre}" />
+						</h:column>
+						<h:column>
+							<h:outputText
+								value="#{courrierDetailsIncludeBean.vb.copyOtherDest}"
+								styleClass="xteDetailLabelOutput"
+								rendered="#{courrierDetailsBean.etatEnvoyerAuxAutre}" />
+						</h:column>
+
+					</h:panelGrid>
+				</td>
+
+			</tr>
+
+		</table>
+		<hr></hr>
+		<h:outputLabel value="Informations Courriers : " styleClass="xteDetailLabel" style=" width : 128px;"></h:outputLabel>
+		<table width="100%">
+			<tr>
+				<td>
+					<!--<h:outputText value="#{msg.codeUnique} : "--> <!--styleClass="xteDetailLabel" style=" width :100px;" />-->
+					<!--<h:outputText--> <!--value="#{courrierDetailsBean.codeUniqueCourrier}"-->
+					<!--styleClass="xteDetailLabelOutput" style=" width : 128px;" />-->
+				</td>
+				<td align="right" colspan="2"><h:panelGrid columns="3">
+						<h:outputText value="#{msg.etat} :" styleClass="xteDetailLabel"
+							style=" width :100px;" />
+						<h:outputLabel
+							value="#{courrierDetailsIncludeBean.etatTransaction}"
+							style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+					</h:panelGrid>
+				</td>
+			</tr>
+			<tr>
+				<td width="50%" valign="top"><h:panelGrid columns="2">
+						<h:column>
+							<h:outputText value="#{msg.codeUnique} : "
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:outputText
+							value="#{courrierDetailsIncludeBean.codeUniqueCourrier}"
+							styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+						<h:column>
+							<h:outputText value="Référence générale : "
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:outputText
+							value="#{courrierDetailsIncludeBean.courrier.idCourrier}"
+							styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+							
+							<h:column>
+							<h:outputText value="#{msg.courrierRefOriginaleLabel} "
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+						<h:outputText
+							value="#{courrierDetailsIncludeBean.courrier.courrierRefOriginale}"
+							styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+						<h:column>
+							<h:outputText value="#{msg.referenceCourrier}" rendered="false"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+					
+					<h:column></h:column>
+							<h:column></h:column>
+
+						
+						
+						
+						
+						
+						
+						<h:outputText rendered="false"
+							value="#{courrierDetailsIncludeBean.courrier.courrierReferenceCorrespondant}"
+							styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+						<h:column />
+						<h:column>
+							<h:outputText value="#{msg.CourrierObjet}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+						<h:outputText
+							value="#{courrierDetailsIncludeBean.courrier.courrierObjet}"
+							styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+						<h:column>
+							<h:outputText value="#{msg.CourrierCircuit}"
+								styleClass="xteDetailLabel" />
+							<rich:spacer width="5" />
+						</h:column>
+						<h:outputText
+							value="#{courrierDetailsIncludeBean.courrier.courrierCircuit}"
+							escape="false" style=" width : 128px;"
+							styleClass="xteDetailLabelOutput" />
+						<h:column>
+							<h:outputText value="Description : " styleClass="xteDetailLabel" />
+							<rich:spacer width="5" />
+						</h:column>
+						<h:outputText
+							value="#{courrierDetailsIncludeBean.courrier.courrierCommentaire}"
+							style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+						<h:column>
+							<h:outputText value="#{msg.CourrierMode}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:column>
+							<h:outputText rendered="#{variableGlobale.locale eq 'fr_FR'}"
+								value="#{courrierDetailsIncludeBean.transmission.transmissionLibelle}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+							<h:outputText rendered="#{variableGlobale.locale eq 'ar'}"
+								value="#{courrierDetailsIncludeBean.transmission.transmissionLibelleAr}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierConfidentialite}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:column>
+							<h:outputText rendered="#{variableGlobale.locale eq 'fr_FR'}"
+								value="#{courrierDetailsIncludeBean.confidentialite.confidentialiteLibelle}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+							<h:outputText rendered="#{variableGlobale.locale eq 'ar'}"
+								value="#{courrierDetailsIncludeBean.confidentialite.confidentialiteLibelleAr}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierUrgence}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:column>
+							<h:outputText rendered="#{variableGlobale.locale eq 'fr_FR'}"
+								value="#{courrierDetailsIncludeBean.urgence.urgenceLibelle}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+							<h:outputText rendered="#{variableGlobale.locale eq 'ar'}"
+								value="#{courrierDetailsIncludeBean.urgence.urgenceLibelleAr}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierNecessite}"
+								styleClass="xteDetailLabel" />
+						</h:column>
+						<h:column>
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierNecessiteReponse eq 'Oui'}"
+								value="#{msg.msgajoutcourrierNonLabeOui}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierNecessiteReponse eq 'Non'}"
+								value="#{msg.ajoutcourrierNonLabeNon}" style=" width : 128px;"
+								styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+
+					</h:panelGrid> <h:panelGrid columns="2" columnClasses="colStyle1,colStyle2">
+						
+						<h:column>
+							<h:outputText
+								rendered="#{not empty courrierDetailsIncludeBean.ci.courrierOldNum}"
+								value="#{msg.OldRef} :" style=" width :100px;"
+								styleClass="xteDetailLabel" />
+						</h:column>
+						<h:column>
+							<h:outputText
+								rendered="#{not empty courrierDetailsIncludeBean.ci.courrierOldNum}"
+								value="#{courrierDetailsIncludeBean.ci.courrierOldNum}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+						</h:column>
+					</h:panelGrid>
+				</td>
+				<td width="50%" valign="top"><h:panelGrid columns="2">
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierDateRecep}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:column>
+							<h:outputText
+								value="#{courrierDetailsIncludeBean.courrier.courrierDateReception}"
+								styleClass="xteDetailLabelOutput" style=" width : 128px;">
+								<f:convertDateTime type="date" pattern="dd/MM/yyyy à HH:mm:ss"
+									timeZone="GMT+1" />
+							</h:outputText>
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierDateRecepReelle}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:column>
+							<h:outputText
+								value="#{courrierDetailsIncludeBean.courrier.courrierDateReceptionReelle}"
+								styleClass="xteDetailLabelOutput" style=" width : 128px;">
+								<f:convertDateTime type="date" pattern="dd/MM/yyyy à HH:mm:ss"
+									timeZone="GMT+1" />
+							</h:outputText>
+						</h:column>
+
+						<h:column />
+						<h:column />
+						<h:column />
+						<h:column />
+
+						<h:column>
+							<h:outputText value="#{msg.categorieNature}" rendered="false"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+						</h:column>
+
+						<h:column>
+							<h:outputText
+								rendered="#{variableGlobale.locale eq 'fr_FR'} and false"
+								value="#{courrierDetailsIncludeBean.categorieNature.categorieLibelle}"
+								styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierNature}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+						</h:column>
+
+						<h:column>
+
+							<h:outputText rendered="#{variableGlobale.locale eq 'fr_FR'}"
+								value="#{courrierDetailsIncludeBean.nature.natureLibelle}"
+								styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+							<h:outputText rendered="#{variableGlobale.locale eq 'ar'}"
+								value="#{courrierDetailsIncludeBean.nature.natureLibelleAr}"
+								styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.CourrierKey}"
+								styleClass="xteDetailLabel" style=" width :100px;" />
+						</h:column>
+
+						<h:column>
+							<h:outputLabel
+								value="#{courrierDetailsIncludeBean.courrier.keywords}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+						<h:column>
+							<h:outputText value="#{msg.avecReceptionPhysique} :"
+								styleClass="xteDetailLabel" />
+						</h:column>
+
+						<h:column>
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierAvecDocumentPhysique eq 'true'}"
+								value="#{msg.msgajoutcourrierNonLabeOui}"
+								style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierAvecDocumentPhysique eq 'false'}"
+								value="#{msg.ajoutcourrierNonLabeNon}" style=" width : 128px;"
+								styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+
+						<h:column>
+							<h:outputText value="#{msg.passageParBoLabel} :" rendered="#{courrierDetailsIncludeBean.affichagePassageBO}"
+								styleClass="xteDetailLabel" />
+						</h:column>
+
+						<h:column>
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierNecessitePassageParBO eq 'true' and (courrierDetailsIncludeBean.affichagePassageBO) }"
+								value="#{msg.passageParBoOui}" style=" width : 128px;"
+								styleClass="xteDetailLabelOutput" />
+
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierNecessitePassageParBO eq 'false' and (courrierDetailsIncludeBean.affichagePassageBO)}"
+								value="#{msg.passageParBoNon}" style=" width : 128px;"
+								styleClass="xteDetailLabelOutput" />
+						</h:column>
+						<h:column >
+							<h:outputText 
+							rendered="#{courrierDetailsIncludeBean.courrier.courrierNecessiteReponse eq 'Oui'}"
+							value="#{msg.echeanceReponse} : "
+								styleClass="xteDetailLabel" style=" width :100px;" />
+							<rich:spacer width="5" />
+						</h:column>
+
+						<h:column >
+							<h:outputText
+								rendered="#{courrierDetailsIncludeBean.courrier.courrierNecessiteReponse eq 'Oui'}"
+								value="#{courrierDetailsIncludeBean.courrier.courrierDateReponse}"
+								styleClass="xteDetailLabelOutput" style=" width : 128px;">
+								<f:convertDateTime type="date" pattern="dd/MM/yyyy"
+									timeZone="GMT+1" />
+							</h:outputText>
+						</h:column>
+						<h:outputText value="" styleClass="xteDetailLabel"
+							style=" width :100px;" />
+						<h:outputText value="" style=" width : 128px;"
+							styleClass="xteDetailLabelOutput" />
+
+						<h:outputText value="" styleClass="xteDetailLabel" />
+						<h:outputText value="" style=" width : 128px;"
+							styleClass="xteDetailLabelOutput" />
+						<h:column>
+							<h:outputText value=" " styleClass="xteDetailLabel"
+								style=" width :100px;" />
+						</h:column>
+						<h:column>
+							<h:outputLabel value="" style=" width : 128px;"
+								styleClass="xteDetailLabelOutput" />
+						</h:column>
+
+					</h:panelGrid>
+				</td>
+			</tr>
+
+			<tr >
+				<td  valign="top"><h:panelGrid columns="2"
+						columnClasses="colStyle1,colStyle2">
+						<h:outputText value="#{msg.CourrierAnnot}"
+							styleClass="xteDetailLabel" />
+
+						<rich:dataTable style="width: 300px"
+							value="#{courrierDetailsIncludeBean.listeDestinatairesDM}"
+							var="d" styleClass="rich-panel">
+
+							<h:column style="width: 30%">
+								<f:facet name="header">
+									<h:outputText value="Destinataire" styleClass="xteDetailLabel" />
+								</f:facet>
+								<h:outputText value="#{d.destinataireName}" />
+								<br />
+							
+
+							</h:column>
+							<h:column style="width: 70%">
+								<f:facet name="header">
+									<h:outputText value="Annotation" styleClass="xteDetailLabel" />
+								</f:facet>
+								<h:outputText value="#{d.annotations}" />
+								<br />
+							
+							</h:column>
+						</rich:dataTable>
+
+					</h:panelGrid>
+				</td>
+				<td><h:panelGrid columns="2"
+						columnClasses="colStyle1,colStyle2">
+						<h:outputText value="#{msg.CourrierLiens}"
+							styleClass="xteDetailLabel" rendered="true" />
+
+						<h:column rendered="#{courrierDetailsIncludeBean.linkedMail}">
+							<h:panelGrid columns="6">
+								<a4j:commandLink id="lienCourrier1"
+
+									title="#{msg.liaisonCourrier}"
+									onclick="document.location.href='courrierDetailsLien.jsf'">
+									<h:outputText
+									
+										value="(#{courrierDetailsIncludeBean.nbrCourrierLies}) #{msg.courriersLies}"
+										rendered="true" />
+								</a4j:commandLink>
+								<rich:spacer width="5" />
+								<a4j:commandLink id="lienC1" title="Liens courriers"
+									onclick="document.location.href='courrierLiensCourrier.jsf'">
+									<h:graphicImage rendered="true"
+										value="../framGraphique/images/lienCourrierIcon.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="lienC1" value="#{msg.lienMsg}" />
+							</h:panelGrid>
+						</h:column>
+						<h:column rendered="#{courrierDetailsIncludeBean.notLinkedMail}">
+							<h:panelGrid columns="6">
+								<h:outputText value="#{msg.aucunLienMsg}"
+									styleClass="xteDetailLabelOutput" rendered="true" />
+								<rich:spacer width="5" />
+								<a4j:commandLink id="lienC" title="Liens courriers"
+									onclick="document.location.href='courrierLiensCourrier.jsf'">
+									<h:graphicImage rendered="true"
+										value="../framGraphique/images/lienCourrierIcon.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="lienC" value="#{msg.lienMsg}" />
+							</h:panelGrid>
+						</h:column>
+					</h:panelGrid></td>
+			</tr>
+		</table>
+
+		<h:outputText
+			rendered="#{courrierDetailsIncludeBean.showDonneSupp and courrierDetailsIncludeBean.afficheChampsSpecTansmission }">
+			<hr></hr>
+		</h:outputText>
+		<h:outputLabel value="Informations Spécifiques :" styleClass="xteDetailLabel" style=" width : 128px;"
+			rendered="#{courrierDetailsIncludeBean.showDonneSupp and courrierDetailsIncludeBean.afficheChampsSpecTansmission }">
+		</h:outputLabel>
+
+		<f:view rendered="#{courrierDetailsIncludeBean.showDonneSupp }">
+			<a4j:repeat value="#{courrierDetailsIncludeBean.listCD}" var="field">
+				<h:panelGrid columns="5" columnClasses="colStyle1,colStyle2">
+
+					<h:outputText value="#{field.name} : " styleClass="xteDetailLabel" />
+					<h:outputText value="#{field.colonne}"
+						styleClass="xteDetailLabelOutput" />
+
+
+				</h:panelGrid>
+			</a4j:repeat>
+		</f:view>
+
+		<f:view>
+			<a4j:repeat value="#{courrierDetailsIncludeBean.listCDTransmission}"
+				var="field">
+				<h:panelGrid columns="5" columnClasses="colStyle1,colStyle2"
+					rendered="#{courrierDetailsIncludeBean.showDonneSupp and courrierDetailsIncludeBean.afficheChampsSpecTansmission}">
+					<h:outputText value="#{field.name} : " styleClass="xteDetailLabel" />
+					<h:outputText value="#{field.colonne}" styleClass="xteDetailLabelOutput" />
+
+
+				</h:panelGrid>
+			</a4j:repeat>
+		</f:view>
+				<rich:dataTable value="#{courrierDetailsIncludeBean.listCheques}"
+					rendered="#{courrierDetailsIncludeBean.showPanelCheque}"
+					var="cheque" id="data565"  styleClass="rich-panel"
+					width="100%">
+					<a4j:support event="onchange" ajaxSingle="true"></a4j:support>
+					<rich:column label="ref" width="20%">
+						<f:facet name="header">
+							<h:outputText value="#{msg.numCheq}" />
+						</f:facet>
+						<div>
+							<center>
+								<h:outputText value="#{cheque.chequeNum}" />
+							</center>
+						</div>
+					</rich:column>
+
+					<!-- ********************** -->
+					<rich:column width="20%" label="ref">
+						<f:facet name="header">
+							<h:outputText value="#{msg.montant}" />
+						</f:facet>
+						<div>
+							<center>
+								<h:outputText value="#{cheque.chequeMontant}" />
+							</center>
+						</div>
+					</rich:column>
+
+					<!-- ********************** -->
+
+					<rich:column width="20%" label="ref">
+						<f:facet name="header">
+							<h:outputText value="#{msg.DateCheque}" />
+						</f:facet>
+						<div align="center">
+							<center>
+								<h:outputText value="#{cheque.chequeDate}" />
+							</center>
+						</div>
+					</rich:column>
+					<rich:column width="20%" label="ref">
+						<f:facet name="header">
+							<h:outputText value="#{msg.beneficiaire}" />
+						</f:facet>
+						<div align="center">
+
+							<center>
+								<h:outputText value="#{cheque.chequeBeneficiaire}" />
+							</center>
+						</div>
+					</rich:column>
+					<!-- **********************-->
+					<rich:column width="20%" label="ref">
+						<f:facet name="header">
+							<h:outputText value="#{msg.BanqueConcerneeParRetrait}" />
+						</f:facet>
+						<div>
+							<center>
+								<h:outputText value="#{cheque.chequeBanque}" />
+							</center>
+						</div>
+					</rich:column>
+
+					<!-- ********************** -->
+					<rich:column width="10%" label="ref">
+						<f:facet name="header">
+							<h:outputText value="#{msg.barreCheque}" />
+						</f:facet>
+						<div>
+							<center>
+								<h:selectBooleanCheckbox id="checkbox" disabled="true"
+									required="true" value="#{cheque.chequeBarre}"
+									requiredMessage="* #{msg.barreCheque} #{msg.champsobligatoire}">
+									<a4j:support event="onchange"
+										action="#{courrierModificationBean.saveTempValue}"
+										ajaxSingle="true" />
+								</h:selectBooleanCheckbox>
+							</center>
+						</div>
+					</rich:column>
+
+				</rich:dataTable>
+			
+
+		<rich:spacer height="10" />
+					<h:panelGrid columns="2" id="panneauAO4"
+															rendered="#{courrierDetailsIncludeBean.showPanelAOC}">
+															<h:column>
+																<h:outputText value="#{msg.numeroAOC} #{msg.deuxpointsLabel}"
+																	styleClass="xteDetailLabel" style="width: 300px !important;" />
+																<rich:spacer width="10px" />
+															</h:column>
+															<h:column>
+															<h:outputText
+																	value="#{courrierDetailsIncludeBean.numeroAoConsultation}"
+																	styleClass="xteDetailLabel" style=" width :100px;"
+																	id="outObjet4"></h:outputText>
+																	<a4j:support event="onblur"
+																		action="#{courrierDetailsIncludeBean.onBlur}"
+																		reRender="outObjet,outDateLimite,outDateProlong,outDateSeance,champsAoConsultation" />
+
+															</h:column>
+
+														</h:panelGrid>
+														<h:panelGrid columns="2" id="champsAoConsultation7"
+															rendered="#{courrierDetailsIncludeBean.showPanelAOC}">
+															<h:column >
+																<h:outputText value="#{msg.objetAOC} #{msg.deuxpointsLabel}"
+																	styleClass="xteDetailLabel" style="width: 300px !important;" />
+																<rich:spacer width="10px" />
+															</h:column>
+															<h:column>
+																<h:outputText
+																	value="#{courrierDetailsIncludeBean.aoConsultation.aoConsultationObjet}"
+																	styleClass="xteDetailLabel" style=" width :100px;"
+																	id="outObjet"></h:outputText>
+															</h:column>
+															<h:column >
+																<h:outputText value="#{msg.dateReceptionOffre} : "
+																	styleClass="xteDetailLabel" style="width: 300px !important;" />
+																<rich:spacer width="10px" />
+															</h:column>
+															<h:column>
+																	<h:outputText 
+																	value="#{courrierDetailsIncludeBean.heure1}"
+																	styleClass="xteDetailLabel"></h:outputText>
+																	
+															</h:column>
+
+
+															<h:column>
+																<h:outputText value="#{msg.dateProlongation} : "
+																	styleClass="xteDetailLabel" style="width: 300px !important;" />
+																<rich:spacer width="10px" />
+															</h:column>
+															<h:column>
+																	<h:outputText 
+																	value="#{courrierDetailsIncludeBean.heure2}"	 styleClass="xteDetailLabel"></h:outputText>
+															</h:column>
+
+															<h:column>
+																<h:outputText value="#{msg.dateSeanceCommission} : "
+																	styleClass="xteDetailLabel" style="width: 300px !important;" />
+																<rich:spacer width="10px" />
+															</h:column>
+															<h:column>
+																	<h:outputText 
+																	value="#{courrierDetailsIncludeBean.heure3}"
+																	styleClass="xteDetailLabel"></h:outputText>
+															</h:column>
+															<rich:spacer height="20px" />
+														</h:panelGrid>
+
+	</rich:simpleTogglePanel>
+</body>
+</html>

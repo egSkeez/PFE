@@ -1,0 +1,71 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Transaction;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class Test2DataModel {
+
+		private ApplicationManager appMgr;
+		private DataModel dataModel;
+		private List<Transaction> listTransaction;
+		
+
+		@Autowired
+		public Test2DataModel(
+				@Qualifier("applicationManager") ApplicationManager appMgr) {
+			this.appMgr = appMgr;
+			dataModel = new ListDataModel();
+			listTransaction = new ArrayList<Transaction>();
+			System.out.println("**************BeanInjecte CourrierTransfereBean *********");
+		}
+
+		@PostConstruct
+		public void Initialize() {
+			try {
+				listTransaction = appMgr.getList(Transaction.class);
+				dataModel.setWrappedData(listTransaction);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+
+		public void setAppMgr(ApplicationManager appMgr) {
+			this.appMgr = appMgr;
+		}
+
+		public ApplicationManager getAppMgr() {
+			return appMgr;
+		}
+
+		public void setDataModel(DataModel dataModel) {
+			this.dataModel = dataModel;
+		}
+
+		public DataModel getDataModel() {
+			return dataModel;
+		}
+
+		public void setListTransaction(List<Transaction> listTransaction) {
+			this.listTransaction = listTransaction;
+		}
+
+		public List<Transaction> getListTransaction() {
+			return listTransaction;
+		}
+}

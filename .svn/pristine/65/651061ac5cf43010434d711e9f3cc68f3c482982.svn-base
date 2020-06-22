@@ -1,0 +1,88 @@
+package xtensus.beans.utils;
+
+import java.util.List;
+
+import xtensus.entity.Entite;
+
+public class RapportStatistiqueCourrierStructure extends Entite {
+	
+	// generale
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private String pathJasper;
+	private	String adresse;
+	List<RapportSociete>listeSociete;
+	//
+	
+	private List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureArrive;
+	public String getAdresse() {
+		return adresse;
+	}
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+	private List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureDepart;
+	public String getSocieteNom() {
+		return societeNom;
+	}
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+	public String getSocieteVille() {
+		return societeVille;
+	}
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+	public String getNomProjet() {
+		return nomProjet;
+	}
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+	public String getPathJasper() {
+		return pathJasper;
+	}
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+	public List<StatistiqueCourrierStructure> getListStatistiqueCourrierStructureArrive() {
+		return listStatistiqueCourrierStructureArrive;
+	}
+	public void setListStatistiqueCourrierStructureArrive(
+			List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureArrive) {
+		this.listStatistiqueCourrierStructureArrive = listStatistiqueCourrierStructureArrive;
+	}
+	public List<StatistiqueCourrierStructure> getListStatistiqueCourrierStructureDepart() {
+		return listStatistiqueCourrierStructureDepart;
+	}
+	public void setListStatistiqueCourrierStructureDepart(
+			List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureDepart) {
+		this.listStatistiqueCourrierStructureDepart = listStatistiqueCourrierStructureDepart;
+	}
+	
+	
+	
+
+}

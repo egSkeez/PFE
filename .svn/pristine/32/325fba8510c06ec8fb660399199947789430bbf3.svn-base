@@ -1,0 +1,813 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.beans.utils.RapportCourrier;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.entity.AoConsultation;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportEtatAORecu {
+	private ApplicationManager appMgr;
+	private Export export;
+	private AoConsultation aoConsultation;
+	private CourrierInformations courrierinformations1;
+	private CourrierInformations courrierinformations2;
+	private int i;
+	@Autowired
+	private VariableGlobale vb;
+	private List<RapportSociete> listeSociete;
+	private List<CourrierInformations> listeCourriers1;
+	private String uniteConnecte;
+	private List<CourrierInformations> listeCourriers2;
+	private List<RapportSuiviCourrierParAOC> listeCourrierAOC;
+	private List<RapportSuiviCourrierParAOC> listeCourrierAOC2;
+
+	@Autowired
+	public RapportEtatAORecu(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		aoConsultation = new AoConsultation();
+		listeSociete = new ArrayList<RapportSociete>();
+		listeCourriers1 = new ArrayList<CourrierInformations>();
+		listeCourriers2 = new ArrayList<CourrierInformations>();
+		listeCourrierAOC = new ArrayList<RapportSuiviCourrierParAOC>();
+		listeCourrierAOC2 = new ArrayList<RapportSuiviCourrierParAOC>();
+	}
+
+	public void printEtatAORecuAvantOuLors() {
+
+		try {
+
+			System.out
+					.println(" kaouther ===> DANS printEtatAORecuapresOuverture ");
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+
+			// remplir entete rapport : debut
+
+			if (vb.getPerson().isBoc()) {
+				uniteConnecte = vb.getPerson().getAssociatedBOC().getNameBOC();
+				rapport.setUniteConnecte(uniteConnecte);
+				System.out.println();
+			} else {
+				uniteConnecte = vb.getPerson().getAssociatedDirection()
+						.getNameUnit();
+				rapport.setUniteConnecte(uniteConnecte);
+			}
+
+			System.out.println(" UniteConnecte =  "
+					+ rapport.getUniteConnecte());
+			String unit = rapport.getUniteConnecte();
+			System.out.println("////////   unit   ====   " + unit);
+			System.out.println("  remplir entete rapport : fin");
+
+			System.out
+					.println(" //////////////// rapport.getUniteConnecte() : Unité Connectée =  "
+							+ rapport.getUniteConnecte());
+			System.out
+					.println(" //////////////// uniteConnectee : Unité Connectée =  "
+							+ uniteConnecte);
+			System.out.println("  remplir entete rapport : fin");
+
+			// remplir entete rapport : fin
+
+			aoConsultation = vb.getAoConsultation();
+			rapport.setAoConsultation(aoConsultation);
+			Date dateLimite = aoConsultation.getAoConsultationDateLimiteOffre();
+			String dateLimiteToString = dateLimite.toString().substring(0, 11);
+			System.out.println("dateLimiteToString" + dateLimiteToString);
+			rapport.setDateLimiteToString(dateLimiteToString);
+			rapport.setHeureLimiteToString(aoConsultation.getAoConsultationDateLimiteOffre().toString().substring(0, 16));
+			Date dateProlongation = aoConsultation
+					.getAoConsultationDelaisProlongation();
+			String dateProlongationToString = dateProlongation.toString().substring(0, 10);
+			rapport.setDateProlongationToString(dateProlongationToString);
+			Date dateSeanceCommission = aoConsultation
+					.getAoConsultationDateSeanceCommission();
+			String dateSeanceCommissionToString = dateSeanceCommission
+					.toString().substring(0, 10);
+			System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+					+ dateSeanceCommissionToString.substring(0, 10));
+			rapport.setDateSeanceCommissionToString(dateSeanceCommissionToString);
+			rapportcourrier.add(rapport);
+
+			listeCourriers1 = appMgr.findCourrierEnvoyerBOCRecuAvantLorsAO(
+					aoConsultation.getAoConsultationId(),
+					aoConsultation.getAoConsultationDateSeanceCommission(),
+					true, 0, 10, " ");
+			System.out.println("listeCourriers1.size()  ===    "
+					+ listeCourriers1.size());
+
+			int i = 0;
+			RapportSuiviCourrierParAOC rsc = new RapportSuiviCourrierParAOC();
+			if (listeCourriers1 != null && listeCourriers1.size() > 0) {
+
+				for (CourrierInformations courrierinformations1 : listeCourriers1) {
+					i = i + 1;
+					rsc.setNumOrdre(i);
+					System.out.println("courrierinformations1   ====   ////   " + courrierinformations1);
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setDateJour(new java.util.Date()); 
+					courrierinformations1.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations1.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations1.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setReference(courrierinformations1
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations1.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations1
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations1.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations1
+					.getCourrier().getCourrierDateReception().toString();
+					rsc.setDateArrivee(dateArrivee.substring(0, 11));
+					rsc.setHeureArrivee(dateArrivee.substring(11, 16));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 19));
+					rapport.setCourrier(courrierinformations1.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC.add(rsc);
+					rapport.setListeCourrierAOC(listeCourrierAOC);
+					rsc = new RapportSuiviCourrierParAOC();
+				}
+			}
+			System.out.println(" ###### listeCourriers1 size   ==== " + listeCourriers1.size());
+
+			listeCourriers2 = appMgr.findCourrierEnvoyerBOCRecuDansDelaisAOPorteur(aoConsultation.getAoConsultationId(), 
+					aoConsultation.getAoConsultationDateLimiteOffre(), aoConsultation.getAoConsultationDateSeanceCommission(), true, 0, 10, " ");
+			System.out.println(" ###### listeCourriers2 size   ==== " + listeCourriers2.size());
+			RapportSuiviCourrierParAOC rsc2 = new RapportSuiviCourrierParAOC();
+			if (listeCourriers2 != null && listeCourriers2.size() > 0) {
+
+				for (CourrierInformations courrierinformations2 : listeCourriers2) {
+					i = i + 1;
+					rsc2.setNumOrdre2(i);
+					System.out.println("courrierinformations1   ====   ////   " + courrierinformations2);
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setDateJour(new java.util.Date()); 
+					courrierinformations2.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations2.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations2.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setReference2(courrierinformations2
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations2.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations2
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations2.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations2
+					.getCourrier().getCourrierDateReception().toString();
+					rsc2.setDateArrivee2(dateArrivee.substring(0, 11));
+					rsc2.setHeureArrivee2(dateArrivee.substring(11, 16));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 19));
+					rapport.setCourrier(courrierinformations2.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC2.add(rsc2);
+					rapport.setListeCourrierAOC2(listeCourrierAOC2);
+					rsc2 = new RapportSuiviCourrierParAOC();
+				}
+			}
+			System.out.println("###### listeCourrierAOC2 size  ==  " + listeCourrierAOC2.size());
+			if (listeCourrierAOC != null && listeCourrierAOC.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC(listeCourrierAOC);
+			}
+			if (listeCourrierAOC2 != null && listeCourrierAOC2.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC2(listeCourrierAOC2);
+			}
+			System.out.println("rapportcourrier.size()  =====   "
+					+ rapportcourrier.size());
+			export.exportToPDF(rapportcourrier, "EtatAO_Recu", "EtatAO_Recu");
+			System.out.println(" Kaouther ===> FIN DANS printEtatAORecuAvantOuLors ");
+
+		} catch (Exception e) {
+			System.out
+					.println("************ Echec export RapportRapidePoste  ");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void printEtatAORecuapresOuverture() {
+
+		try {
+			System.out
+					.println(" kaouther ===> DANS printEtatAORecuapresOuverture ");
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+
+			// remplir entete rapport : debut
+
+			if (vb.getPerson().isBoc()) {
+				uniteConnecte = vb.getPerson().getAssociatedBOC().getNameBOC();
+				rapport.setUniteConnecte(uniteConnecte);
+				System.out.println();
+			} else {
+				uniteConnecte = vb.getPerson().getAssociatedDirection()
+						.getNameUnit();
+				rapport.setUniteConnecte(uniteConnecte);
+			}
+
+			System.out.println(" UniteConnecte =  "
+					+ rapport.getUniteConnecte());
+			String unit = rapport.getUniteConnecte();
+			System.out.println("////////   unit   ====   " + unit);
+			System.out.println("  remplir entete rapport : fin");
+
+			System.out
+					.println(" //////////////// rapport.getUniteConnecte() : Unité Connectée =  "
+							+ rapport.getUniteConnecte());
+			System.out
+					.println(" //////////////// uniteConnectee : Unité Connectée =  "
+							+ uniteConnecte);
+			System.out.println("  remplir entete rapport : fin");
+
+			// remplir entete rapport : fin
+
+			aoConsultation = vb.getAoConsultation();
+			rapport.setAoConsultation(aoConsultation);
+			rapport.setAoConsultationObjet(aoConsultation
+					.getAoConsultationObjet());
+			rapport.setAoConsultationNumero(aoConsultation
+					.getAoConsultationNumero());
+			Date dateLimite = aoConsultation.getAoConsultationDateLimiteOffre();
+			String dateLimiteToString = dateLimite.toString().substring(0, 10);
+			System.out.println("dateLimiteToString" + dateLimiteToString);
+			rapport.setDateLimiteToString(dateLimiteToString);
+			rapport.setHeureLimiteToString(aoConsultation.getAoConsultationDateLimiteOffre().toString().substring(0,16));
+			Date dateProlongation = aoConsultation
+					.getAoConsultationDelaisProlongation();
+			String dateProlongationToString = dateProlongation.toString().substring(0, 10);
+			rapport.setDateProlongationToString(dateProlongationToString);
+			System.out.println("dateProlongationToString  =====  "
+					+ rapport.getDateProlongationToString());
+			Date dateSeanceCommission = aoConsultation
+					.getAoConsultationDateSeanceCommission();
+			String dateSeanceCommissionToString = dateSeanceCommission
+					.toString().substring(0, 10);
+			rapport.setDateSeanceCommissionToString(dateSeanceCommissionToString);
+			rapportcourrier.add(rapport);
+
+			listeCourriers1 = appMgr.findCourrierEnvoyerBOCRecuApresDelaisAO(
+					aoConsultation.getAoConsultationId(),
+					aoConsultation.getAoConsultationDateSeanceCommission(),
+					true, 0, 10, " ");
+			System.out.println("listeCourriers1.size()  ===    "
+					+ listeCourriers1.size());
+
+			int i = 0;
+			RapportSuiviCourrierParAOC rsc = new RapportSuiviCourrierParAOC();
+			
+			if (listeCourriers1 != null && listeCourriers1.size() > 0) {
+
+				for (CourrierInformations courrierinformations1 : listeCourriers1) {
+					i = i + 1;
+					rsc.setNumOrdre(i);
+					System.out.println("courrierinformations1   ====   ////   " + courrierinformations1);
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setDateJour(new java.util.Date()); 
+					courrierinformations1.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations1.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations1.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setReference(courrierinformations1
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations1.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations1
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations1.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations1
+					.getCourrier().getCourrierDateReception().toString();
+					rsc.setDateArrivee(dateArrivee.substring(0, 11));
+					rsc.setHeureArrivee(dateArrivee.substring(11, 16));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 16));
+					rapport.setCourrier(courrierinformations1.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC.add(rsc);
+					rapport.setListeCourrierAOC(listeCourrierAOC);
+					rsc = new RapportSuiviCourrierParAOC();
+				}
+			}
+			listeCourriers2 = appMgr
+					.findCourrierEnvoyerBOCRecuApresDelaisAOPorteur(
+							aoConsultation.getAoConsultationId(),
+							aoConsultation
+									.getAoConsultationDateSeanceCommission(),
+							true, 0, 10, " ");
+			System.out.println("listeCourriers2.size()  ===    "
+					+ listeCourriers2.size());
+			
+			RapportSuiviCourrierParAOC rsc2 = new RapportSuiviCourrierParAOC();
+			if (listeCourriers2 != null && listeCourriers2.size() > 0) {
+
+				for (CourrierInformations courrierinformations2 : listeCourriers2) {
+					i = i + 1;
+					rsc2.setNumOrdre2(i);
+					System.out.println("courrierinformations1   ====   ////   " + courrierinformations2);
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setDateJour(new java.util.Date()); 
+					courrierinformations2.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations2.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations2.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setReference2(courrierinformations2
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations2.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations2
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations2.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations2
+					.getCourrier().getCourrierDateReception().toString();
+					rsc2.setDateArrivee2(dateArrivee.substring(0, 11));
+					rsc2.setHeureArrivee2(dateArrivee.substring(11, 16));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 19));
+					rapport.setCourrier(courrierinformations2.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC2.add(rsc2);
+					rapport.setListeCourrierAOC2(listeCourrierAOC2);
+					rsc2 = new RapportSuiviCourrierParAOC();
+				}
+			}
+			
+			System.out.println("listeCourrierAOC.size()  ===  "
+					+ listeCourrierAOC.size());
+		
+			System.out.println("listeCourrierAOC2.size()  ===  "
+					+ listeCourrierAOC2.size());
+			if (listeCourrierAOC != null && listeCourrierAOC.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC(listeCourrierAOC);
+			}
+			if (listeCourrierAOC2 != null && listeCourrierAOC2.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC2(listeCourrierAOC2);
+			}
+			System.out.println(rapportcourrier.size());
+			export.exportToPDF(rapportcourrier, "EtatAO_RecuApresOuverture",
+					"EtatAO_RecuApresOuverture");
+			System.out.println(" Kaouther ===> FIN DANS printPDFRapidePoste ");
+		} catch (Exception e) {
+			System.out
+					.println("************ Echec export RapportRapidePoste  ");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void printEtatAORecuDansDelais() {
+
+		try {
+			System.out
+					.println(" kaouther ===> DANS printEtatAORecuapresOuverture ");
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+
+			// remplir entete rapport : debut
+
+			if (vb.getPerson().isBoc()) {
+				uniteConnecte = vb.getPerson().getAssociatedBOC().getNameBOC();
+				rapport.setUniteConnecte(uniteConnecte);
+				System.out.println();
+			} else {
+				uniteConnecte = vb.getPerson().getAssociatedDirection()
+						.getNameUnit();
+				rapport.setUniteConnecte(uniteConnecte);
+			}
+
+			System.out.println(" UniteConnecte =  "
+					+ rapport.getUniteConnecte());
+			String unit = rapport.getUniteConnecte();
+			System.out.println("////////   unit   ====   " + unit);
+			System.out.println("  remplir entete rapport : fin");
+
+			System.out
+					.println(" //////////////// rapport.getUniteConnecte() : Unité Connectée =  "
+							+ rapport.getUniteConnecte());
+			System.out
+					.println(" //////////////// uniteConnectee : Unité Connectée =  "
+							+ uniteConnecte);
+			System.out.println("  remplir entete rapport : fin");
+
+			// remplir entete rapport : fin
+
+			aoConsultation = vb.getAoConsultation();
+			rapport.setAoConsultation(aoConsultation);
+			Date dateLimite = aoConsultation.getAoConsultationDateLimiteOffre();
+			String dateLimiteToString = dateLimite.toString().substring(0, 10);
+			rapport.setHeureLimiteToString(aoConsultation.getAoConsultationDateLimiteOffre().toString().substring(0,16));
+			System.out.println("dateLimiteToString" + dateLimiteToString);
+			rapport.setDateLimiteToString(dateLimiteToString);
+			rapportcourrier.add(rapport);
+
+			listeCourriers1 = appMgr.findCourrierEnvoyerBOCRecuDansDelaisAO(
+					aoConsultation.getAoConsultationId(), aoConsultation.getAoConsultationDateLimiteOffre(),aoConsultation.getAoConsultationDelaisProlongation(), true,
+					0, 10, " ");
+			System.out.println("listeCourriers1.size()  ===    "
+					+ listeCourriers1.size());
+			int i = 0;
+			RapportSuiviCourrierParAOC rsc = new RapportSuiviCourrierParAOC();
+			if (listeCourriers1 != null && listeCourriers1.size() > 0) {
+
+				for (CourrierInformations courrierinformations1 : listeCourriers1) {
+					i = i + 1;
+					rsc.setNumOrdre(i);
+					System.out.println("courrierinformations1   ====   ////   " + courrierinformations1);
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setDateJour(new java.util.Date()); 
+					courrierinformations1.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations1.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations1.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setReference(courrierinformations1
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"	+ courrierinformations1.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations1
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations1.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations1
+					.getCourrier().getCourrierDateReception().toString();
+					rsc.setDateArrivee(dateArrivee.substring(0, 11));
+					rsc.setHeureArrivee(dateArrivee.substring(11, 16));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 16));
+					rapport.setCourrier(courrierinformations1.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC.add(rsc);
+					rapport.setListeCourrierAOC(listeCourrierAOC);
+					rsc = new RapportSuiviCourrierParAOC();
+					
+				}
+			}
+			listeCourriers2 = appMgr
+					.findCourrierEnvoyerBOCRecuDansDelaisAOPorteur(
+							aoConsultation.getAoConsultationId(),aoConsultation.getAoConsultationDateLimiteOffre(),
+							aoConsultation.getAoConsultationDelaisProlongation(),
+							true, 0, 10, " ");
+			System.out.println("listeCourriers2.size()  ===    "
+					+ listeCourriers2.size());
+			
+			RapportSuiviCourrierParAOC rsc2 = new RapportSuiviCourrierParAOC();
+			if (listeCourriers2 != null && listeCourriers2.size() > 0) {
+
+				for (CourrierInformations courrierinformations2 : listeCourriers2) {
+					i = i + 1;
+					rsc2.setNumOrdre2(i);
+					System.out.println("courrierinformations2   ====   ////   " + courrierinformations2);
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setDateJour(new java.util.Date()); 
+					courrierinformations2.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations2.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations2.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setReference2(courrierinformations2
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations2.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations2
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations2.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations2
+					.getCourrier().getCourrierDateReception().toString();
+					rsc2.setDateArrivee2(dateArrivee.substring(0, 11));
+					rsc2.setHeureArrivee2(dateArrivee.substring(11, 16));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 16));
+					rapport.setCourrier(courrierinformations2.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC2.add(rsc2);
+					System.out.println("############## rsc2.getReference"  + rsc2.getReference());
+					rapport.setListeCourrierAOC2(listeCourrierAOC2);
+					rsc2 = new RapportSuiviCourrierParAOC();
+				}
+				for (CourrierInformations courrierinformations2 : listeCourriers2) {
+					System.out.println("############## courrierinformations2.getReference"  + courrierinformations2.getCourrierID());
+				}
+			}
+			System.out.println("iiiiiiiiiiiiii" + i);
+			if (listeCourrierAOC != null && listeCourrierAOC.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC(listeCourrierAOC);
+			}
+			if (listeCourrierAOC2 != null && listeCourrierAOC2.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC2(listeCourrierAOC2);
+			}
+			System.out.println("listeCourrierAOC.size()  ===  "	+ listeCourrierAOC.size());
+			System.out.println("listeCourrierAOC2.size()  ===  "	+ listeCourrierAOC2.size());
+
+		
+			System.out.println(rapportcourrier.size());
+			export.exportToPDF(rapportcourrier, "EtatAO_RecuDansDelais",
+					"EtatAO_RecuDansDelais");
+			System.out.println(" Kaouther ===> FIN DANS printPDFRapidePoste ");
+		} catch (Exception e) {
+			System.out
+					.println("************ Echec export RapportRapidePoste  ");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void printEtatAORecuSansReferences() {
+		System.out
+				.println(" kaouther ===> DANS printEtatAORecuapresOuverture ");
+		try {
+			System.out
+					.println(" kaouther ===> DANS printEtatAORecuapresOuverture ");
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+
+			// remplir entete rapport : debut
+
+			if (vb.getPerson().isBoc()) {
+				uniteConnecte = vb.getPerson().getAssociatedBOC().getNameBOC();
+				rapport.setUniteConnecte(uniteConnecte);
+				System.out.println();
+			} else {
+				uniteConnecte = vb.getPerson().getAssociatedDirection()
+						.getNameUnit();
+				rapport.setUniteConnecte(uniteConnecte);
+			}
+
+			System.out.println(" UniteConnecte =  "
+					+ rapport.getUniteConnecte());
+			String unit = rapport.getUniteConnecte();
+			System.out.println("////////   unit   ====   " + unit);
+			System.out.println("  remplir entete rapport : fin");
+
+			System.out
+					.println(" //////////////// rapport.getUniteConnecte() : Unité Connectée =  "
+							+ rapport.getUniteConnecte());
+			System.out
+					.println(" //////////////// uniteConnectee : Unité Connectée =  "
+							+ uniteConnecte);
+			System.out.println("  remplir entete rapport : fin");
+
+			// remplir entete rapport : fin
+
+			aoConsultation = vb.getAoConsultation();
+			rapport.setAoConsultation(aoConsultation);
+			Date dateLimite = aoConsultation.getAoConsultationDateLimiteOffre();
+			String dateLimiteToString = dateLimite.toString().substring(0, 10);
+			System.out.println("dateLimiteToString" + dateLimiteToString);
+			rapport.setDateLimiteToString(dateLimiteToString);
+			Date dateProlongation = aoConsultation
+					.getAoConsultationDelaisProlongation();
+			String dateProlongationToString = dateProlongation.toString().substring(0, 10);
+			rapport.setDateProlongationToString(dateProlongationToString);
+			Date dateSeanceCommission = aoConsultation
+					.getAoConsultationDateSeanceCommission();
+			String dateSeanceCommissionToString = dateSeanceCommission
+					.toString().substring(0, 10);
+			rapport.setDateSeanceCommissionToString(dateSeanceCommissionToString);
+			rapportcourrier.add(rapport);
+
+			listeCourriers1 = appMgr.findCourrierEnvoyerBOCRecuSansReferenceAO(
+					aoConsultation.getAoConsultationId(), true, 0, 10, " ");
+			System.out.println("listeCourriers1.size()  ===    "
+					+ listeCourriers1.size());
+
+			int i = 0;
+			RapportSuiviCourrierParAOC rsc = new RapportSuiviCourrierParAOC();
+			if (listeCourriers1 != null && listeCourriers1.size() > 0) {
+
+				for (CourrierInformations courrierinformations1 : listeCourriers1) {
+					i = i + 1;
+					rsc.setNumOrdre(i);
+					System.out.println("courrierinformations1   ====   ////   " + courrierinformations1);
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setDateJour(new java.util.Date()); 
+					courrierinformations1.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations1.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations1.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations1.getCourrierDateReceptionEnvoi());
+					rsc.setReference(courrierinformations1
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations1.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations1
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations1.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations1
+					.getCourrier().getCourrierDateReception().toString();
+					rsc.setDateArrivee(dateArrivee.substring(0, 11));
+					rsc.setHeureArrivee(dateArrivee.substring(11, 19));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 19));
+					rapport.setCourrier(courrierinformations1.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC.add(rsc);
+					rapport.setListeCourrierAOC(listeCourrierAOC);
+					rsc = new RapportSuiviCourrierParAOC();
+				}
+			}
+			listeCourriers2 = appMgr
+					.findCourrierEnvoyerBOCRecuSansReferenceAOPorteur(
+							aoConsultation.getAoConsultationId(), true, 0, 10,
+							" ");
+			System.out.println("listeCourriers2.size()  ===    "
+					+ listeCourriers2.size());
+			RapportSuiviCourrierParAOC rsc2 = new RapportSuiviCourrierParAOC();
+			if (listeCourriers2 != null && listeCourriers2.size() > 0) {
+
+				for (CourrierInformations courrierinformations2 : listeCourriers2) {
+					i = i + 1;
+					rsc2.setNumOrdre2(i);
+					System.out.println("courrierinformations2   ====   ////   " + courrierinformations2);
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setDateJour(new java.util.Date()); 
+					courrierinformations2.setCourrier(appMgr
+								.getCourrierByIdCourrier(
+										courrierinformations2.getCourrierID())
+								.get(0));
+					System.out.println("------------------------+++++++++++"  +  courrierinformations2.getCourrier());
+					System.out.println("------------------------"  +  courrierinformations2.getCourrierDateReceptionEnvoi());
+					rsc2.setReference2(courrierinformations2
+							.getCourrierReference());
+					System.out.println("rapport.getReference()"
+							+ courrierinformations2.getCourrierReference());
+					System.out.println("heure reception offre"
+							+ courrierinformations2
+									.getCourrierDateReceptionEnvoi());
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ courrierinformations2.getCourrier().getCourrierDateReception());
+					String dateArrivee = courrierinformations2
+					.getCourrier().getCourrierDateReception().toString();
+					rsc2.setDateArrivee2(dateArrivee.substring(0, 11));
+					rsc2.setHeureArrivee2(dateArrivee.substring(11, 19));
+					System.out.println("++++++++++++++++++++heure reception offre"	
+							+ dateArrivee.substring(11, 19));
+					rapport.setCourrier(courrierinformations2.getCourrier());
+					System.out.println("iiiiiiiiiiiiii" + i);
+					listeCourrierAOC2.add(rsc2);
+					rapport.setListeCourrierAOC2(listeCourrierAOC2);
+					rsc2 = new RapportSuiviCourrierParAOC();
+				}
+			}
+			System.out.println("listeCourrierAOC.size()  ===  "
+					+ listeCourrierAOC.size());
+			if (listeCourrierAOC != null && listeCourrierAOC.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC(listeCourrierAOC);
+			}
+			if (listeCourrierAOC2 != null && listeCourrierAOC2.size() > 0) {
+				rapportcourrier.get(0).setListeCourrierAOC2(listeCourrierAOC2);
+			}
+			System.out.println(rapportcourrier.size());
+			export.exportToPDF(rapportcourrier, "EtatAO_RecuSansReferences",
+					"EtatAO_RecuSansReferences");
+			System.out.println(" Kaouther ===> FIN DANS printPDFRapidePoste ");
+		} catch (Exception e) {
+			System.out
+					.println("************ Echec export RapportRapidePoste  ");
+			e.printStackTrace();
+		}
+	}
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+
+	public CourrierInformations getCourrierinformations1() {
+		return courrierinformations1;
+	}
+
+	public void setCourrierinformations1(
+			CourrierInformations courrierinformations1) {
+		this.courrierinformations1 = courrierinformations1;
+	}
+
+	public CourrierInformations getCourrierinformations2() {
+		return courrierinformations2;
+	}
+
+	public void setCourrierinformations2(
+			CourrierInformations courrierinformations2) {
+		this.courrierinformations2 = courrierinformations2;
+	}
+
+	public List<CourrierInformations> getListeCourriers2() {
+		return listeCourriers2;
+	}
+
+	public void setListeCourriers2(List<CourrierInformations> listeCourriers2) {
+		this.listeCourriers2 = listeCourriers2;
+	}
+
+	public List<CourrierInformations> getListeCourriers1() {
+		return listeCourriers1;
+	}
+
+	public void setListeCourriers1(List<CourrierInformations> listeCourriers1) {
+		this.listeCourriers1 = listeCourriers1;
+	}
+
+	public int getI() {
+		return i;
+	}
+
+	public void setI(int i) {
+		this.i = i;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public String getUniteConnecte() {
+		return uniteConnecte;
+	}
+
+	public void setUniteConnecte(String uniteConnecte) {
+		this.uniteConnecte = uniteConnecte;
+	}
+
+	public List<RapportSuiviCourrierParAOC> getListeCourrierAOC() {
+		return listeCourrierAOC;
+	}
+
+	public void setListeCourrierAOC(
+			List<RapportSuiviCourrierParAOC> listeCourrierAOC) {
+		this.listeCourrierAOC = listeCourrierAOC;
+	}
+
+	public List<RapportSuiviCourrierParAOC> getListeCourrierAOC2() {
+		return listeCourrierAOC2;
+	}
+
+	public void setListeCourrierAOC2(
+			List<RapportSuiviCourrierParAOC> listeCourrierAOC2) {
+		this.listeCourrierAOC2 = listeCourrierAOC2;
+	}
+
+	
+
+}

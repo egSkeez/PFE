@@ -1,0 +1,26 @@
+package xtensus.entity;
+
+public class BoiteArchiveModel {
+	private Etages boite;
+	private String indiceBoite;
+	public Etages getBoite() {
+		return boite;
+	}
+	public void setBoite(Etages boite) {
+		this.boite = boite;
+	}
+	public String getIndiceBoite() {
+		return indiceBoite;
+	}
+	public void setIndiceBoite(String indiceBoite) {
+		this.indiceBoite = indiceBoite;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+}

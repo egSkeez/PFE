@@ -1,0 +1,47 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Expdestexterne;
+
+public class StatistiqueCourrierOrganisme {
+
+	private Expdestexterne organismeExterne;
+	private Integer pourcentage;
+	private String organismeName;
+	
+
+//	public String getOrganismeName() {
+//		return organismeName;
+//	}
+
+
+	public Expdestexterne getOrganismeExterne() {
+		return organismeExterne;
+	}
+	public void setOrganismeExterne(Expdestexterne organismeExterne) {
+		this.organismeExterne = organismeExterne;
+	}
+	public Integer getPourcentage() {
+		return pourcentage;
+	}
+	public void setPourcentage(Integer pourcentage) {
+		this.pourcentage = pourcentage;
+	}
+	public String getOrganismeName(){
+		switch (organismeExterne.getTypeutilisateur().getTypeUtilisateurId()) {
+		case 1:
+			organismeName = organismeExterne.getExpDestExterneNom() + " " + organismeExterne.getExpDestExternePrenom();
+             return organismeName;
+		case 2:
+			organismeName =  organismeExterne.getExpDestExterneNom();
+			return organismeName;
+		default:
+			return "";
+		}
+		
+	}
+	public void setOrganismeName(String organismeName) {
+		this.organismeName = organismeName;
+	}
+	
+	
+}

@@ -1,0 +1,183 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Groupecontact;
+import xtensus.entity.Groupecontactmailing;
+import xtensus.entity.Sujetmailing;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class GroupeMailingHistoriqueBean {
+
+	private ApplicationManager appMgr;
+
+	@Autowired
+	private LanguageManagerBean lm;
+	private Groupecontact groupecontact;
+	private DataModel listSujetMailingDM;
+	private List<GroupeMailingHistorique> groupeMailingHistoriques;
+
+	private long records;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public GroupeMailingHistoriqueBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listSujetMailingDM = new ListDataModel();
+		groupeMailingHistoriques = new ArrayList<GroupeMailingHistorique>();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			groupecontact = vb.getGroupecontact();
+			List<Integer> listInteger = new ArrayList<Integer>();
+			List<Groupecontactmailing> groupecontactmailings = new ArrayList<Groupecontactmailing>();
+			groupecontactmailings = appMgr.getGroupecontactmailingByIdGroupecontact(groupecontact.getIdgroupecontact());
+			Sujetmailing sujetmailing;
+			GroupeMailingHistorique groupeMailingHistorique;
+			List<Groupecontactmailing> listGroupeContactMailing ;
+			System.out.println("  -"+groupecontactmailings.size());
+			for (Groupecontactmailing gcm : groupecontactmailings) {
+				if (!listInteger.contains(gcm.getId().getIdsujetmailing())) {
+					listInteger.add(gcm.getId().getIdsujetmailing());
+					listGroupeContactMailing = new ArrayList<Groupecontactmailing>();
+					sujetmailing = new Sujetmailing();
+					sujetmailing = appMgr.listSujetmailingById(gcm.getId().getIdsujetmailing()).get(0);
+					groupeMailingHistorique = new GroupeMailingHistorique();
+					groupeMailingHistorique.setSujetmailing(sujetmailing);
+					listGroupeContactMailing = appMgr.getListGroupeContctMailingByIdGroupAndIdSujet(groupecontact.getIdgroupecontact(),sujetmailing.getIdsujetmailing());
+					groupeMailingHistorique.setDateEnvoie(listGroupeContactMailing.get(0).getDateEnvoi());
+					if (listGroupeContactMailing.get(listGroupeContactMailing.size()-1).getDateEnvoi() != null) {
+						groupeMailingHistorique.setDateFin(listGroupeContactMailing.get(listGroupeContactMailing.size()-1).getDateEnvoi());
+					} 
+					groupeMailingHistoriques.add(groupeMailingHistorique);
+				}
+			}
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultationHistoriqueGrpMailing",
+					"Evénement de log de consultation d'historique du groupe de mailing "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(), vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<GroupeMailingHistorique> list = new ArrayList<GroupeMailingHistorique>();
+		for (int i = groupeMailingHistoriques.size()-1; i >= 0; i--) {
+			list.add(groupeMailingHistoriques.get(i));
+		}
+		listSujetMailingDM.setWrappedData(list);
+	}
+
+	/************** Getters && setters ********************/
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listSujetMailingDM == null
+				&& listSujetMailingDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<GroupeMailingHistorique>) listSujetMailingDM
+					.getWrappedData()).size();
+		return records;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public Groupecontact getGroupecontact() {
+		return groupecontact;
+	}
+
+	public void setGroupecontact(Groupecontact groupecontact) {
+		this.groupecontact = groupecontact;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public void setListSujetMailingDM(DataModel listSujetMailingDM) {
+		this.listSujetMailingDM = listSujetMailingDM;
+	}
+
+	public DataModel getListSujetMailingDM() {
+		return listSujetMailingDM;
+	}
+
+	public void setGroupeMailingHistoriques(
+			List<GroupeMailingHistorique> groupeMailingHistoriques) {
+		this.groupeMailingHistoriques = groupeMailingHistoriques;
+	}
+
+	public List<GroupeMailingHistorique> getGroupeMailingHistoriques() {
+		return groupeMailingHistoriques;
+	}
+
+}

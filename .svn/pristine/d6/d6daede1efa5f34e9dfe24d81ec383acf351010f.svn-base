@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-11-26T19:25:06 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourrierFiche_Documents" pageWidth="525" pageHeight="802" columnWidth="525" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="1afbbf62-b37a-49df-a705-3684275635af">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="documentCommentaire" class="java.lang.String">
+		<fieldDescription><![CDATA[documentCommentaire]]></fieldDescription>
+	</field>
+	<field name="documentDateInsertion" class="java.util.Date">
+		<fieldDescription><![CDATA[documentDateInsertion]]></fieldDescription>
+	</field>
+	<field name="documentDelegueId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentDelegueId]]></fieldDescription>
+	</field>
+	<field name="documentHierarchique" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentHierarchique]]></fieldDescription>
+	</field>
+	<field name="documentNom" class="java.lang.String">
+		<fieldDescription><![CDATA[documentNom]]></fieldDescription>
+	</field>
+	<field name="documentNomAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentNomAR]]></fieldDescription>
+	</field>
+	<field name="documentObjet" class="java.lang.String">
+		<fieldDescription><![CDATA[documentObjet]]></fieldDescription>
+	</field>
+	<field name="documentObjetAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentObjetAR]]></fieldDescription>
+	</field>
+	<field name="documentParent" class="xtensus.entity.Document">
+		<fieldDescription><![CDATA[documentParent]]></fieldDescription>
+	</field>
+	<field name="documentProprietaire" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentProprietaire]]></fieldDescription>
+	</field>
+	<field name="documentReference" class="java.lang.String">
+		<fieldDescription><![CDATA[documentReference]]></fieldDescription>
+	</field>
+	<field name="documentSupprime" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[documentSupprime]]></fieldDescription>
+	</field>
+	<field name="documentSupprimeDate" class="java.util.Date">
+		<fieldDescription><![CDATA[documentSupprimeDate]]></fieldDescription>
+	</field>
+	<field name="documentSupprimeDelegueId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentSupprimeDelegueId]]></fieldDescription>
+	</field>
+	<field name="documentType" class="java.lang.String">
+		<fieldDescription><![CDATA[documentType]]></fieldDescription>
+	</field>
+	<field name="documentTypeAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentTypeAR]]></fieldDescription>
+	</field>
+	<field name="documents" class="java.util.Set">
+		<fieldDescription><![CDATA[documents]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="idDocument" class="java.lang.Integer">
+		<fieldDescription><![CDATA[idDocument]]></fieldDescription>
+	</field>
+	<field name="naturedocument1s" class="java.util.Set">
+		<fieldDescription><![CDATA[naturedocument1s]]></fieldDescription>
+	</field>
+	<field name="naturedocument2s" class="java.util.Set">
+		<fieldDescription><![CDATA[naturedocument2s]]></fieldDescription>
+	</field>
+	<field name="naturedocument3s" class="java.util.Set">
+		<fieldDescription><![CDATA[naturedocument3s]]></fieldDescription>
+	</field>
+	<field name="document" class="xtensus.entity.Document">
+		<fieldDescription><![CDATA[document]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="17">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="46" height="17" isPrintWhenDetailOverflows="true" uuid="9e9d844a-408e-43e4-93e5-c6aee1306a5e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentCommentaire}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="148" y="0" width="190" height="17" isPrintWhenDetailOverflows="true" uuid="12471bbd-31eb-46ab-9353-89ae7d541c94">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentObjet}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="46" y="0" width="102" height="17" isPrintWhenDetailOverflows="true" uuid="a069e7ed-ed72-43df-95a3-61196fb5ec47">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentNom}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="338" y="0" width="182" height="17" isPrintWhenDetailOverflows="true" uuid="8a96a9b7-d984-47a4-9a66-e09adb8ad40d">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentCommentaire}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

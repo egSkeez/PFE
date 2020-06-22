@@ -1,0 +1,176 @@
+package xtensus.MethdesGeneriques;
+import java.util.List;
+import xtensus.entity.Transaction;
+import xtensus.entity.Variables;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+public class MethodesGenerique {
+	
+	
+	public static String generationCodeUniqueCourrier(ApplicationManager appMgr,Transaction transaction,String anneeCourrier,String moisCourrier,String serviceExpediteurAcronyme,boolean connecteIsBoc,Integer courrierEtat, List<BOC> listeBOS,List<Person> listTousUtilisateur,int idUtilisateurTransaction ){
+		System.out.println("DANS generationCdeUniqueCourrier ");
+		String templateCodeUnique="";
+		
+		String sens="";
+		String acronymeBOC="";
+		// Récupérer le template du code Unique du Courrier
+		List<Variables> templateCodeUniqueList = appMgr.listVariablesByLibelle("code_courrier_unique_personnalisable");
+		if(templateCodeUniqueList!=null && templateCodeUniqueList.size()>0){
+			 templateCodeUnique = templateCodeUniqueList.get(0).getVaraiablesValeur();
+			
+			String courrierTypeOrdre=Integer.toString(transaction.getCourrierTypeOrdre()) ;
+
+			// XTE : Si le courrier est ajouté par un non BOC, il aura le type à NULL
+			if (transaction.getCourrierType() != null) {
+				sens=transaction.getCourrierType();
+				
+			} else {
+				sens="I";
+				
+			}
+			
+			System.out.println("courrierEtat :"+courrierEtat);
+			System.out.println("connecteIsBoc "+connecteIsBoc);
+			//Récupération de l'acronyme de BOC
+		
+			
+			if ((!connecteIsBoc &&  ((courrierEtat.intValue() == 5) || (courrierEtat.intValue() == 6)))|| (connecteIsBoc)) {
+				
+				boolean personeTrouve = false;
+
+				if(listeBOS != null && listeBOS.size()>0)
+				for (BOC bureau : listeBOS) {
+					
+					List<Person> listeMembres = bureau.getMembersBOC();
+					for (Person personne : listeMembres) {
+						
+						if (personne.getId() == idUtilisateurTransaction) {
+							
+							acronymeBOC= bureau.getShortNameBOC();
+							personeTrouve = true;
+							break;
+						}
+					}
+				}
+				if (!personeTrouve) {
+					// récupérer le BO de la direction de cette utilisateur
+					Person person = new Person();
+					boolean findUser = false;
+					if(listTousUtilisateur!=null &&listTousUtilisateur.size()>0){
+					for (int i = 0; i < listTousUtilisateur.size(); i++) {
+						int j = 0;
+
+						do {
+							if (listTousUtilisateur.get(j).getId() == idUtilisateurTransaction) {
+								person = listTousUtilisateur.get(j);
+								findUser = true;
+							} else {
+								j++;
+							}
+						} while (!findUser
+								&& j < listTousUtilisateur.size());
+
+					}
+					}
+					if (findUser) {
+						// chercher le BO de l'unité du personne trouvé
+						Unit unite = person.getAssociatedDirection();
+					
+						if (unite.getAssociatedBOC() != null) {
+							acronymeBOC= unite.getAssociatedBOC().getShortNameBOC();
+						}
+
+					}
+
+				}
+				
+			}
+			else{
+				acronymeBOC="";
+				
+			}
+			templateCodeUnique=constructionCode(templateCodeUnique,courrierTypeOrdre,serviceExpediteurAcronyme,anneeCourrier,moisCourrier,sens,acronymeBOC);
+		}
+		else {
+			System.out.println("Le template n'existe pas dans la Base de données");
+		}
+		System.out.println("templateCodeUnique = "+templateCodeUnique);
+		
+		return templateCodeUnique;
+	}
+	
+	
+	public static String constructionCode(String template, String idCourrier,String srv, String annee, String mois, String sens, String bo){
+		if (bo.equals("")) {
+
+			int positionBOC = template.indexOf("[BOC]");
+			if (positionBOC > 0) {
+				// si cette chaine existe et n'est pas au début
+				if (template.charAt(positionBOC - 1) != ']') {
+					String premiereChaine = template.substring(0,
+							positionBOC - 1);
+					String deuxiemeChaine = template.substring(positionBOC,
+							template.length());
+//					System.out.println("premiereChaine  " + premiereChaine);
+//					System.out.println("deuxiemeChaine " + deuxiemeChaine);
+					template = premiereChaine + deuxiemeChaine;
+					
+				}
+				
+				// vérification si nous avons un caractère autre que "[" après [BOC]
+				positionBOC = template.indexOf("[BOC]");
+				// 5 :c'est la longueue de [BOC] à remplacer
+				int positionFinBoc=positionBOC+5;
+//				System.out.println("positionFinBoc "+positionFinBoc); 
+				if(positionFinBoc<template.length()){
+					String premiereChaine = template.substring(0,
+							positionFinBoc);
+					String deuxiemeChaine = template.substring(positionFinBoc+1,
+							template.length());
+//					System.out.println("premiereChaine  " + premiereChaine);
+//					System.out.println("deuxiemeChaine " + deuxiemeChaine);
+					template = premiereChaine + deuxiemeChaine;
+//					System.out.println("Nouveau Template " + template);
+					
+				}
+			}
+			else if (positionBOC == 0) {
+				positionBOC = template.indexOf("[BOC]");
+				// vérification si nous avons un caractère autre que "[" après [BOC]
+				int positionFinBoc=positionBOC+5;
+//				System.out.println("positionFinBoc "+positionFinBoc); 
+				if(positionFinBoc<template.length()){
+					String premiereChaine = template.substring(0,
+							positionFinBoc);
+					String deuxiemeChaine = template.substring(positionFinBoc+1,
+							template.length());
+//					System.out.println("premiereChaine  " + premiereChaine);
+//					System.out.println("deuxiemeChaine " + deuxiemeChaine);
+					template = premiereChaine + deuxiemeChaine;
+//					System.out.println("Nouveau Template " + template);
+					
+				}
+			}
+			else{
+				System.out.println( "[BOC] n'existe pas dans le Template");
+			}
+			// 
+		}
+		else{
+			System.out.println("BO " +bo);
+		}
+		
+		template = template.replace("[ID]",idCourrier);
+		template = template.replace("[Annee]",annee);
+		template = template.replace("[Mois]",mois);
+		template = template.replace("[Sens]",sens);
+		template = template.replace("[BOC]",bo);
+		template = template.replace("[SRV]",srv);
+		
+		return template;
+	}
+
+}

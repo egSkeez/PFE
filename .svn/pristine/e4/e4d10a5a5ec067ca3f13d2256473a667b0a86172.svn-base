@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+		<property name="locations" value="classpath:param*.properties" />
+	</bean>
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${DataBase.driver}" />
+		<property name="jdbcUrl" value="${DataBase.url}" />
+		<property name="user" value="${DataBase.username}" />
+		<property name="password" value="${DataBase.password}" />
+		<property name="initialPoolSize" value="${DataBase.initialPoolSize}" />
+		<property name="minPoolSize" value="${DataBase.minPoolSize}" />
+		<property name="maxPoolSize" value="${DataBase.maxPoolSize}" />
+		<property name="testConnectionOnCheckout" value="${DataBase.testConnectionOnCheckout}" />
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>xtensus.entity.Relance</value>
+				<value>xtensus.entity.Relancetransaction</value>
+				<value>xtensus.entity.RelancetransactionId</value>
+				<value>xtensus.entity.Sauvegardehistorique</value>
+				<value>xtensus.entity.Raisonnontransmission</value>
+				<value>xtensus.entity.Suivitransmissioncourrier</value>
+				<value>xtensus.entity.Armoire</value>
+				<value>xtensus.entity.Etages</value>
+				<value>xtensus.entity.Aide</value>
+				<value>xtensus.entity.Fax</value>
+				<value>xtensus.entity.Mail</value>
+				<value>xtensus.entity.Annotation</value>
+				<value>xtensus.entity.Bureauordre</value>
+				<value>xtensus.entity.Commentaire</value>
+				<value>xtensus.entity.Confidentialite</value>
+				<value>xtensus.entity.Courrier</value>
+				<value>xtensus.entity.Direction</value>
+				<value>xtensus.entity.Document</value>
+				<value>xtensus.entity.Dossier</value>
+				<value>xtensus.entity.Droit</value>
+				<value>xtensus.entity.Etat</value>
+				<value>xtensus.entity.Expdest</value>
+				<value>xtensus.entity.Expdestexterne</value>
+				<value>xtensus.entity.Groupe</value>
+				<value>xtensus.entity.Lienscourriers</value>
+				<value>xtensus.entity.Liensdossier</value>
+				<value>xtensus.entity.Logs</value>
+				<value>xtensus.entity.Menu</value>
+				<value>xtensus.entity.MenuDroit</value>
+				<value>xtensus.entity.MenuDroitId</value>
+				<value>xtensus.entity.Nature</value>
+				<value>xtensus.entity.Naturedocument1</value>
+				<value>xtensus.entity.Naturedocument2</value>
+				<value>xtensus.entity.Naturedocument3</value>
+				<value>xtensus.entity.Pm</value>
+				<value>xtensus.entity.Pp</value>
+				<value>xtensus.entity.Proprietes</value>
+				<value>xtensus.entity.Societe</value>
+				<value>xtensus.entity.Transaction</value>
+				<value>xtensus.entity.TransactionDestinationReelle</value>
+				<value>xtensus.entity.Transmission</value>
+				<value>xtensus.entity.Typedossier</value>
+				<value>xtensus.entity.Typetransaction</value>
+				<value>xtensus.entity.Typeutilisateur</value>
+				<value>xtensus.entity.Urgence</value>
+				<value>xtensus.entity.Utilisateur</value>
+				<value>xtensus.entity.Utilisateurdelegation</value>
+				<value>xtensus.entity.Variables</value>
+				<value>xtensus.entity.Workflow</value>
+				<value>xtensus.entity.CourrierWorkflow</value>
+				<value>xtensus.entity.CourrierWorkflowId</value>
+				<value>xtensus.entity.CourrierDossier</value>
+				<value>xtensus.entity.CourrierDossierId</value>
+				<value>xtensus.entity.CourrierLiens</value>
+				<value>xtensus.entity.CourrierLiensId</value>
+				<value>xtensus.entity.DossierLiens</value>
+				<value>xtensus.entity.DossierLiensId</value>
+				<value>xtensus.entity.TransactionAnnotation</value>
+				<value>xtensus.entity.TransactionAnnotationId</value>
+				<value>xtensus.entity.TransactionDestination</value>
+				<value>xtensus.entity.TransactionDestinationId</value>
+				<value>xtensus.entity.UtilisateursDelegation</value>
+				<value>xtensus.entity.UtilisateursDelegationId</value>
+				<value>xtensus.entity.ArmoirBoiteArchiveUser</value>
+				<value>xtensus.entity.Gouvernerat</value>
+				<value>xtensus.entity.Pays</value>
+				<value>xtensus.entity.Ville</value>
+				<value>xtensus.entity.Groupecontact</value>
+				<value>xtensus.entity.Groupecontactmailing</value>
+				<value>xtensus.entity.GroupecontactmailingId</value>
+				<value>xtensus.entity.Groupecontactpppm</value>
+				<value>xtensus.entity.GroupecontactpppmId</value>
+				<value>xtensus.entity.Sujetmailing</value>
+				<value>xtensus.gnl.entity.Admin</value>
+				<value>xtensus.gnl.entity.Evenement</value>
+				<value>xtensus.gnl.entity.Frequence</value>
+				<value>xtensus.gnl.entity.Groupegnl</value>
+				<value>xtensus.gnl.entity.LogVariable</value>
+				<value>xtensus.gnl.entity.LogVariableId</value>
+				<value>xtensus.gnl.entity.Message</value>
+				<value>xtensus.gnl.entity.Methode</value>
+				<value>xtensus.gnl.entity.Notification</value>
+				<value>xtensus.gnl.entity.NotificationVariable</value>
+				<value>xtensus.gnl.entity.NotificationVariableId</value>
+				<value>xtensus.gnl.entity.Parametre</value>
+				<value>xtensus.gnl.entity.Templatelog</value>
+				<value>xtensus.gnl.entity.Templatenotification</value>
+				<value>xtensus.gnl.entity.Trace</value>
+				<value>xtensus.gnl.entity.User</value>
+				<value>xtensus.gnl.entity.UserNotification</value>
+				<value>xtensus.gnl.entity.VariablesLog</value>
+				<value>xtensus.gnl.entity.VariablesNotification</value>
+				<value>xtensus.gnl.entity.Xtelog</value>
+				<value>xtensus.gnl.entity.TypeEvenement</value>
+				<value>xtensus.entity.FaxMail</value>
+				<value>xtensus.entity.DocumentCategorie</value>
+				<value>xtensus.entity.NatureCategorie</value>
+				<value>xtensus.entity.DonneeSupplementaire</value>
+				<value>xtensus.entity.DonneeSupplementaireNature</value>
+				<value>xtensus.entity.CourrierDonneeSupplementaire</value>
+				<value>xtensus.entity.TransactionDocument</value>
+				<value>xtensus.entity.TransactionDocumentId</value>
+				<value>xtensus.entity.Unite</value>
+				<value>xtensus.entity.AoConsultation</value>
+				<value>xtensus.entity.Employe</value>
+				<value>xtensus.entity.Cheque</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
+
+			</props>
+
+		</property>
+		<property name="mappingLocations" value="classpath:query.hbm.xml"></property>
+	</bean>
+
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:messages</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Generic DAO <bean id="genericDAO" class="xtensus.pfe.dao.AbstractGenericDao"> 
+		<property name="sessionFactory" ref="sessionFactory"/> </bean> -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<context:annotation-config />
+
+
+	<context:component-scan base-package="xtensus.*">
+		<context:include-filter type="regex"
+			expression="xtensus.beans.common" />
+	</context:component-scan>
+
+
+	<!-- Cette bean permet de dire au conteneur Spring que les classes @Repository 
+		ont besoin que des transaction exception soient appliquées sur eux -->
+	<bean
+		class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+	<!-- Aspect -->
+	<bean id="tracingAfterReturningAdvice" class="xtensus.aop.TracingAfterReturningAdvice" />
+	<bean id="variableGlobaleNotification" class="xtensus.beans.common.VariableGlobaleNotification" />
+	<aop:aspectj-autoproxy />
+
+
+</beans>

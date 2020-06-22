@@ -1,0 +1,312 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.beans.utils.SuiviCourrierCourrier;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierLiens;
+import xtensus.entity.Lienscourriers;
+import xtensus.entity.Nature;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionAnnotation;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierDetailsRelanceBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private Transaction transaction;
+//	private TransactionAnnotation transactionAnnotation;
+	private Nature nature;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private String expediteur;
+	private String destinataire;
+	private Urgence urgence;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	private String annotationResult;
+	private String lienOutput;
+	private boolean showMonitoringButton;
+	private boolean notLinkedMail;
+	private boolean linkedMail;
+	private long nbrCourrierLies;
+	private SuiviCourrierCourrier suiviCourrierCourrier;
+	private TransactionDestination transactionDestination;
+	
+
+	@Autowired
+	public CourrierDetailsRelanceBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export){
+		this.appMgr = appMgr;
+		this.export = export;
+		courrier = new Courrier();
+		transaction = new Transaction();
+		transactionDestination = new TransactionDestination();
+		nature = new Nature();
+		transmission = new Transmission();
+		confidentialite = new Confidentialite();
+		suiviCourrierCourrier = new SuiviCourrierCourrier();
+		urgence = new Urgence();
+		System.out.println("**************BeanInjecte CourrierRelanceConsultationBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			showMonitoringButton = vb.isShowMonitoringButtonForDest();
+			annotationResult = "";
+			suiviCourrierCourrier = vb.getSuiviCourrierCourrier();
+			courrier = suiviCourrierCourrier.getCourrier();
+			nature = appMgr.getNatureById(courrier.getNature().getNatureId()).get(0);
+			confidentialite = appMgr.getConfidentialiteById(courrier.getConfidentialite().getConfidentialiteId()).get(0);
+			urgence = appMgr.getUrgenceById(courrier.getUrgence().getUrgenceId()).get(0);
+			transmission = appMgr.getTransmissionById(courrier.getTransmission().getTransmissionId()).get(0);
+			transaction = suiviCourrierCourrier.getTransaction();
+			transactionDestination = suiviCourrierCourrier.getTransactionDestination();
+			expediteur = suiviCourrierCourrier.getExpediteur();
+			destinataire = suiviCourrierCourrier.getListDestinataire();
+			int refTransaction = transaction.getTransactionId();
+			List<TransactionAnnotation> annotations = new ArrayList<TransactionAnnotation>();
+			annotations = appMgr.getAnnotationByIdTransaction(refTransaction);
+			String annotationLibelle;
+			int lastIndex;
+			int refAnnotation;
+			for (TransactionAnnotation ta : annotations) {
+				refAnnotation = ta.getId().getIdAnnotation();
+				annotationLibelle = appMgr
+						.getAnnotationByIdAnotation(refAnnotation).get(0)
+						.getAnnotationLibelle();
+				annotationResult = annotationResult + annotationLibelle + " / ";
+			}
+			if (!annotationResult.equals("")) {
+				lastIndex = annotationResult.lastIndexOf("/");
+				annotationResult = annotationResult.substring(0, lastIndex);
+			}
+			
+			Courrier courrier1;
+			nbrCourrierLies = 0;
+			vb.setListCourriersAffectes(new ArrayList<CourrierDossierListe>());
+			List<Lienscourriers> liensCourriers = new ArrayList<Lienscourriers>();
+			List<CourrierLiens> courrierLiens;
+			liensCourriers = appMgr.getListCourrierLiensByIdCourrier(courrier.getIdCourrier());
+			if (!liensCourriers.isEmpty()) {
+				notLinkedMail = false;
+				linkedMail = true;
+				CourrierDossierListe courrierDossierListe;
+				System.out.println("size Lien1 : "+liensCourriers.size());
+				for (Lienscourriers lienscourriers : liensCourriers) {
+					courrierLiens = new ArrayList<CourrierLiens>();
+					courrierLiens = appMgr.getListLiensCourrierByIdCourrierLien(lienscourriers.getLiensCourrier());
+					for (CourrierLiens courrierLiens2 : courrierLiens) {
+						courrierDossierListe = new CourrierDossierListe();
+						nbrCourrierLies = nbrCourrierLies +1;
+						courrier1 = new Courrier();
+						courrier1 = appMgr.getCourrierByIdCourrier(courrierLiens2.getId().getIdCourrier()).get(0);
+						System.out.println("Courrier ref : "+courrier1.getCourrierReferenceCorrespondant());
+						System.out.println("Courrier Id  : "+courrier1.getIdCourrier());
+						courrierDossierListe.setCourrier(courrier1);
+						courrierDossierListe.setConfidentialite(appMgr.getConfidentialiteById(courrier1.getConfidentialite().getConfidentialiteId()).get(0));
+						courrierDossierListe.setUrgence(appMgr.getUrgenceById(courrier1.getUrgence().getUrgenceId()).get(0));
+						courrierDossierListe.setTransmission(appMgr.getTransmissionById(courrier1.getTransmission().getTransmissionId()).get(0));
+						courrierDossierListe.setNature(appMgr.getNatureById(courrier1.getNature().getNatureId()).get(0));
+						vb.getListCourriersAffectes().add(courrierDossierListe);
+					}
+				}
+				if (nbrCourrierLies == 0) {
+					notLinkedMail = true;
+					linkedMail = false;
+				}
+			} else {
+				notLinkedMail = true;
+				linkedMail = false;
+			}
+			System.out
+					.println("*******ChargementAvecSucces   CourrierConsultationBen******");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement CourrierConsultationBen*******");
+			e.printStackTrace();
+		}
+
+	}
+	
+
+
+	// ************Getter & Setter********************
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public void setAnnotationResult(String annotationResult) {
+		this.annotationResult = annotationResult;
+	}
+
+	public String getAnnotationResult() {
+		return annotationResult;
+	}
+
+	public void setLienOutput(String lienOutput) {
+		this.lienOutput = lienOutput;
+	}
+
+	public String getLienOutput() {
+		return lienOutput;
+	}
+
+	public void setShowMonitoringButton(boolean showMonitoringButton) {
+		this.showMonitoringButton = showMonitoringButton;
+	}
+
+	public boolean isShowMonitoringButton() {
+		return showMonitoringButton;
+	}
+
+	public void setNotLinkedMail(boolean notLinkedMail) {
+		this.notLinkedMail = notLinkedMail;
+	}
+
+	public boolean isNotLinkedMail() {
+		return notLinkedMail;
+	}
+
+	public void setLinkedMail(boolean linkedMail) {
+		this.linkedMail = linkedMail;
+	}
+
+	public boolean isLinkedMail() {
+		return linkedMail;
+	}
+
+	public void setNbrCourrierLies(long nbrCourrierLies) {
+		this.nbrCourrierLies = nbrCourrierLies;
+	}
+
+	public long getNbrCourrierLies() {
+		return nbrCourrierLies;
+	}
+
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public String getExpediteur() {
+		return expediteur;
+	}
+
+	public void setDestinataire(String destinataire) {
+		this.destinataire = destinataire;
+	}
+
+	public String getDestinataire() {
+		return destinataire;
+	}
+
+	public void setSuiviCourrierCourrier(SuiviCourrierCourrier suiviCourrierCourrier) {
+		this.suiviCourrierCourrier = suiviCourrierCourrier;
+	}
+
+	public SuiviCourrierCourrier getSuiviCourrierCourrier() {
+		return suiviCourrierCourrier;
+	}
+
+	public void setTransactionDestination(TransactionDestination transactionDestination) {
+		this.transactionDestination = transactionDestination;
+	}
+
+	public TransactionDestination getTransactionDestination() {
+		return transactionDestination;
+	}
+
+}

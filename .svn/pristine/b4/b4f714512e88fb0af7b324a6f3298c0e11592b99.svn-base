@@ -1,0 +1,322 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.itextpdf.text.log.SysoLogger;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.SuiviCourrierCourrier;
+import xtensus.entity.Annotation;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.TransactionDestinationReelle;
+import xtensus.entity.Transmission;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class CouriierCompletBeans {
+	private ApplicationManager appMgr;
+
+	private Courrier courrier;
+	private Courrier courrierID=new Courrier();
+
+	@Autowired
+	private VariableGlobale vb;
+
+	List<Annotation> listAnnotations;
+
+	List<SuiviCourrierCourrier> result;
+
+
+
+	private ListDataModel listCritereEvaluationsDM ;
+	private ListDataModel listCritereEvaluationsDMTr ;
+	private ListDataModel listCritereEvaluationsDMListTr ;
+	private ListDataModel listCritereEvaluationsDMListTrExpDest ;
+	private ListDataModel listCritereEvaluationsDMListTrExpDestTest ;
+	private ListDataModel listCritereEvaluationsDMListTrExpDest2 ;
+	private ListDataModel listCritereEvaluationsDMExpDestExterne ;
+	private ListDataModel listCritereEvaluationsDMTrReel ;
+	private Integer courrierId;
+	private String courrierRef;
+	  
+	
+	
+	@Autowired
+	public CouriierCompletBeans(
+			@Qualifier("applicationManager") ApplicationManager appMgr
+		) {
+		this.appMgr = appMgr;
+
+	
+	
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+
+public void save(){
+//	Courrier courrierTemp = new Courrier();
+//	courrierId=Integer.parseInt(courrierRef);
+//	vb.setCourrierId(courrierId);
+//	vb.setCourrier(courrierID);
+//	System.out.println(vb.getCourrier().getIdCourrier());
+	Courrier cour=new Courrier();
+	cour.setIdCourrier(courrier.getIdCourrier());
+	System.out.println("Aloooo : "+cour.getIdCourrier());
+	
+}
+@PostConstruct
+	public void afficheDonnee() {
+	listCritereEvaluationsDM = new ListDataModel();
+	listCritereEvaluationsDMTrReel = new ListDataModel();
+	listCritereEvaluationsDMExpDestExterne = new ListDataModel();
+	listCritereEvaluationsDMListTrExpDest = new ListDataModel();
+	listCritereEvaluationsDMListTrExpDest2 = new ListDataModel();
+	listCritereEvaluationsDMListTrExpDest2 = new ListDataModel();
+	listCritereEvaluationsDMListTrExpDestTest = new ListDataModel();
+	listCritereEvaluationsDMTr = new ListDataModel();
+	listCritereEvaluationsDMListTr = new ListDataModel();
+			
+			List<ModelCourrierComplet> rapportcourrier = new ArrayList<ModelCourrierComplet>();
+			ModelCourrierComplet rapport = new ModelCourrierComplet();
+			courrier=new Courrier();
+			 /****************** courrier by ID****************************/
+			int x=0;
+			try{
+			  x =Integer.parseInt(vb.getCourrierId());
+			}catch(Exception e){}
+			 if(x==0){
+			String ref=vb.getCourrierRef();
+			courrier = appMgr.getCourrierByRefCourrier(ref).get(0);
+			 }
+			 else{
+			courrier = appMgr.getCourrierByIdCourrier(x).get(0);
+			 }
+			
+			rapport.setCourrier(courrier);
+			rapportcourrier.add(rapport);
+			
+			
+		
+			CourrierDossier courrierDossier = appMgr
+					.getCourrierDossierByIdCourrier(courrier.getIdCourrier())
+					.get(0);
+			
+			int refdossier = courrierDossier.getId().getDossierId();
+			List<Transaction> transactionList = new ArrayList<Transaction>();
+			/***********************transaction By dossier***********************/
+			transactionList= appMgr.getTransactionByIdDossier(refdossier);
+			System.out.println("taille transaction Liste"+transactionList.size());
+			/***********************transaction dest Reel By dossier***********************/
+			List<TransactionDestinationReelle>transactDestReel44=appMgr.listTransactionDestinationReelByDossierID(x);
+			List<TransactionDestinationReelle>transactDestReel=new ArrayList<TransactionDestinationReelle>();
+			if(transactDestReel44.size()>0){
+				
+				for (TransactionDestinationReelle tt : transactDestReel44) {
+					if(transactDestReel.size()==0){
+					transactDestReel.add(tt);
+					}
+				}
+			}
+			
+			else{
+				TransactionDestinationReelle tr=new TransactionDestinationReelle();
+				tr.setTransactionDestinationReelleTypeDestinataire("");
+				transactDestReel.add(tr);
+			}
+			
+			Expdest expdest = new Expdest();
+			List<Expdest> expdestListTest=new ArrayList<Expdest>();
+			List<TransactionDestination> listTransactionDestination = new ArrayList<TransactionDestination>();
+			for (Transaction transaction2 : transactionList) {
+				int refExped = transaction2.getExpdest().getIdExpDest();
+				int refTransacation = transaction2.getTransactionId();
+				expdestListTest.addAll(appMgr.getListExpDestByIdExpDest(refExped));	
+				listTransactionDestination.addAll(appMgr
+						.getListTransactionDestinationByIdTransaction(refTransacation));
+			}
+			System.out.println(expdestListTest.size());
+			System.out.println(listTransactionDestination.size());	
+	for (TransactionDestination transactionDestination : listTransactionDestination) {
+		int refExped = transactionDestination.getId().getIdExpDest();
+		expdestListTest.addAll(appMgr.getListExpDestByIdExpDest(refExped));	
+	}
+		List<Expdestexterne> expdestExt2=new ArrayList<Expdestexterne>();
+		for (Expdest expd : expdestListTest) {
+			List<Expdestexterne> expdestExt=new ArrayList<Expdestexterne>();
+			if(expd.getExpdestexterne()!=null){
+			expdestExt2.addAll(appMgr.getExpediteurById(expd.getExpdestexterne().getIdExpDestExterne()));
+			}
+		}
+		System.out.println("size : "+expdestExt2.size());
+		if(expdestExt2.size()==0){
+			Expdestexterne exp=new Expdestexterne();
+			exp.setExpDestExterneAdresse("");
+			expdestExt2.add(exp);
+		}
+			listCritereEvaluationsDM.setWrappedData(rapportcourrier);
+			listCritereEvaluationsDMListTr.setWrappedData(transactionList);
+			listCritereEvaluationsDMTrReel.setWrappedData(transactDestReel);
+			listCritereEvaluationsDMTr.setWrappedData(listTransactionDestination);
+			listCritereEvaluationsDMListTrExpDestTest.setWrappedData(expdestListTest);
+			listCritereEvaluationsDMExpDestExterne.setWrappedData(expdestExt2);
+			
+			
+			
+	}
+
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+
+	public List<Annotation> getListAnnotations() {
+		return listAnnotations;
+	}
+
+
+	public void setListAnnotations(List<Annotation> listAnnotations) {
+		this.listAnnotations = listAnnotations;
+	}
+
+
+	public List<SuiviCourrierCourrier> getResult() {
+		return result;
+	}
+
+
+	public void setResult(List<SuiviCourrierCourrier> result) {
+		this.result = result;
+	}
+
+
+	
+
+
+	public ListDataModel getListCritereEvaluationsDM() {
+		return listCritereEvaluationsDM;
+	}
+
+
+	public void setListCritereEvaluationsDM(ListDataModel listCritereEvaluationsDM) {
+		this.listCritereEvaluationsDM = listCritereEvaluationsDM;
+	}
+
+
+	public ListDataModel getListCritereEvaluationsDMTr() {
+		return listCritereEvaluationsDMTr;
+	}
+
+
+	public void setListCritereEvaluationsDMTr(ListDataModel listCritereEvaluationsDMTr) {
+		this.listCritereEvaluationsDMTr = listCritereEvaluationsDMTr;
+	}
+
+
+	public Integer getCourrierId() {
+		return courrierId;
+	}
+
+
+	public void setCourrierId(Integer courrierId) {
+		this.courrierId = courrierId;
+	}
+
+	public Courrier getCourrierID() {
+		return courrierID;
+	}
+
+	public void setCourrierID(Courrier courrierID) {
+		this.courrierID = courrierID;
+	}
+
+	public String getCourrierRef() {
+		return courrierRef;
+	}
+
+	public void setCourrierRef(String courrierRef) {
+		this.courrierRef = courrierRef;
+	}
+
+	public ListDataModel getListCritereEvaluationsDMListTr() {
+		return listCritereEvaluationsDMListTr;
+	}
+
+	public void setListCritereEvaluationsDMListTr(ListDataModel listCritereEvaluationsDMListTr) {
+		this.listCritereEvaluationsDMListTr = listCritereEvaluationsDMListTr;
+	}
+
+	public ListDataModel getListCritereEvaluationsDMListTrExpDest() {
+		return listCritereEvaluationsDMListTrExpDest;
+	}
+
+	public void setListCritereEvaluationsDMListTrExpDest(ListDataModel listCritereEvaluationsDMListTrExpDest) {
+		this.listCritereEvaluationsDMListTrExpDest = listCritereEvaluationsDMListTrExpDest;
+	}
+
+	public ListDataModel getListCritereEvaluationsDMExpDestExterne() {
+		return listCritereEvaluationsDMExpDestExterne;
+	}
+
+	public void setListCritereEvaluationsDMExpDestExterne(ListDataModel listCritereEvaluationsDMExpDestExterne) {
+		this.listCritereEvaluationsDMExpDestExterne = listCritereEvaluationsDMExpDestExterne;
+	}
+
+	public ListDataModel getListCritereEvaluationsDMTrReel() {
+		return listCritereEvaluationsDMTrReel;
+	}
+
+	public void setListCritereEvaluationsDMTrReel(ListDataModel listCritereEvaluationsDMTrReel) {
+		this.listCritereEvaluationsDMTrReel = listCritereEvaluationsDMTrReel;
+	}
+
+	public ListDataModel getListCritereEvaluationsDMListTrExpDest2() {
+		return listCritereEvaluationsDMListTrExpDest2;
+	}
+
+	public void setListCritereEvaluationsDMListTrExpDest2(ListDataModel listCritereEvaluationsDMListTrExpDest2) {
+		this.listCritereEvaluationsDMListTrExpDest2 = listCritereEvaluationsDMListTrExpDest2;
+	}
+
+	public ListDataModel getListCritereEvaluationsDMListTrExpDestTest() {
+		return listCritereEvaluationsDMListTrExpDestTest;
+	}
+
+	public void setListCritereEvaluationsDMListTrExpDestTest(ListDataModel listCritereEvaluationsDMListTrExpDestTest) {
+		this.listCritereEvaluationsDMListTrExpDestTest = listCritereEvaluationsDMListTrExpDestTest;
+	}
+	
+		
+}

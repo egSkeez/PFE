@@ -1,0 +1,1171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Chargement de la liste des destinataires</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div >
+				<h:form>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:outputText value="#{variableGlobale.afficheTitre}" />
+						</f:facet>
+
+						<div id="contenuCourrierUtilisateurTree">
+							<div style="height: auto;">
+								<div id="newCorpsGauche1">
+									<rich:panel >
+										<f:facet name="header">
+											<h:outputText value="#{msg.structureHierarchique}" />
+										</f:facet>
+										<rich:tree value="#{treeBean.stationNodesResult}"
+											styleClass="treeClass" var="stationResult" id="resultTree"
+											ajaxSingle="true"
+											nodeSelectListener="#{treeBean.getSelectedNode}"
+											reRender="modalPanelAvert,data,scroller,compt"
+											icon="../framGraphique/images/dep.png"
+											ajaxSubmitSelection="true" switchType="client">
+
+											<rich:treeNode id="resultTreeNode"
+												iconCollapsed="../framGraphique/images/hc_Addd.gif"
+												iconExpanded="../framGraphique/images/hc_Add11.png"
+												iconLeaf="../framGraphique/images/membre.png">
+												<h:outputText value="#{stationResult}"
+													style=" font-family:Lucida Sans Unicode; color:#666666; font-size: 11px;" />
+											</rich:treeNode>
+										</rich:tree>
+									
+									
+									</rich:panel>
+								</div>
+								<div id="newCorpsDroite1">
+									<rich:panel>
+										<f:facet name="header">
+											<h:outputText value="#{variableGlobale.afficheTitreList}" />
+										</f:facet>
+										<rich:dataTable value="#{treeBean.listItems}" var="itemm"
+											id="data" rows="10" styleClass="rich-datatable"
+											onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+											onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+											<rich:column sortBy="#{itemm.itemSelectedId}"
+												filterBy="#{itemm.itemSelectedId}" filterEvent="onkeyup"
+												label="#{msg.Reference}">
+												<f:facet name="header">
+													<h:outputText value="#{msg.Reference}" />
+												</f:facet>
+												<h:outputText value="#{itemm.itemSelectedId}" />
+											</rich:column>
+											<rich:column sortBy="#{itemm.itemSelectedName}"
+												filterBy="#{itemm.itemSelectedName}" filterEvent="onkeyup"
+												label="#{msg.ExpPrenomNomRaisonSociale}">
+												<f:facet name="header">
+													<h:outputText value="#{msg.ExpPrenomNomRaisonSociale}" />
+												</f:facet>
+												<h:outputText value="#{itemm.itemSelectedName}" />
+											</rich:column>
+											
+											<rich:column>
+												<f:facet name="header">
+													<h:outputText value="#{msg.operation}" />
+												</f:facet>
+												<div align="center">
+													<h:panelGrid columns="2">
+														<a4j:commandLink id="deletelink" ajaxSingle="true"
+															action="#{treeBean.getDeleteSelectionRow}"
+															reRender="data,scroller,compt,data1,scroller1,record1,data2,scroller2,record2">
+															<h:graphicImage
+																value="../framGraphique/images/Delete.png" alt="Delete" />
+														</a4j:commandLink>
+														<rich:toolTip for="deletelink" value="#{msg.Supprim}" />
+													</h:panelGrid>
+												</div>
+											</rich:column>
+										</rich:dataTable>
+										<rich:datascroller for="data" id="scroller" />
+										<div align="center">
+											<h:outputText value="#{msg.NombreEnregistrement}"
+												styleClass="xteNombreEnregistrementLabelOutput" />
+											<h:outputText id="compt" value="#{treeBean.records}"
+												styleClass="xteNombreEnregistrementLabelOutput" />
+										</div>
+									</rich:panel>
+									
+								</div>
+							</div>
+
+							<div align="center" style="clear: both;">
+								<rich:spacer height="10" />
+								<div>
+									<a4j:commandButton value="#{msg.bouttonValider}" type="submit"
+										action="#{treeBean.validatechoiceDestinataire}"
+										oncomplete="if(#{treeBean.status1}==true) #{rich:component('msgPanal')}.show(); "
+										reRender="msgPanal" ajaxSingle="true">
+									</a4j:commandButton>
+									<rich:spacer height="10px" />
+									<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+										action="#{treeBean.retour}">
+									</a4j:commandButton>
+								</div>
+							</div>
+							<rich:spacer height="10" />
+						</div>
+						<rich:modalPanel id="modalPanelAvert" showWhenRendered="#{treeBean.showAvertPanel}" autosized="true" height="90" width="350">
+						<a4j:keepAlive beanName="treeBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkinfo" />
+								<rich:componentControl for="modalPanelAvert" attachTo="hidelinkinfo"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{treeBean.message}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									oncomplete="Richfaces.hideModalPanel('modalPanelAvert');" type="submit"
+									ajaxSingle="true" styleClass="submitButton" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+						<rich:modalPanel id="msgPanal" autosized="true" height="100"
+							width="400">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink1" />
+									<rich:componentControl for="msgPanal" attachTo="hidelink1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<a4j:keepAlive beanName="treeBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText"
+												value="#{msg.msgChooseRecipien}" />
+										</td>
+									</tr>
+								</table>
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('msgPanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+						</rich:modalPanel>
+					</rich:panel>
+					<rich:simpleTogglePanel switchType="client"  id="accor"
+						label="#{msg.rechercheAvance}" opened="#{treeBean.openedSTPannel}">
+						<rich:panel >
+							<f:facet name="header">
+								<h:panelGrid columns="12" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.critereRecherche}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:messages ajaxRendered="true" errorClass="msgError"
+								styleClass="error" />
+							<table width="100%">
+								<tr>
+									<td style="width: 50%; padding-top: px; vertical-align: top;">
+										<h:panelGrid columns="2">
+											<h:outputText value="#{msg.ContactType}"
+												styleClass="xteDetailLabel" />
+											<h:selectOneRadio id="selectoneRadioIdBoc4"
+												styleClass="xteDetailLabelOutput"
+												style="direction:#{languageManager.direction};"
+												value="#{treeBean.typeIntervenant}" layout="lineDirection">
+												<a4j:support event="onchange"
+													reRender="bloc1,bloc2,panelDataTables" ajaxSingle="true"
+													actionListener="#{treeBean.eventChooseTypeIntervenant}" />
+												<f:selectItem itemLabel="Utilisateur"
+													itemValue="utilisateur" />
+												<f:selectItem itemLabel="Unité" itemValue="unite" />
+												<f:selectItem itemLabel="Pp" itemValue="pp" />
+												<f:selectItem itemLabel="Pm" itemValue="pm" />
+											</h:selectOneRadio>
+										</h:panelGrid></td>
+								</tr>
+								<tr>
+									<td style="width: 50%; padding-top: px; vertical-align: top;">
+										<h:panelGrid id="bloc1">
+											<h:panelGrid columns="2" rendered="#{treeBean.showUserForm}">
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.matricule}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="in1"
+														value="#{treeBean.rechercheUserModel.idUser}" />
+												</h:column>
+												<h:column rendered="#{not(variableGlobale.sonede)}">
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column rendered="#{not(variableGlobale.sonede)}">
+													<rich:spacer width="10" />
+													<h:inputText id="in2"
+														value="#{treeBean.rechercheUserModel.surnameUser}"
+														maxlength="25">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="in3"
+														value="#{treeBean.rechercheUserModel.nameUser}"
+														maxlength="25" />
+												</h:column>
+												<h:column rendered="false">
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.abreviation}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column rendered="false">
+													<rich:spacer width="10" />
+													<h:inputText id="in11"
+														value="#{treeBean.rechercheUserModel.shortnameUser}"
+														maxlength="25" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputTextarea id="in4"
+														value="#{treeBean.rechercheUserModel.adressUser}"
+														styleClass="xteDetailLabelTextArea"
+														style="width : 140px; height : 47px;" />
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{treeBean.showUnitForm}">
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.codeStructure} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="in5"
+														value="#{treeBean.rechercheUnitModel.idUnit}" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.abreviation}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="in12"
+														value="#{treeBean.rechercheUnitModel.shortnameUnit}"
+														maxlength="25" />
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{treeBean.showPpForm}">
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactPrenom}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="press"
+														value="#{treeBean.recherchePpModel.nomPp}">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactNom}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="pres"
+														value="#{treeBean.recherchePpModel.prenomPp}">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactCIN}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText value="#{treeBean.recherchePpModel.cinPp}"
+														validatorMessage="* #{msg.ExpCIN} #{msg.validatorMax}"
+														converterMessage="* #{msg.ExpCIN} #{msg.champsentier}">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactTele}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="no"
+														value="#{treeBean.recherchePpModel.telephonePp}"
+														validatorMessage="* #{msg.validatorTel}">
+														<f:validator validatorId="checkvalideTel" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.Contactfax}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText value="#{treeBean.recherchePpModel.faxPp}"
+														validatorMessage="* #{msg.champ} #{msg.Expfax} #{msg.validatorTel}">
+														<f:validator validatorId="checkvalideTel" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactPortable}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText
+														value="#{treeBean.recherchePpModel.telephonePortablePp}"
+														converterMessage="* #{msg.champ} #{msg.ExpPortable} #{msg.champsentier}">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactMail}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="mail"
+														value="#{treeBean.recherchePpModel.mailPp}"
+														validatorMessage="* #{msg.validatorMail}">
+														<f:validator validatorId="checkvalidemail" />
+													</h:inputText>
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{treeBean.showPmForm}">
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactRaisonSociale}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="pren"
+														value="#{treeBean.recherchePmModel.raisonSocialePm}">
+
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactRegistreCommerce}"
+														styleClass="xteDetailLabel" style=" width :100px;" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText
+														value="#{treeBean.recherchePmModel.registreCommercePm}">
+													</h:inputText>
+
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactCNSS}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText
+														value="#{treeBean.recherchePmModel.affiliationCNSSPm}">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactMatricule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText
+														value="#{treeBean.recherchePmModel.matriculeFiscalePm}">
+
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactMail}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="mails"
+														value="#{treeBean.recherchePmModel.mailPm}"
+														validatorMessage="* #{msg.validatorMail}">
+														<f:validator validatorId="checkvalidemail" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.ContactTele}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="nume"
+														value="#{treeBean.recherchePmModel.telephonePm}"
+														validatorMessage="* #{msg.validatorTel}">
+														<f:validator validatorId="checkvalideTel" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:outputText value="#{msg.Contactfax}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText value="#{treeBean.recherchePmModel.faxPm}"
+														validatorMessage="* #{msg.champ} #{msg.Expfax} #{msg.validatorTel}">
+														<f:validator validatorId="checkvalideTel" />
+													</h:inputText>
+												</h:column>
+											</h:panelGrid>
+										</h:panelGrid></td>
+									<td style="width: 50%;" valign="top"><h:panelGrid
+											id="bloc2">
+											<h:panelGrid columns="2" rendered="#{treeBean.showUserForm}">
+												<h:column>
+													<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in6"
+														value="#{treeBean.rechercheUserModel.mailUser}"
+														validatorMessage="* #{msg.email} #{msg.invalid}"
+														maxlength="50">
+														<f:validator validatorId="checkvalidemail" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in7"
+														value="#{treeBean.rechercheUserModel.telephoneNumberUser}"
+														label="#{msg.telephone}"
+														validatorMessage="* #{msg.telephone} #{msg.validatorMaxchampsentier}"
+														converterMessage="* #{msg.telephone} #{msg.validatorMaxchampsentier}">
+														<f:validateLongRange minimum="10000000" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.Expfax}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in8"
+														value="#{treeBean.rechercheUserModel.facsimileTelephoneNumberUser}"
+														label="#{msg.telephone}"
+														validatorMessage="* #{msg.Expfax} #{msg.validatorMaxchampsentier}"
+														converterMessage="* #{msg.Expfax} #{msg.validatorMaxchampsentier}">
+														<f:validateLongRange minimum="10000000" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.postalCode}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in9"
+														value="#{treeBean.rechercheUserModel.codePostalUser}"
+														label="#{msg.postalCode}"
+														validatorMessage="* #{msg.postalCode} #{msg.validatorchampsentier}"
+														converterMessage="* #{msg.postalCode} #{msg.validatorchampsentier}">
+													</h:inputText>
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{treeBean.showUnitForm}">
+												<h:column>
+													<h:outputText value="#{msg.unitName}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="10" />
+													<h:inputText id="in10"
+														value="#{treeBean.rechercheUnitModel.nameUnit}" />
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{treeBean.showPpForm}">
+												<h:column>
+													<h:outputText value="#{msg.adresse} :"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="#{msg.ContactRue}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="adr1"
+														value="#{treeBean.recherchePpModel.adressePp}" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="#{msg.ContactCode}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="code"
+														value="#{treeBean.recherchePpModel.codePostalPp}" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="Pays :" styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu title="Choix Pays" style="width: 140px;"
+														value="#{treeBean.recherchePpModel.paysPp}"
+														styleClass="xteDetailLabelcombox">
+														<f:selectItems value="#{treeBean.selectItemsPays}">
+														</f:selectItems>
+													</h:selectOneMenu>
+												</h:column>
+
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="Gouvernorat :"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu title="Choix Gourvernorat"
+														style="width: 140px;"
+														value="#{treeBean.recherchePpModel.gouvernoratPp}"
+														styleClass="xteDetailLabelcombox">
+														<f:selectItems value="#{treeBean.selectItemsGouvernorat}">
+
+														</f:selectItems>
+													</h:selectOneMenu>
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="Ville :" styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu title="Choix Ville" style="width: 140px;"
+														value="#{treeBean.recherchePpModel.villePp}"
+														styleClass="xteDetailLabelcombox">
+														<f:selectItems value="#{treeBean.selectItemsVille}">
+														</f:selectItems>
+													</h:selectOneMenu>
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{treeBean.showPmForm}">
+												<h:column>
+													<h:outputText value="#{msg.adresse} :"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="#{msg.ContactRue}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="adr11"
+														value="#{treeBean.recherchePmModel.adressePm}" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="#{msg.ContactCode}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="code1"
+														value="#{treeBean.recherchePmModel.codePostalPm}" />
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="Pays :" styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu title="Choix Pays" style="width: 140px;"
+														value="#{treeBean.recherchePmModel.paysPm}"
+														styleClass="xteDetailLabelcombox">
+														<f:selectItems value="#{treeBean.selectItemsPays}">
+														</f:selectItems>
+													</h:selectOneMenu>
+												</h:column>
+
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="Gouvernorat :"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu title="Choix Gourvernorat"
+														style="width: 140px;"
+														value="#{treeBean.recherchePmModel.gouvernoratPm}"
+														styleClass="xteDetailLabelcombox">
+														<f:selectItems value="#{treeBean.selectItemsGouvernorat}">
+
+														</f:selectItems>
+													</h:selectOneMenu>
+												</h:column>
+												<h:column>
+													<rich:spacer width="30px" />
+													<h:outputText value="Ville :" styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu title="Choix Ville" style="width: 140px;"
+														value="#{treeBean.recherchePmModel.villePm}"
+														styleClass="xteDetailLabelcombox">
+														<f:selectItems value="#{treeBean.selectItemsVille}">
+														</f:selectItems>
+													</h:selectOneMenu>
+												</h:column>
+											</h:panelGrid>
+										</h:panelGrid></td>
+								</tr>
+							</table>
+							<a4j:keepAlive beanName="treeBean" ajaxOnly="true" />
+							<div align="center">
+								<a4j:commandButton value="#{msg.bouttonChercher}" type="submit"
+									process="ajaxStatus" styleClass="submitButton"
+									status="ajaxStatus" action="#{treeBean.search}"
+									reRender="data4,scroller4,record4,data3,scroller3,record3,data2,scroller2,record2,data1,scroller1,record1" style=" height : 18px;"/>
+								<rich:spacer width="5" />
+								<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+									styleClass="submitButton" action="#{treeBean.reset}"
+									ajaxSingle="true"
+									reRender="data4,scroller4,record4,data3,scroller3,record3,data2,scroller2,record2,data1,scroller1,record1,bloc1,bloc2,accor" />
+							</div>
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+
+							<rich:modalPanel id="waitPanel" style="text-align:center"
+								autosized="true">
+								<h:outputText value="#{msg.messageRecherche}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+							<rich:spacer height="10" />
+						</rich:panel>
+
+						<rich:panel style=" width:100% !important; "
+							id="panelDataTables" styleClass="panelrecherchecontact">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.resultatRecherhe}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:dataTable style="width:100% !important;" value="#{treeBean.dataModelUser}"
+								rendered="#{treeBean.showUserForm}" var="user" id="data2"
+								rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{user.idUser}" filterBy="#{user.idUser}"
+									filterEvent="onkeyup" label="#{msg.matricule}" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<h:outputText value="#{user.shortnameUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.surnameUser}" rendered="#{not(variableGlobale.sonede)}"
+									filterBy="#{user.surnameUser}" filterEvent="onkeyup"
+									label="#{msg.prenom}" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.prenom}" />
+									</f:facet>
+									<h:outputText value="#{user.surnameUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.nameUser}"
+									filterBy="#{user.nameUser}" filterEvent="onkeyup"
+									label="#{msg.nom}" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.nom}" />
+									</f:facet>
+									<h:outputText value="#{user.nameUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.shortnameUser}" rendered="false"
+									filterBy="#{user.shortnameUser}" filterEvent="onkeyup"
+									label="#{msg.abreviation}" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.abreviation}" />
+									</f:facet>
+									<h:outputText value="#{user.shortnameUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.mailUser}"
+									filterBy="#{user.mailUser}" filterEvent="onkeyup"
+									label="#{msg.email}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.email}" />
+									</f:facet>
+									<h:outputText value="#{user.mailUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.telephoneNumberUser}"
+									filterBy="#{user.telephoneNumberUser}" filterEvent="onkeyup"
+									label="#{msg.telephone}" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{user.telephoneNumberUser}" />
+								</rich:column>
+								<rich:column >
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="treeBean" ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="4">
+											<a4j:commandLink id="upd"
+												action="#{treeBean.getSelectedUser}"
+												oncomplete="document.location.href='annuaireRechercheUtilisateurDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="upd" direction="top-right"
+												value="#{msg.labelConsulter}" />
+											<a4j:commandLink id="affect" action="#{treeBean.affectUser}"
+												ajaxSingle="true"
+												oncomplete="if(#{treeBean.status}==true)
+									  				#{rich:component('msgPanal2')}.show();"
+												reRender="data2,scroller2,record2,data,scroller,compt,msgPanal2">
+												<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+													alt="details" style="height : 16px; width : 16px;" />
+											</a4j:commandLink>
+											<rich:toolTip for="affect" direction="top-right"
+												value="#{msg.ajoutDestinataire}" />
+										</h:panelGrid>
+									</center>
+								</rich:column>
+							</rich:dataTable>
+							<rich:dataTable value="#{treeBean.dataModelUnit}"
+								rendered="#{treeBean.showUnitForm}" var="unit" id="data1"
+								rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{unit.idUnit}" filterBy="#{unit.idUnit}"
+									filterEvent="onkeyup" label="#{msg.matricule}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.codeStructure}" />
+									</f:facet>
+									<h:outputText value="#{unit.idUnit}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.nameUnit}"
+									filterBy="#{unit.nameUnit}" filterEvent="onkeyup"
+									label="#{msg.unitName}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.unitName}" />
+									</f:facet>
+									<h:outputText value="#{unit.nameUnit}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.shortnameUnit}"
+									filterBy="#{unit.shortnameUnit}" filterEvent="onkeyup"
+									label="#{msg.abreviation}" width="5%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.abreviation}" />
+									</f:facet>
+									<h:outputText value="#{unit.shortnameUnit}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.nameResponsable}"
+									filterBy="#{unit.nameResponsable}" filterEvent="onkeyup"
+									label="#{msg.responsableUnit}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.responsableUnit}" />
+									</f:facet>
+									<h:outputText value="#{unit.nameResponsable}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.nameSecretary}"
+									filterBy="#{unit.nameSecretary}" filterEvent="onkeyup"
+									label="#{msg.secretaryUnit}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.secretaryUnit}" />
+									</f:facet>
+									<h:outputText value="#{unit.nameSecretary}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="treeBean" ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="4">
+											<a4j:commandLink id="upd1"
+												action="#{treeBean.getSelectedUnit}"
+												oncomplete="document.location.href='annuaireRechercheUniteDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="upd1" direction="top-right"
+												value="#{msg.labelConsulter}" />
+											<a4j:commandLink id="affect1" action="#{treeBean.affectUnit}"
+												ajaxSingle="true"
+												oncomplete="if(#{treeBean.status}==true)
+									  				#{rich:component('msgPanal22')}.show();"
+												reRender="data1,scroller1,record1,data,scroller,compt,msgPanal22">
+												<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+													alt="details" style="height : 16px; width : 16px;" />
+											</a4j:commandLink>
+											<rich:toolTip for="affect1" direction="top-right"
+												value="#{msg.ajoutDestinataire}" />
+										</h:panelGrid>
+									</center>
+								</rich:column>
+							</rich:dataTable>
+							<rich:dataTable value="#{treeBean.dataModelPp}"
+								rendered="#{treeBean.showPpForm}" var="pp" id="data3" rows="10"
+								styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{pp.cinPp}" filterBy="#{pp.cinPp}"
+									filterEvent="onkeyup" label="#{msg.ContactCIN}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpCIN}" />
+									</f:facet>
+									<h:outputText value="#{pp.cinPp}" />
+								</rich:column>
+								<rich:column sortBy="#{pp.nomPp}" filterBy="#{pp.nomPp}"
+									filterEvent="onkeyup" label="#{msg.UtilisateursConsultForm9}"
+									width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.UtilisateursConsultForm9}" />
+									</f:facet>
+									<h:outputText value="#{pp.nomPp}" />
+								</rich:column>
+								<rich:column sortBy="#{pp.prenomPp}" filterBy="#{pp.prenomPp}"
+									filterEvent="onkeyup" label="#{msg.UtiliNom}" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.UtiliNom}" />
+									</f:facet>
+									<h:outputText value="#{pp.prenomPp}" />
+								</rich:column>
+								<rich:column sortBy="#{pp.telephonePp}"
+									filterBy="#{pp.telephonePp}" filterEvent="onkeyup"
+									label="#{msg.telephone}" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{pp.telephonePp}" />
+								</rich:column>
+								<rich:column sortBy="#{pp.mailPp}" filterBy="#{pp.mailPp}"
+									filterEvent="onkeyup" label="#{msg.email}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.email}" />
+									</f:facet>
+									<h:outputText value="#{pp.mailPp}" />
+								</rich:column>
+								<rich:column sortBy="#{pp.faxPp}" filterBy="#{pp.faxPp}"
+									filterEvent="onkeyup" label="#{msg.Expfax}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Expfax}" />
+									</f:facet>
+									<h:outputText value="#{pp.faxPp}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="treeBean" ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="4">
+											<a4j:commandLink id="updPp"
+												action="#{treeBean.getSelectedPp}"
+												oncomplete="document.location.href='annuaireRecherchePpDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="updPp" direction="top-right"
+												value="#{msg.labelConsulter}" />
+											<a4j:commandLink id="affectPpp" action="#{treeBean.affectPp}"
+												ajaxSingle="true"
+												reRender="data3,scroller3,record3,data,scroller,compt">
+												<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+													alt="details" style="height : 16px; width : 16px;" />
+											</a4j:commandLink>
+											<rich:toolTip for="affectPpp" direction="top-right"
+												value="#{msg.ajoutDestinataire}" />
+										</h:panelGrid>
+									</center>
+								</rich:column>
+							</rich:dataTable>
+							<rich:dataTable value="#{treeBean.dataModelPm}"
+								rendered="#{treeBean.showPmForm}" var="pm" id="data4" rows="10"
+								styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{pm.matriculeFiscalePm}"
+									filterBy="#{pm.matriculeFiscalePm}" filterEvent="onkeyup"
+									label="#{msg.ExpMatricule}" width="5%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpMatricule}" />
+									</f:facet>
+									<h:outputText value="#{pm.matriculeFiscalePm}" />
+								</rich:column>
+								<rich:column sortBy="#{pm.raisonSocialePm}"
+									filterBy="#{pm.raisonSocialePm}" filterEvent="onkeyup"
+									label="#{msg.ExpPrenomNomRaisonSociale}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpPrenomNomRaisonSociale}" />
+									</f:facet>
+									<h:outputText value="#{pm.raisonSocialePm}" />
+								</rich:column>
+								<rich:column sortBy="#{pm.registreCommercePm}"
+									filterBy="#{pm.registreCommercePm}" filterEvent="onkeyup"
+									label="#{msg.ExpRegistreCommerce}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpRegistreCommerce}" />
+									</f:facet>
+									<h:outputText value="#{pm.registreCommercePm}" />
+								</rich:column>
+								<rich:column sortBy="#{pm.telephonePm}"
+									filterBy="#{pm.telephonePm}" filterEvent="onkeyup"
+									label="#{msg.telephone}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{pm.telephonePm}" />
+								</rich:column>
+								<rich:column sortBy="#{pm.mailPm}" filterBy="#{pm.mailPm}"
+									filterEvent="onkeyup" label="#{msg.email}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.email}" />
+									</f:facet>
+									<h:outputText value="#{pm.mailPm}" />
+								</rich:column>
+								<rich:column sortBy="#{pm.faxPm}" filterBy="#{pm.faxPm}"
+									filterEvent="onkeyup" label="#{msg.Expfax}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Expfax}" />
+									</f:facet>
+									<h:outputText value="#{pm.faxPm}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="treeBean" ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="4">
+											<a4j:commandLink id="updPm"
+												action="#{treeBean.getSelectedPm}"
+												oncomplete="document.location.href='annuaireRecherchePmDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="updPm" direction="top-right"
+												value="#{msg.labelConsulter}" />
+											<a4j:commandLink id="affectPmm" action="#{treeBean.affectPm}"
+												ajaxSingle="true"
+												reRender="data4,scroller4,record4,data,scroller,compt">
+												<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+													alt="details" style="height : 16px; width : 16px;" />
+											</a4j:commandLink>
+											<rich:toolTip for="affectPmm" direction="top-right"
+												value="#{msg.ajoutDestinataire}" />
+										</h:panelGrid>
+									</center>
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller stepControls="hide" for="data2" id="scroller2"
+									rendered="#{treeBean.showUserForm}" />
+								<rich:datascroller stepControls="hide" for="data1" id="scroller1"
+									rendered="#{treeBean.showUnitForm}" />
+								<rich:datascroller stepControls="hide" for="data3" id="scroller3"
+									rendered="#{treeBean.showPpForm}" />
+								<rich:datascroller stepControls="hide" for="data4" id="scroller4"
+									rendered="#{treeBean.showPmForm}" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record2" rendered="#{treeBean.showUserForm}"
+									value="#{treeBean.recordsUser}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record1" rendered="#{treeBean.showUnitForm}"
+									value="#{treeBean.recordsUnit}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record3" rendered="#{treeBean.showPpForm}"
+									value="#{treeBean.recordsPp}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record4" rendered="#{treeBean.showPmForm}"
+									value="#{treeBean.recordsPm}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+							<rich:spacer height="5px" width="100%" />
+						</rich:panel>
+					</rich:simpleTogglePanel>
+				</h:form>
+							<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+								width="400">
+								<a4j:keepAlive beanName="treeBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelError}"
+											styleClass="xtePopupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink2" />
+										<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreurrrrr.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.msgAffectDestinataireUserErreur}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+
+							<rich:modalPanel id="msgPanal22" autosized="true" height="100"
+								width="400">
+								<a4j:keepAlive beanName="treeBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelError}"
+											styleClass="xtePopupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink22" />
+										<rich:componentControl for="msgPanal22" attachTo="hidelink22"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreurrrrr.png"
+													alt="confirm" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="popupInformationText"
+													value="#{msg.msgAffectDestinataireUnitErreur}" />
+											</td>
+										</tr>
+									</table>
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('msgPanal22');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</rich:modalPanel>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

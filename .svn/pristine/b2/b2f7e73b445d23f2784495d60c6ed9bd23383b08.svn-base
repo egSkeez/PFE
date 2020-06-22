@@ -1,0 +1,173 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Groupecontact;
+import xtensus.entity.Sujetmailing;
+
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class GroupeMailingChoixSujetBean {
+
+	private ApplicationManager appMgr;
+	private DataModel listsujetmailing;
+	@Autowired
+	private LanguageManagerBean lm;
+	private Groupecontact groupecontact;
+	private Sujetmailing sujetmailing;
+
+	private long records;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public GroupeMailingChoixSujetBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listsujetmailing = new ListDataModel();
+		groupecontact = new Groupecontact();
+		sujetmailing = new Sujetmailing();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		List<Sujetmailing> sujetmailings = new ArrayList<Sujetmailing>();
+		try {
+			groupecontact = vb.getGroupecontact();
+			List<Sujetmailing> copylistMR = new ArrayList<Sujetmailing>();
+			Sujetmailing moder;
+			sujetmailings = appMgr.getList(Sujetmailing.class);
+			for (int i = sujetmailings.size()-1; i >= 0; i--) {
+				moder = new Sujetmailing();
+				moder = sujetmailings.get(i);
+				copylistMR.add(moder);
+				moder = new Sujetmailing();
+			}
+			listsujetmailing.setWrappedData(copylistMR);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeChargement GroupeMailingHistoriqueBean *******");
+			e.printStackTrace();
+		}
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		try {
+			sujetmailing = (Sujetmailing) listsujetmailing.getRowData();
+			vb.setSujetmailing(sujetmailing);
+			System.out
+					.println("*******SelectionSujetmailingConsulterBean*********");
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelectionSujetmailingConsulterBean*******");
+		}
+
+	}
+
+	/************** Getters && setters ********************/
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listsujetmailing == null
+				&& listsujetmailing.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Sujetmailing>) listsujetmailing.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public Groupecontact getGroupecontact() {
+		return groupecontact;
+	}
+
+	public void setGroupecontact(Groupecontact groupecontact) {
+		this.groupecontact = groupecontact;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public void setListsujetmailing(DataModel listsujetmailing) {
+		this.listsujetmailing = listsujetmailing;
+	}
+
+	public DataModel getListsujetmailing() {
+		return listsujetmailing;
+	}
+
+	public void setSujetmailing(Sujetmailing sujetmailing) {
+		this.sujetmailing = sujetmailing;
+	}
+
+	public Sujetmailing getSujetmailing() {
+		return sujetmailing;
+	}
+
+}

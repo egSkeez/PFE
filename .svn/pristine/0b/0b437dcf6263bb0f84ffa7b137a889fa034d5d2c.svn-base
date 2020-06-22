@@ -1,0 +1,562 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Accueil</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<div id="barreIcone">
+								<div id="barreIconeGauche"></div>
+								<div id="barreIconeDroite">
+									<a4j:commandLink id="ajouter"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+								</div>
+							</div>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel" style="padding: 0 3px 0 0;">
+							<table width="100%" border="0">
+								<tr>
+									<td width="49%" valign="top"><rich:panel
+											styleClass="rich-panel">
+											<f:facet name="header">
+												<h:outputText value="Courriers" styleClass="xteDetailLabel" />
+											</f:facet>
+											<h:panelGrid columns="1">
+												<h:outputText value="Année Courante #{accueilGBOBean.annee}"
+													styleClass="xteDetailLabel" />
+												<h:outputText
+													value="Arrivés : #{accueilGBOBean.courrierArrivee} ( #{accueilGBOBean.pourcentageCourrierArrivee} %) dont #{accueilGBOBean.courrierNouveaux} nouveaux"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Départs : #{accueilGBOBean.courrierDepart} ( #{accueilGBOBean.pourcentageCourrierDepart} %)"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="A valider : #{accueilGBOBean.courrierAValider}"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Total : #{accueilGBOBean.courrierTotal}"
+													styleClass="xteDetailLabel" />
+											</h:panelGrid>
+										</rich:panel></td>
+									<td width="2%" valign="top">&nbsp;</td>
+									<td width="49%" valign="top"><rich:panel
+											styleClass="rich-panel">
+											<f:facet name="header">
+												<h:outputText value="Dossiers" styleClass="xteDetailLabel" />
+											</f:facet>
+											<h:panelGrid columns="1">
+												<h:outputText value="Année Courante #{accueilGBOBean.annee}"
+													styleClass="xteDetailLabel" />
+												<h:outputText
+													value="Mes dossiers : #{accueilGBOBean.mesDossier}"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Arrivés : #{accueilGBOBean.dossierArrivee} ( #{accueilGBOBean.pourcentageDossierArrivee} %)"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Départs : #{accueilGBOBean.dossierDepart} ( #{accueilGBOBean.pourcentageDossierDepart} %)"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText value="Total : #{accueilGBOBean.dossierTotal}"
+													styleClass="xteDetailLabel" />
+											</h:panelGrid>
+										</rich:panel></td>
+								</tr>
+								<tr>
+									<td width="49%" valign="top"><rich:panel
+											styleClass="rich-panel">
+											<f:facet name="header">
+												<h:outputText value="Rappels" styleClass="xteDetailLabel" />
+											</f:facet>
+											<h:panelGrid columns="1">
+												<h:outputText value="Nécessitant une réponse"
+													styleClass="xteDetailLabel" />
+												<h:outputText
+													value="Aujourd’hui : #{accueilGBOBean.necessitnatReponseAujourdhui}"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Cette semaine : #{accueilGBOBean.necessitnatReponseSemaine}"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Ce mois : #{accueilGBOBean.necessitnatReponseMois}"
+													styleClass="xteDetailLabelNormal" />
+												<h:outputText
+													value="Tous : #{accueilGBOBean.necessitnatReponseTotal}"
+													styleClass="xteDetailLabel" />
+											</h:panelGrid>
+										</rich:panel> <rich:editor value="#{accueilGBOBean.editorValue}"
+											theme="advanced" viewMode="visual">
+										</rich:editor></td>
+									<td width="2%" valign="top">&nbsp;</td>
+									<td width="49%" valign="top"><rich:panel
+											styleClass="rich-panel">
+											<f:facet name="header">
+												<h:outputText value="Qualification du Courrier"
+													styleClass="xteDetailLabel" />
+											</f:facet>
+											<table width="100%">
+												<tr>
+													<td width="50%" valign="top"><h:panelGrid columns="1">
+															<h:outputText value="Urgence" styleClass="xteDetailLabel" />
+
+															<rich:dataList var="u"
+																value="#{accueilGBOBean.statistiqueUrgencesDM}"
+																rows="10" type="circle">
+																<h:outputText
+																	value="#{u.urgence.urgenceLibelle} : #{u.count}"
+																	styleClass="xteDetailLabelNormal" />
+															</rich:dataList>
+															<h:outputText
+																value="Total : #{accueilGBOBean.courrierArrivee}"
+																styleClass="xteDetailLabel" />
+														</h:panelGrid></td>
+													<td width="50%" valign="top"><h:panelGrid columns="1">
+															<h:outputText value="Confidentialité"
+																styleClass="xteDetailLabel" />
+															<rich:dataList var="c"
+																value="#{accueilGBOBean.statistiqueConfidentialitesDM}"
+																rows="10" type="square">
+																<h:outputText
+																	value="#{c.confidentialite.confidentialiteLibelle} : #{c.count}"
+																	styleClass="xteDetailLabelNormal" />
+															</rich:dataList>
+															<h:outputText
+																value="Total : #{accueilGBOBean.courrierArrivee}"
+																styleClass="xteDetailLabel" />
+														</h:panelGrid></td>
+												</tr>
+											</table>
+										</rich:panel></td>
+								</tr>
+							</table>
+							<rich:panel styleClass="rich-panel">
+								<div id="barreIcone">
+									<div id="barreIconeGauche">
+										<h:commandLink id="Statistics_1"
+											action="#{statistiqueCourrierBean.printStatistiquePDF}">
+											<h:graphicImage
+												value="../framGraphique/images/Statistics_1.png"
+												alt="Statistics_1" />
+										</h:commandLink>
+										<rich:toolTip for="Statistics_1"
+											value="Statistics courriers (Barre)" />
+										<rich:spacer width="10" />
+										<h:commandLink id="Statistics_2"
+											action="#{statistiqueCourrierBean.printStatistiquePDF_2}">
+											<h:graphicImage
+												value="../framGraphique/images/Statistics_4.png"
+												alt="Statistics_2" />
+										</h:commandLink>
+										<rich:toolTip for="Statistics_2"
+											value="Statistics courriers (Cercle)" />
+										<rich:spacer width="10" />
+										<h:commandLink id="Statistics_4"
+											action="#{statistiqueCourrierBean.printStatistiquePDF_3}">
+											<h:graphicImage
+												value="../framGraphique/images/Statistics_2.png"
+												alt="Statistics_2" />
+										</h:commandLink>
+										<rich:toolTip for="Statistics_4"
+											value="Statistics Qualification du Courrier" />
+										<rich:spacer width="10" />
+
+										<h:commandLink id="Statistics_3"
+											action="#{statistiqueCourrierBean.printStatistiquePDF_4}">
+											<h:graphicImage
+												value="../framGraphique/images/Statistics_3.png"
+												alt="Statistics_3" />
+										</h:commandLink>
+										<rich:toolTip for="Statistics_3"
+											value="Rappels (Nécessitant une réponse)" />
+									</div>
+									<div id="barreIconeDroite"></div>
+								</div>
+							</rich:panel>
+						</rich:panel>
+					</h:form>
+					<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="Aide : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<rich:panel styleClass="rich-panel">
+									<h:outputText value="#{aideEnLigneBean.message}" escape="false" />
+									<h:outputText
+										value="******************************************************"
+										styleClass="xteDetailLabel" />
+									<h:outputText
+										value="------------------------------------------------------"
+										styleClass="xteDetailLabel" />
+									<h:outputText
+										value="******************************************************"
+										styleClass="xteDetailLabel" />
+									<table align="center" class="frameTableClient"
+										style="width: 100%;">
+										<rich:messages ajaxRendered="true" errorClass="msgError"
+											styleClass="error" />
+										<h:form>
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client"
+														style="margin:-4px;" label="#{msg.PanelBarItem3}">
+														<table width="100%">
+															<tr>
+																<td width="50%"><h:panelGrid columns="4">
+																		<h:column>
+																			<h:outputText value="#{msg.CourrierExp}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<h:column>
+																			<h:selectOneRadio styleClass="xteDetailLabelOutput"
+																				value="#{courrierAjoutBean.typeSender}"
+																				layout="pageDirection">
+																				<f:selectItem
+																					itemLabel="A mon propre Nom    : #{variableGlobale.person.prenom} #{variableGlobale.person.nom}"
+																					itemValue="MoiMeme" />
+																				<f:selectItem
+																					itemLabel="Au nom de mon Unité : #{courrierAjoutBean.associatedUnit} "
+																					itemValue="MonUnité"
+																					itemDisabled="variableGlobale.itemDisabledForAssociatedUnit" />
+																			</h:selectOneRadio>
+																		</h:column>
+																	</h:panelGrid></td>
+																<td width="50%"><h:panelGrid columns="4">
+																		<a4j:commandLink
+																			action="#{courrierAjoutBean.goToListSender}"
+																			ajaxSingle="true">
+																			<h:graphicImage
+																				value="../framGraphique/images/Loupe-2---26pix.png" />
+																		</a4j:commandLink>
+																		<h:column>
+																			<rich:spacer width="10px" />
+																			<h:outputText value="#{msg.CourrierDest}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																			<rich:spacer width="10px" />
+																			<h:outputText value="*" styleClass="error" />
+																		</h:column>
+																		<h:inputTextarea value="#{variableGlobale.destNom}"
+																			required="true" styleClass="xteDetailLabelOutput"
+																			style="margin-left: 2px; margin-right: 2px; width: 221px; margin-top: 2px; margin-bottom: 2px; height: 46px; "
+																			requiredMessage="* #{msg.ColonneDest} #{msg.champsobligatoire}" />
+																	</h:panelGrid>
+																</td>
+															</tr>
+														</table>
+													</rich:simpleTogglePanel>
+												</td>
+											</tr>
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client"
+														style="margin:-4px;" label="#{msg.PanelBarItem1}">
+														<!-- 
+														*
+														*
+														partielien vers des courrier
+														*
+														*
+														-->
+														<h:panelGrid columns="4" style=" width : 100%">
+															<h:column>
+																<h:outputText value="#{msg.ColonneDocRefCourrier}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:inputText id="ref"
+																value="#{courrierAjoutBean.courrier.courrierReferenceCorrespondant}"
+																style=" width : 128px;" required="true"
+																requiredMessage="* #{msg.ColonneDocRefCourrier} #{msg.champsobligatoire}">
+															</h:inputText>
+															<h:column>
+																<h:outputText value="#{msg.CourrierDateRecep}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<rich:calendar id="dR" value="#{courrierAjoutBean.date1}"
+																datePattern="dd/MM/yyyy" required="true"
+																requiredMessage="* #{msg.ColonneDateRecep} #{msg.champsobligatoire}"
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}" />
+															<h:column>
+																<h:outputText value="#{msg.CourrierObjet}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:inputText id="obj"
+																value="#{courrierAjoutBean.courrier.courrierObjet}"
+																style=" width : 128px;" required="true"
+																requiredMessage="* #{msg.ColonneObjet} #{msg.champsobligatoire}" />
+															<h:column />
+															<h:column />
+															<h:outputText value="#{msg.CourrierDes}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:inputTextarea id="desc" styleClass="textarea"
+																value="#{courrierAjoutBean.courrier.courrierCommentaire}"
+																style=" width : 128px;" />
+															<h:outputText value="#{msg.CourrierKey}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:inputTextarea id="key" styleClass="textarea"
+																value="#{courrierAjoutBean.courrier.keywords}"
+																style=" width : 128px;" />
+															<h:column>
+																<h:outputText value="#{msg.CourrierMode}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu
+																value="#{courrierAjoutBean.selectedItemsTr}"
+																label="Choisir le mode" style=" width : 133px;"
+																required="true"
+																requiredMessage="* #{msg.ColonneMode} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierAjoutBean.selectItemsTr}" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierNature}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu
+																value="#{courrierAjoutBean.selectedItemNature}"
+																required="true"
+																requiredMessage="* #{msg.ColonneNature} #{msg.champsobligatoire}"
+																style=" width : 133px;">
+																<f:selectItems
+																	value="#{courrierAjoutBean.selectItemsNat}" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierConfidentialite}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="conf"
+																value="#{courrierAjoutBean.selectedItemConf}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneConfidentialite} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierAjoutBean.selectItemsConf}" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierUrgence}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="urg"
+																value="#{courrierAjoutBean.selectedItemUg}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneUrgence} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierAjoutBean.selectItemsUg}" />
+															</h:selectOneMenu>
+														</h:panelGrid>
+														<h:panelGrid columns="4">
+															<h:column>
+																<h:outputText value="#{msg.CourrierNecessite}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<rich:spacer width="65px" />
+															<h:selectOneRadio id="checkTransfert"
+																styleClass="xteDetailLabelOutput"
+																value="#{courrierAjoutBean.reponse1}" required="true"
+																requiredMessage="* #{msg.ColonneNecessite} #{msg.champsobligatoire}"
+																layout="lineDirection">
+																<a4j:support event="onchange" reRender="monPanneau"
+																	ajaxSingle="true"
+																	actionListener="#{courrierAjoutBean.evenementChoixTransfert}" />
+																<f:selectItem itemLabel="Oui" itemValue="Oui" />
+																<f:selectItem itemLabel="Non" itemValue="Non" />
+															</h:selectOneRadio>
+															<h:column>
+																<rich:spacer width="75px" />
+																<rich:column id="monPanneau">
+																	<h:panelGrid id="panelInstalle" columns="3"
+																		style=" width : 100%; font: inherit;"
+																		rendered="#{courrierAjoutBean.select1}">
+																		<h:outputText value="#{msg.CourrierDateRep}"
+																			id="date1" styleClass="xteDetailLabel" />
+																		<rich:spacer width="59px" />
+																		<rich:calendar id="Cal"
+																			value="#{courrierAjoutBean.courrier.courrierDateReponse}"
+																			datePattern="dd/MM/yyyy" required="true"
+																			requiredMessage="* #{msg.ColonneDateRep} #{msg.champsobligatoire}"
+																			locale="#{calendarBean.locale}"
+																			monthLabels="#{calendarBean.listMois}">
+																			<a4j:support ajaxSingle="true" event="onchanged"
+																				reRender="data, scroller" />
+																		</rich:calendar>
+																	</h:panelGrid>
+																</rich:column>
+															</h:column>
+														</h:panelGrid>
+														<h:panelGrid columns="22" style=" width : 100%">
+															<h:outputText value="#{msg.CourrierAnnot}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<h:column />
+															<rich:pickList listsHeight="90px" sourceListWidth="170"
+																targetListWidth="165" styleClass="xteDetailLabelOutput"
+																copyAllControlLabel="#{msg.PickListCopierTout}"
+																copyControlLabel="#{msg.PickListCopier}"
+																removeAllControlLabel="#{msg.PickListEnleverTout}"
+																removeControlLabel="#{msg.PickListEnlever} "
+																value="#{courrierAjoutBean.selectedItems1}"
+																showButtonsLabel="false" id="annot">
+																<f:selectItems value="#{courrierAjoutBean.selectItems1}" />
+															</rich:pickList>
+														</h:panelGrid>
+													</rich:simpleTogglePanel>
+												</td>
+											</tr>
+
+											<tr>
+												<td align="center" colspan="2"><rich:spacer
+														height="20px" /> <a4j:commandButton
+														value="#{msg.bouttonAjouter}" type="submit"
+														action="#{courrierAjoutBean.save}"
+														oncomplete="if(#{courrierAjoutBean.status}==true)
+									 #{rich:component('msgPanal')}.show(); 
+									 if(#{courrierAjoutBean.status1}==true)
+									  #{rich:component('msgPanal2')}.show();
+									   if(#{courrierAjoutBean.status2}==true)
+									  #{rich:component('msgPanal3')}.show();
+									  if(#{courrierAjoutBean.status3}==true)
+									  #{rich:component('msgPanal4')}.show();"
+														reRender="msgPanal,msgPanal2,msgPanalExpDest">
+													</a4j:commandButton> <rich:spacer width="10px" /> <a4j:commandButton
+														value="#{msg.bouttonAnnuler}" type="submit" onclick=""
+														oncomplete="document.location.href='accueil.jsf'"></a4j:commandButton>
+												</td>
+											</tr>
+										</h:form>
+									</table>
+								</rich:panel>
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+
+							</h:form>
+						</div>
+					</rich:modalPanel>
+				</div>
+				<div id="inter" />
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoi_FR_Directions" language="groovy" columnCount="4" printOrder="Horizontal" pageWidth="555" pageHeight="802" columnWidth="138" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="379670b2-170e-4a8d-bf37-32d3c1c64bd5">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="bureauordre" class="xtensus.entity.Bureauordre">
+		<fieldDescription><![CDATA[bureauordre]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="direction" class="xtensus.entity.Direction">
+		<fieldDescription><![CDATA[direction]]></fieldDescription>
+	</field>
+	<field name="directionDateCreation" class="java.util.Date">
+		<fieldDescription><![CDATA[directionDateCreation]]></fieldDescription>
+	</field>
+	<field name="directionDescription" class="java.lang.String">
+		<fieldDescription><![CDATA[directionDescription]]></fieldDescription>
+	</field>
+	<field name="directionId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[directionId]]></fieldDescription>
+	</field>
+	<field name="directionIntitule" class="java.lang.String">
+		<fieldDescription><![CDATA[directionIntitule]]></fieldDescription>
+	</field>
+	<field name="directions" class="java.util.Set">
+		<fieldDescription><![CDATA[directions]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="utilisateurs" class="java.util.Set">
+		<fieldDescription><![CDATA[utilisateurs]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="22" splitType="Stretch">
+			<textField>
+				<reportElement uuid="d87a8cfe-2cae-4b12-b4d2-e3c7537223a4" x="5" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{directionIntitule}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement uuid="22608955-5cb8-443e-b2ea-26f8afb78979" x="0" y="4" width="5" height="5"/>
+			</rectangle>
+		</band>
+	</detail>
+</jasperReport>

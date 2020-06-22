@@ -1,0 +1,117 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportFaxBean;
+import xtensus.beans.utils.RapportMailBean;
+import xtensus.entity.Courrier;
+import xtensus.entity.Fax;
+import xtensus.entity.FaxMail;
+import xtensus.entity.Mail;
+import xtensus.entity.Variables;
+import xtensus.faxmail.beans.MailBean;
+import xtensus.faxmail.utils.MailConnection;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportFaxDetails {
+	private ApplicationManager appMgr;
+	private Export export;
+	
+	private FaxMail fax;
+	
+	
+
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	public RapportFaxDetails(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export= export;
+	}
+	
+	public void printFaxPDF(){
+		try {
+			
+		
+		// Ines
+		//MailConnection mailConnection = new MailConnection();
+		//List<MailBean> listMailBean = mailConnection.getAllMails();
+		// Courrier
+		fax = vb.getFaxMail();
+
+		//MailBean mailBean = listMailBean.get(0);
+		RapportFaxBean rapportFaxBean = new RapportFaxBean();
+		List<RapportFaxBean> listRapportFaxBean = new ArrayList<RapportFaxBean>();
+		rapportFaxBean.setIdFax(fax.getFaxMailId());
+		rapportFaxBean.setSubject(fax.getFaxMailSubject());
+		rapportFaxBean.setReplyTo(fax.getFaxMailReplyTo());
+		rapportFaxBean.setReceivedDate(fax.getFaxMailReceivedDate());
+		rapportFaxBean.setFromAddress(fax.getFaxMailFromAdress());
+		rapportFaxBean.setToAddress(fax.getFaxMailToAdress());
+		//rapportFaxBean.setAttachmentFileList(fax.get);
+		rapportFaxBean.setContent(fax.getFaxMailContent());
+		//societe
+		String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+		.get(0).getSocieteLibelle();
+		rapportFaxBean.setSocieteNom(societeNom);
+        String societeOrganismeParent = appMgr
+		.listSocieteByLibelle("Ministere_Nom").get(0)
+		.getSocieteLibelle();
+        rapportFaxBean.setSocieteOrganismeParent(societeOrganismeParent);
+        String societeRepublique = appMgr
+		.listSocieteByLibelle("Republique_Nom").get(0)
+		.getSocieteLibelle();
+        rapportFaxBean.setSocieteRepublique(societeRepublique);
+        String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+		.get(0).getSocieteLibelle();
+        rapportFaxBean.setSocieteVille(societeVille);
+		
+        //rapportMailBean.setPathJasper(vb.getPathJasper());
+		String nomProjet = appMgr.getList(Variables.class).get(0)
+				.getVariablesContenu();
+		rapportFaxBean.setNomProjet(nomProjet);
+		
+		listRapportFaxBean.add(rapportFaxBean);
+		
+		
+		
+		
+		
+		
+	
+		
+		// appel a export
+		export.exportToPDF(listRapportFaxBean, "report3",
+		"Fiche_Fax");
+		// Ines
+		
+		
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	
+	
+
+}

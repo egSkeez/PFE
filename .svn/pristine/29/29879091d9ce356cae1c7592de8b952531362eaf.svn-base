@@ -1,0 +1,264 @@
+package xtensus.beans.utils;
+
+import java.util.List;
+
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.Dossier;
+import xtensus.entity.Entite;
+import xtensus.entity.Societe;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Group;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Service;
+import xtensus.ldap.model.Unit;
+
+
+public class RapportPerson extends Entite{
+	private Person person;
+	private int id;
+	private String cn;
+	private String nom;
+	private String prenom;
+	private String telephoneNumber;
+	private String email;
+	private String adresse;
+	private String fax;
+	private Integer codePostal;
+	private String login;
+	private String pwd;
+	private String title;
+	private String shortName;
+	private Unit associatedDirection;
+	private Service associatedService;
+	private BOC associatedBOC;
+	private boolean responsable;
+	private boolean secretary;
+	private boolean agent;
+	private boolean boc;
+	private List<Group> listAffectedGroups;
+	private String rowKeyPerson;
+
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private int numero;
+	public Person getPerson() {
+		return person;
+	}
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getNom() {
+		return nom;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public String getPrenom() {
+		return prenom;
+	}
+
+	public void setPrenom(String prenom) {
+		this.prenom = prenom;
+	}
+
+	public void setCn(String cn) {
+		this.cn = cn;
+	}
+
+	public String getCn() {
+		return cn;
+	}
+
+	public void setRowKeyPerson(String rowKeyPerson) {
+		this.rowKeyPerson = rowKeyPerson;
+	}
+
+	public String getRowKeyPerson() {
+		return rowKeyPerson;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getLogin() {
+		return login;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setTelephoneNumber(String telephoneNumber) {
+		this.telephoneNumber = telephoneNumber;
+	}
+
+	public String getTelephoneNumber() {
+		return telephoneNumber;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getAdresse() {
+		return adresse;
+	}
+
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+
+	public Integer getCodePostal() {
+		return codePostal;
+	}
+
+	public void setCodePostal(Integer codePostal) {
+		this.codePostal = codePostal;
+	}
+
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	public String getFax() {
+		return fax;
+	}
+
+	public void setListAffectedGroups(List<Group> listAffectedGroups) {
+		this.listAffectedGroups = listAffectedGroups;
+	}
+
+	public List<Group> getListAffectedGroups() {
+		return listAffectedGroups;
+	}
+
+	public Unit getAssociatedDirection() {
+		return associatedDirection;
+	}
+
+	public void setAssociatedDirection(Unit associatedDirection) {
+		this.associatedDirection = associatedDirection;
+	}
+
+	public Service getAssociatedService() {
+		return associatedService;
+	}
+
+	public void setAssociatedService(Service associatedService) {
+		this.associatedService = associatedService;
+	}
+
+	public BOC getAssociatedBOC() {
+		return associatedBOC;
+	}
+
+	public void setAssociatedBOC(BOC associatedBOC) {
+		this.associatedBOC = associatedBOC;
+	}
+
+	public boolean isResponsable() {
+		return responsable;
+	}
+
+	public void setResponsable(boolean responsable) {
+		this.responsable = responsable;
+	}
+
+	public boolean isSecretary() {
+		return secretary;
+	}
+
+	public void setSecretary(boolean secretary) {
+		this.secretary = secretary;
+	}
+
+	public boolean isAgent() {
+		return agent;
+	}
+
+	public void setAgent(boolean agent) {
+		this.agent = agent;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setBoc(boolean boc) {
+		this.boc = boc;
+	}
+
+	public boolean isBoc() {
+		return boc;
+	}
+
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
+
+	public String getShortName() {
+		return shortName;
+	}
+	public String getSocieteNom() {
+		return societeNom;
+	}
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+	public String getSocieteVille() {
+		return societeVille;
+	}
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+	public String getNomProjet() {
+		return nomProjet;
+	}
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+	public void setnumero(int numero) {
+		this.numero = numero;
+	}
+	public int getnumero() {
+		return numero;
+}
+}

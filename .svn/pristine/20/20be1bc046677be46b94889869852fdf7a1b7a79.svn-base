@@ -1,0 +1,162 @@
+package xtensus.beans.common.GBO;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierConsulterInformations;
+import xtensus.beans.utils.RapportCourrier;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+import xtensus.entity.Annotation;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.Nature;
+import xtensus.entity.Transmission;
+import xtensus.entity.Typetransaction;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+@Component
+@Scope("request")
+public class RapportSuiviCourrierBean {
+	private ApplicationManager appMgr;
+	private Export export;
+	private List<Document> listDocuments;
+	public boolean status2;
+	private Typetransaction typetransaction;
+	private String nomProjet;
+	private List<CourrierConsulterInformations> courrierConsulterInformations;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private  String documentt;
+	private String message;
+	@Autowired
+	private CourrierRechercheBean courrierRechercheBean;
+	private String type;
+	List<Annotation> listAnnotations;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist;
+	private RapportExpediteurDestinataire rapportExpediteurDestinataire;
+	@Autowired
+	private CourrierSuiviDestinataireBean courrierSuiviDestinataireBean;
+	@Autowired
+	public RapportSuiviCourrierBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}	
+
+	public void printPDFS() {
+		try {
+			System.out.println("Entere generation pdf");
+			courrierConsulterInformations = new ArrayList<CourrierConsulterInformations>();
+			typetransaction = new Typetransaction();
+			
+			listAnnotations = new ArrayList<Annotation>();
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			//Variable
+			Variables variable = new Variables();
+			variable = appMgr.getList(Variables.class).get(0); 
+			
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			nomProjet = appMgr.getList(Variables.class).get(0).getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			// Courrier
+			 Courrier courrier = vb.getCourrier();
+
+						
+			//Nature
+			Nature nature = new Nature();
+			int refnature = courrier.getNature().getNatureId();
+			nature = appMgr.getNatureById(refnature).get(0);
+					
+			//Urgence
+			Urgence urgence = new Urgence();
+			int refUrgence = courrier.getUrgence().getUrgenceId();
+			urgence = appMgr.getUrgenceById(refUrgence).get(0);
+					
+			//confidentialite
+			Confidentialite confidentialite = new Confidentialite();
+			int confref = courrier.getConfidentialite().getConfidentialiteId();
+			confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+							
+			//Mode de Transmission
+			Transmission transmission = new Transmission();
+			int reftransmission = courrier.getTransmission().getTransmissionId();
+			transmission = appMgr.getTransmissionById(reftransmission).get(0);
+					
+	
+			rapport.setCourrier(courrier);
+			rapport.setNature(nature);
+			rapport.setUrgence(urgence);
+			rapport.setConfidentialite(confidentialite);
+			rapport.setTransmission(transmission);
+
+			rapport.setExpediteurNom(vb.getCopyExpNom());
+			rapport.setDestinataireNom(vb.getCopyDestNom());
+			rapport.setVariable(variable);
+
+			
+			//Liste des Documents 
+			int refcourrier =courrier.getIdCourrier();
+			if(appMgr.getDocumentByIdCourrier(refcourrier).size() !=0){
+			listDocuments = appMgr.getDocumentByIdCourrier(refcourrier);
+			documentt= "<b>Liste des documents  : </b>"+  "<b>(1)</b> " + listDocuments.get(0).getDocumentNom();
+			 for(int j=1; j<listDocuments.size();j++){
+				 String a = String.valueOf(j+1);
+				 documentt = documentt +";<b> (" + a +")</b> " + listDocuments.get(j).getDocumentNom();
+			 }
+			
+			rapport.setListdocuments(documentt);
+			}
+			else {
+				rapport.setListdocuments("Pas de document");
+			}
+
+			
+			rapport.setListTransactionSuiviCourrier(courrierSuiviDestinataireBean.getSuiviCourriers());
+		
+			rapportcourrier.add(rapport);
+			export.exportToPDF(rapportcourrier, "Fiche-Suivi-Courrier", "FicheSuivi");
+		}
+		catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:sec="http://www.springframework.org/security/tags">
+
+	<table id="tableFooter" width="100%">
+		<tr>
+			<td>
+				<table width="100%">
+					<tr>
+						<td align="left"><h:outputText
+								style="text-align: right; color: #FFFFFF;font-family: verdana;font-size:12px;font-weight:bold;"
+								value="#{msg.allRightReserved}" /> <h:outputText
+								style="text-align: right; color: #FFFFFF;font-size: 12px;font-family: verdana;
+	                     margin-right:15px;text-decoration:underline;"
+								value="#{msg.Xtensus}" /></td>
+						<td style="text-align: right;"><h:outputText
+								style="text-align: right; color: #FFFFFF;font-family: verdana;font-size:10px;font-weight:bold;"
+								value="#{msg.footerlicence}" />
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</ui:composition>
+<!-- background="images/bg-footer.gif" -->

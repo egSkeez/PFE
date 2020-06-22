@@ -1,0 +1,575 @@
+package xtensus.beans.common;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import xtensus.aop.LogClass;
+import xtensus.aop.TracingAfterReturningAdvice;
+import xtensus.beans.utils.Informations;
+import xtensus.gnl.entity.Evenement;
+import xtensus.gnl.entity.Notification;
+import xtensus.gnl.entity.Templatelog;
+import xtensus.gnl.entity.Templatenotification;
+import xtensus.gnl.entity.Trace;
+import xtensus.gnl.entity.VariablesLog;
+import xtensus.gnl.entity.VariablesNotification;
+import xtensus.gnl.entity.Xtelog;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+public class ConnexionNotificationUtil {
+	private static Properties prop = new Properties();
+	private ApplicationManager appMgr;
+	private static Logger logger;
+
+	public ConnexionNotificationUtil() {
+
+	}
+
+	public void sendEmailAndLog(Person person, ApplicationManager appMgr)
+			throws AddressException, MessagingException {
+		try {
+
+			String evenementNomVariableNotif = "event_connexion_notif";
+			String notificationNomVariableDestinataire = "connexion_dest";
+			String evenementNomVariableLog = "event_connexion_log";
+			String templateLogTexte;
+            //Notif
+			boolean etatNotificationAdmin = false;
+			List<Evenement> listEvenementNotification = appMgr
+					.listEvenementBylibelle(evenementNomVariableNotif);
+			int refEvenement = listEvenementNotification.get(0)
+					.getEvenementId();
+			List<Notification> listNotificationDestinataire = appMgr
+					.listNotificationByEvenementAndLibelle(refEvenement,
+							notificationNomVariableDestinataire);
+			Notification notificationDestinataire = listNotificationDestinataire.get(0);
+			int refNot = notificationDestinataire.getNotificationId();
+			if (refNot != 0) {
+				etatNotificationAdmin = notificationDestinataire
+						.getNotificationActivation();
+			}
+			if ((evenementNomVariableNotif != null && notificationNomVariableDestinataire != null)
+					&& (etatNotificationAdmin == true)) {
+				System.out.println("##NOTIF");
+				// Notif
+				Date dateSystem = new Date();
+				SimpleDateFormat formaterDate = new SimpleDateFormat(
+						"dd/MM/yyyy HH:mm:ss");
+				Resource rsrc = new ClassPathResource(
+						"../MailFax/mailCentral.properties");
+				String pathConfigFile = rsrc.getFile().getAbsolutePath();
+				String nomExpediteur = "Administrator";
+				Informations info1 = new Informations();
+				Informations info2 = new Informations();
+				Informations info3 = new Informations();
+				List<Informations> listInfo = new ArrayList<Informations>();
+				info1.setVar("#p");
+				info1.setContenu(person.getNom());
+				info2.setVar("#d");
+				info2.setContenu(formaterDate.format(dateSystem));
+				info3.setVar("#I");
+				String ip = null;
+				String nomMachine = null;
+				try {
+					ip = InetAddress.getLocalHost().getHostAddress();
+					nomMachine = InetAddress.getLocalHost().getHostName();
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+				info3.setContenu("à partir de : " + nomMachine + " @IP : "
+						+ ip);
+				listInfo.add(info1);
+				listInfo.add(info2);
+				listInfo.add(info3);
+				String subject = notificationDestinataire
+						.getNotificationLibelle();
+				xtensus.gnl.entity.Message messageDest = new xtensus.gnl.entity.Message();
+				Templatenotification templateNotificationDestinataire = appMgr
+				.listTemplateNotificationByNotification(notificationDestinataire
+						.getNotificationId())
+						.get(0);
+				// notif
+				String templateNotificationTexteDestinataire = templateNotificationDestinataire
+						.getTemplateNotificationDescription();
+				templateNotificationTexteDestinataire = changeVariableNotification(
+						templateNotificationTexteDestinataire, listInfo, appMgr);
+				messageDest.setNotification(notificationDestinataire);
+				messageDest.setIdUser(person.getId());
+				messageDest
+						.setMessageTexte(templateNotificationTexteDestinataire);
+				try {
+					appMgr.insert(messageDest);
+				} catch (Exception e) {
+					System.err.println("Erreur dans le message mail Dest");
+					System.err.println(e);
+				}
+				Properties props = new Properties();
+				try {
+					props.load(new FileInputStream(pathConfigFile));
+				} catch (FileNotFoundException e) {
+					System.err.println("Pas de fichier");
+				} catch (IOException e) {
+					System.err.println("Erreur");
+				}
+				String user = props.getProperty("mail.session.user");
+				String pwd = props.getProperty("mail.session.pass");
+				String mailExpediteur = props.getProperty("mailFrom");
+				Session session = Session.getInstance(props,
+						new GMAILAuthenticator(user, pwd));
+				try {
+					Message msg = new MimeMessage(session);
+					msg.setRecipient(Message.RecipientType.TO,
+							new InternetAddress(person.getEmail()));
+					msg.setFrom(new InternetAddress(mailExpediteur,
+							nomExpediteur));
+					msg.setSubject(subject);
+					msg.setSentDate(new Date());
+					System.out.println("templateNotificationTexteDestinataire ::"+templateNotificationTexteDestinataire);
+//					String str=MimeUtility.decodeText(templateNotificationTexteDestinataire.replace("iso?8859?1", "iso-8859-1"));
+					
+					String textMsg=  new String(templateNotificationTexteDestinataire.getBytes("ISO-8859-1"), "UTF-8");
+					System.out.println("textMsg ::"+textMsg);
+					
+					msg.setContent(textMsg,
+							"text/html");
+					msg.saveChanges();
+					Transport.send(msg);
+				} catch (MessagingException mex) {
+					// Prints all nested (chained) exceptions as well
+					mex.printStackTrace();
+					// How to access nested exceptions
+					while (mex.getNextException() != null) {
+						// Get next exception in chain
+						Exception ex = mex.getNextException();
+						ex.printStackTrace();
+						if (!(ex instanceof MessagingException))
+							break;
+						else
+							mex = (MessagingException) ex;
+					}
+					System.out
+							.println("@@IN Send Notification ERROR MessagingException");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out
+							.println("@@IN Send Notification ERROR UnsupportedEncodingException");
+				}
+				System.out.println("##END-NOTIF");
+			}
+			// ## LOG
+			List<Evenement> listEvenementLog = new ArrayList<Evenement>();
+			Evenement evenementLog = new Evenement();
+			List<Xtelog> listLogs = new ArrayList<Xtelog>();
+			Xtelog log = new Xtelog();
+			List<Templatelog> listTemplateLog;
+			Templatelog templateLog;
+			if (evenementNomVariableLog != null) {
+				logger = Logger.getLogger(TracingAfterReturningAdvice.class);
+				listEvenementLog = appMgr
+						.listEvenementBylibelle(evenementNomVariableLog);
+				evenementLog = listEvenementLog.get(0);
+				listLogs = appMgr.listLogByEvenement(evenementLog
+						.getEvenementId());
+				log = listLogs.get(0);
+				listTemplateLog = appMgr.listTemplateLogByLog(log.getLogId());
+				templateLog = listTemplateLog.get(0);
+				templateLogTexte = templateLog.getTemplateLogVariable();
+				templateLogTexte = changeVariableLog(templateLogTexte, person,
+						evenementLog, appMgr);
+				URL u = getClass().getClassLoader().getResource(
+						"xtensus/aop/log4j.xml");
+				DOMConfigurator.configure(u);
+				logger.info(templateLogTexte);
+				LogClass logClass = new LogClass();
+				logClass.addTrack("connexion", "Evénement de log de connexion",
+						person, "INFO", appMgr);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendLogConnexion(ApplicationManager appMgr)
+			throws AddressException, MessagingException {
+
+		/**
+		 * Ressource contenant les éléments statiques liés é la création et
+		 * l'envoi d'un email.
+		 */
+		Date dateSystem = new Date();
+		SimpleDateFormat formaterDate = null;
+		formaterDate = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+
+		String evenementNomVariableLog = "event_erreur_connexion_log";
+
+		String templateLogTexte;
+
+		List<Evenement> listEvenementLog = new ArrayList<Evenement>();
+		Evenement evenementLog = new Evenement();
+
+		List<Xtelog> listLogs = new ArrayList<Xtelog>();
+		Xtelog log = new Xtelog();
+
+		List<Templatelog> listTemplateLog;
+		Templatelog templateLog;
+
+		if (evenementNomVariableLog != null) {
+
+			logger = Logger.getLogger(TracingAfterReturningAdvice.class);
+
+			listEvenementLog = appMgr
+					.listEvenementBylibelle(evenementNomVariableLog);
+			evenementLog = listEvenementLog.get(0);
+
+			listLogs = appMgr.listLogByEvenement(evenementLog.getEvenementId());
+			log = listLogs.get(0);
+
+			listTemplateLog = appMgr.listTemplateLogByLog(log.getLogId());
+			templateLog = listTemplateLog.get(0);
+
+			templateLogTexte = templateLog.getTemplateLogVariable();
+			System.out.println(templateLogTexte);
+			templateLogTexte = changeVariableLogWithoutPerson(templateLogTexte,
+					evenementLog, appMgr);
+			System.out.println(templateLogTexte);
+
+			URL u = getClass().getClassLoader().getResource(
+					"xtensus/aop/log4j.xml");
+			DOMConfigurator.configure(u);
+			String dateLog = formaterDate.format(dateSystem);
+			logger.info(templateLogTexte);
+
+			// Insertion du trace dans la base de donnée
+			Trace trace = new Trace();
+			trace.setXtelog(log);
+			trace.setTypelog("INFO");
+			trace.setUserTexte("NONE");
+			trace.setDateTexte(dateLog);
+			trace.setTraceTexte(templateLogTexte);
+
+			try {
+				appMgr.insert(trace);
+			} catch (Exception e) {
+				System.err.println("Erreur dans le Trace");
+				System.err.println(e);
+			}
+		}
+
+	}
+
+	public void sendLogErreurAjoutCourrier(Person person,
+			ApplicationManager appMgr) throws AddressException,
+			MessagingException {
+
+		/**
+		 * Ressource contenant les éléments statiques liés é la création et
+		 * l'envoi d'un email.
+		 */
+		Date dateSystem = new Date();
+		SimpleDateFormat formaterDate = null;
+		formaterDate = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+
+		String evenementNomVariableLog = "event_erreur_ajout_courrier_log";
+
+		String templateLogTexte;
+
+		List<Evenement> listEvenementLog = new ArrayList<Evenement>();
+		Evenement evenementLog = new Evenement();
+
+		List<Xtelog> listLogs = new ArrayList<Xtelog>();
+		Xtelog log = new Xtelog();
+
+		List<Templatelog> listTemplateLog;
+		Templatelog templateLog;
+
+		if (evenementNomVariableLog != null) {
+
+			logger = Logger.getLogger(TracingAfterReturningAdvice.class);
+
+			listEvenementLog = appMgr
+					.listEvenementBylibelle(evenementNomVariableLog);
+			evenementLog = listEvenementLog.get(0);
+
+			listLogs = appMgr.listLogByEvenement(evenementLog.getEvenementId());
+			log = listLogs.get(0);
+
+			listTemplateLog = appMgr.listTemplateLogByLog(log.getLogId());
+			templateLog = listTemplateLog.get(0);
+
+			templateLogTexte = templateLog.getTemplateLogVariable();
+			System.out.println(templateLogTexte);
+			templateLogTexte = changeVariableLog(templateLogTexte, person,
+					evenementLog, appMgr);
+			System.out.println(templateLogTexte);
+
+			URL u = getClass().getClassLoader().getResource(
+					"xtensus/aop/log4j.xml");
+			DOMConfigurator.configure(u);
+			String userLog = person.getPrenom() + " " + person.getNom();
+			String dateLog = formaterDate.format(dateSystem);
+			logger.info(templateLogTexte);
+
+			// Insertion du trace dans la base de donnée
+			Trace trace = new Trace();
+			trace.setXtelog(log);
+			trace.setTypelog("INFO");
+			trace.setUserTexte(userLog);
+			trace.setDateTexte(dateLog);
+			trace.setTraceTexte(templateLogTexte);
+
+			try {
+				appMgr.insert(trace);
+			} catch (Exception e) {
+				System.err.println("Erreur dans le Trace");
+				System.err.println(e);
+			}
+		}
+
+	}
+
+	public String changeVariableNotification(String templateTexteOrigine,
+			List<Informations> listInfo, ApplicationManager appMgr) {
+
+		// typeObject = vb.getTypeObject();
+		List<Informations> listInfo1 = new ArrayList<Informations>();
+		listInfo1 = listInfo;
+		List<VariablesNotification> variablesNotificationList = new ArrayList<VariablesNotification>();
+		String templateTexteFinal;
+
+		try {
+			variablesNotificationList = appMgr
+					.getList(VariablesNotification.class);
+		} catch (Exception e1) {
+			System.err.println("Erreur dans le Trace");
+			System.err.println(e1);
+		}
+		templateTexteFinal = templateTexteOrigine;
+
+		for (Informations inf : listInfo1) {
+			String tempInfoVar = inf.getVar();
+			String tempInfoCont = inf.getContenu();
+
+			for (VariablesNotification vn : variablesNotificationList) {
+				String valvr = vn.getVariableValeur();
+				String tmp;
+				String txtReplaceValvr = tempInfoCont;
+
+				int lgFindvar = valvr.length();
+				int lgReplaceVar = txtReplaceValvr.length();
+
+				for (int k = 0; k < (templateTexteFinal.length()); k++) {
+					try {
+						tmp = templateTexteFinal.substring(k, k + lgFindvar);
+					} catch (Exception e) {
+						break;
+					}
+					if (tmp.equalsIgnoreCase(valvr) && tmp.equals(tempInfoVar)) {
+						templateTexteFinal = templateTexteFinal.substring(0, k)
+								+ txtReplaceValvr
+								+ templateTexteFinal.substring(k + lgFindvar,
+										templateTexteFinal.length());
+						k = k + lgReplaceVar;
+					}
+				}
+			}
+		}
+
+		return templateTexteFinal;
+
+	}
+
+	public String changeVariableLog(String templateTexteOrigine, Person person,
+			Evenement evenementLog, ApplicationManager appMgr) {
+		List<VariablesLog> variablesLogList = new ArrayList<VariablesLog>();
+		Date datelog = new Date();
+		String templateTexteFinal;
+		String typeLog = "INFO";
+
+		SimpleDateFormat formaterDateHeure = null;
+		formaterDateHeure = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+		try {
+			variablesLogList = appMgr.getList(VariablesLog.class);
+		} catch (Exception e1) {
+			System.err.println("Erreur chargement");
+			System.err.println(e1);
+		}
+		templateTexteFinal = templateTexteOrigine;
+
+		for (VariablesLog vn : variablesLogList) {
+			String valvr = vn.getVariableValeur();
+			int lgFindvar = valvr.length();
+			String tmp;
+
+			String txtReplaceNom = person.getPrenom() + " " + person.getNom();
+			String txtReplaceDateHeure = formaterDateHeure.format(datelog);
+			String txtReplaceEvenement = evenementLog.getEvenementLibelle();
+			String txtReplaceTypeLog = typeLog;
+
+			int lgReplaceNom = txtReplaceNom.length();
+			int lgReplaceDateHeure = txtReplaceDateHeure.length();
+			int lgReplaceEvenement = txtReplaceEvenement.length();
+			int lgReplaceTypeLog = txtReplaceTypeLog.length();
+
+			for (int k = 0; k < (templateTexteFinal.length()); k++) {
+				try {
+					tmp = templateTexteFinal.substring(k, k + lgFindvar);
+				} catch (Exception e) {
+					break;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Nom")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceNom
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceNom;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Date/Heure")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceDateHeure
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceDateHeure;
+					// logDate = txtReplaceDate;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Evenement")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceEvenement
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceEvenement;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Type_Log")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceTypeLog
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceTypeLog;
+				}
+			}
+		}
+
+		return templateTexteFinal;
+	}
+
+	public String changeVariableLogWithoutPerson(String templateTexteOrigine,
+			Evenement evenementLog, ApplicationManager appMgr) {
+		List<VariablesLog> variablesLogList = new ArrayList<VariablesLog>();
+		Date datelog = new Date();
+		String templateTexteFinal;
+		String typeLog = "INFO";
+
+		SimpleDateFormat formaterDateHeure = new SimpleDateFormat(
+				"dd/MM/yyyy hh:mm:ss");
+		try {
+			variablesLogList = appMgr.getList(VariablesLog.class);
+		} catch (Exception e1) {
+			System.err.println("Erreur chargement");
+			System.err.println(e1);
+		}
+		templateTexteFinal = templateTexteOrigine;
+
+		for (VariablesLog vn : variablesLogList) {
+			String valvr = vn.getVariableValeur();
+			int lgFindvar = valvr.length();
+			String tmp;
+
+			String txtReplaceDateHeure = formaterDateHeure.format(datelog);
+			String txtReplaceEvenement = evenementLog.getEvenementLibelle();
+			String txtReplaceTypeLog = typeLog;
+
+			int lgReplaceDateHeure = txtReplaceDateHeure.length();
+			int lgReplaceEvenement = txtReplaceEvenement.length();
+			int lgReplaceTypeLog = txtReplaceTypeLog.length();
+
+			for (int k = 0; k < (templateTexteFinal.length()); k++) {
+				try {
+					tmp = templateTexteFinal.substring(k, k + lgFindvar);
+				} catch (Exception e) {
+					break;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Date/Heure")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceDateHeure
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceDateHeure;
+					// logDate = txtReplaceDate;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Evenement")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceEvenement
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceEvenement;
+				}
+				if (tmp.equalsIgnoreCase(valvr) && tmp.equals("#Type_Log")) {
+					templateTexteFinal = templateTexteFinal.substring(0, k)
+							+ txtReplaceTypeLog
+							+ templateTexteFinal.substring(k + lgFindvar,
+									templateTexteFinal.length());
+					k = k + lgReplaceTypeLog;
+				}
+			}
+		}
+
+		return templateTexteFinal;
+	}
+
+	public static void setProp(Properties prop) {
+		ConnexionNotificationUtil.prop = prop;
+	}
+
+	public static Properties getProp() {
+		return prop;
+	}
+
+	/*
+	 * public static void main(String[] args) { try { List<String> ld = new
+	 * ArrayList<String>(); ld.add("haythem.benizid@xtensus.com");
+	 * ld.add("issam.benabdallah@xtensus.com"); String htmlContent =
+	 * "<html><h3>Bonjour</h3><p>Document en PJ !!!</p></html>"; String object =
+	 * "Mail de Test Avec Attachement"; EmailUtil emailUtil = new EmailUtil();
+	 * emailUtil.sendEmailSSLWithAttachemnt(object, htmlContent, ld);
+	 * System.out.println("Envoie effectué avec succes"); } catch
+	 * (NoSuchProviderException e) {
+	 * System.err.println("Pas de transport disponible pour ce protocole");
+	 * System.err.println(e); } catch (AddressException e) {
+	 * System.err.println("Adresse invalide"); System.err.println(e); } catch
+	 * (MessagingException e) { System.err.println("Erreur dans le message");
+	 * System.err.println(e); } }
+	 */
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+}

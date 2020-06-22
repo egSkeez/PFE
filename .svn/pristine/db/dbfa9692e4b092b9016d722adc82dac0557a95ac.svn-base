@@ -1,0 +1,11 @@
+DataBase.driver=com.mysql.jdbc.Driver
+DataBase.url=jdbc\:mysql\://192.168.1.77\:3306/xtegbosonedevide?useUnicode\=yes&characterEncoding\=UTF-8&characterSetResults\=UTF-8
+DataBase.username=gbo
+DataBase.password=GBOgbo
+DataBase.initialPoolSize=5
+DataBase.minPoolSize=5
+DataBase.maxPoolSize=50
+DataBase.testConnectionOnCheckout=true
+DataBase.sauvegardeUrl=C:/GBO/SQLServerBackups/GBO_BD_BackUp_file
+DataBase.sauvegardeUrlExtension=.Bak
+Archive.sauvegardeUrl=C:/GBO/ArchiveFiles

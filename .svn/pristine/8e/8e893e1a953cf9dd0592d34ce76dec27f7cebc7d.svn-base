@@ -1,0 +1,202 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.gnl.entity.VariablesNotification;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("session")
+public class LoginAdminBean {
+	private String login;
+	private String motPasse;
+	private String codeSecurite;
+	private ApplicationManager appMgr;
+
+	@Autowired
+	public LoginAdminBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+
+	}
+
+	public LoginAdminBean() {
+
+	}
+
+	@PostConstruct
+	public void initialize() {
+		login="";
+		 motPasse="";
+		codeSecurite="";
+	}
+
+	public void validerMotPasse(FacesContext context,
+			UIComponent toValidate, Object value) throws ValidatorException {
+		String mp = (String) value;
+		boolean valide= true;
+		if(mp!= null && !mp.equals("xte$atu$12")){
+			valide=false;
+		}
+		if (!valide) {
+			FacesMessage message = new FacesMessage("");
+			throw new ValidatorException(message);
+
+		}
+	}
+
+	public void validerLogin(FacesContext context,
+			UIComponent toValidate, Object value) throws ValidatorException {
+		String login = (String) value;
+		boolean valide= true;
+		if(login!= null && !login.equals("xtensus")){
+			valide=false;
+		}
+		if (!valide) {
+			FacesMessage message = new FacesMessage("");
+			throw new ValidatorException(message);
+
+		}
+	}
+	
+	public void validerCodeSecurite(FacesContext context,
+			UIComponent toValidate, Object value) throws ValidatorException {
+		String code = (String) value;
+		boolean valide = true;
+		int debut=0;
+		int fin=0;
+		if (code != null && code.length() > 0) {
+			debut = code.indexOf("$");
+			fin = code.lastIndexOf("$");
+			// nbrDolar=codeSecurite.
+			System.out.println("debut = " + debut);
+			System.out.println("fin = " + fin);
+			if (debut == -1 || fin == -1||debut==fin) {
+				valide = false;
+			}
+		}
+		if(valide)
+		{
+			//tester si le seuil est un nombre
+			String x = code.substring(debut + 1, fin);
+			try{
+				Integer.parseInt(x);
+			}catch(NumberFormatException e){
+				valide=false;
+			}
+		}
+
+		if (!valide) {
+			FacesMessage message = new FacesMessage("");
+			throw new ValidatorException(message);
+
+		}
+	}
+
+	public void connecter() {
+		int debut = 0;
+		int fin = 0;
+		
+		if (login != null && motPasse != null && login.equals("xtensus")
+				&& motPasse.equals("xte$atu$12")) {
+			System.out.println("Administrateur Xtensus est connecté"+motPasse);
+			// [AH] Mettre � jour seuil du nombre des couriers
+			// extraire la valeur � ajouter � la seuil existante
+//			System.out.println(codeSecurite);
+			if (codeSecurite != null && codeSecurite.length() > 0) {
+				debut = codeSecurite.indexOf("$");
+				fin = codeSecurite.lastIndexOf("$");
+				// nbrDolar=codeSecurite.
+				System.out.println("debut = " + debut);
+				System.out.println("fin = " + fin);
+				if (debut == -1 || fin == -1 || debut==fin) {
+					System.out.println("code sécurité irroné");
+				} else {
+					String x = codeSecurite.substring(debut + 1, fin);
+					// [AH] : R�cup�rer la valeur de la seuil des courriers
+					int seuil = 0;
+					List<VariablesNotification> listVariableByRef = appMgr
+							.listVariableByRef(10);
+					if (listVariableByRef != null
+							&& listVariableByRef.size() > 0) {
+						try {
+//							seuil = Integer.parseInt(listVariableByRef.get(0)
+//									.getVariableValeur());
+							//nombre des courrier actuel
+							seuil =(int) appMgr.getRowCount();
+							int nouvelleSeuil = seuil + Integer.parseInt(x);
+							listVariableByRef.get(0).setVariableValeur(
+									nouvelleSeuil + "");
+						} catch (NumberFormatException e) {
+							
+						}
+					}
+					try {
+						appMgr.update(listVariableByRef.get(0));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					// aller � la page des Infos
+					try {
+						FacesContext.getCurrentInstance().getExternalContext()
+								.redirect("verification.xhtml");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			} else {
+				System.out.println("le code de sécurité n'est pas saisai ");
+			}
+		}
+		System.out.println("Veuillez vérifier votre login et mot de passe");
+
+	}
+
+	// ******** Getter && Setter***********
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getMotPasse() {
+		return motPasse;
+	}
+
+	public void setMotPasse(String motPasse) {
+		this.motPasse = motPasse;
+	}
+
+	public String getCodeSecurite() {
+		return codeSecurite;
+	}
+
+	public void setCodeSecurite(String codeSecurite) {
+		this.codeSecurite = codeSecurite;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+}

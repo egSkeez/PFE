@@ -1,0 +1,390 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Recherche Multicritère</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="12" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.critereRecherche}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:messages ajaxRendered="true" errorClass="msgError"
+									styleClass="error" />
+							<table width="100%">
+									<tr>
+										<td style="width: 50%; padding-top:px; vertical-align: top;">
+										<h:panelGrid columns="2">
+										<h:outputText value="#{msg.ContactType}"
+									styleClass="xteDetailLabel" />
+										<h:selectOneRadio id="selectoneRadioIdBoc4"
+											styleClass="xteDetailLabelOutput" style="direction:#{languageManager.direction};"
+											value="#{annuaireRechercheMulticritereBean.typeIntervenant}"
+											layout="lineDirection">
+											<a4j:support event="onchange" reRender="bloc1,bloc2,panelDataTables" ajaxSingle="true"
+												actionListener="#{annuaireRechercheMulticritereBean.eventChooseTypeIntervenant}" />
+											<f:selectItem itemLabel="#{msg.annuaireRechercheMulticritéreUtilisateurLabel}" itemValue="utilisateur" />
+											<f:selectItem itemLabel="#{msg.annuaireRechercheMulticritéreUnitéLabel}" itemValue="unite" />
+										</h:selectOneRadio>
+										</h:panelGrid>
+										</td>
+										</tr>
+										<tr>
+										<td style="width: 50%; padding-top:px; vertical-align: top;">
+										<h:panelGrid id="bloc1" >
+										<h:panelGrid columns="2" rendered="#{annuaireRechercheMulticritereBean.showUserForm}">
+										<h:column>
+										<rich:spacer width="10"/>
+													<h:outputText value="#{msg.matricule}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:inputText id="in1" 
+														value="#{annuaireRechercheMulticritereBean.rechercheUserModel.idUser}" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:inputText id="in2"
+														value="#{annuaireRechercheMulticritereBean.rechercheUserModel.surnameUser}"
+														maxlength="25">
+													</h:inputText>
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:inputText id="in3"
+														value="#{annuaireRechercheMulticritereBean.rechercheUserModel.nameUser}" 
+														maxlength="25" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:inputTextarea id="in4"
+														value="#{annuaireRechercheMulticritereBean.rechercheUserModel.adressUser}"
+														styleClass="xteDetailLabelTextArea"
+														style="width : 140px; height : 47px;" />
+												</h:column>
+												</h:panelGrid>
+												<h:panelGrid columns="2" rendered="#{annuaireRechercheMulticritereBean.showUnitForm}" >
+												<h:column>
+										<rich:spacer width="10"/>
+													<h:outputText value="#{msg.Reference}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:inputText id="in5" 
+														value="#{annuaireRechercheMulticritereBean.rechercheUnitModel.idUnit}" />
+												</h:column>
+												</h:panelGrid>
+											</h:panelGrid>
+										</td>
+										<td style="width: 50%;" valign="top">
+										<h:panelGrid id="bloc2">
+										<h:panelGrid columns="2" rendered="#{annuaireRechercheMulticritereBean.showUserForm}" >
+												<h:column>
+													<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in6"
+														value="#{annuaireRechercheMulticritereBean.rechercheUserModel.mailUser}" 
+														validatorMessage="* #{msg.email} #{msg.invalid}"
+														maxlength="50">
+														<f:validator validatorId="checkvalidemail" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in7" value="#{annuaireRechercheMulticritereBean.rechercheUserModel.telephoneNumberUser}"
+														label="#{msg.telephone}"
+														validatorMessage="* #{msg.telephone} #{msg.validatorMaxchampsentier}"
+														converterMessage="* #{msg.telephone} #{msg.validatorMaxchampsentier}">
+														<f:validateLongRange minimum="10000000" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.Expfax}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in8" value="#{annuaireRechercheMulticritereBean.rechercheUserModel.facsimileTelephoneNumberUser}"
+														label="#{msg.telephone}"
+														validatorMessage="* #{msg.Expfax} #{msg.validatorMaxchampsentier}"
+														converterMessage="* #{msg.Expfax} #{msg.validatorMaxchampsentier}">
+														<f:validateLongRange minimum="10000000" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.postalCode}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in9" value="#{annuaireRechercheMulticritereBean.rechercheUserModel.codePostalUser}"
+														label="#{msg.postalCode}"
+														validatorMessage="* #{msg.postalCode} #{msg.validatorchampsentier}"
+														converterMessage="* #{msg.postalCode} #{msg.validatorchampsentier}">
+													</h:inputText>
+												</h:column>
+											</h:panelGrid>
+											<h:panelGrid columns="2" rendered="#{annuaireRechercheMulticritereBean.showUnitForm}" >
+												<h:column>
+													<h:outputText value="#{msg.unitName}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column><rich:spacer width="10"/>
+													<h:inputText id="in10" 
+														value="#{annuaireRechercheMulticritereBean.rechercheUnitModel.nameUnit}" />
+												</h:column>
+												</h:panelGrid>
+										</h:panelGrid>
+										</td>
+									</tr>
+								</table>
+								<a4j:keepAlive beanName="annuaireRechercheMulticritereBean"  ajaxOnly="true"/>
+							<div align="center">
+								<a4j:commandButton value="#{msg.bouttonChercher}" type="submit" process="ajaxStatus"
+									styleClass="submitButton" status="ajaxStatus" 
+									action="#{annuaireRechercheMulticritereBean.search}" 
+									reRender="data,scroller,record,data1,scroller1,record1" />
+								<rich:spacer width="5" />
+								<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+									styleClass="submitButton"
+									action="#{annuaireRechercheMulticritereBean.reset}"
+									reRender="data,scroller,record,data1,scroller1,record1,bloc1,bloc2" />
+							</div>
+							<a4j:status id="ajaxStatus"  forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+
+							<rich:modalPanel id="waitPanel" style="text-align:center" autosized="true"  >
+								<h:outputText value="#{msg.messageRecherche}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+							<rich:spacer height="10" />
+						</rich:panel>
+
+						<rich:panel styleClass="rich-panel" id="panelDataTables">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.resultatRecherhe}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:dataTable value="#{annuaireRechercheMulticritereBean.dataModelUser}" rendered="#{annuaireRechercheMulticritereBean.showUserForm}" 
+								var="user" id="data" rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{user.idUser}" filterBy="#{user.idUser}"
+									filterEvent="onkeyup" label="#{msg.matricule}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<h:outputText value="#{user.idUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.surnameUser}"
+									filterBy="#{user.surnameUser}" filterEvent="onkeyup"
+									label="#{msg.prenom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.prenom}" />
+									</f:facet>
+									<h:outputText value="#{user.surnameUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.nameUser}"
+									filterBy="#{user.nameUser}" filterEvent="onkeyup"
+									label="#{msg.nom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nom}" />
+									</f:facet>
+									<h:outputText value="#{user.nameUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.mailUser}" filterBy="#{user.mailUser}"
+									filterEvent="onkeyup" label="#{msg.email}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.email}" />
+									</f:facet>
+									<h:outputText value="#{user.mailUser}" />
+								</rich:column>
+								<rich:column sortBy="#{user.telephoneNumberUser}" filterBy="#{user.telephoneNumberUser}"
+									filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{user.telephoneNumberUser}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="annuaireRechercheMulticritereBean"
+										ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="1">
+											<a4j:commandLink id="upd" >
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<rich:dataTable value="#{annuaireRechercheMulticritereBean.dataModelUnit}" rendered="#{annuaireRechercheMulticritereBean.showUnitForm}" 
+								var="unit" id="data1" rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{unit.idUnit}" filterBy="#{unit.idUnit}"
+									filterEvent="onkeyup" label="#{msg.matricule}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<h:outputText value="#{unit.idUnit}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.nameUnit}"
+									filterBy="#{unit.nameUnit}" filterEvent="onkeyup"
+									label="#{msg.unitName}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.unitName}" />
+									</f:facet>
+									<h:outputText value="#{unit.nameUnit}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.nameResponsable}"
+									filterBy="#{unit.nameResponsable}" filterEvent="onkeyup"
+									label="#{msg.responsableUnit}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.responsableUnit}" />
+									</f:facet>
+									<h:outputText value="#{unit.nameResponsable}" />
+								</rich:column>
+								<rich:column sortBy="#{unit.nameSecretary}" filterBy="#{unit.nameSecretary}"
+									filterEvent="onkeyup" label="#{msg.secretaryUnit}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.secretaryUnit}" />
+									</f:facet>
+									<h:outputText value="#{unit.nameSecretary}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="annuaireRechercheMulticritereBean"
+										ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="1">
+											<a4j:commandLink id="upd1" >
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd1" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" rendered="#{annuaireRechercheMulticritereBean.showUserForm}" />
+								<rich:datascroller for="data1" id="scroller1" rendered="#{annuaireRechercheMulticritereBean.showUnitForm}" />
+								<h:outputText value="#{msg.nbEnregistrement}"  
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record" rendered="#{annuaireRechercheMulticritereBean.showUserForm}" 
+									value="#{annuaireRechercheMulticritereBean.recordsUser}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="record1" rendered="#{annuaireRechercheMulticritereBean.showUnitForm}" 
+									value="#{annuaireRechercheMulticritereBean.recordsUnit}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+							<rich:spacer height="5px" width="100%"/>
+						</rich:panel>
+
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

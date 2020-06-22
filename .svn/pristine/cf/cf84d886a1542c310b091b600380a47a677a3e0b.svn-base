@@ -1,0 +1,964 @@
+package xtensus.beans.common.GBO;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportCourrier;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+import xtensus.entity.Annotation;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Document;
+import xtensus.entity.Expdest;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionAnnotation;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportCourrierReference {
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+
+	@Autowired
+	private VariableGlobale vb;
+	private LdapOperation ldapOperation;
+	List<Annotation> listAnnotations;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist;
+	private RapportExpediteurDestinataire rapportExpediteurDestinataire;
+
+	@Autowired
+	public RapportCourrierReference(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		ldapOperation = new LdapOperation();
+		System.out.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+
+	/******************************** Rapport Fiche Courrier ************************************************/
+
+	// Fiche Courrier Franéais
+	public void printPDFFR() {
+		// courrier = vb.getCourrier();
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			// Courrier
+			courrier = vb.getCourrier();
+
+			// Nature
+			int refnature = courrier.getNature().getNatureId();
+			Nature nature = appMgr.getNatureById(refnature).get(0);
+
+			// Urgence
+			int refUrgence = courrier.getUrgence().getUrgenceId();
+			Urgence urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+			// confidentialite
+			int confref = courrier.getConfidentialite().getConfidentialiteId();
+			Confidentialite confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+            
+			// Mode de Transmission
+			int reftransmission = courrier.getTransmission()
+					.getTransmissionId();
+			Transmission transmission = appMgr.getTransmissionById(reftransmission).get(0);
+
+			rapport.setCourrier(courrier);
+
+			rapport.setNature(nature);
+			rapport.setUrgence(urgence);
+			rapport.setConfidentialite(confidentialite);
+			rapport.setTransmission(transmission);
+
+			
+			// Destinataire / EXpediteur
+
+			rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+
+			CourrierDossier courrierDossier = appMgr
+					.getCourrierDossierByIdCourrier(courrier.getIdCourrier())
+					.get(0);
+
+			int refdossier = courrierDossier.getId().getDossierId();
+			Transaction transaction = new Transaction();
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+
+			//////////////KBS Transaction
+			
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			rapportcourrier.get(0).setReference(transaction.getCourrierReferenceCorrespondant());
+			rapportcourrier.get(0).setReferencePostale(transaction.getCourrierReferenceCorrespondant());
+			System.out.println("/////////// Note de Transmission getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+			
+			//////////////KBS Transaction
+
+			//** Annotation
+			List<TransactionAnnotation> listTransactionAnnotations = appMgr.getAnnotationByIdTransaction(transaction.getTransactionId());
+			List<Annotation> annotations = new ArrayList<Annotation>();
+			if (!listTransactionAnnotations.isEmpty()) {
+				annotations = appMgr.getAnnotationByIdAnotation(listTransactionAnnotations.get(0)
+						.getId().getIdAnnotation());
+				if (annotations.size() != 0) {
+					if (annotations.get(0).getAnnotationLibelle().equals("Autre")) {
+						rapport.setAnnotationList(transaction.getTransactionCommentaireAnnotation());
+					} else {
+						StringBuilder resultAnnotation = new StringBuilder();
+						for (TransactionAnnotation ta : listTransactionAnnotations) {
+							Integer refAnnotation = ta.getId().getIdAnnotation();
+							resultAnnotation.append(" / ").append(
+									appMgr.getAnnotationByIdAnotation(refAnnotation).get(0)
+											.getAnnotationLibelle());
+						}
+						resultAnnotation.substring(0, 4);
+						rapport.setAnnotationList(resultAnnotation.toString());
+					}
+				}
+			} else {
+				annotations.add(new Annotation("", "", "", "", 0, null));
+			}
+//			rapport.setAnnotationList(vb.getCopyAnnotationResult());
+//			System.out.println("annot " + vb.getCopyAnnotationResult());
+			// ** Annotation
+			int refExped = transaction.getExpdest().getIdExpDest();
+			Expdest expdest = new Expdest();
+			expdest = appMgr.getListExpDestByIdExpDest(refExped).get(0);
+			int refExpediteur = 0;
+			if (expdest.getIdExpDestLdap() != null) {
+				refExpediteur = expdest.getIdExpDestLdap();
+			} else {
+				refExpediteur = expdest.getIdExpDest();
+			}
+			String type = expdest.getTypeExpDest();
+			String nom = "";
+			// EXpediteur
+			if (type.equals("Interne-Person")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_USER,
+						"uid", refExpediteur);
+			} else if (type.equals("Interne-Unité")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_UNIT,
+						"departmentNumber", refExpediteur);
+			} else if (type.equals("Externe")) {
+				if (expdest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PP)";
+				} else {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PM)";
+				}
+			}
+
+			rapportExpediteurDestinataire.setExpediteur("<b>Expéditeur : </b>"
+					+ nom);
+
+			// Destinataire
+			String result = "";
+			int refTransacation = transaction.getTransactionId();
+			List<TransactionDestination> listTransactionDestination = new ArrayList<TransactionDestination>();
+			listTransactionDestination = appMgr
+					.getListTransactionDestinationByIdTransaction(refTransacation);
+
+			for (TransactionDestination transactionDestination : listTransactionDestination) {
+				expdest = new Expdest();
+				expdest = appMgr.getListExpDestByIdExpDest(
+						transactionDestination.getId().getIdExpDest()).get(0);
+				type = expdest.getTypeExpDest();
+				if (type.equals("Interne-Person")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_USER, "uid",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Interne-Unité")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_UNIT,
+									"departmentNumber",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Externe")) {
+					if (expdest.getExpdestexterne().getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PP)"
+								+ " / ";
+					} else {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PM)"
+								+ " / ";
+					}
+				}
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+
+			rapportExpediteurDestinataire
+					.setDestinataire("<b>Destinataire : </b>" + result);
+
+			rapportExpediteurDestinatairelist
+					.add(rapportExpediteurDestinataire);
+			rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+			// Liste des Annotations
+			
+
+			// Liste des documents
+			List<Document> documents = appMgr.getDocumentByIdCourrier(courrier
+					.getIdCourrier());
+			List<Document> documentsVerifier = new ArrayList<Document>();
+			for (Document d : documents) {
+				if (d.getDocumentCommentaire() != null) {
+					if (d.getDocumentCommentaire().equals(" ")) {
+						d.setDocumentCommentaire("");
+					}
+				} else {
+					d.setDocumentCommentaire("");
+				}
+				documentsVerifier.add(d);
+			}
+			rapport.setDocuments(documentsVerifier);
+			/******** chemain par default *************/
+			rapport.setPathJasper(vb.getPathJasper());
+			nomProjet = appMgr.getList(Variables.class).get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			rapportcourrier.add(rapport);
+			export.exportToPDF(rapportcourrier, "report5",
+					"report5");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	/**************** Word **************************/
+	// Fiche Courrier Franéais
+	public void printWORDFR() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			// Courrier
+			courrier = vb.getCourrier();
+
+			// Nature
+			Nature nature = new Nature();
+			int refnature = courrier.getNature().getNatureId();
+			nature = appMgr.getNatureById(refnature).get(0);
+
+			// Urgence
+			Urgence urgence = new Urgence();
+			int refUrgence = courrier.getUrgence().getUrgenceId();
+			urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+			// confidentialite
+			Confidentialite confidentialite = new Confidentialite();
+			int confref = courrier.getConfidentialite().getConfidentialiteId();
+			confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+
+			// Mode de Transmission
+			Transmission transmission = new Transmission();
+			int reftransmission = courrier.getTransmission()
+					.getTransmissionId();
+			transmission = appMgr.getTransmissionById(reftransmission).get(0);
+
+			rapport.setCourrier(courrier);
+
+			rapport.setNature(nature);
+			rapport.setUrgence(urgence);
+			rapport.setConfidentialite(confidentialite);
+			rapport.setTransmission(transmission);
+
+			// Destinataire / EXpediteur
+
+			rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+
+			CourrierDossier courrierDossier = appMgr
+					.getCourrierDossierByIdCourrier(courrier.getIdCourrier())
+					.get(0);
+
+			int refdossier = courrierDossier.getId().getDossierId();
+			Transaction transaction = new Transaction();
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			//////////////KBS Transaction
+			
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			rapportcourrier.get(0).setReference(transaction.getCourrierReferenceCorrespondant());
+			rapportcourrier.get(0).setReferencePostale(transaction.getCourrierReferenceCorrespondant());
+			System.out.println("/////////// Note de Transmission getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+			
+			//////////////KBS Transaction
+
+			int refExped = transaction.getExpdest().getIdExpDest();
+			Expdest expdest = new Expdest();
+			expdest = appMgr.getListExpDestByIdExpDest(refExped).get(0);
+			int refExpediteur = 0;
+			if (expdest.getIdExpDestLdap() != null) {
+				refExpediteur = expdest.getIdExpDestLdap();
+			} else {
+				refExpediteur = expdest.getIdExpDest();
+			}
+			String type = expdest.getTypeExpDest();
+			String nom = "";
+			// EXpediteur
+			if (type.equals("Interne-Person")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_USER,
+						"uid", refExpediteur);
+			} else if (type.equals("Interne-Unité")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_UNIT,
+						"departmentNumber", refExpediteur);
+			} else if (type.equals("Externe")) {
+				if (expdest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PP)";
+				} else {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PM)";
+				}
+			}
+
+			rapportExpediteurDestinataire.setExpediteur("<b>Expéditeur : </b>"
+					+ nom);
+
+			// Destinataire
+			String result = "";
+			int refTransacation = transaction.getTransactionId();
+			List<TransactionDestination> listTransactionDestination = new ArrayList<TransactionDestination>();
+			listTransactionDestination = appMgr
+					.getListTransactionDestinationByIdTransaction(refTransacation);
+
+			for (TransactionDestination transactionDestination : listTransactionDestination) {
+				expdest = new Expdest();
+				expdest = appMgr.getListExpDestByIdExpDest(
+						transactionDestination.getId().getIdExpDest()).get(0);
+				type = expdest.getTypeExpDest();
+				if (type.equals("Interne-Person")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_USER, "uid",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Interne-Unité")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_UNIT,
+									"departmentNumber",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Externe")) {
+					if (expdest.getExpdestexterne().getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PP)"
+								+ " / ";
+					} else {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PM)"
+								+ " / ";
+					}
+				}
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+
+			rapportExpediteurDestinataire
+					.setDestinataire("<b>Destinataire : </b>" + result);
+
+			rapportExpediteurDestinatairelist
+					.add(rapportExpediteurDestinataire);
+			rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+			// Liste des documents
+			List<Document> documents = appMgr.getDocumentByIdCourrier(courrier
+					.getIdCourrier());
+			List<Document> documentsVerifier = new ArrayList<Document>();
+			for (Document d : documents) {
+				if (d.getDocumentCommentaire() != null) {
+					if (d.getDocumentCommentaire().equals(" ")) {
+						d.setDocumentCommentaire("");
+					}
+				} else {
+					d.setDocumentCommentaire("");
+				}
+				documentsVerifier.add(d);
+			}
+			rapport.setDocuments(documentsVerifier);
+			/******** chemain par default *************/
+			rapport.setPathJasper(vb.getPathJasper());
+			nomProjet = appMgr.getList(Variables.class).get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			rapportcourrier.add(rapport);
+			export.exportToWord(rapportcourrier, "CourrierFiche",
+					"CourrierFicheWord");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export CourrierFicheWord*******");
+			e.printStackTrace();
+		}
+	}
+
+	/**************** Word **************************/
+	// Fiche Courrier Franéais
+	public void printXMLFR() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			// Courrier
+			courrier = vb.getCourrier();
+
+			// Nature
+			Nature nature = new Nature();
+			int refnature = courrier.getNature().getNatureId();
+			nature = appMgr.getNatureById(refnature).get(0);
+
+			// Urgence
+			Urgence urgence = new Urgence();
+			int refUrgence = courrier.getUrgence().getUrgenceId();
+			urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+			// confidentialite
+			Confidentialite confidentialite = new Confidentialite();
+			int confref = courrier.getConfidentialite().getConfidentialiteId();
+			confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+
+			// Mode de Transmission
+			Transmission transmission = new Transmission();
+			int reftransmission = courrier.getTransmission()
+					.getTransmissionId();
+			transmission = appMgr.getTransmissionById(reftransmission).get(0);
+
+			rapport.setCourrier(courrier);
+
+			rapport.setNature(nature);
+			rapport.setUrgence(urgence);
+			rapport.setConfidentialite(confidentialite);
+			rapport.setTransmission(transmission);
+
+			// Destinataire / EXpediteur
+
+			rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+
+			CourrierDossier courrierDossier = appMgr
+					.getCourrierDossierByIdCourrier(courrier.getIdCourrier())
+					.get(0);
+
+			int refdossier = courrierDossier.getId().getDossierId();
+			Transaction transaction = new Transaction();
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			
+			//////////////KBS Transaction
+			
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			rapportcourrier.get(0).setReference(transaction.getCourrierReferenceCorrespondant());
+			rapportcourrier.get(0).setReferencePostale(transaction.getCourrierReferenceCorrespondant());
+			System.out.println("/////////// Note de Transmission getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+			
+			//////////////KBS Transaction
+
+			int refExped = transaction.getExpdest().getIdExpDest();
+			Expdest expdest = new Expdest();
+			expdest = appMgr.getListExpDestByIdExpDest(refExped).get(0);
+			int refExpediteur = 0;
+			if (expdest.getIdExpDestLdap() != null) {
+				refExpediteur = expdest.getIdExpDestLdap();
+			} else {
+				refExpediteur = expdest.getIdExpDest();
+			}
+			String type = expdest.getTypeExpDest();
+			String nom = "";
+			// EXpediteur
+			if (type.equals("Interne-Person")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_USER,
+						"uid", refExpediteur);
+			} else if (type.equals("Interne-Unité")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_UNIT,
+						"departmentNumber", refExpediteur);
+			} else if (type.equals("Externe")) {
+				if (expdest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PP)";
+				} else {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PM)";
+				}
+			}
+
+			rapportExpediteurDestinataire.setExpediteur("<b>Expéditeur : </b>"
+					+ nom);
+
+			// Destinataire
+			String result = "";
+			int refTransacation = transaction.getTransactionId();
+			List<TransactionDestination> listTransactionDestination = new ArrayList<TransactionDestination>();
+			listTransactionDestination = appMgr
+					.getListTransactionDestinationByIdTransaction(refTransacation);
+
+			for (TransactionDestination transactionDestination : listTransactionDestination) {
+				expdest = new Expdest();
+				expdest = appMgr.getListExpDestByIdExpDest(
+						transactionDestination.getId().getIdExpDest()).get(0);
+				type = expdest.getTypeExpDest();
+				if (type.equals("Interne-Person")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_USER, "uid",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Interne-Unité")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_UNIT,
+									"departmentNumber",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Externe")) {
+					if (expdest.getExpdestexterne().getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PP)"
+								+ " / ";
+					} else {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PM)"
+								+ " / ";
+					}
+				}
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+
+			rapportExpediteurDestinataire
+					.setDestinataire("<b>Destinataire : </b>" + result);
+
+			rapportExpediteurDestinatairelist
+					.add(rapportExpediteurDestinataire);
+			rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+			// Liste des documents
+			List<Document> documents = appMgr.getDocumentByIdCourrier(courrier
+					.getIdCourrier());
+			List<Document> documentsVerifier = new ArrayList<Document>();
+			for (Document d : documents) {
+				if (d.getDocumentCommentaire() != null) {
+					if (d.getDocumentCommentaire().equals(" ")) {
+						d.setDocumentCommentaire("");
+					}
+				} else {
+					d.setDocumentCommentaire("");
+				}
+				documentsVerifier.add(d);
+			}
+			rapport.setDocuments(documentsVerifier);
+			/******** chemain par default *************/
+			rapport.setPathJasper(vb.getPathJasper());
+			nomProjet = appMgr.getList(Variables.class).get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			rapportcourrier.add(rapport);
+			export.exportToXML(rapportcourrier, "CourrierFiche",
+					"CourrierFicheXml");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export CourrierFicheWord*******");
+			e.printStackTrace();
+		}
+	}
+
+	// Fiche Courrier Arabe
+	public void printPDF() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			// Courrier
+			Courrier courrier = new Courrier();
+			courrier = vb.getCourrier();
+
+			// Nature
+			Nature nature = new Nature();
+			nature = appMgr.getList(Nature.class).get(0);
+
+			// Urgence
+			Urgence urgence = new Urgence();
+			urgence = appMgr.getList(Urgence.class).get(0);
+
+			// confidentialite
+			Confidentialite confidentialite = new Confidentialite();
+			confidentialite = appMgr.getList(Confidentialite.class).get(0);
+
+			// Mode de Transmission
+			Transmission transmission = new Transmission();
+			transmission = appMgr.getList(Transmission.class).get(2);
+
+			// Expediteur
+			Expdestexterne expediteur = new Expdestexterne();
+			expediteur = appMgr.getList(Expdestexterne.class).get(0);
+
+			// Destinataire
+			Expdestexterne destinataire = new Expdestexterne();
+			destinataire = appMgr.getList(Expdestexterne.class).get(1);
+
+			//////////////KBS Transaction
+			
+			CourrierDossier courrierDossier = appMgr.getCourrierDossierByIdCourrier(courrier.getIdCourrier()).get(0);
+			int refdossier = courrierDossier.getId().getDossierId();
+			Transaction transaction = new Transaction();
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			rapportcourrier.get(0).setReference(transaction.getCourrierReferenceCorrespondant());
+			rapportcourrier.get(0).setReferencePostale(transaction.getCourrierReferenceCorrespondant());
+			System.out.println("/////////// Note de Transmission getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+			
+			//////////////KBS Transaction
+
+			rapport.setNomProjet(nomProjet);
+
+			rapport.setCourrier(courrier);
+			rapport.setNature(nature);
+			rapport.setUrgence(urgence);
+			rapport.setConfidentialite(confidentialite);
+			rapport.setTransmission(transmission);
+			rapport.setExpediteur(expediteur);
+			rapport.setDestinataire(destinataire);
+
+			// Liste des documents
+			// Liste des documents
+			List<Document> documents = appMgr.getDocumentByIdCourrier(courrier
+					.getIdCourrier());
+			for (Document doc : documents) {
+				rapport.setDocument(doc);
+				rapport.setNomProjet(nomProjet);
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+			}
+
+			// rapportcourrier.add(rapport);
+
+			export.exportToPDF(rapportcourrier, "FicheCourrier-AR",
+					"FicheCourrier");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	// Fiche Courrier Franéais
+	public void printPDFFRDirect() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			// Courrier
+			courrier = vb.getCourrier();
+
+			// Nature
+			int refnature = courrier.getNature().getNatureId();
+			Nature nature = appMgr.getNatureById(refnature).get(0);
+
+			// Urgence
+			int refUrgence = courrier.getUrgence().getUrgenceId();
+			Urgence urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+			// confidentialite
+			int confref = courrier.getConfidentialite().getConfidentialiteId();
+			Confidentialite confidentialite = appMgr.getConfidentialiteById(
+					confref).get(0);
+
+			// Mode de Transmission
+			int reftransmission = courrier.getTransmission()
+					.getTransmissionId();
+			Transmission transmission = appMgr.getTransmissionById(
+					reftransmission).get(0);
+			rapport.setCourrier(courrier);
+
+			rapport.setNature(nature);
+			rapport.setUrgence(urgence);
+			rapport.setConfidentialite(confidentialite);
+			rapport.setTransmission(transmission);
+
+			// Destinataire / EXpediteur
+			rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+
+			CourrierDossier courrierDossier = appMgr.getCourrierDossierByIdCourrier(courrier.getIdCourrier()).get(0);
+
+			int refdossier = courrierDossier.getId().getDossierId();
+			Transaction transaction = new Transaction();
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			
+			//////////////KBS Transaction
+			
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			String nouvelleRefCourrier=transaction.getCourrierReferenceCorrespondant();
+			System.out.println("nouvelleRefCourrier      ==   "+nouvelleRefCourrier);
+			courrier.setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+			System.out.println("courrier.getCourrierReferenceCorrespondant() après set"+ courrier.getCourrierReferenceCorrespondant());
+			rapport.setReference(nouvelleRefCourrier);
+			System.out.println("/////////// printPDF Rapport Courriers liste  getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+			
+			//////////////KBS Transaction
+			
+			// ** Annotation
+			List<TransactionAnnotation> listTransactionAnnotations = appMgr
+					.getAnnotationByIdTransaction(transaction.getTransactionId());
+			List<Annotation> annotations = new ArrayList<Annotation>();
+			if (!listTransactionAnnotations.isEmpty()) {
+				annotations = appMgr.getAnnotationByIdAnotation(listTransactionAnnotations.get(0)
+						.getId().getIdAnnotation());
+				if (annotations.size() != 0) {
+					if (annotations.get(0).getAnnotationLibelle().equals("Autre")) {
+						rapport.setAnnotationList(transaction.getTransactionCommentaireAnnotation());
+					} else {
+						StringBuilder resultAnnotation = new StringBuilder();
+						for (TransactionAnnotation ta : listTransactionAnnotations) {
+							Integer refAnnotation = ta.getId().getIdAnnotation();
+							resultAnnotation.append(" / ").append(
+									appMgr.getAnnotationByIdAnotation(refAnnotation).get(0)
+											.getAnnotationLibelle());
+						}
+						resultAnnotation.substring(0, 4);
+						rapport.setAnnotationList(resultAnnotation.toString());
+					}
+				}
+			} else {
+				annotations.add(new Annotation("", "", "", "", 0, null));
+			}
+			// rapport.setAnnotationList(vb.getCopyAnnotationResult());
+			// System.out.println("annot " + vb.getCopyAnnotationResult());
+			// ** Annotation
+			int refExped = transaction.getExpdest().getIdExpDest();
+			Expdest expdest = new Expdest();
+			expdest = appMgr.getListExpDestByIdExpDest(refExped).get(0);
+			int refExpediteur = 0;
+			if (expdest.getIdExpDestLdap() != null) {
+				refExpediteur = expdest.getIdExpDestLdap();
+			} else {
+				refExpediteur = expdest.getIdExpDest();
+			}
+			String type = expdest.getTypeExpDest();
+			String nom = "";
+			// EXpediteur
+			if (type.equals("Interne-Person")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_USER,
+						"uid", refExpediteur);
+			} else if (type.equals("Interne-Unité")) {
+				nom = ldapOperation.getCnById(ldapOperation.CONTEXT_UNIT,
+						"departmentNumber", refExpediteur);
+			} else if (type.equals("Externe")) {
+				if (expdest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PP)";
+				} else {
+					nom = expdest.getExpdestexterne().getExpDestExterneNom()
+							+ " (PM)";
+				}
+			}
+
+			rapportExpediteurDestinataire.setExpediteur("<b>Expéditeur : </b>"
+					+ nom);
+
+			// Destinataire
+			String result = "";
+			int refTransacation = transaction.getTransactionId();
+			List<TransactionDestination> listTransactionDestination = new ArrayList<TransactionDestination>();
+			listTransactionDestination = appMgr
+					.getListTransactionDestinationByIdTransaction(refTransacation);
+
+			for (TransactionDestination transactionDestination : listTransactionDestination) {
+				expdest = new Expdest();
+				expdest = appMgr.getListExpDestByIdExpDest(
+						transactionDestination.getId().getIdExpDest()).get(0);
+				type = expdest.getTypeExpDest();
+				if (type.equals("Interne-Person")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_USER, "uid",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Interne-Unité")) {
+					result = result
+							+ ldapOperation.getCnById(
+									ldapOperation.CONTEXT_UNIT,
+									"departmentNumber",
+									expdest.getIdExpDestLdap()) + " / ";
+				} else if (type.equals("Externe")) {
+					if (expdest.getExpdestexterne().getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PP)"
+								+ " / ";
+					} else {
+						result = result
+								+ expdest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PM)"
+								+ " / ";
+					}
+				}
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+
+			rapportExpediteurDestinataire
+					.setDestinataire("<b>Destinataire : </b>" + result);
+
+			rapportExpediteurDestinatairelist
+					.add(rapportExpediteurDestinataire);
+			rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+			// Liste des Annotations
+
+			// Liste des documents
+			List<Document> documents = appMgr.getDocumentByIdCourrier(courrier
+					.getIdCourrier());
+			List<Document> documentsVerifier = new ArrayList<Document>();
+			for (Document d : documents) {
+				if (d.getDocumentCommentaire() != null) {
+					if (d.getDocumentCommentaire().equals(" ")) {
+						d.setDocumentCommentaire("");
+					}
+				} else {
+					d.setDocumentCommentaire("");
+				}
+				documentsVerifier.add(d);
+			}
+			rapport.setDocuments(documentsVerifier);
+			/******** chemain par default *************/
+			rapport.setPathJasper(vb.getPathJasper());
+			nomProjet = appMgr.getList(Variables.class).get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			rapportcourrier.add(rapport);
+			//export.print(rapportcourrier, "report5");
+			export.exportToPDF(rapportcourrier,"report5",
+			"report5");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+}

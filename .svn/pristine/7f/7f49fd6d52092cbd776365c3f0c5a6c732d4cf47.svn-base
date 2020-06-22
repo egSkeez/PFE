@@ -1,0 +1,294 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Entite;
+
+public class StatistiqueCourrier extends Entite {
+	/***** Courrier ********/
+	private int courrierArrivee;
+	private int courrierDepart;
+	private float pourcentageCourrierArrivee;
+	private float pourcentageCourrierDepart;
+	private int courrierTotal;
+	private int courrierNouveaux;
+	private int courrierAValider;
+	private int courrierTotalAValider;
+	private int courrierValider;
+	private int courrierRefuser;
+	private String courrierArriveeLibelle;
+	private String courrierDepartLibelle;
+	private String pourcentageCourrierArriveeLibelle;
+	private String pourcentageCourrierDepartLibelle;
+	private String courrierTotalLibelle;
+	private String courrierNouveauxLibelle;
+	private String courrierAValiderLibelle;
+	private String courrierTotalAValiderLibelle;
+	private String courrierValiderLibelle;
+	private String courrierRefuserLibelle;
+
+	private String chartTitre_1;
+	private String chartTitre_2;
+	private String chartTitre_3;
+	private String chartTitre_4;
+
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private String pathJasper;
+	private String user;
+
+	/*************************************************/
+
+	public String getSocieteNom() {
+		return societeNom;
+	}
+
+	public String getCourrierArriveeLibelle() {
+		return courrierArriveeLibelle;
+	}
+
+	public void setCourrierArriveeLibelle(String courrierArriveeLibelle) {
+		this.courrierArriveeLibelle = courrierArriveeLibelle;
+	}
+
+	public String getCourrierDepartLibelle() {
+		return courrierDepartLibelle;
+	}
+
+	public void setCourrierDepartLibelle(String courrierDepartLibelle) {
+		this.courrierDepartLibelle = courrierDepartLibelle;
+	}
+
+	public String getPourcentageCourrierArriveeLibelle() {
+		return pourcentageCourrierArriveeLibelle;
+	}
+
+	public void setPourcentageCourrierArriveeLibelle(
+			String pourcentageCourrierArriveeLibelle) {
+		this.pourcentageCourrierArriveeLibelle = pourcentageCourrierArriveeLibelle;
+	}
+
+	public String getPourcentageCourrierDepartLibelle() {
+		return pourcentageCourrierDepartLibelle;
+	}
+
+	public void setPourcentageCourrierDepartLibelle(
+			String pourcentageCourrierDepartLibelle) {
+		this.pourcentageCourrierDepartLibelle = pourcentageCourrierDepartLibelle;
+	}
+
+	public String getCourrierTotalLibelle() {
+		return courrierTotalLibelle;
+	}
+
+	public void setCourrierTotalLibelle(String courrierTotalLibelle) {
+		this.courrierTotalLibelle = courrierTotalLibelle;
+	}
+
+	public String getCourrierNouveauxLibelle() {
+		return courrierNouveauxLibelle;
+	}
+
+	public void setCourrierNouveauxLibelle(String courrierNouveauxLibelle) {
+		this.courrierNouveauxLibelle = courrierNouveauxLibelle;
+	}
+
+	public String getCourrierAValiderLibelle() {
+		return courrierAValiderLibelle;
+	}
+
+	public void setCourrierAValiderLibelle(String courrierAValiderLibelle) {
+		this.courrierAValiderLibelle = courrierAValiderLibelle;
+	}
+
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+
+	public String getSocieteVille() {
+		return societeVille;
+	}
+
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public String getPathJasper() {
+		return pathJasper;
+	}
+
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+
+	public int getCourrierArrivee() {
+		return courrierArrivee;
+	}
+
+	public void setCourrierArrivee(int courrierArrivee) {
+		this.courrierArrivee = courrierArrivee;
+	}
+
+	public int getCourrierDepart() {
+		return courrierDepart;
+	}
+
+	public void setCourrierDepart(int courrierDepart) {
+		this.courrierDepart = courrierDepart;
+	}
+
+	public float getPourcentageCourrierArrivee() {
+		return pourcentageCourrierArrivee;
+	}
+
+	public void setPourcentageCourrierArrivee(float pourcentageCourrierArrivee) {
+		this.pourcentageCourrierArrivee = pourcentageCourrierArrivee;
+	}
+
+	public float getPourcentageCourrierDepart() {
+		return pourcentageCourrierDepart;
+	}
+
+	public void setPourcentageCourrierDepart(float pourcentageCourrierDepart) {
+		this.pourcentageCourrierDepart = pourcentageCourrierDepart;
+	}
+
+	public int getCourrierTotal() {
+		return courrierTotal;
+	}
+
+	public void setCourrierTotal(int courrierTotal) {
+		this.courrierTotal = courrierTotal;
+	}
+
+	public int getCourrierNouveaux() {
+		return courrierNouveaux;
+	}
+
+	public void setCourrierNouveaux(int courrierNouveaux) {
+		this.courrierNouveaux = courrierNouveaux;
+	}
+
+	public int getCourrierAValider() {
+		return courrierAValider;
+	}
+
+	public void setCourrierAValider(int courrierAValider) {
+		this.courrierAValider = courrierAValider;
+	}
+
+	public int getCourrierTotalAValider() {
+		return courrierTotalAValider;
+	}
+
+	public void setCourrierTotalAValider(int courrierTotalAValider) {
+		this.courrierTotalAValider = courrierTotalAValider;
+	}
+
+	public int getCourrierValider() {
+		return courrierValider;
+	}
+
+	public void setCourrierValider(int courrierValider) {
+		this.courrierValider = courrierValider;
+	}
+
+	public int getCourrierRefuser() {
+		return courrierRefuser;
+	}
+
+	public void setCourrierRefuser(int courrierRefuser) {
+		this.courrierRefuser = courrierRefuser;
+	}
+
+	public String getCourrierTotalAValiderLibelle() {
+		return courrierTotalAValiderLibelle;
+	}
+
+	public void setCourrierTotalAValiderLibelle(
+			String courrierTotalAValiderLibelle) {
+		this.courrierTotalAValiderLibelle = courrierTotalAValiderLibelle;
+	}
+
+	public String getCourrierValiderLibelle() {
+		return courrierValiderLibelle;
+	}
+
+	public void setCourrierValiderLibelle(String courrierValiderLibelle) {
+		this.courrierValiderLibelle = courrierValiderLibelle;
+	}
+
+	public String getCourrierRefuserLibelle() {
+		return courrierRefuserLibelle;
+	}
+
+	public void setCourrierRefuserLibelle(String courrierRefuserLibelle) {
+		this.courrierRefuserLibelle = courrierRefuserLibelle;
+	}
+
+	public void setChartTitre_1(String chartTitre_1) {
+		this.chartTitre_1 = chartTitre_1;
+	}
+
+	public String getChartTitre_1() {
+		return chartTitre_1;
+	}
+
+	public void setChartTitre_2(String chartTitre_2) {
+		this.chartTitre_2 = chartTitre_2;
+	}
+
+	public String getChartTitre_2() {
+		return chartTitre_2;
+	}
+
+	public void setChartTitre_3(String chartTitre_3) {
+		this.chartTitre_3 = chartTitre_3;
+	}
+
+	public String getChartTitre_3() {
+		return chartTitre_3;
+	}
+
+	public void setChartTitre_4(String chartTitre_4) {
+		this.chartTitre_4 = chartTitre_4;
+	}
+
+	public String getChartTitre_4() {
+		return chartTitre_4;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+}

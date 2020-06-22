@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config version="1.2" xmlns="http://java.sun.com/xml/ns/javaee"
+ xmlns:xi="http://www.w3.org/2001/XInclude"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd">
+ <!-- ***********************Converter ************************** -->
+ <converter>
+  <converter-for-class>java.util.Date</converter-for-class>
+  <converter-class>xtensus.beans.utils.CustomDateTimeConverter</converter-class>
+ </converter>
+ <!-- *************************Managed-Bean******************************** -->
+ <managed-bean>
+  <managed-bean-name>calendarBean</managed-bean-name>
+  <managed-bean-class>xtensus.beans.utils.CalendarBean</managed-bean-class>
+  <managed-bean-scope>session</managed-bean-scope>
+ </managed-bean>
+ <managed-bean>
+  <managed-bean-name>courrierJourDataModel</managed-bean-name>
+  <managed-bean-class>xtensus.beans.common.GBO.CourrierJourDataModel</managed-bean-class>
+  <managed-bean-scope>request</managed-bean-scope>
+  <managed-property>
+   <property-name>courrierConsultation</property-name>
+   <property-class>xtensus.beans.common.GBO.CourrierConsultationJourBean</property-class>
+   <value>#{courrierConsultationJourBean}</value>
+  </managed-property>
+ </managed-bean>
+ <managed-bean>
+  <managed-bean-name>courrierAncienDataModel</managed-bean-name>
+  <managed-bean-class>xtensus.beans.common.GBO.CourrierAncienDataModel</managed-bean-class>
+  <managed-bean-scope>request</managed-bean-scope>
+  <managed-property>
+   <property-name>courrierAncienConsultation</property-name>
+   <property-class>xtensus.beans.common.GBO.CourrierConsultationAncienBean</property-class>
+   <value>#{courrierConsultationAncienBean}</value>
+  </managed-property>
+ </managed-bean>
+ <managed-bean>
+  <managed-bean-name>courrierRechercheDataModel</managed-bean-name>
+  <managed-bean-class>xtensus.beans.common.GBO.CourrierRechercheDataModel</managed-bean-class>
+  <managed-bean-scope>request</managed-bean-scope>
+  <managed-property>
+   <property-name>courrierRechercheMultiCriteresBean</property-name>
+   <property-class>xtensus.beans.common.GBO.CourrierRechercheMultiCriteresBean</property-class>
+   <value>#{courrierRechercheMultiCriteresBean}</value>
+  </managed-property>
+ </managed-bean>
+ <managed-bean>
+  <managed-bean-name>courrierConsultationMoisDataModel</managed-bean-name>
+  <managed-bean-class>xtensus.beans.common.GBO.CourrierConsultationMoisDataModel</managed-bean-class>
+  <managed-bean-scope>request</managed-bean-scope>
+  <managed-property>
+   <property-name>courrierConsultation</property-name>
+   <property-class>xtensus.beans.common.GBO.CourrierConsultationRecentBean</property-class>
+   <value>#{courrierConsultationRecentBean}</value>
+  </managed-property>
+ </managed-bean>
+ <managed-bean>
+  <managed-bean-name>courrierConsultationAnneeDataModel</managed-bean-name>
+  <managed-bean-class>xtensus.beans.common.GBO.CourrierConsultationAnneeDataModel</managed-bean-class>
+  <managed-bean-scope>request</managed-bean-scope>
+  <managed-property>
+   <property-name>courrierConsultation</property-name>
+   <property-class>xtensus.beans.common.GBO.CourrierConsultationRecentBean</property-class>
+   <value>#{courrierConsultationRecentBean}</value>
+  </managed-property>
+ </managed-bean>
+ 
+ <navigation-rule>
+  <from-view-id>/*</from-view-id>
+  <navigation-case>
+   <from-action>#{menuBean.interfaceAccueil}</from-action>
+   <from-outcome>pass</from-outcome>
+   <to-view-id>/GBO/accueil.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/*</from-view-id>
+  <navigation-case>
+   <from-action>#{menuBean.interfaceAccueil}</from-action>
+   <from-outcome>passPhone</from-outcome>
+   <to-view-id>/GBO/accueilWeb.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/*</from-view-id>
+  <navigation-case>
+   <from-action>#{menuBean.interfaceAjouterCourrier}</from-action>
+   <from-outcome>pass</from-outcome>
+   <to-view-id>/GBO/courrierAjout.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/*</from-view-id>
+  <navigation-case>
+   <from-action>#{loginBean.check}</from-action>
+   <from-outcome>refused</from-outcome>
+   <to-view-id>/Ilogin/loginFailure.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/*</from-view-id>
+  <navigation-case>
+   <from-action>#{loginBean.deconnexion}</from-action>
+   <from-outcome>pass</from-outcome>
+   <to-view-id>/Ilogin/login.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+
+
+ <navigation-rule>
+  <from-view-id>/GBO/courrierAjout.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierAjoutBean.goToListDestinataire}</from-action>
+   <from-outcome>rediretFromCAToListSender</from-outcome>
+   <to-view-id>/GBO/courrierUtilisateurTree.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+ <navigation-rule>
+  <from-view-id>/GBO/courrierUtilisateurTree.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{treeBean.validatechoiceDestinataire}</from-action>
+   <from-outcome>rediretFromListSenderToCA</from-outcome>
+   <to-view-id>/GBO/courrierAjout.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+
+ 
+ <navigation-rule>
+  <from-view-id>/GBO/courrierUtilisateurTree.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{treeBean.retour}</from-action>
+   <from-outcome>rediretFromListSenderToCA</from-outcome>
+   <to-view-id>/GBO/courrierAjout.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+
+ <navigation-rule>
+  <from-view-id>/GBO/courrierAjout.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierAjoutBean.goToListDestinataire}</from-action>
+   <from-outcome>rediretFromCTMFDestArrToListSender</from-outcome>
+   <to-view-id>/GBO/courrierUtilisateurTree.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/GBO/courrierUtilisateurTree.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{treeBean.validatechoiceDestinataire}</from-action>
+   <from-outcome>rediretFromListSenderToCTMF</from-outcome>
+   <to-view-id>/GBO/courrierAjout.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/GBO/courrierUtilisateurTree.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{treeBean.retour}</from-action>
+   <from-outcome>rediretFromListSenderToCTMF</from-outcome>
+   <to-view-id>/GBO/courrierAjout.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+
+ <navigation-rule>
+  <from-view-id>/GBO/courrierAjout.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierAjoutBean.goToListExpediteur}</from-action>
+   <from-outcome>rediretFromCAExpArrToListSender</from-outcome>
+   <to-view-id>/GBO/courrierUtilisateurTree.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/GBO/courrierAjout.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierAjoutBean.goToListExpediteur}</from-action>
+   <from-outcome>rediretFromCAExpDepToListSender</from-outcome>
+   <to-view-id>/GBO/courrierUtilisateurTree.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/GBO/courrierAjout.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierAjoutBean.goToListDestinataire}</from-action>
+   <from-outcome>rediretFromCADestDepToListSender</from-outcome>
+   <to-view-id>/GBO/courrierUtilisateurTree.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+ <navigation-rule>
+  <from-view-id>/GBO/courrierAjout.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierAjoutBean.goToListDestinataire}</from-action>
+   <from-outcome>rediretFromCADestArrToListSender</from-outcome>
+   <to-view-id>/GBO/courrierUtilisateurTree.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+ 
+ <navigation-rule>
+  <from-view-id>/GBO/courrierConsulterDetails.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierDetailsBean.accesAccuseReception}</from-action>
+   <from-outcome>passAjouter</from-outcome>
+   <to-view-id>/GBO/courrierAjouterAccuseReception.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ 
+ <navigation-rule>
+  <from-view-id>/GBO/courrierConsulterDetails.xhtml</from-view-id>
+  <navigation-case>
+   <from-action>#{courrierDetailsBean.backwardPage}</from-action>
+   <from-outcome>courrierDetailsToListeCourrier</from-outcome>
+   <to-view-id>/GBO/accueil.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+
+ 
+ <!-- ************************Validator************************************ -->
+ <validator>
+  <validator-id>checkvalideCin</validator-id>
+  <validator-class>xtensus.beans.utils.ValidationCIN</validator-class>
+ </validator>
+ <validator>
+  <validator-id>checkvalidemail</validator-id>
+  <validator-class>xtensus.beans.utils.Validation</validator-class>
+ </validator>
+ <validator>
+  <validator-id>passwordValidator</validator-id>
+  <validator-class>xtensus.beans.utils.PasswordValidator</validator-class>
+ </validator>
+ <validator>
+  <validator-id>checkvalideTel</validator-id>
+  <validator-class>xtensus.beans.utils.ValidationTelephone</validator-class>
+ </validator>
+ <validator>
+  <validator-id>checkvalideMontant</validator-id>
+  <validator-class>xtensus.beans.utils.ValidationMontant</validator-class>
+ </validator>
+ <!-- **************************Application******************************** -->
+ <application>
+  <view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
+  <!-- *****parametrage du langue et des msg************ -->
+  <locale-config>
+   <default-locale>fr_FR</default-locale>
+   <supported-locale>fr_FR</supported-locale>
+   <supported-locale>ar</supported-locale>
+  </locale-config>
+  <resource-bundle>
+   <base-name>messages</base-name>
+   <var>msg</var>
+  </resource-bundle>
+  <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
+ </application>
+ <lifecycle>
+  <phase-listener>xtensus.beans.common.TracerPhaseListener</phase-listener>
+ </lifecycle>
+</faces-config>

@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Réinitialisation mot de passe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+							</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+							</script>
+						<div class="dateenc">
+							<a href="document.location.href='Acceuil1.jsf'"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="document.location.href='Acceuil1.jsf'"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style="height:30px; padding-top:5px;">
+						<rich:spacer width="5px" />
+						<a4j:commandLink id="retour"
+							onclick="document.location.href='GestionGBO0.jsf'">
+							<h:graphicImage
+								value="../framGraphique/images/retour.png"
+								onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+								onmouseout="this.src='../framGraphique/images/retour.png'" />
+						</a4j:commandLink>
+						<rich:toolTip for="retour" value="#{msg.Retour}"
+							direction="top-right" />
+						<rich:spacer width="5px" />
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1"
+							style="display:#{utilisateurReinitialisationMotDePasseBean.hideAccor};">
+							<a4j:keepAlive
+								beanName="utilisateurReinitialisationMotDePasseBean"
+								ajaxOnly="true" />
+							<rich:simpleTogglePanel id="accor1" styleClass="rich-panel"
+								opened="true"
+								label="#{msg.infoUtilisateur} #{utilisateurReinitialisationMotDePasseBean.userSurName} #{utilisateurReinitialisationMotDePasseBean.userName}"
+								switchType="client">
+								<table width="100%">
+									<tr>
+										<td style="width: 50%; padding-top: px; vertical-align: top;">
+											<h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userSurName}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userName}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.abreviation}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userAbv}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.login}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userLogin}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userAdress}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+											</h:panelGrid>
+										</td>
+										<td style="width: 50%;"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userEmail}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userTelephoneNumber}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.Expfax}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userFax}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.postalCode}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{utilisateurReinitialisationMotDePasseBean.userPostalCode}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+
+											</h:panelGrid>
+										</td>
+									</tr>
+								</table>
+							</rich:simpleTogglePanel>
+							<rich:panel styleClass="rich-panel">
+								<f:facet name="header">
+									<h:panelGrid columns="3">
+										<h:outputText value="#{msg.rinitialisationMoDePasse}"
+											styleClass="xteEnregistrementLabelOutput" />
+									</h:panelGrid>
+								</f:facet>
+								<rich:messages ajaxRendered="true" errorClass="msgError"
+									styleClass="error" />
+								<table width="100%">
+									<tr>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.nouveauMotDePasse} : "
+														styleClass="xteDetailLabel" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputSecret id="in10"
+														value="#{utilisateurReinitialisationMotDePasseBean.utilisateurNouveauMotDePasse}"
+														required="true"
+														requiredMessage="* #{msg.nouveauMotDePasse} #{msg.champsobligatoire}"
+														validatorMessage="* #{msg.confirmpwd} #{msg.incorrect}">
+														<f:validator validatorId="passwordValidator" />
+														<f:attribute name="confirm" value="#{confirm}" />
+													</h:inputSecret>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.retapepwd} : "
+														styleClass="xteDetailLabel" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputSecret id="confirm" binding="#{confirm}"
+														required="true"
+														requiredMessage="* #{msg.confirmpwd} #{msg.champsobligatoire}" />
+												</h:column>
+											</h:panelGrid>
+										</td>
+									</tr>
+								</table>
+								<rich:spacer height="10" />
+								<div align="center">
+									<a4j:commandButton id="btnAjout"
+										value="#{msg.buttonReinitialize}"
+										action="#{utilisateurReinitialisationMotDePasseBean.update}"
+										oncomplete="if(#{utilisateurReinitialisationMotDePasseBean.status}==true) #{rich:component('msgPanal')}.show(); if(#{utilisateurReinitialisationMotDePasseBean.status1}==true) #{rich:component('msgPanalErreur')}.show();"
+										reRender="msgPanal,msgPanalErreur"></a4j:commandButton>
+									<a4j:commandButton id="btnModif" value="#{msg.buttonCancel}"
+										action="#{utilisateurReinitialisationMotDePasseBean.cleanAll}"
+										ajaxSingle="true" reRender="accoruser1"></a4j:commandButton>
+								</div>
+
+
+								<rich:spacer height="10" />
+								<div align="left">
+									<h:outputText value="#{msg.infoChampObligatoir}" />
+								</div>
+								<!-- ******************popup validation de modification*********************** -->
+								<rich:modalPanel id="msgPanal" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive
+										beanName="utilisateurReinitialisationMotDePasseBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelink" />
+											<rich:componentControl for="msgPanal" attachTo="hidelink"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.reinialisationMotDePasseMsg}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="document.location.href='utilisateurReinitialisationMotDePasse.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur de modification****** -->
+								<rich:modalPanel id="msgPanalErreur" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive
+										beanName="utilisateurReinitialisationMotDePasseBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErreur" />
+											<rich:componentControl for="msgPanalErreur"
+												attachTo="hidelinkErreur" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreurrrrr.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{utilisateurReinitialisationMotDePasseBean.message}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErreur');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</rich:panel>
+						</h:form>
+					</div>
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listeutilfacet}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive
+							beanName="utilisateurReinitialisationMotDePasseBean"
+							ajaxOnly="true" />
+						<h:form>
+							<rich:dataTable
+								value="#{utilisateurReinitialisationMotDePasseBean.listUser}"
+								var="userr" id="data" rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{userr.id}" filterBy="#{userr.id}"
+									filterEvent="onkeyup" label="#{msg.matricule}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<h:outputText value="#{userr.id}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.prenom}" filterBy="#{userr.prenom}"
+									filterEvent="onkeyup" label="#{msg.prenom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.prenom}" />
+									</f:facet>
+									<h:outputText value="#{userr.prenom}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.nom}" filterBy="#{userr.nom}"
+									filterEvent="onkeyup" label="#{msg.nom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nom}" />
+									</f:facet>
+									<h:outputText value="#{userr.nom}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.email}" filterBy="#{userr.email}"
+									filterEvent="onkeyup" label="#{msg.email}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.email}" />
+									</f:facet>
+									<h:outputText value="#{userr.email}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.telephoneNumber}"
+									filterBy="#{userr.telephoneNumber}" filterEvent="onkeyup"
+									label="#{msg.telephone}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{userr.telephoneNumber}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive
+										beanName="utilisateurReinitialisationMotDePasseBean"
+										ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="1">
+											<a4j:commandLink id="upd"
+												action="#{utilisateurReinitialisationMotDePasseBean.getSelectionRow}"
+												reRender="accoruser1">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{utilisateurReinitialisationMotDePasseBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+					</rich:panel>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

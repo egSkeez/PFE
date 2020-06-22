@@ -1,0 +1,153 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.beans.utils.RapportStatistiqueCourrierOrganisme;
+import xtensus.beans.utils.RapportStatistiqueCourrierStructure;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+
+@Component
+@Scope("request")
+public class RapportStatistique {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private StatistiqueBean statistiqueBean;
+	
+	
+	@Autowired
+	public RapportStatistique(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+	}
+	public void printPDFOrganisme(){
+		try {
+
+
+			System.out.println("++ "  + statistiqueBean.getListStatistiqueCourrierOrganismeDepart().size());
+			System.out.println("-- " + statistiqueBean.getListStatistiqueCourrierOrganismeArrive().size());	
+			List<RapportStatistiqueCourrierOrganisme> listStatByOrganisme = new ArrayList<RapportStatistiqueCourrierOrganisme>();
+			RapportStatistiqueCourrierOrganisme statByOrganisme = new RapportStatistiqueCourrierOrganisme();
+			statByOrganisme.setListStatistiqueCourrierOrganismeArrive(statistiqueBean.getListStatistiqueCourrierOrganismeArrive());
+			statByOrganisme.setListStatistiqueCourrierOrganismeDepart(statistiqueBean.getListStatistiqueCourrierOrganismeDepart());
+
+			// generale
+			String societeNom = appMgr.listSocieteById(3).get(0).getSocieteLibelle();
+			statByOrganisme.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr.listSocieteById(2).get(0).getSocieteLibelle();
+			statByOrganisme.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr.listSocieteById(1).get(0).getSocieteLibelle();
+			statByOrganisme.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteById(4).get(0).getSocieteLibelle();
+			statByOrganisme.setSocieteVille(societeVille);
+			String nomProjet = appMgr.listVariablesById(1).get(0).getVariablesContenu();
+			statByOrganisme.setNomProjet(nomProjet);
+			statByOrganisme.setPathJasper(vb.getPathJasper());
+
+			String adresse = appMgr.listSocieteById(5).get(0).getSocieteLibelle();
+			statByOrganisme.setAdresse(adresse);
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom(societeNom);
+			rs.setSocieteOrganismeParent(societeOrganismeParent);
+			//[JS] 2020-05-13
+			if (vb.getPerson().isBoc()) {
+				rs.setUniteConnecte(vb.getPerson().getAssociatedBOC()
+						.getNameBOC());
+			} else {
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection()
+						.getNameUnit());
+			}
+			
+			
+			rs.setSocieteRepublique(societeRepublique);
+			rs.setSocieteVille(societeVille);
+			List<RapportSociete>listSocietePrep= new ArrayList<RapportSociete>();
+			listSocietePrep.add(rs);
+			statByOrganisme.setListeSociete(listSocietePrep);
+			// generale
+
+			listStatByOrganisme.add(statByOrganisme);
+
+
+			export.exportToPDF(listStatByOrganisme, "statistiqueOrganisme",
+			"Fiche_Statistique_Organisme");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+	}
+	
+	public void printPdfStructure(){
+		try {
+			List<RapportStatistiqueCourrierStructure> listStatByStructure = new ArrayList<RapportStatistiqueCourrierStructure>();
+			RapportStatistiqueCourrierStructure statByStructure = new RapportStatistiqueCourrierStructure();
+			statByStructure.setListStatistiqueCourrierStructureDepart(statistiqueBean.getListStatistiqueCourrierStructureDepart());
+			statByStructure.setListStatistiqueCourrierStructureArrive(statistiqueBean.getListStatistiqueCourrierStructureArrive());
+			// generale
+			String societeNom = appMgr.listSocieteById(3).get(0).getSocieteLibelle();
+			statByStructure.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr.listSocieteById(2).get(0).getSocieteLibelle();
+			statByStructure.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr.listSocieteById(1).get(0).getSocieteLibelle();
+			statByStructure.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteById(4).get(0).getSocieteLibelle();
+			statByStructure.setSocieteVille(societeVille);
+			String nomProjet = appMgr.listVariablesById(1).get(0).getVariablesContenu();
+			statByStructure.setNomProjet(nomProjet);
+			statByStructure.setPathJasper(vb.getPathJasper());
+			
+			
+			String adresse = appMgr.listSocieteById(5).get(0).getSocieteLibelle();
+			statByStructure.setAdresse(adresse);
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom(societeNom);
+			rs.setSocieteOrganismeParent(societeOrganismeParent);
+			rs.setSocieteRepublique(societeRepublique);
+			rs.setSocieteVille(societeVille);
+			List<RapportSociete>listSocietePrep= new ArrayList<RapportSociete>();
+			listSocietePrep.add(rs);
+			statByStructure.setListeSociete(listSocietePrep);
+			// generale
+			listStatByStructure.add(statByStructure);
+			export.exportToPDF(listStatByStructure, "statistiqueStructure",
+			"Fiche_Statistique_Structure");
+			// TODO
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+
+	public StatistiqueBean getStatistiqueBean() {
+		return statistiqueBean;
+	}
+
+
+	public void setStatistiqueBean(StatistiqueBean statistiqueBean) {
+		this.statistiqueBean = statistiqueBean;
+	}
+	
+	
+}

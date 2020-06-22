@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style=" height : 30px;">
+						<h:form>
+							<h:panelGrid columns="25">
+								<a4j:commandLink id="retour" title="retour"
+									onclick="document.location.href='courrierUtilisateurTree.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onclick="this.src='../framGraphique/images/retourClick.png'"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+								<rich:spacer width="20" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="12" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.detailsPp}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.prenomPp}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;">
+
+											</h:outputText>
+											<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.nomPp}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+											<h:outputText value="#{msg.ContactCIN}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.cinPp}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+											<h:outputText value="#{msg.ContactTele}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.telephonePp}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.Contactfax}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.faxPp}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactPortable}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.telephonePortablePp}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactMail}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRecherchePpBean.recherchePpModel.mailPp}"
+												styleClass="xteDetailLabelOutput" />
+
+										</h:panelGrid></td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+											<h:column>
+												<h:outputText value="Adresse :" styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactRue}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputLabel
+													value="#{annuaireRecherchePpBean.recherchePpModel.adressePp}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactCode}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputLabel
+													value="#{annuaireRecherchePpBean.recherchePpModel.codePostalPp}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="Pays :" styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputLabel
+													value="#{annuaireRecherchePpBean.recherchePpModel.paysPp}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											</h:column>
+
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="Gouvernorat :"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputLabel
+													value="#{annuaireRecherchePpBean.recherchePpModel.gouvernoratPp}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="Ville :" styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputLabel
+													value="#{annuaireRecherchePpBean.recherchePpModel.villePp}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											</h:column>
+
+										</h:panelGrid></td>
+								</tr>
+							</table>
+
+						</rich:panel>
+
+
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

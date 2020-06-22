@@ -1,0 +1,882 @@
+package xtensus.beans.common.GBO0;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.servlet.http.HttpServletRequest;
+
+import org.ajax4jsf.xml.serializer.ToUnknownStream;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Entite;
+import xtensus.entity.Menu;
+import xtensus.entity.Nature;
+import xtensus.entity.NatureCategorie;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class NatureGestionBean {
+
+	private Nature nature;
+	private NatureCategorie categorie;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+
+	private DataModel listNaturesDM;
+	private List<Nature> listN;
+	private List<Nature> listNature;
+	private DataModel listNatureDM;
+	private long recordsNature = 0;
+	private List<Variables> listVariables;
+	private List<Nature> copylistN;
+
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+	private String cacherValider;
+	private String cacherAnnuler;
+	private boolean activer;
+	private boolean desactiver;
+	private boolean validationHierarchique;
+	private String variablesValeur;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+
+	private Nature nat;
+	private Nature natu;
+	private boolean natureLibelleShowFr;
+	private boolean natureLibelleShowAr;
+	private boolean natureDescriptionShowFr;
+	private boolean natureDescriptionShowAr;
+	private String valeurVallidationHierarchique;
+	private String valeurGestionNatureParCategorie;
+
+	@Autowired
+	public NatureGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		nature = new Nature();
+		nat = new Nature();
+		listNaturesDM = new ListDataModel();
+		listN = new ArrayList<Nature>();
+		listVariables = new ArrayList<Variables>();
+		copylistN = new ArrayList<Nature>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		cacherValider = "none";
+		cacherAnnuler = "none";
+		categorie = new NatureCategorie();
+		listNature = new ArrayList<Nature>();
+		listNatureDM = new ListDataModel();
+		System.out
+				.println("*************Bean NatureGestionBean Injecte***************");
+		activer = true;
+		desactiver = false;
+		Nature natu = new Nature();
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		//
+
+		// [JS]
+		if (vb.isCategorieParNature())
+			categorie = vb.getNatureCategorie();
+
+		titleaccor = messageSource.getMessage("Ajoutnature", new Object[] {},
+				lm.createLocal());
+		titre = "Ajouter nature";
+		listN = new ArrayList<Nature>();
+		listVariables = new ArrayList<Variables>();
+
+		copylistN = new ArrayList<Nature>();
+
+		// System.out.println(vb.getLocale());
+		try {
+
+			// JS Chèque
+
+			if (vb.isCategorieParNature()) {
+				// get les natures par catégorie
+				listN = appMgr.listNaturesByCategorie(categorie
+						.getNatureCategorieId());
+				listNatureDM.setWrappedData(listN);
+			} else {
+				listNature = appMgr.getList(Nature.class);
+				System.out.println("Taille List Nature :" + listNature.size());
+				listNatureDM.setWrappedData(listNature);
+			}
+
+			listVariables = appMgr
+					.listVariablesByLibelle("validation_hierarchique_courrier_nature");
+			valeurVallidationHierarchique = listVariables.get(0)
+					.getVaraiablesValeur();
+			System.out.println("valeurVallidationHierarchique///   ===  "
+					+ valeurVallidationHierarchique);
+			if (vb.getLocale().equals("ar")) {
+
+				natureLibelleShowFr = false;
+				setNatureDescriptionShowFr(false);
+				natureLibelleShowAr = true;
+				setNatureDescriptionShowAr(true);
+
+			} else {
+				natureLibelleShowFr = true;
+				setNatureDescriptionShowFr(true);
+				natureLibelleShowAr = false;
+				setNatureDescriptionShowAr(false);
+
+			}
+			if (vb.isCategorieParNature()) {
+				for (int i = 0; i < listN.size(); i++) {
+
+					nat = listN.get(i);
+
+					copylistN.add(nat);
+					nat = new Nature();
+
+				}
+			} else {
+				for (int i = 0; i < listNature.size(); i++) {
+
+					nat = listNature.get(i);
+
+					copylistN.add(nat);
+					nat = new Nature();
+
+				}
+			}
+			validationHierarchique = false;
+			if (listVariables != null && listVariables.size() > 0) {
+				variablesValeur = listVariables.get(0).getVaraiablesValeur();
+				variablesValeur = variablesValeur.toUpperCase();
+
+				if (variablesValeur.equals("OUI")) {
+					validationHierarchique = true;
+				}
+
+			}
+		} catch (Exception e) {
+			System.out.println("erreur");
+			e.printStackTrace();
+		}
+		// listNaturesDM.setWrappedData(listNature);
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+			// set Catégorie en cours dans table nature
+			if (vb.isCategorieParNature()) {
+				nature.setNatureCategorie(categorie);
+			}
+			
+			appMgr.insert(nature);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout", "Evénement de log d'ajout de la nature "
+					+ nature.getNatureId() + "-" + nature.getNatureLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+			System.out
+					.println("***************Succes NatureGestionBean***************");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			status3 = true;
+			System.out
+					.println("***************Erreur NatureGestionBean***************");
+
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			nature = (Nature) listNatureDM.getRowData();
+			vb.setNature(nature);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de la nature "
+							+ nature.getNatureId() + "-"
+							+ nature.getNatureLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+			System.out.println("*******SelectionNatureConsulterBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionNatureConsulterBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier nature";
+		titleaccor = messageSource.getMessage("Modificationnature",
+				new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRowDelete() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			nature = (Nature) listNatureDM.getRowData();
+			vb.setNature(nature);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"Supression",
+					"Evénement de log de consultation de la nature "
+							+ nature.getNatureId() + "-"
+							+ nature.getNatureLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+			System.out.println("*******SelectionNatureConsulterBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionNatureConsulterBean*******");
+		}
+
+		divajouter = "none";
+		divmodifier = "none";
+		infoChampObligatoir = "none";
+
+		// titleaccor = messageSource.getMessage("Modificationnature",new
+		// Object[] {}, lm.createLocal());;
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = false;
+		hideAccor = "none";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "none";
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			nature = vb.getNature();
+			appMgr.update(nature);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de la nature "
+							+ vb.getNature().getNatureId() + "-"
+							+ vb.getNature().getNatureLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+			Boolean var = vb.getNature().getNatureValide();
+
+			listN = new ArrayList<Nature>();
+			Initialize();
+			nature = new Nature();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+
+		divajouter = "none";
+		divmodifier = "none";
+		hideAccor = "none";
+		infoChampObligatoir = "inline";
+		// titre = "Ajouter nature";
+		// titleaccor = messageSource.getMessage("Ajoutnature",new Object[] {},
+		// lm.createLocal());
+
+	}
+
+	public void updateSelectedRows() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			for (Nature n : copylistN)
+
+			{
+				nature = n;
+				appMgr.update(nature);
+			}
+
+			status1 = true;
+
+		} catch (Exception e) {
+			status2 = true;
+			e.printStackTrace();
+
+		}
+		desactiver = false;
+		activer = true;
+		cacherValider = "none";
+		cacherAnnuler = "none";
+	}
+
+	public void annulerModifications() {
+
+		desactiver = false;
+		activer = true;
+		cacherValider = "none";
+		cacherAnnuler = "none";
+		try {
+			ExternalContext ec = FacesContext.getCurrentInstance()
+					.getExternalContext();
+			ec.redirect(((HttpServletRequest) ec.getRequest()).getRequestURI());
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		}
+	}
+
+	public void gestionValiditeMultiple() {
+
+		cacherValider = "inline";
+		cacherAnnuler = "inline";
+		activer = false;
+		desactiver = true;
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			nature = vb.getNature();
+			appMgr.delete(nature);
+
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression de la nature "
+							+ nature.getNatureId() + "-"
+							+ nature.getNatureLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+		} catch (Exception e) {
+
+		}
+		// listNaturesDM = new ListDataModel();
+		listN = new ArrayList<Nature>();
+		copylistN = new ArrayList<Nature>();
+		Initialize();
+		// nature = new Nature();
+	}
+
+	public void annulModif() {
+		nature = new Nature();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter nature";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		nature = new Nature();
+		msgerror = true;
+		titleaccor = messageSource.getMessage("Ajoutnature", new Object[] {},
+				lm.createLocal());
+		openaccor1 = true;
+		openaccor = true;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public void hidechamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		nature = new Nature();
+		msgerror = true;
+		// titleaccor = messageSource.getMessage("Ajoutnature",new Object[] {},
+		// lm.createLocal());
+		openaccor1 = false;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "none";
+		divajouter = "none";
+		divmodifier = "none";
+		infoChampObligatoir = "none";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// public void excuteBucup() {
+	// Configuration configuration = new Configuration().configure();
+	// SessionFactory sessionFactory = configuration.buildSessionFactory();
+	//
+	// SchemaExport schema = new SchemaExport(configuration);
+	// schema.setOutputFile("C:\\backup\\backup.sql");
+	// schema.create(true, false);
+	//
+	// }
+
+	// Fiche
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listNatureDM != null && listNatureDM.getWrappedData() != null)
+			records = ((List<Nature>) listNatureDM.getWrappedData()).size();
+
+		else
+			records = 0;
+		return records;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	// public DataModel getListNaturesDM() {
+	// return listNatureDM;
+	// }
+	//
+	// public void setListNatureDM(DataModel listNaturesDM) {
+	// this.listNatureDM = listNaturesDM;
+	// }
+
+	public List<Nature> getListN() {
+		return listN;
+	}
+
+	public void setListN(List<Nature> listN) {
+		this.listN = listN;
+	}
+
+	public List<Nature> getCopylistN() {
+		return copylistN;
+	}
+
+	public void setCopylistN(List<Nature> copylistN) {
+		this.copylistN = copylistN;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public Nature getNat() {
+		return nat;
+	}
+
+	public void setNat(Nature nat) {
+		this.nat = nat;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setNatureLibelleShowFr(boolean natureLibelleShowFr) {
+		this.natureLibelleShowFr = natureLibelleShowFr;
+	}
+
+	public boolean isNatureLibelleShowFr() {
+		return natureLibelleShowFr;
+	}
+
+	public void setNatureLibelleShowAr(boolean natureLibelleShowAr) {
+		this.natureLibelleShowAr = natureLibelleShowAr;
+	}
+
+	public boolean isNatureLibelleShowAr() {
+		return natureLibelleShowAr;
+	}
+
+	public void setNatureDescriptionShowFr(boolean natureDescriptionShowFr) {
+		this.natureDescriptionShowFr = natureDescriptionShowFr;
+	}
+
+	public boolean isNatureDescriptionShowFr() {
+		return natureDescriptionShowFr;
+	}
+
+	public void setNatureDescriptionShowAr(boolean natureDescriptionShowAr) {
+		this.natureDescriptionShowAr = natureDescriptionShowAr;
+	}
+
+	public boolean isNatureDescriptionShowAr() {
+		return natureDescriptionShowAr;
+	}
+
+	 public void setCategorie(NatureCategorie categorie) {
+	 this.categorie = categorie;
+	 }
+	
+	 public NatureCategorie getCategorie() {
+	 return categorie;
+	 }
+
+	public void setListNature(List<Nature> listNature) {
+		this.listNature = listNature;
+	}
+
+	public List<Nature> getListNature() {
+		return listNature;
+	}
+
+	public void setListNatureDM(DataModel listNatureDM) {
+		this.listNatureDM = listNatureDM;
+	}
+
+	public DataModel getListNatureDM() {
+		return listNatureDM;
+	}
+
+	public void setRecordsNature(long recordsNature) {
+		this.recordsNature = recordsNature;
+	}
+
+	public String getCacherValider() {
+		return cacherValider;
+	}
+
+	public void setCacherValider(String cacherValider) {
+		this.cacherValider = cacherValider;
+	}
+
+	public String getCacherAnnuler() {
+		return cacherAnnuler;
+	}
+
+	public void setCacherAnnuler(String cacherAnnuler) {
+		this.cacherAnnuler = cacherAnnuler;
+	}
+
+	public boolean isActiver() {
+		return activer;
+	}
+
+	public void setActiver(boolean activer) {
+		this.activer = activer;
+	}
+
+	public boolean isDesactiver() {
+		return desactiver;
+	}
+
+	public void setDesactiver(boolean desactiver) {
+		this.desactiver = desactiver;
+	}
+
+	public Nature getNatu() {
+		return natu;
+	}
+
+	public void setNatu(Nature natu) {
+		this.natu = natu;
+	}
+
+	public boolean isValidationHierarchique() {
+		return validationHierarchique;
+	}
+
+	public void setValidationHierarchique(boolean validationHierarchique) {
+		this.validationHierarchique = validationHierarchique;
+	}
+
+	public List<Variables> getListVariables() {
+		return listVariables;
+	}
+
+	public void setListVariables(List<Variables> listVariables) {
+		this.listVariables = listVariables;
+	}
+
+	public String getVariablesValeur() {
+		return variablesValeur;
+	}
+
+	public void setVariablesValeur(String variablesValeur) {
+		this.variablesValeur = variablesValeur;
+	}
+
+	public String getValeurVallidationHierarchique() {
+		return valeurVallidationHierarchique;
+	}
+
+	public void setValeurVallidationHierarchique(
+			String valeurVallidationHierarchique) {
+		this.valeurVallidationHierarchique = valeurVallidationHierarchique;
+	}
+
+	// JS: Chèque
+	@SuppressWarnings("unchecked")
+	public long getRecordsNature() {
+		if (listNatureDM != null && listNatureDM.getWrappedData() != null)
+			recordsNature = ((List<Nature>) listNatureDM.getWrappedData())
+					.size();
+
+		else
+			recordsNature = 0;
+
+		return recordsNature;
+	}
+
+	public void getSelectionRow2() {
+		try {
+			nature = (Nature) listNatureDM.getRowData();
+			vb.setNature(nature);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de la nature "
+							+ nature.getNatureId() + "-"
+							+ nature.getNatureLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+			System.out.println("*******SelectionNatureConsulterBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionNatureConsulterBean*******");
+		}
+	}
+
+}

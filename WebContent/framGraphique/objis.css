@@ -1,0 +1,91 @@
+  body { background-color: white; font:20px/30px arial color: white }
+  a { color: blue }
+  a:hover { color: orange }
+  div { margin:20px; }
+  h1 { margin-left:40px; }
+
+.conTenu {
+	-moz-border-radius:10px;
+	border:1px solid orange;
+	text-align: center;
+	margin-left:40px; 
+	width:750px;
+	height:300px;
+	background-color : #FFFFFF;
+	}
+	
+.logoObjis {
+    left: 50px;
+    top: 30px;
+	position: absolute;	
+}
+.userIdentite {
+	left:400px; 
+	font-size : 12px;
+	top:30px;
+	position:absolute;
+	}
+.userRole {
+	left:500px; 
+	font-size : 12px;
+	top:30px;
+	position:absolute;
+	}
+.mnuLogout {
+	left:650px; 
+	font-size : 12px;
+	top:30px;
+	position:absolute;
+	}
+.mnuLien1 {
+	left:50px; 
+	font-size : 15px;
+	top:130px;
+	position:absolute;
+	}
+.mnuLien2 {
+	left:50px; 
+	font-size : 15px;
+	top:160px;
+	position:absolute;
+	}
+.mnuLien3 {
+	left:50px; 
+	font-size : 15px;
+	top:190px;
+	position:absolute;
+	}
+.mnuLien4 {
+	left:50px; 
+	font-size : 15px;
+	top:220px;
+	position:absolute;
+	}
+.mnuLien5 {
+	left:50px; 
+	font-size : 15px;
+	top:250px;
+	position:absolute;
+	}
+a
+	{
+	text-decoration:none;
+	}
+
+.copyRight{
+	left:250px; 
+	font-size : 15px;
+	top:285px;
+	position:absolute;
+	}
+	
+.authenTification {
+	left: 300px;
+    top: 160px;
+	position: absolute;	
+	}
+.logoObjisAuthentification {
+    left: 320px;
+    top: 50px;
+	position: absolute;	
+}

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="entete" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d46b209a-4552-4e5c-936c-461eafb5f09f">
+	<property name="ireport.zoom" value="1.2100000000000013"/>
+	<property name="ireport.x" value="151"/>
+	<property name="ireport.y" value="0"/>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<background>
+		<band/>
+	</background>
+	<detail>
+		<band height="105">
+			<textField>
+				<reportElement x="552" y="39" width="179" height="40" uuid="9b455ca7-c00d-450e-b9dc-ce50e3752536"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="49" y="39" width="177" height="39" uuid="085021aa-003f-408c-8a12-24494f206549"/>
+				<textElement textAlignment="Center">
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeOrganismeParent}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="621" y="0" width="54" height="39" uuid="2fb9aefa-5ec1-4f94-a63a-2d1c64631cac"/>
+				<imageExpression><![CDATA["logo.jpg"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="373" y="0" width="59" height="59" uuid="20c25a65-9e4a-4c34-9226-deb6ba32e0c7"/>
+				<imageExpression><![CDATA["embleme.jpg"]]></imageExpression>
+			</image>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="701" y="85" width="99" height="20" uuid="19f168f4-cce2-46a2-a6cf-720c8fc99a2b"/>
+				<textElement textAlignment="Left">
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="633" y="85" width="68" height="20" uuid="daebd4bf-376b-43af-bd9f-bd354187e688"/>
+				<textElement textAlignment="Right">
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeVille}+" le, "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="83" y="12" width="131" height="27" uuid="ef2e062c-27ff-4bd4-92c7-954e8b4744f7"/>
+				<textFieldExpression><![CDATA[$F{societeRepublique}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

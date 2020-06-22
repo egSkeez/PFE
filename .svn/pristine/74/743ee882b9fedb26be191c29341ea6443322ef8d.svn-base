@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<h:panelGrid columns="20">
+								<a4j:commandLink id="retour"
+									oncomplete="document.location.href='courrierRecherche.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+								<rich:spacer width="20" />
+								<a4j:commandLink id="modif"
+									onclick="document.location.href='courrierModifier.jsf'">
+									<h:graphicImage
+										value="../framGraphique/images/edit_barreMenu.png"
+										alt="Update" />
+								</a4j:commandLink>
+								<rich:toolTip for="modif" value="#{msg.Modif}" />
+								<rich:spacer width="8" />
+								<a4j:commandLink id="deletelink"
+									action="#{courrierDetailsBean.deleteCourrier}"
+									oncomplete="if(#{courrierDetailsBean.status}==1) 
+								#{rich:component('askDelete')}.show(); 
+								if(#{courrierDetailsBean.status}==0) {#{rich:component('askDeleteDoc')}.show()};"
+									reRender="askDelete,askDeleteDoc">
+									<h:graphicImage
+										value="../framGraphique/images/DeletebarreMenu.png"
+										alt="Delete" />
+								</a4j:commandLink>
+								<rich:toolTip for="deletelink" value="#{msg.Supprim}" />
+								<rich:spacer width="8" />
+								<a4j:commandLink id="suivi"
+									action="#{courrierDetailsBean.getSelectionRow}"
+									oncomplete="document.location.href='courrierSuivi.jsf'">
+									<h:graphicImage value="../framGraphique/images/suivi.png"
+										alt="suivi" />
+								</a4j:commandLink>
+								<rich:toolTip for="suivi" value="#{msg.Suivi}" />
+								<rich:spacer width="8" />
+								<a4j:commandLink id="ajout"
+									onclick="document.location.href='documentAjout.jsf'">
+									<h:graphicImage value="../framGraphique/images/ajouter.png"
+										alt="ajouter" />
+								</a4j:commandLink>
+								<rich:toolTip for="ajout" value="#{msg.AjouterDocument}" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.ConsultCourrierfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+
+							<table width="100%">
+								<tr>
+									<td width="50%"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.CourrierRef}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{courrierDetailsBean.courrier.courrierReferenceCorrespondant}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+											<h:outputText value="#{msg.CourrierDateRecep}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{courrierDetailsBean.courrier.courrierDateReception}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;">
+
+											</h:outputText>
+											<h:outputText value="#{msg.CourrierObjet}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{courrierDetailsBean.courrier.courrierObjet}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+											<h:outputText value="#{msg.CourrierNature}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{courrierDetailsBean.nature.natureLibelle}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+											<h:outputText value="#{msg.CourrierExp}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText value="Null" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.CourrierDest}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText value="Null" styleClass="xteDetailLabelOutput" />
+
+
+											<h:outputText value="#{msg.CourrierLiens}"
+												styleClass="xteDetailLabel" />
+											<h:outputText value="Null" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.CourrierAnnot}"
+												styleClass="xteDetailLabel" />
+											<h:outputText value="Null" styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+									<td width="50%"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.CourrierDes}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{courrierDetailsBean.courrier.courrierCommentaire}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.CourrierKey}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{courrierDetailsBean.courrier.keywords}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.CourrierMode}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{courrierDetailsBean.transmission.transmissionLibelle}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.CourrierConfidentialite}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{courrierDetailsBean.confidentialite.confidentialiteLibelle}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.CourrierUrgence}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{courrierDetailsBean.urgence.urgenceLibelle}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.CourrierNecessite}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{courrierDetailsBean.courrier.courrierNecessiteReponse}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.CourrierDateRep}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{courrierDetailsBean.courrier.courrierDateReponse}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput">
+											</h:outputText>
+
+											<h:outputText value="#{msg.CourrierCircuit}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{courrierDetailsBean.courrier.courrierCircuit}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+								</tr>
+							</table>
+
+						</rich:panel>
+
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.RechercherDocumentfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+
+								</h:panelGrid>
+							</f:facet>
+							<rich:dataTable value="#{documentConsultationBean.listDDM}"
+								var="document" id="data" rows="10" styleClass="rich-datatable"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+
+								<rich:column sortBy="#{document.documentReference}"
+									filterBy="#{document.documentReference}" filterEvent="onkeyup"
+									label="id2">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocRef}" />
+									</f:facet>
+									<h:outputText value="#{document.documentReference}" />
+								</rich:column>
+
+								<rich:column sortBy="#{document.documentNom}"
+									filterBy="#{document.documentNom}" filterEvent="onkeyup"
+									label="nom">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocNom}" />
+									</f:facet>
+									<h:outputText value="#{document.documentNom}" />
+								</rich:column>
+
+								<rich:column sortBy="#{document.documentObjet}"
+									filterBy="#{document.documentObjet}" filterEvent="onkeyup"
+									label="obj">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocObjet}" />
+									</f:facet>
+									<h:outputText value="#{document.documentObjet}" />
+								</rich:column>
+
+								<rich:column sortBy="#{document.documentCommentaire}"
+									filterBy="#{document.documentCommentaire}"
+									filterEvent="onkeyup" label="CIN">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocCommentaire}" />
+									</f:facet>
+									<h:outputText value="#{document.documentCommentaire}" />
+								</rich:column>
+								<rich:column>
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneOperation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="6">
+
+											<a4j:commandLink id="consult"
+												action="#{documentConsultationBean.getSelectionRow}"
+												oncomplete="document.location.href='documentConsultation.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="Consulter" />
+
+											</a4j:commandLink>
+											<rich:toolTip for="consult" value="#{msg.Consult}" />
+											<a4j:commandLink id="modif"
+												action="#{documentConsultationBean.getSelectionRow}"
+												oncomplete="document.location.href='documentModification.jsf'"
+												reRender="askUpdate">
+												<h:graphicImage value="../framGraphique/images/Edit.png"
+													alt="Update" />
+											</a4j:commandLink>
+											<rich:toolTip for="modif" value="#{msg.Modif}" />
+											<a4j:commandLink id="deletelink"
+												action="#{documentConsultationBean.getSelectionRow}"
+												oncomplete="#{rich:component('askDelete')}.show()">
+												<h:graphicImage value="../framGraphique/images/Delete.png"
+													alt="Delete" />
+											</a4j:commandLink>
+											<rich:toolTip for="deletelink" value="#{msg.Supprim}" />
+										</h:panelGrid>
+									</div>
+								</rich:column>
+							</rich:dataTable>
+							<rich:datascroller for="data" id="scroller" />
+							<div align="center">
+								<h:outputText value="#{msg.NombreEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="compt"
+									value="#{documentConsultationBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

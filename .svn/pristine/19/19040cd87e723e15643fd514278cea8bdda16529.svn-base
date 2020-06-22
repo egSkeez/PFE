@@ -1,0 +1,63 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Entite;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pp;
+
+public class RapportListPP extends Entite {
+	private Pp pp;
+	private int numero;
+	private String path;
+	private String nomProjet;
+	private Expdestexterne expediteur2;
+	private Expdestexterne expediteur;
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public int getNumero() {
+		return numero;
+	}
+
+	public void setNumero(int numero) {
+		this.numero = numero;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public Expdestexterne getExpediteur2() {
+		return expediteur2;
+	}
+
+	public void setExpediteur2(Expdestexterne expediteur2) {
+		this.expediteur2 = expediteur2;
+	}
+
+	public void setExpediteur(Expdestexterne expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public Expdestexterne getExpediteur() {
+		return expediteur;
+	}
+
+}

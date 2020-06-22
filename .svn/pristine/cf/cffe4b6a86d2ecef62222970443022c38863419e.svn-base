@@ -1,0 +1,600 @@
+package xtensus.beans.common.GNL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.EvenementConsulter;
+import xtensus.gnl.entity.Evenement;
+import xtensus.gnl.entity.TypeEvenement;
+import xtensus.services.ApplicationManager;
+@Component()
+@Scope("request")
+public class EvenementGestionBean {
+	private Evenement evenement;
+	//div
+	private String divajouter;
+	private String divmodifier;
+	private String divconsult;
+	private String divnonconsult;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listevenementDM;
+	private List<Evenement> listEvenement;
+	private List<Evenement> copylistM;
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+	private ApplicationManager appMgr;
+	private Evenement marq;
+	private String copyEvenementLibelle;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private boolean status4;
+	private boolean status5;
+	private String selectedItemTypeEvent;
+	private List<TypeEvenement> listTypeEvenement;
+	private TypeEvenement typeEvent;
+	private EvenementConsulter eventConsult;
+	private List<EvenementConsulter> listEventConsult;
+	private String type;
+	private String hideAccorDetails;
+	
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	
+	@Autowired
+	public EvenementGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		evenement = new Evenement();
+		marq = new Evenement();
+		listevenementDM = new ListDataModel();
+		listEvenement = new ArrayList<Evenement>();
+		eventConsult = new EvenementConsulter();
+		listEventConsult = new ArrayList<EvenementConsulter>();
+		listTypeEvenement = new ArrayList<TypeEvenement>();
+		copylistM = new ArrayList<Evenement>();
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out.println("*************Bean Injecte***************");
+		divajouter = "inline";
+		divmodifier = "none";
+		divconsult="none";
+		divnonconsult="inline";
+		infoChampObligatoir = "inline";
+		hideAccorDetails = "none";		
+
+	}
+	
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajouter Evenement";
+		hideAccorDetails = "none";
+
+		listEvenement = new ArrayList<Evenement>();
+		listEventConsult = new ArrayList<EvenementConsulter>();
+		
+		copylistM = new ArrayList<Evenement>();
+		try {
+			listTypeEvenement = appMgr.getList(TypeEvenement.class);
+			listEvenement = appMgr.getList(Evenement.class);
+
+			for (int i = 0; i < listEvenement.size(); i++) {
+				eventConsult.setEvenement(listEvenement.get(i));
+				eventConsult.setType(appMgr
+						.listTypeEvenementByRef(
+								listEvenement.get(i).getTypeEvenement()
+										.getTypeEvenementId()).get(0)
+						.getTypeEvenementLibelle());
+				listEventConsult.add(eventConsult);
+				eventConsult = new EvenementConsulter();
+			}
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+		}
+		listevenementDM.setWrappedData(listEventConsult);
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+
+		try {
+			setSelectedItemTypeEvent(selectedItemTypeEvent.toString());
+			typeEvent = appMgr
+					.listTypeEvenementBylibelle(selectedItemTypeEvent).get(0);
+			evenement.setTypeEvenement(typeEvent);
+			appMgr.insert(evenement);
+			//setMessage(messageSource.getMessage("confirmInsert", new Object[] {}, lm.createLocal()));
+			status = true;
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout",
+					"Evénement de log d'ajout d'evenement " + evenement.getEvenementId() + "-" + evenement.getEvenementLibelle() ,
+					vb.getPerson(), "INFO", appMgr);
+			
+			Initialize();
+		} catch (Exception e) {
+			status3 = true;
+			e.printStackTrace();
+		}
+		
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			eventConsult = (EvenementConsulter) listevenementDM.getRowData();
+			vb.setEvenement(eventConsult.getEvenement());
+			evenement = eventConsult.getEvenement();
+			selectedItemTypeEvent = vb.getEvenement().getTypeEvenement()
+					.getTypeEvenementLibelle();		
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation d'evenement " + evenement.getEvenementId() + "-" + evenement.getEvenementLibelle() ,
+					vb.getPerson(), "INFO", appMgr);			
+			Initialize();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		divnonconsult="inline";
+		divconsult="none";
+		infoChampObligatoir = "inline";
+		titre = "Modification evenement";
+		titleaccor = messageSource.getMessage("Modificationevenement",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		hideAccorDetails = "none";
+	}
+	public void getSelectionRowConst(){
+		eventConsult = (EvenementConsulter) listevenementDM.getRowData();
+		vb.setEvenement(eventConsult.getEvenement());
+		evenement = eventConsult.getEvenement();
+		int refType= vb.getEvenement().getTypeEvenement().getTypeEvenementId();
+		listTypeEvenement = appMgr.listTypeEvenementByRef(refType);
+		typeEvent = listTypeEvenement.get(0);
+		type = typeEvent.getTypeEvenementLibelle();
+		divajouter = "none";
+		divmodifier = "none";
+		divnonconsult="none";
+		divconsult="none";
+		infoChampObligatoir = "none";
+		titleaccor =  messageSource.getMessage("Detailsevenement",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "none";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		hideAccorDetails = "inline";
+		//**
+		LogClass logClass = new LogClass();
+		logClass.addTrack("consultation",
+				"Evénement de log de consultation d'evenement " + evenement.getEvenementId() + "-" + evenement.getEvenementLibelle() ,
+				vb.getPerson(), "INFO", appMgr);	
+	}
+	
+	public void getSelectionRowDel()
+	{
+		status4=false;
+		status5=false;
+		
+		eventConsult = (EvenementConsulter) listevenementDM.getRowData();
+		vb.setEvenement(eventConsult.getEvenement());
+		evenement = eventConsult.getEvenement();
+		
+		divajouter = "none";
+		divmodifier = "none";
+		divnonconsult="inline";
+		hideAccorDetails = "none";
+		divconsult="none";
+		if(appMgr.listNotificationByEvenement(evenement.getEvenementId()).size() == 0) {System.out.print("getSelectionRowDel()");status4=true;}
+		else status5=true;
+		
+	}
+	
+	public void updateSelectedRow() {
+		status1=false;
+		status2=false;
+		try {
+			setSelectedItemTypeEvent(selectedItemTypeEvent.toString());
+			typeEvent = appMgr
+					.listTypeEvenementBylibelle(selectedItemTypeEvent).get(0);
+			evenement.setTypeEvenement(typeEvent);
+			appMgr.update(evenement);
+
+			System.out.println("UpdateTerminee");
+			status1=true;	
+			listEvenement = new ArrayList<Evenement>();
+			listEventConsult = new ArrayList<EvenementConsulter>();
+			Initialize();
+			evenement = new Evenement();
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification d'evenement " + evenement.getEvenementId() + "-" + evenement.getEvenementLibelle() ,
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			status2=true;
+		}
+		Initialize();
+
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajout evenement";
+		titleaccor =  messageSource.getMessage("Ajoutevenement",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+		
+		
+		try {
+			// etat=vb.getEtat();
+			appMgr.delete(evenement);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression d'evenement " + evenement.getEvenementId() + "-" + evenement.getEvenementLibelle() ,
+					vb.getPerson(), "INFO", appMgr);			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listevenementDM = new ListDataModel();
+		listEvenement = new ArrayList<Evenement>();
+		listEventConsult = new ArrayList<EvenementConsulter>();
+		copylistM = new ArrayList<Evenement>();
+		Initialize();
+		hidechamp();
+		// etat = new Etat();
+	}
+
+	public void annulModif() {
+		evenement = new Evenement();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajout evenement";
+		//tran.setTransmissionLibelle("");
+
+	}
+
+	public void viderchamp() {
+		evenement = new Evenement();
+		msgerror = true;
+		titleaccor =  messageSource.getMessage("Ajoutevenement",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divnonconsult="inline";
+		divconsult="none";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		hideAccorDetails = "none";
+
+	}
+	
+	public void hidechamp(){
+	
+		hideAccor = "none";
+		divajouter = "none";
+		divnonconsult="none";
+		divconsult="none";
+		divmodifier = "none";
+		infoChampObligatoir = "none";
+		status=false;
+		status1=false;
+		status2=false;
+		status3=false;
+		
+		
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+	
+	public List<SelectItem> getSelectItemsTE() {
+
+		List<SelectItem> selectItemsTE = new ArrayList<SelectItem>();
+		selectItemsTE.add(new SelectItem(""));
+
+		for (int j = 0; j <= listTypeEvenement.size() - 1; j++) {
+			selectItemsTE.add(new SelectItem(listTypeEvenement.get(j)
+					.getTypeEvenementLibelle()));
+		}
+
+		return selectItemsTE;
+	}
+
+	// *****************Getters &Setters*******************************
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listevenementDM == null && listevenementDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Evenement>) listevenementDM.getWrappedData()).size();
+		return records;
+	}
+	public Evenement getEvenement() {
+		return evenement;
+	}
+	public void setEvenement(Evenement evenement) {
+		this.evenement = evenement;
+	}
+	public String getDivajouter() {
+		return divajouter;
+	}
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+	public String getTitre() {
+		return titre;
+	}
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+	public DataModel getListevenementDM() {
+		return listevenementDM;
+	}
+	public void setListevenementDM(DataModel listevenementDM) {
+		this.listevenementDM = listevenementDM;
+	}
+	public List<Evenement> getListEvenement() {
+		return listEvenement;
+	}
+	public void setListEvenement(List<Evenement> listEvenement) {
+		this.listEvenement = listEvenement;
+	}
+	public List<Evenement> getCopylistM() {
+		return copylistM;
+	}
+	public void setCopylistM(List<Evenement> copylistM) {
+		this.copylistM = copylistM;
+	}
+	
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+	public String getHideAccor() {
+		return hideAccor;
+	}
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+	public Evenement getMarq() {
+		return marq;
+	}
+	public void setMarq(Evenement marq) {
+		this.marq = marq;
+	}
+	public void setCopyEvenementLibelle(String copyEvenementLibelle) {
+		this.copyEvenementLibelle = copyEvenementLibelle;
+	}
+	public String getCopyEvenementLibelle() {
+		return copyEvenementLibelle;
+	}
+	public boolean isStatus() {
+		return status;
+	}
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	public boolean isStatus1() {
+		return status1;
+	}
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+	public boolean isStatus2() {
+		return status2;
+	}
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+	public boolean isStatus3() {
+		return status3;
+	}
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+	public String getDivconsult() {
+		return divconsult;
+	}
+	public void setDivconsult(String divconsult) {
+		this.divconsult = divconsult;
+	}
+	public String getDivnonconsult() {
+		return divnonconsult;
+	}
+	public void setDivnonconsult(String divnonconsult) {
+		this.divnonconsult = divnonconsult;
+	}
+
+	public boolean isStatus4() {
+		return status4;
+	}
+
+	public void setStatus4(boolean status4) {
+		this.status4 = status4;
+	}
+
+	public boolean isStatus5() {
+		return status5;
+	}
+
+	public void setStatus5(boolean status5) {
+		this.status5 = status5;
+	}
+
+	public void setSelectedItemTypeEvent(String selectedItemTypeEvent) {
+		this.selectedItemTypeEvent = selectedItemTypeEvent;
+	}
+
+	public String getSelectedItemTypeEvent() {
+		return selectedItemTypeEvent;
+	}
+
+	public void setTypeEvent(TypeEvenement typeEvent) {
+		this.typeEvent = typeEvent;
+	}
+
+	public TypeEvenement getTypeEvent() {
+		return typeEvent;
+	}
+
+	public void setEventConsult(EvenementConsulter eventConsult) {
+		this.eventConsult = eventConsult;
+	}
+
+	public EvenementConsulter getEventConsult() {
+		return eventConsult;
+	}
+
+	public void setListEventConsult(List<EvenementConsulter> listEventConsult) {
+		this.listEventConsult = listEventConsult;
+	}
+
+	public List<EvenementConsulter> getListEventConsult() {
+		return listEventConsult;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public List<TypeEvenement> getListTypeEvenement() {
+		return listTypeEvenement;
+	}
+
+	public void setListTypeEvenement(List<TypeEvenement> listTypeEvenement) {
+		this.listTypeEvenement = listTypeEvenement;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public void setHideAccorDetails(String hideAccorDetails) {
+		this.hideAccorDetails = hideAccorDetails;
+	}
+
+	public String getHideAccorDetails() {
+		return hideAccorDetails;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+}

@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-11-27T16:41:29 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourrierFiche" columnDirection="RTL" pageWidth="595" pageHeight="1000" columnWidth="525" leftMargin="35" rightMargin="35" topMargin="35" bottomMargin="5" uuid="0076f126-9bab-4a73-8b2c-cb71016b33f4">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="annotationList" class="java.lang.String">
+		<fieldDescription><![CDATA[annotationList]]></fieldDescription>
+	</field>
+	<field name="expediteurNom" class="java.lang.String">
+		<fieldDescription><![CDATA[expediteurNom]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="transaction" class="xtensus.entity.Transaction">
+		<fieldDescription><![CDATA[transaction]]></fieldDescription>
+	</field>
+	<field name="expediteur" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expediteur]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="numero" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numero]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="destinataireNom" class="java.lang.String">
+		<fieldDescription><![CDATA[destinataireNom]]></fieldDescription>
+	</field>
+	<field name="transmission" class="xtensus.entity.Transmission">
+		<fieldDescription><![CDATA[transmission]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="listRapportCourrierUrgence" class="java.util.List">
+		<fieldDescription><![CDATA[listRapportCourrierUrgence]]></fieldDescription>
+	</field>
+	<field name="rapportExpediteurDestinataire" class="java.util.List">
+		<fieldDescription><![CDATA[rapportExpediteurDestinataire]]></fieldDescription>
+	</field>
+	<field name="variable" class="xtensus.entity.Variables">
+		<fieldDescription><![CDATA[variable]]></fieldDescription>
+	</field>
+	<field name="type" class="java.lang.String">
+		<fieldDescription><![CDATA[type]]></fieldDescription>
+	</field>
+	<field name="listRapportCourrierConfidentilaite" class="java.util.List">
+		<fieldDescription><![CDATA[listRapportCourrierConfidentilaite]]></fieldDescription>
+	</field>
+	<field name="urgen" class="java.lang.Integer">
+		<fieldDescription><![CDATA[urgen]]></fieldDescription>
+	</field>
+	<field name="transactions" class="java.util.List">
+		<fieldDescription><![CDATA[transactions]]></fieldDescription>
+	</field>
+	<field name="destinataire" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[destinataire]]></fieldDescription>
+	</field>
+	<field name="confidentialite" class="xtensus.entity.Confidentialite">
+		<fieldDescription><![CDATA[confidentialite]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="nature" class="xtensus.entity.Nature">
+		<fieldDescription><![CDATA[nature]]></fieldDescription>
+	</field>
+	<field name="urgence" class="xtensus.entity.Urgence">
+		<fieldDescription><![CDATA[urgence]]></fieldDescription>
+	</field>
+	<field name="listeSuiviCourrier" class="java.util.List">
+		<fieldDescription><![CDATA[listeSuiviCourrier]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="total" class="java.lang.String">
+		<fieldDescription><![CDATA[total]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="conf" class="java.lang.Integer">
+		<fieldDescription><![CDATA[conf]]></fieldDescription>
+	</field>
+	<field name="confidentialites" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentialites]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="listTransactionSuiviCourrier" class="java.util.List">
+		<fieldDescription><![CDATA[listTransactionSuiviCourrier]]></fieldDescription>
+	</field>
+	<field name="impotance" class="java.lang.String">
+		<fieldDescription><![CDATA[impotance]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="codeUnique" class="java.lang.String"/>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<field name="showLabelNature" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showLabelNature]]></fieldDescription>
+	</field>
+	<field name="showLabelTransmission" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showLabelTransmission]]></fieldDescription>
+	</field>
+	<field name="listeDetailsDynamiques" class="java.util.List">
+		<fieldDescription><![CDATA[listeDetailsDynamiques]]></fieldDescription>
+	</field>
+	<field name="listeDetailsDynamiquesTransmission" class="java.util.List">
+		<fieldDescription><![CDATA[listeDetailsDynamiquesTransmission]]></fieldDescription>
+	</field>
+	<field name="cheque" class="xtensus.beans.common.GBO.ChequeModel">
+		<fieldDescription><![CDATA[cheque]]></fieldDescription>
+	</field>
+	<field name="listeCheque" class="java.util.List">
+		<fieldDescription><![CDATA[listeCheque]]></fieldDescription>
+	</field>
+	<field name="documents" class="java.util.List">
+		<fieldDescription><![CDATA[documents]]></fieldDescription>
+	</field>
+	<field name="showLabelCheque" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showLabelCheque]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="304" splitType="Stretch">
+			<staticText>
+				<reportElement x="2" y="57" width="524" height="29" uuid="1fb89e27-01cd-4168-9da2-26e355fa921f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fiche Courrier]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="1" y="93" width="525" height="20" uuid="8e1a0b8a-3f8c-42c6-b007-7cef5eb8dc8e"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Objet" + " : " + $F{courrier}.getCourrierObjet()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="377" y="0" width="90" height="20" uuid="7e2da321-eeeb-4259-bbcf-f37c0dbf401d"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeVille}+", le "]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="467" y="0" width="58" height="20" uuid="19e8f430-d572-470a-ae60-5cc0619c8993"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="137" width="57" height="15" uuid="05b29087-c5d8-4bec-bdd5-965229f25a58"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Référence :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="349" y="140" width="172" height="15" uuid="8adfe983-9fdd-4aef-b908-9a8848f1df49"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transmission}.getTransmissionLibelle()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="274" y="157" width="245" height="12" uuid="6521022c-5ce9-427b-b679-1c66041897f0"/>
+				<box leftPadding="0" bottomPadding="0"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nature}.getNatureLibelle()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="2" y="196" width="523" height="1" uuid="532c8c12-a767-45c6-9a8a-0925c9e88d68"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="234" y="157" width="40" height="15" uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nature :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="234" y="140" width="120" height="15" uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Mode de transmission :]]></text>
+			</staticText>
+			<subreport>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToBandHeight" x="1" y="202" width="523" height="15" uuid="9e8f6096-f0a4-43fa-831f-53267b15cc6b"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{rapportExpediteurDestinataire})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["CourrierFiche_ExpediteurDestinataire.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="2" y="177" width="67" height="15" uuid="05b29087-c5d8-4bec-bdd5-965229f25a58"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Annotations :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="67" y="177" width="155" height="15" isPrintWhenDetailOverflows="true" uuid="15ab2a91-fc48-45f6-93a6-58ec0d873543"/>
+				<textFieldExpression><![CDATA[$F{annotationList}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="59" y="137" width="100" height="15" uuid="44410bcc-0856-4b96-b89f-12ba29514e72"/>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierReferenceCorrespondant()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="69" y="117" width="425" height="20" uuid="fb74ac49-0456-4360-bec9-ee446087f20f"/>
+				<textFieldExpression><![CDATA[$F{codeUnique}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="117" width="67" height="20" uuid="f8672e2d-feb7-4635-94d9-33cb130e0687"/>
+				<text><![CDATA[Code Unique :]]></text>
+			</staticText>
+			<image>
+				<reportElement x="3" y="-4" width="50" height="50" uuid="dc126053-2f61-4428-83f4-f71cadff662b"/>
+				<imageExpression><![CDATA["../../framGraphique/images/logoSonede.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="1" y="34" width="169" height="30" uuid="e4ca991f-1e05-4289-9121-65f687253f30"/>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="49" width="100" height="30" uuid="273a7582-a500-46a8-99a3-8353f6cb90ac"/>
+				<textFieldExpression><![CDATA[$F{uniteConnecte}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="235" y="256" width="115" height="15" uuid="ef64121e-13af-492a-be86-a7a27d3dec4e"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Echéance de réponse :]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="350" y="256" width="165" height="15" uuid="1cc487af-e4d1-4844-919f-a89a2db0a6e3"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="1"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReponse()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="321" y="241" width="195" height="15" uuid="d5466444-6910-44fb-a3fc-c5a76cfeed0b"/>
+				<box leftPadding="1"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{urgence}.getUrgenceLibelle()]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="124" y="241" width="95" height="15" uuid="03622d1f-c669-42b3-a29e-dafafb342965"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReceptionReelle()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="226" width="122" height="15" uuid="c7947c2f-e70d-4ebb-8509-32fbdeb1a52d"/>
+				<box topPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date de réception/envoi :]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy à HH:mm" isBlankWhenNull="true">
+				<reportElement x="125" y="226" width="95" height="15" uuid="2e05f051-2545-4d35-95a3-32015f9d064c"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReception()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="124" y="256" width="111" height="15" uuid="0e5dcd87-5a42-41b9-b789-8d1666b86311"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{confidentialite}.getConfidentialiteLibelle()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="3" y="289" width="78" height="15" uuid="7561b2b9-15ac-419f-9900-6db9c4d90ba0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Commentaires :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="275" y="226" width="149" height="15" uuid="1e07534c-87bb-4ae2-a74f-9a422cbd13e9"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierCircuit()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="114" y="271" width="121" height="15" uuid="b0aeb673-8c3c-4bb5-ba52-ce836c226ddc"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierNecessiteReponse()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="235" y="226" width="44" height="15" uuid="21f9a551-c7e4-43c2-987e-ea70b347235b"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Circuit :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="256" width="122" height="15" uuid="c6501469-50f1-4ade-9ce7-3815efff3e9a"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Degré de confidentialité :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="3" y="241" width="121" height="15" uuid="d0068930-a848-46c4-9f0c-cbfe936058be"/>
+				<box topPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date de réception réelle  :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="271" width="115" height="15" uuid="5aa7f72b-5a9e-47de-a127-b557400e4c3c"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nécessité de réponse :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="81" y="289" width="445" height="15" isPrintWhenDetailOverflows="true" uuid="479a7c29-3e06-477f-a002-9c1370f8ed5d"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierCommentaire()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="235" y="241" width="86" height="15" uuid="2869447e-3ac3-4043-a581-2957ecdf1791"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Degré d'urgence :]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement x="2" y="154" width="149" height="20" uuid="94838330-fe83-4923-99df-e49e55da66da"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code39" drawText="false" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$F{courrier}.getIdCourrier()]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+		</band>
+	</title>
+	<detail>
+		<band height="337">
+			<subreport>
+				<reportElement positionType="Float" x="1" y="54" width="500" height="20" uuid="83951d24-464b-47dc-ad2a-46bae4ef1c0a"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeDetailsDynamiques})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["CourrierFiche2_Nature.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="2" y="6" width="499" height="20" uuid="43ca76ce-d29b-434e-b943-992186857767"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeDetailsDynamiquesTransmission})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["CourrierFiche2_Transmission.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="1" y="100" width="500" height="19" uuid="e697c2b4-99df-4b4a-b6cc-5414ddc4e2c2">
+					<printWhenExpression><![CDATA[$F{showLabelNature}]]></printWhenExpression>
+				</reportElement>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeCheque})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["CourrierFiche2_Cheque.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="2" y="200" width="498" height="33" uuid="2e6e9e21-48d0-4e3b-861a-840c4b88f4e3"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{documents})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["CourrierFiche_Documents.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement positionType="Float" x="471" y="79" width="30" height="21" uuid="483ec712-1e8f-4095-bfe6-ac634edf185d">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Barré]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="381" y="79" width="90" height="21" uuid="84a94d5e-4128-4c5b-95eb-4ac34930fdbf">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Banque concernée]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="281" y="79" width="100" height="21" uuid="7cd8d58c-b2d0-4bb4-8884-25cbe58073d0">
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bénéficiare]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="181" y="79" width="100" height="21" uuid="887c9f81-3e39-4e6c-9698-21167f75e1ca">
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date Chèque]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="91" y="79" width="90" height="21" uuid="d6eb2eae-4114-4f49-bfc7-83001240af17">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Montant]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="1" y="79" width="90" height="21" uuid="64e96d7c-7d0d-4889-9d3d-175b1f951edd">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Numéro Chèque]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="35" width="501" height="15" uuid="e62803a9-76bb-47ac-bb1f-39b5284bd078">
+					<printWhenExpression><![CDATA[$F{showLabelCheque}]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Liste des Chèques]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="-1" y="6" width="524" height="10" uuid="fd9ff968-d3d0-4ca0-9f65-0ad201b38a18"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

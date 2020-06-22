@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Administration Nature</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:commandLink id="retour"
+										onclick="document.location.href='natureCategorieGestion.jsf'">
+										<h:graphicImage value="../framGraphique/images/retour.png"
+											onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+											onmouseout="this.src='../framGraphique/images/retour.png'" />
+									</a4j:commandLink>
+									<rich:toolTip for="retour" value="#{msg.Retour}"
+										direction="top-right" />
+									<rich:spacer width="5px" />
+								</div>
+								<div id="barreIconeDroite">
+									<a4j:commandLink id="helpButton"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+								</div>
+							</div>
+							<a4j:keepAlive beanName="administrationNatureGestionBean" />
+						</h:form>
+						<rich:modalPanel id="aidePanal" autosized="true" height="500"
+							width="800">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:graphicImage value="../framGraphique/images/help_16.png"
+										id="help" />
+									<h:outputText
+										value="#{msg.natureGestionAideInterface} #{aideEnLigneBean.titreInterface}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="aidehidelink" />
+									<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="scroll_div">
+								<h:form>
+									<a4j:keepAlive beanName="aideEnLigneBean" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Gestion-Nature.jpg"
+										width="750" height="490" id="aidehidelink" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Gestion-Nature-AR.png"
+										width="750" height="490" id="aidehidelinkAR" />
+									<rich:spacer height="10" />
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('aidePanal');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+
+								</h:form>
+							</div>
+						</rich:modalPanel>
+					</rich:panel>
+
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<rich:simpleTogglePanel switchType="client"
+								label="#{msg.consultnaturefacet}" opened="true">
+								<table width="100%">
+									<tr>
+										<td width="50%" valign="top"><h:panelGrid columns="3">
+												<h:column>
+													<h:outputText
+														value="#{msg.natureCategorieGestionLibelle} :"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="30" />
+
+												</h:column>
+												<h:column>
+													<h:outputText id="Nom"
+														value="#{administrationNatureGestionBean.nature.natureLibelle}"
+														styleClass="xteDetailLabelOutput" maxlength="30" />
+												</h:column>
+												<rich:spacer height="10" />
+												<h:column>
+													<h:outputText
+														value="#{msg.natureCategorieGestionDescription} :"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:outputText id="Description"
+														value="#{administrationNatureGestionBean.nature.natureDescription}"
+														styleClass="xteDetailLabelOutput" />
+
+												</h:column>
+
+											</h:panelGrid></td>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.natureCategorieLibelleAr} :"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="10" />
+
+												</h:column>
+												<h:column>
+													<h:outputText id="LibelleAr"
+														value="#{administrationNatureGestionBean.nature.natureLibelleAr}"
+														styleClass="xteDetailLabelOutput" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.natureCategorieDescriptionAr} :"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:outputText id="DescriptionAr"
+														styleClass="xteDetailLabelOutput"
+														value="#{administrationNatureGestionBean.nature.natureDescriptionAr}" />
+												</h:column>
+
+											</h:panelGrid></td>
+									</tr>
+								</table>
+							</rich:simpleTogglePanel>
+						</rich:panel>
+					</h:form>
+					<h:form id="formAffecte">
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.listChampsAffectes}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<a4j:keepAlive beanName="administrationNatureGestionBean" />
+
+							<rich:dataTable
+								value="#{administrationNatureGestionBean.listDonneeSupplementaireDM2}"
+								var="donneSuppl" id="data1" rows="10" styleClass="rich-panel">
+								<rich:column width="12%"
+									sortBy=""
+									filterBy=""
+									filterEvent="onkeyup" label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText
+											value="#{donneSuppl.donneeSupplementaire.idDonneeSupplementaire}" />
+									</div>
+								</rich:column>
+
+								<rich:column sortBy="" filterBy="" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.champsLabel}" />
+									</f:facet>
+									<h:outputText
+										value="#{donneSuppl.donneeSupplementaire.libelleDonneeSupplementaire}" />
+
+								</rich:column>
+
+								<rich:column sortBy="" filterBy="" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.libelleLabel}" />
+									</f:facet>
+
+									<h:inputText value="#{donneSuppl.libelleDonnee}" id="lib">
+										<a4j:support event="onchange" reRender="lib" />
+									</h:inputText>
+
+
+
+								</rich:column>
+								<rich:column label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ordreLabel}" />
+									</f:facet>
+									<h:inputText value="#{donneSuppl.ordre}" maxlength="30" id="ordre"
+										style=" width : 50px;" >
+										<a4j:support event="onchange" reRender="ordre" />
+										</h:inputText>
+
+								</rich:column>
+								<rich:column sortBy="" filterBy="" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.obligatoireLabel}" />
+									</f:facet>
+									<center>
+										<h:selectBooleanCheckbox value="#{donneSuppl.obligatoire}" id="oblig" >
+										<a4j:support event="onchange" reRender="oblig" />
+										</h:selectBooleanCheckbox>
+									</center>
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="administrationNatureGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="del"
+												action="#{administrationNatureGestionBean.remove}"
+												reRender="data1,data2,scroller1,scroller2,record1,record2,formAAffecte,formAffecte">
+												<h:graphicImage value="../framGraphique/images/Delete.png"
+													alt="Delete" />
+											</a4j:commandLink>
+
+											<rich:toolTip for="del" value="#{msg.labelDelete}"
+												direction="top-right" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data1" id="scroller1" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record1"
+									value="#{administrationNatureGestionBean.records2}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+
+
+						</rich:panel>
+					</h:form>
+					<!-- Rich Panel Liste des Champs à affecte -->
+					<h:form id="formAAffecte">
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.listChampsNonAffectes}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<a4j:keepAlive beanName="administrationNatureGestionBean" />
+							
+								<rich:dataTable
+									value="#{administrationNatureGestionBean.listDonneeSupplementaireDM}"
+									var="donnee" id="data2" rows="10" styleClass="rich-panel">
+									<rich:column width="12%"
+										sortBy="#{donnee.idDonneeSupplementaire}"
+										filterBy="#{donnee.idDonneeSupplementaire}"
+										filterEvent="onkeyup" label="ref">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}" />
+										</f:facet>
+										<div align="center">
+											<h:outputText value="#{donnee.idDonneeSupplementaire}" />
+										</div>
+									</rich:column>
+
+									<rich:column sortBy="#{donnee.libelleDonneeSupplementaire}"
+										filterBy="#{donnee.libelleDonneeSupplementaire}"
+										filterEvent="onkeyup" label="label">
+										<f:facet name="header">
+											<h:outputText value="#{msg.champsLabel}" />
+										</f:facet>
+										<h:outputText value="#{donnee.libelleDonneeSupplementaire}" />
+
+									</rich:column>
+									<rich:column sortBy="#{donnee.typeDonneeSupplementaire}"
+										filterBy="#{donnee.typeDonneeSupplementaire}"
+										filterEvent="onkeyup" label="label">
+										<f:facet name="header">
+											<h:outputText value="#{msg.typeChampsLabel}" />
+										</f:facet>
+										<h:outputText value="#{donnee.typeDonneeSupplementaire}" />
+
+									</rich:column>
+									<rich:column width="10%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.operation}" />
+										</f:facet>
+										<a4j:keepAlive beanName="administrationNatureGestionBean" />
+										<center>
+											<a4j:commandLink id="upd"
+												action="#{administrationNatureGestionBean.move}"
+												reRender="data1,data2,scroller1,scroller2,record1,record2,formAAffecte,formAffecte">
+												<h:graphicImage value="../framGraphique/images/hc_Add.gif"
+													alt="details" style="width : 16px; height : 16px;" />
+											</a4j:commandLink>
+										</center>
+										<rich:toolTip for="upd" direction="top-right"
+											value="#{msg.buttonAffecter}" />
+									</rich:column>
+								</rich:dataTable>
+								<div align="center">
+									<rich:datascroller for="data2" id="scroller2" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="record2"
+										value="#{administrationNatureGestionBean.records}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+								</div>
+								<rich:spacer width="100%" height="8" />
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonAffecter}" type="submit"
+										action="#{administrationNatureGestionBean.affecter}" reRender="data1"
+										oncomplete="if(#{administrationNatureGestionBean.status}==true) #{rich:component('msgPanal')}.show();
+									if(#{administrationNatureGestionBean.status1}==true) #{rich:component('msgPanal2')}.show();"></a4j:commandButton>
+
+								</div>
+								<rich:spacer width="100%" height="10" />
+							
+
+						</rich:panel>
+					</h:form>
+
+
+					<rich:modalPanel id="msgPanal" autosized="true" height="100"
+						width="400">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+
+						<h:form>
+							<a4j:keepAlive beanName="administrationNatureGestionBean" />
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText"
+											value="#{msg.confirmAffectation}" />
+									</td>
+								</tr>
+							</table>
+
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href=''" />
+									</td>
+
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+					<!-- Panel 2 -->
+					<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+						width="400">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+
+								<h:outputText value="#{msg.labelAlerte}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink3" />
+								<rich:componentControl for="msgPanal2" attachTo="hidelink3"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+
+						<h:form>
+							<a4j:keepAlive beanName="administrationNatureGestionBean" />
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png"
+											alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText" value="#{msg.MsgErreurPM}" />
+									</td>
+								</tr>
+							</table>
+
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href=''" /></td>
+
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

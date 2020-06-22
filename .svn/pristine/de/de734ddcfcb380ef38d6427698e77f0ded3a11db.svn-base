@@ -1,0 +1,678 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Transfere MailFax</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<script type="text/javascript">
+var ref;
+/*            */
+function reactToChangedRadio() {
+	localStorage.setItem('ref',document.getElementById('myFormId:ref').value);
+}
+</script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<table align="center" id="t1" width="100%">
+						<tr>
+							<td id="content"><rich:panel styleClass="rich-panel">
+									<f:facet name="header">
+										<h:panelGrid columns="1" styleClass="xtePanelGrid">
+											<h:outputText value="#{msg.Courrierfacet}"
+												styleClass="xteEnregistrementLabelOutput" />
+										</h:panelGrid>
+									</f:facet>
+									<table align="center" style="width: 100%;" id="tableForm"
+										cellpadding="0" cellspacing="0">
+										<rich:messages ajaxRendered="true" errorClass="msgError"
+											styleClass="error" />
+										<h:form>
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client"
+														headerClass="rich-stglpanel-header">
+														<f:facet name="header">
+															<h:panelGrid columns="2">
+																<h:outputText value="#{msg.PanelBarItem3}"
+																	styleClass="xteEnregistrementLabelOutput" />
+																<h:column>
+
+																</h:column>
+															</h:panelGrid>
+														</f:facet>
+														<table width="100%">
+															<tr>
+																<td width="100%"><h:panelGrid columns="6" id="panelDistinataireBOC"
+																		rendered="#{courrierTransfereMailFaxBean.showFacetUser}">
+																		<h:column>
+																			<h:outputText value="#{msg.CourrierExp}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<h:column>
+																			<h:outputText
+																				value="#{courrierTransfereMailFaxBean.mail.mailFromName} - #{courrierTransfereMailFaxBean.mail.mailFromAddress}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<rich:spacer width="50px" />
+																		<a4j:commandLink
+																			action="#{courrierTransfereMailFaxBean.goToListSender}"
+																			rendered="#{courrierAjoutBean.etatCircuitWorkflowTextArea}"
+																			ajaxSingle="true">
+																			<a4j:keepAlive
+																				beanName="courrierTransfereMailFaxBean" />
+																			<h:graphicImage
+																				value="../framGraphique/images/Loupe-2---26pix.png" />
+																		</a4j:commandLink>
+																		<h:column>
+																			<rich:spacer width="10px" />
+																			<h:outputText value="#{msg.CourrierDest}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																		</h:column>
+																		<h:outputText value="#{variableGlobale.destNom}"
+																			rendered="#{courrierAjoutBean.etatCircuitWorkflowTextArea}"
+																			styleClass="xteDetailLabelOutput" />
+																		<h:outputText value="#{msg.circuitWorkflow}" id="workflowEtats"
+																			styleClass="xteDetailLabelOutput"
+																			rendered="#{courrierAjoutBean.etatCircuitWorkflow}" />
+
+																	</h:panelGrid> 
+																	<h:panelGrid columns="8" id="panelDistinataire"
+																		rendered="#{courrierTransfereMailFaxBean.showFacetBoc}">
+																		<h:column>
+																			<h:outputText value="#{msg.CourrierExp}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<h:column>
+																			<h:outputText
+																				value="#{courrierTransfereMailFaxBean.mail.mailFromName} - #{courrierTransfereMailFaxBean.mail.mailFromAddress}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<h:column>
+																			<rich:spacer width="10px" />
+																			<a4j:commandLink
+																				action="#{courrierTransfereMailFaxBean.goToListSender}"
+																				rendered="#{courrierAjoutBean.etatCircuitWorkflowTextArea}"
+																				ajaxSingle="true">
+																				<h:graphicImage
+																					value="../framGraphique/images/Loupe-2---26pix.png" />
+																			</a4j:commandLink>
+																		</h:column>
+																		<h:column>
+																			<rich:spacer width="5px" />
+																			<h:outputText value="#{msg.CourrierDest}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																			<rich:spacer width="10px" />
+																			<h:outputText value="*" styleClass="error" />
+																		</h:column>
+																		<h:outputText value="#{variableGlobale.destNom}" id="desNom"
+																			styleClass="xteDetailLabelOutput" 
+																			rendered="#{courrierAjoutBean.etatCircuitWorkflowTextArea}"
+																			style="margin-left: 2px; margin-right: 2px; width: 221px; margin-top: 2px; margin-bottom: 2px; height: 46px; " />
+																		<h:outputText value="#{msg.circuitWorkflow}" id="workflowEtat"
+																			styleClass="xteDetailLabelOutput"
+																			rendered="#{courrierAjoutBean.etatCircuitWorkflow}" />
+																	</h:panelGrid>
+																</td>
+															</tr>
+														</table>
+													</rich:simpleTogglePanel>
+												</td>
+											</tr>
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client"
+														label="#{msg.PanelBarItem1}">
+
+														<h:panelGrid columns="4" width="100%">
+															<h:column>
+<!--																<h:outputText value="#{msg.ColonneDocRefCourrier}"-->
+<!--																	styleClass="xteDetailLabel" style=" width :100px;" />-->
+<!--																<rich:spacer width="10px" />-->
+<!--																<h:outputText value="*" styleClass="error" />-->
+															</h:column>
+															<h:outputText value="" styleClass="xteDetailLabel" />
+															<h:column>
+																<h:outputText value="#{msg.CourrierDateRecep}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<rich:calendar id="dR"
+																value="#{courrierTransfereMailFaxBean.date1}"
+																datePattern="dd/MM/yyyy" required="true"
+																requiredMessage="* #{msg.ColonneDateRecep} #{msg.champsobligatoire}"
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}">
+																<a4j:support event="onchanged"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</rich:calendar>
+															<h:column>
+																<h:outputText value="#{msg.CourrierObjet}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:inputText id="obj"
+																value="#{courrierTransfereMailFaxBean.courrier.courrierObjet}"
+																style=" width : 128px;" required="true"
+																requiredMessage="* #{msg.ColonneObjet} #{msg.champsobligatoire}">
+																<a4j:support event="onblur"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:inputText>
+
+															<h:outputText value="#{msg.CourrierKey}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:inputTextarea id="key" styleClass="textarea"
+																value="#{courrierTransfereMailFaxBean.courrier.keywords}"
+																style=" width : 128px; resize:none;">
+																<a4j:support event="onblur"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:inputTextarea>
+															<h:column>
+																<h:outputText value="#{msg.CourrierMode}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+
+															<h:outputText
+																value="#{courrierTransfereMailFaxBean.selectedItemsTr}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+
+															<h:column>
+																<h:outputText value="#{msg.CourrierNature}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu
+																value="#{courrierTransfereMailFaxBean.selectedItemNature}"
+																required="true"
+																requiredMessage="* #{msg.ColonneNature} #{msg.champsobligatoire}"
+																style=" width : 133px;">
+																<f:selectItems
+																	value="#{courrierTransfereMailFaxBean.selectItemsNat}" />
+																<a4j:support event="onchange" ajaxSingle="true"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	actionListener="#{courrierTransfereMailFaxBean.changeEtatPanalCircuit}"
+																	reRender="panelCircuit,p3,panelDistinataire,panelDistinataireBOC,desNom,workflowEtat" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierConfidentialite}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="conf"
+																value="#{courrierTransfereMailFaxBean.selectedItemConf}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneConfidentialite} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierTransfereMailFaxBean.selectItemsConf}" />
+																<a4j:support event="onchange"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierUrgence}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="urg"
+																value="#{courrierTransfereMailFaxBean.selectedItemUg}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneUrgence} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierTransfereMailFaxBean.selectItemsUg}" />
+																<a4j:support event="onchange"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:selectOneMenu>
+														</h:panelGrid>
+														<h:panelGrid columns="4">
+															<h:column>
+																<h:outputText value="#{msg.CourrierNecessite}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<rich:spacer width="45px" />
+															<h:selectOneRadio id="checkTransfert"
+																styleClass="xteDetailLabelOutput"
+																value="#{courrierTransfereMailFaxBean.reponse1}"
+																required="true"
+																requiredMessage="* #{msg.CourrierNecessite} #{msg.champsobligatoire}"
+																layout="lineDirection">
+																<a4j:support event="onchange" reRender="monPanneau"
+																	ajaxSingle="true"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	actionListener="#{courrierTransfereMailFaxBean.evenementChoixTransfert}" />
+																<f:selectItem itemLabel="#{msg.buttonNon}"
+																	itemValue="Non" />
+																<f:selectItem itemLabel="#{msg.buttonOui}"
+																	itemValue="Oui" />
+															</h:selectOneRadio>
+															<h:column>
+																<rich:spacer width="75px" />
+																<rich:column id="monPanneau">
+																	<h:panelGrid id="panelInstalle" columns="3"
+																		style=" width : 100%; font: inherit;"
+																		rendered="#{courrierTransfereMailFaxBean.select1}">
+																		<h:outputText value="#{msg.CourrierDateRep}"
+																			id="date1" styleClass="xteDetailLabel" />
+																		<rich:spacer width="59px" />
+																		<rich:calendar id="Cal"
+																			value="#{courrierTransfereMailFaxBean.courrier.courrierDateReponse}"
+																			datePattern="dd/MM/yyyy" required="true"
+																			requiredMessage="* #{msg.ColonneDateRep} #{msg.champsobligatoire}"
+																			locale="#{calendarBean.locale}"
+																			monthLabels="#{calendarBean.listMois}">
+																			<a4j:support ajaxSingle="true" event="onchanged"
+																				action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																				reRender="data, scroller" />
+																		</rich:calendar>
+																	</h:panelGrid>
+																</rich:column>
+															</h:column>
+
+														</h:panelGrid>
+														<h:panelGrid columns="2" width="100%">
+															<h:outputText value="#{msg.CourrierDes}"
+																styleClass="xteDetailLabel" />
+															<h:inputTextarea id="desc" styleClass="textarea"
+																value="#{courrierTransfereMailFaxBean.courrier.courrierCommentaire}"
+																style=" width : 400px; resize:none; height:120px;"
+																escape="false">
+																<a4j:support event="onblur"
+																	action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:inputTextarea>
+														</h:panelGrid>
+														<h:panelGrid columns="3" width="100%">
+															<h:outputText value="#{msg.CourrierAnnot}"
+																styleClass="xteDetailLabel" />
+															<h:selectOneRadio id="myRadio"
+																styleClass="xteDetailLabelOutput"
+																value="#{courrierTransfereMailFaxBean.chooseAnnotationType}"
+																layout="lineDirection">
+																<f:selectItem itemLabel="#{msg.tous}" itemValue="tous" />
+																<f:selectItem itemLabel="#{msg.autre}" itemValue="autre" />
+																<a4j:support event="onclick" reRender="pnlAnnotation"
+																	ajaxSingle="true" />
+															</h:selectOneRadio>
+															<rich:spacer width="90" />
+														</h:panelGrid>
+														<div align="center">
+															<h:panelGrid id="pnlAnnotation" columns="2">
+																<rich:pickList listsHeight="90px" sourceListWidth="170"
+																	targetListWidth="165" styleClass="xteDetailLabelOutput"
+																	copyAllControlLabel="#{msg.PickListCopierTout}"
+																	copyControlLabel="#{msg.PickListCopier}"
+																	removeAllControlLabel="#{msg.PickListEnleverTout}"
+																	removeControlLabel="#{msg.PickListEnlever} "
+																	value="#{courrierTransfereMailFaxBean.selectedItems1}"
+																	rendered="#{courrierTransfereMailFaxBean.chooseAnnotationType eq 'tous'}"
+																	showButtonsLabel="false" id="annot">
+																	<f:selectItems
+																		value="#{courrierTransfereMailFaxBean.selectItems1}" />
+																	<a4j:support event="onlistchange"
+																		action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																		ajaxSingle="true" />
+																</rich:pickList>
+																<h:inputTextarea
+																	rendered="#{courrierTransfereMailFaxBean.chooseAnnotationType eq 'autre'}"
+																	value="#{courrierTransfereMailFaxBean.otherAnnotation}"
+																	required="false"
+																	requiredMessage="#{msg.autreCommentaireObligatoire}"
+																	style="height:90px;" styleClass="textarea">
+																	<a4j:support event="onblur"
+																		action="#{courrierTransfereMailFaxBean.saveTempValue}"
+																		ajaxSingle="true" />
+																</h:inputTextarea>
+															</h:panelGrid>
+														</div>
+
+													</rich:simpleTogglePanel>
+												</td>
+											</tr>
+											<tr>
+
+											</tr>
+											<tr>
+												<td align="center" colspan="2"><a4j:commandButton
+														value="#{msg.bouttonAjouter}" type="submit"
+														status="ajaxStatusWait"
+														action="#{courrierTransfereMailFaxBean.ajouterTranfertMail}"
+														oncomplete="if(#{courrierTransfereMailFaxBean.status}==true)
+									 						#{rich:component('msgPanal')}.show(); 
+															if(#{courrierTransfereMailFaxBean.status1}==true)
+									  							#{rich:component('msgPanal2')}.show();
+									   						if(#{courrierTransfereMailFaxBean.status2}==true)
+									  							#{rich:component('msgPanal3')}.show();
+									  						if(#{courrierTransfereMailFaxBean.status3}==true)
+									  							#{rich:component('msgPanal4')}.show();"
+														reRender="msgPanal,msgPanal2,msgPanalExpDest">
+													</a4j:commandButton> <rich:spacer width="10px" /> <a4j:commandButton
+														value="#{msg.bouttonAnnuler}" type="submit"
+														ajaxSingle="true" status="ajaxStatusWait"
+														action="#{courrierTransfereMailFaxBean.vider}"
+														onclick="document.location.href='consultationMailFax.jsf'">
+													</a4j:commandButton> 
+													<!-- popoup wait --> 
+													<a4j:status id="ajaxStatusWait"
+														forceId="true"
+														onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+														onstop="#{rich:component('waitPanel')}.hide()" /> <rich:modalPanel
+														id="waitPanel" style="text-align:center">
+														<h:outputText value="#{msg.messageAttente}"
+															style="font-weight:bold;font-size:large" />
+														<div align="center">
+															<h:graphicImage
+																value="../framGraphique/images/timeOut.gif"
+																alt="timeOut" />
+														</div>
+													</rich:modalPanel></td>
+											</tr>
+										</h:form>
+									</table>
+									<rich:spacer height="10" />
+									<div align="left">
+										<h:outputText value="#{msg.infoChampObligatoir}" />
+									</div>
+
+									<!-- *****popup Info******* -->
+									<rich:modalPanel id="msgPanal" autosized="true" height="100"
+										width="400">
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+
+												<h:outputText value="#{msg.labelInfo}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink1" />
+												<rich:componentControl for="msgPanal" attachTo="hidelink1"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<a4j:keepAlive beanName="courrierTransfereMailFaxBean" />
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/interrogation.png"
+															alt="confirm" />
+													</td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.CourrierAjoutMsg}" />
+													</td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOui}"
+															action="#{courrierTransfereMailFaxBean.inserer}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal');"
+															type="submit" ajaxSingle="true" styleClass="submitButton"
+															onclick="document.location.href='../GBO/documentAjout.jsf'" />
+													</td>
+													<td><a4j:commandButton value="#{msg.bouttonNon}"
+															styleClass="submitButton"
+															action="#{courrierTransfereMailFaxBean.vider}"
+															onclick="document.location.href='../viewsFaxMail/consultationMailFax.jsf'"
+															reRender="p1,p2,p3,liens" ajaxSingle="true" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<!-- *****popup Erreur****** -->
+									<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+										width="400">
+										<a4j:keepAlive beanName="courrierTransfereMailFaxBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink2" />
+												<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" />
+													</td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.MsgErreurDateRep}" />
+													</td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanal3" autosized="true" height="100"
+										width="400">
+										<a4j:keepAlive beanName="courrierTransfereMailFaxBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink3" />
+												<rich:componentControl for="msgPanal3" attachTo="hidelink3"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" />
+													</td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.MsgErreurDateRecep}" />
+													</td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal3');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanal4" autosized="true" height="90"
+										width="300">
+										<a4j:keepAlive beanName="courrierTransfereMailFaxBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink4" />
+												<rich:componentControl for="msgPanal4" attachTo="hidelink4"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" />
+													</td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.CourrierAjoutMsgErreur}" />
+													</td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal4');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanalExpDest" autosized="true"
+										height="90" width="300">
+										<a4j:keepAlive beanName="courrierTransfereMailFaxBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink5" />
+												<rich:componentControl for="msgPanalExpDest"
+													attachTo="hidelink5" operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" />
+													</td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="destinataite invalide" />
+													</td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanalExpDest');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+								</rich:panel>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

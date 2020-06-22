@@ -1,0 +1,17 @@
+package xtensus.beans.common.GBO;
+
+public class RapportChequeMontantTotal {
+	 private long montantTotal;
+
+	public long getMontantTotal() {
+		return montantTotal;
+	}
+
+	public void setMontantTotal(long montantTotal) {
+		this.montantTotal = montantTotal;
+	}
+
+
+	 
+
+}

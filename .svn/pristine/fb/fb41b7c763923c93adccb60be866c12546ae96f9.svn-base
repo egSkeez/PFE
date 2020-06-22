@@ -1,0 +1,299 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.el.Expression;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.ajax4jsf.model.SequenceRange;
+import org.ajax4jsf.model.SerializableDataModel;
+import org.richfaces.model.ExtendedFilterField;
+import org.richfaces.model.FilterField;
+import org.richfaces.model.Modifiable;
+import org.richfaces.model.Ordering;
+import org.richfaces.model.SortField2;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import xtensus.entity.Transaction;
+import xtensus.services.ApplicationManager;
+
+
+
+public class TestDataModel extends SerializableDataModel implements Modifiable {
+	/**
+     * 
+     */
+	private static final long serialVersionUID = -1956179896877538628L;
+	@Autowired
+	private ApplicationManager appMgr;
+	private Integer currentPk;
+	private Map<Integer, Transaction> wrappedData = new HashMap<Integer, Transaction>();
+	private List<Integer> wrappedKeys = null;
+	private int firstRow;
+	private int numberOfRows;
+	private Range range;
+	private boolean inListener = false;
+	protected boolean ascending = true;
+	protected String sortField = "";
+	private String filterValue;
+	protected HashMap<String, Object> filterMap = new HashMap<String, Object>();
+
+	public TestDataModel() {
+
+	}
+
+	@PostConstruct
+	public void initialize() {
+
+	}
+
+	/**
+	 * This method never called from framework. (non-Javadoc)
+	 * 
+	 * @see org.ajax4jsf.model.ExtendedDataModel#getRowKey()
+	 */
+
+	public void test(ActionEvent e) {
+
+	}
+
+	@Override
+	public Object getRowKey() {
+		return currentPk;
+	}
+
+	/**
+	 * This method normally called by Visitor before request Data Row.
+	 */
+	@Override
+	public void setRowKey(Object key) {
+		this.currentPk = (Integer) key;
+	}
+
+	/**
+	 * This is main part of Visitor pattern. Method called by framework many
+	 * times during request processing.
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void walk(FacesContext context, DataVisitor visitor, Range range,
+			Object argument) throws IOException {
+		System.out.print("ds walk");
+		int firstRow = ((SequenceRange) range).getFirstRow();
+		int numberOfRows = ((SequenceRange) range).getRows();
+
+		wrappedKeys = new ArrayList<Integer>();
+		List<Transaction> listTransaction = new ArrayList<Transaction>();
+		listTransaction = appMgr.getListTransactionTest(firstRow, numberOfRows);
+		for (Transaction item : listTransaction) {
+			wrappedKeys.add(item.getTransactionId());
+			wrappedData.put(item.getTransactionId(), item);
+			visitor.process(context, item.getTransactionId(), argument);
+		}
+		inListener = false;
+	}
+
+	/**
+	 * This method must return actual data rows count from the Data Provider. It
+	 * is used by pagination control to determine total number of data items.
+	 */
+	private Integer rowCount; // better to buffer row count locally
+
+	@Override
+	public int getRowCount() {
+
+		if (rowCount == null) {
+			rowCount = (int) appMgr.getRowCount();
+			return rowCount.intValue();
+
+		} else {
+			return rowCount.intValue();
+		}
+
+	}
+
+	/**
+	 * This is main way to obtain data row. It is intensively used by framework.
+	 * We strongly recommend use of local cache in that method.
+	 */
+	@Override
+	public Transaction getRowData() {
+		if (currentPk == null) {
+			return null;
+		} else {
+			Transaction ret = wrappedData.get(currentPk);
+			if (ret == null) {
+				return ret;
+			} else {
+				return ret;
+			}
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public int getRowIndex() {
+		return firstRow;
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public Object getWrappedData() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Never called by framework.
+	 */
+	@Override
+	public boolean isRowAvailable() {
+
+		return true;
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setRowIndex(int rowIndex) {
+
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setWrappedData(Object data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * This method suppose to produce SerializableDataModel that will be
+	 * serialized into View State and used on a post-back. In current
+	 * implementation we just mark current model as serialized. In more
+	 * complicated cases we may need to transform data to actually serialized
+	 * form.
+	 */
+	public SerializableDataModel getSerializableModel(Range range) {
+		if (wrappedKeys != null) {
+			return this;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * This is helper method that is called by framework after model update. In
+	 * must delegate actual database update to Data Provider.
+	 */
+	@Override
+	public void update() {
+
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setFirstRow(int firstRow) {
+		this.firstRow = firstRow;
+	}
+
+	public int getFirstRow() {
+		return firstRow;
+	}
+
+	public void setNumberOfRows(int numberOfRows) {
+		this.numberOfRows = numberOfRows;
+	}
+
+	public int getNumberOfRows() {
+		return numberOfRows;
+	}
+
+	public void setRange(Range range) {
+		this.range = range;
+	}
+
+	public Range getRange() {
+		return range;
+	}
+
+	public void setInListener(boolean inListener) {
+		this.inListener = inListener;
+	}
+
+	public boolean isInListener() {
+		return inListener;
+	}
+
+	@Override
+	public void modify(List<FilterField> filterFields,
+			List<SortField2> sortFields) {
+		filterMap.clear();
+		SortField2 sortField2 = null;
+		String expressionStr = null;
+		ExtendedFilterField extendedFilterField = null;
+		Expression expression = null;
+		String value = null;
+		if (null != sortFields && !sortFields.isEmpty()) {
+			sortField2 = sortFields.get(0);
+			expression = sortField2.getExpression();
+			String expressionString = expression.getExpressionString();
+			if (!expression.isLiteralText()) {
+				expressionString = expressionString.replaceAll(
+						"[#|$]{1}\\{.*?\\.", "").replaceAll("\\}", "");
+			}
+			this.sortField = expressionString;
+			if (sortField2.getOrdering() == Ordering.ASCENDING) {
+				this.ascending = true;
+			} else if (sortField2.getOrdering() == Ordering.DESCENDING) {
+				this.ascending = false;
+			}
+		}
+
+		if (filterFields != null && !filterFields.isEmpty()) {
+			for (FilterField filterField : filterFields) {
+				if (filterField instanceof ExtendedFilterField) {
+					extendedFilterField = (ExtendedFilterField) filterField;
+					value = extendedFilterField.getFilterValue();
+					if (value != null && !value.equals("")) {
+						expression = extendedFilterField.getExpression();
+						expressionStr = expression.getExpressionString();
+						if (!expression.isLiteralText()) {
+							expressionStr = expressionStr.replaceAll(
+									"[#|$]{1}\\{.*?\\.", "").replaceAll("\\}",
+									"");
+						}
+						filterMap.put(expressionStr, value);
+					}
+				}
+			}
+		}
+
+	}
+
+	public void setFilterValue(String filterValue) {
+		this.filterValue = filterValue;
+	}
+
+	public String getFilterValue() {
+		return filterValue;
+	}
+}

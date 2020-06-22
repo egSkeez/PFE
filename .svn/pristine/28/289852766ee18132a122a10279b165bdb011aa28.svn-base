@@ -1,0 +1,374 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.naming.Binding;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class UtilisateurReinitialisationMotDePasseBean {
+
+	@Autowired
+	private ApplicationManager appMgr;
+	private int userReference;
+	private String userSurName;
+	private String userName;
+	private String userAbv;
+	private String userTelephoneNumber;
+	private String userFax;
+	private String userEmail;
+	private String userAdress;
+	private Integer userPostalCode;
+	private String userLogin;
+	private String userPWD;
+	private List<Person> listusers;
+	private DataModel listUser;
+	private String pathUser;
+	private LdapOperation ldapOperation;
+	private int records;
+	public boolean status;
+	public boolean status1;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String hideAccor;
+	@Autowired
+	private VariableGlobale vb;
+	private String utilisateurNouveauMotDePasse;
+	private Person person;
+	
+	public UtilisateurReinitialisationMotDePasseBean() {
+		ldapOperation = new LdapOperation();
+		listusers = new ArrayList<Person>();
+		listUser = new ListDataModel();
+		hideAccor = "none";
+	}
+
+	@PostConstruct
+	public void initialize() {
+		userReference = ldapOperation.getListUser(listusers);
+		listUser.setWrappedData(listusers);
+		person = new Person();
+	}
+
+	public void update() {
+		status = false;
+		status1 = false;
+		DirContext dirContext = ldapOperation.getDirContext();
+		BasicAttributes attributes = new BasicAttributes(true); 
+		try {
+//			String pathUser = "cn=" + vb.getPerson().getCn() + "," + ldapOperation.CONTEXT_USER;
+			String pathUser = "cn=" + person.getCn() + "," + ldapOperation.CONTEXT_USER;
+			attributes = new BasicAttributes(true); 
+			attributes.put("userPassword",utilisateurNouveauMotDePasse);
+			dirContext.modifyAttributes(pathUser,DirContext.REPLACE_ATTRIBUTE,attributes);
+			status = true;
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"modification",
+					"Evénement de log d'initialisation de mot de passe  ", vb.getPerson() , "INFO",
+					appMgr);
+			System.out.println("***************Succes modification mot de passe***************");
+		} catch (Exception e2) {
+			status1 = true;
+			setMessage(messageSource.getMessage("erreurUpdatePwd",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("***************Erreur modification mot de passe***************");
+		}
+
+	}
+	
+	public void getSelectionRow() {
+		//Person person = new Person();
+		person = (Person) listUser.getRowData();
+		status = false;
+		status1 = false;
+		userSurName = person.getPrenom();
+		userName = person.getNom();
+		userAbv = person.getShortName();
+		userTelephoneNumber = person.getTelephoneNumber();
+		userFax = person.getFax();
+		userEmail = person.getEmail();
+		userAdress = person.getAdresse();
+		userPostalCode = person.getCodePostal();
+		userLogin = person.getLogin();
+		hideAccor = "inline";
+	}
+
+	public void showAddForm() {
+		status = false;
+		status1 = false;
+		userSurName = "";
+		userName = "";
+		userAbv = "";
+		userTelephoneNumber = null;
+		userFax = null;
+		userEmail = "";
+		userAdress = "";
+		userPostalCode = null;
+		userLogin = "";
+		userPWD = "";
+		hideAccor = "inline";
+	}
+
+	public void cleanAll() {
+		status = false;
+		status1 = false;
+		userSurName = "";
+		userName = "";
+		userAbv = "";
+		userTelephoneNumber = null;
+		userFax = null;
+		userEmail = "";
+		userAdress = "";
+		userPostalCode = null;
+		userLogin = "";
+		userPWD = "";
+		hideAccor = "none";
+	}
+
+	public void viderchampuser() {
+		userSurName = "";
+		userName = "";
+		userAbv = "";
+		userTelephoneNumber = null;
+		userFax = null;
+		userEmail = "";
+		userAdress = "";
+		userPostalCode = null;
+		userLogin = "";
+		userPWD = "";
+		hideAccor = "inline";
+	}
+
+	public int getUserReference() {
+		return userReference;
+	}
+
+	public void setUserReference(int userReference) {
+		this.userReference = userReference;
+	}
+
+	public String getUserSurName() {
+		return userSurName;
+	}
+
+	public void setUserSurName(String userSurName) {
+		this.userSurName = userSurName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserTelephoneNumber() {
+		return userTelephoneNumber;
+	}
+
+	public void setUserTelephoneNumber(String userTelephoneNumber) {
+		this.userTelephoneNumber = userTelephoneNumber;
+	}
+
+	public String getUserFax() {
+		return userFax;
+	}
+
+	public void setUserFax(String userFax) {
+		this.userFax = userFax;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
+	public String getUserAdress() {
+		return userAdress;
+	}
+
+	public void setUserAdress(String userAdress) {
+		this.userAdress = userAdress;
+	}
+
+	public Integer getUserPostalCode() {
+		return userPostalCode;
+	}
+
+	public void setUserPostalCode(Integer userPostalCode) {
+		this.userPostalCode = userPostalCode;
+	}
+
+	public String getUserLogin() {
+		return userLogin;
+	}
+
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
+	}
+
+	public String getUserPWD() {
+		return userPWD;
+	}
+
+	public void setUserPWD(String userPWD) {
+		this.userPWD = userPWD;
+	}
+
+	public DataModel getListUser() {
+		return listUser;
+	}
+
+	public void setListUser(DataModel listUser) {
+		this.listUser = listUser;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listUser == null && listUser.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Person>) listUser.getWrappedData()).size();
+		return records;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setListusers(List<Person> listusers) {
+		this.listusers = listusers;
+	}
+
+	public List<Person> getListusers() {
+		return listusers;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setPathUser(String pathUser) {
+		this.pathUser = pathUser;
+	}
+
+	public String getPathUser() {
+		return pathUser;
+	}
+
+	public void setUserAbv(String userAbv) {
+		this.userAbv = userAbv;
+	}
+
+	public String getUserAbv() {
+		return userAbv;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setUtilisateurNouveauMotDePasse(
+			String utilisateurNouveauMotDePasse) {
+		this.utilisateurNouveauMotDePasse = utilisateurNouveauMotDePasse;
+	}
+
+	public String getUtilisateurNouveauMotDePasse() {
+		return utilisateurNouveauMotDePasse;
+	}
+
+}

@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<documents rootPath="/FaxMail" byHomeFolder="no"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="configFaxMail.xsd">
+
+	<document name="mail" mimetype="application/pdf">
+		<parameters>
+			<parameter name="expediteur" />
+			<parameter name="sujet" />
+			<parameter name="date" />
+		</parameters>
+
+		<documentname separator="_">
+			<nameElement parameterRef="expediteur" />
+			<nameElement parameterRef="sujet" />
+			<nameElement parameterRef="date" />
+		</documentname>
+
+		<parentpath>
+			<folder name="mails" />
+		</parentpath>
+
+		<backuppath>
+			<folder name="mails" />
+			<folder name="backups" />
+		</backuppath>
+	</document>
+
+	<document name="fax" mimetype="application/pdf">
+		<parameters>
+			<parameter name="expediteur" />
+			<parameter name="date" />
+		</parameters>
+
+		<documentname separator="_">
+			<nameElement parameterRef="expediteur" />
+			<nameElement parameterRef="date" />
+		</documentname>
+
+		<parentpath>
+			<folder name="faxes" />
+			<pathElement parameterRef="expediteur" />
+		</parentpath>
+
+		<backuppath>
+			<folder name="faxes" />
+			<backupElement parameterRef="expediteur" />
+			<folder name="backups" />
+		</backuppath>
+	</document>
+
+	<document name="mailtraite" mimetype="application/pdf">
+		<parameters>
+			<parameter name="expediteur" />
+			<parameter name="sujet" />
+			<parameter name="date" />
+		</parameters>
+
+		<documentname separator="_">
+			<nameElement parameterRef="expediteur" />
+			<nameElement parameterRef="sujet" />
+			<nameElement parameterRef="date" />
+		</documentname>
+
+		<parentpath>
+			<folder name="mails_traités" />
+		</parentpath>
+
+		<backuppath>
+			<folder name="mails_traités" />
+			<folder name="backups" />
+		</backuppath>
+	</document>
+
+	<document name="faxtraite" mimetype="application/pdf">
+		<parameters>
+			<parameter name="expediteur" />
+			<parameter name="date" />
+		</parameters>
+
+		<documentname separator="_">
+			<nameElement parameterRef="expediteur" />
+			<nameElement parameterRef="date" />
+		</documentname>
+
+		<parentpath>
+			<folder name="faxes_traités" />
+			<pathElement parameterRef="expediteur" />
+		</parentpath>
+
+		<backuppath>
+			<folder name="faxes_traités" />
+			<backupElement parameterRef="expediteur" />
+			<folder name="backups" />
+		</backuppath>
+	</document>
+
+	<document name="email_attachment" mimetype="application/pdf">
+
+		<parameters>
+			<parameter name="attachmentname" />
+			<parameter name="parentname" />
+		</parameters>
+
+		<documentname separator="_">
+			<nameElement parameterRef="attachmentname" />
+		</documentname>
+
+		<parentpath>
+			<folder name="Mail" />
+			<pathElement parameterRef="parentname" />
+		</parentpath>
+
+		<backuppath>
+			<folder name="Mail" />
+			<folder name="backups" />
+		</backuppath>
+	</document>
+</documents>

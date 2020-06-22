@@ -1,0 +1,88 @@
+package xtensus.beans.utils;
+
+import java.util.Date;
+
+import org.springframework.context.annotation.Scope;
+
+import org.springframework.stereotype.Component;
+
+@Component
+@Scope("session")
+public class UserBean {
+	private String id;
+	private String name;
+	private String surname;
+	private Date date;
+	private String role;
+	private String login;
+	private String password;
+
+	public UserBean() {
+
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+
+		return name;
+	}
+
+	public String test() {
+		return "valide";
+
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public String getRole() {
+
+		return role;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getLogin() {
+		login = name;
+		return login;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getPassword() {
+		password = name;
+		return password;
+	}
+}

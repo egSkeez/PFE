@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<style>
+.everyThirdDay {
+	background-color: gray;
+}
+
+.weekendBold {
+	font-weight: bold;
+	font-style: italic;
+}
+</style>
+
+	<html>
+<head>
+<title>Sauvgarde</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<script type="text/javascript">
+        var curDt = new Date();
+        function disablementFunction(day){
+            if (day.isWeekend) return false;
+            if (curDt==undefined){
+                curDt = day.date.getDate;
+            }
+            if (day.date.getTime()- curDt.getTime() &lt; 0) return true; else return false;  
+        }
+        function disabledClassesProv(day){
+        	if (day.date.getTime()- curDt.getTime() &gt;= 0) return 'rich-calendar-boundary-dates';
+            var res = '';
+            if (day.isWeekend) res+='weekendBold ';
+            if (day.day%3==0) res+='everyThirdDay';
+            return res;
+        }
+    </script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style="height:30px; padding-top:5px;">
+						<rich:spacer width="5px" />
+						<a4j:commandLink id="retour"
+							onclick="document.location.href='GestionGBO0.jsf'">
+							<h:graphicImage
+								value="../framGraphique/images/retour.png"
+								onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+								onmouseout="this.src='../framGraphique/images/retour.png'" />
+						</a4j:commandLink>
+						<rich:toolTip for="retour" value="#{msg.Retour}"
+							direction="top-right" />
+						<rich:spacer width="5px" />
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel" style="height:100px;">
+							<f:facet name="header">
+								<h:outputText value="#{msg.SauvgardeLibelle}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+							<h:panelGrid columns="2" id="panelSauvgarde">
+								<h:outputText value="#{msg.InfoDerniereSauvgarde}"
+									styleClass="xteDetailLabel" />
+
+								<h:outputText id="id"
+									value="#{sauvgardeBean.dateDerniereSauvgarde}"
+									styleClass="xteDetailLabelOutput"
+									rendered="#{sauvgardeBean.a eq 1}" />
+								<h:outputText id="id2"
+									value="#{sauvgardeBean.dateDerniereSauvgarde2}"
+									styleClass="xteDetailLabelOutput"
+									rendered="#{sauvgardeBean.b eq 1}" />
+
+							</h:panelGrid>
+							<rich:spacer height="10" />
+							<div align="center">
+								<a4j:outputPanel id="progressPanel">
+									<rich:progressBar id="svgbarprogress"
+										value="#{sauvgardeBean.currentValue}" interval="2000"
+										label="#{sauvgardeBean.currentValue} %"
+										enabled="#{sauvgardeBean.enabled}" minValue="-1"
+										maxValue="100"
+										reRenderAfterComplete="progressPanel,info,id,id2,panelSauvgarde"
+										oncomplete="if(#{sauvgardeBean.status}==true) #{rich:component('info')}.show();">
+										<f:facet name="initial">
+											<h:outputText value="#{msg.SauvgardeStart}" />
+										</f:facet>
+										<f:facet name="complete">
+											<h:outputText value="#{msg.InfoSauvgarde}" />
+										</f:facet>
+									</rich:progressBar>
+
+									<a4j:commandButton id="svg"
+										action="#{sauvgardeBean.startProcess}"
+										value="#{msg.SauvgardeLibelle}"
+										reRender="progressPanel,id,id2"
+										rendered="#{sauvgardeBean.buttonRendered}"
+										style="margin: 9px 0px 5px;" />
+								</a4j:outputPanel>
+							</div>
+						</rich:panel>
+
+					</h:form>
+					<rich:modalPanel id="info" autosized="true" height="90" width="350">
+						<a4j:keepAlive beanName="sauvgardeBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkinfo" />
+								<rich:componentControl for="info" attachTo="hidelinkinfo"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.InfoSauvgarde}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									oncomplete="Richfaces.hideModalPanel('info');" type="submit"
+									ajaxSingle="true" styleClass="submitButton" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

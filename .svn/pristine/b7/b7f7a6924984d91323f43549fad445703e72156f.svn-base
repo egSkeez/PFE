@@ -1,0 +1,280 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import javax.annotation.PostConstruct;
+import javax.naming.Binding;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class UtilisateurModificationMotDePasseBean {
+
+	private String utilisateurAncienMotDePasse;
+	private String utilisateurNouveauMotDePasse;
+	private LdapOperation ldapOperation;
+
+	@Autowired
+	private VariableGlobale vb;
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public UtilisateurModificationMotDePasseBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		System.out.println("*************Bean UtilisateurModificationMotDePasseBean Injected***************");
+	}
+
+	@PostConstruct
+	public void initialize() {
+		
+	}
+
+	
+	//AH : Modification :Remplacer la méthode de recherche par mot de passe par une recherche par Login et MPde la méthode de 
+	@SuppressWarnings("rawtypes")
+	public void update() {
+		status = false;
+		status1 = false;
+
+		String login = vb.getPerson().getLogin();
+		DirContext dirContext = ldapOperation.getDirContext();
+		// Recherche User avec login et Mot de Passe
+		Person person = ldapOperation.getUserByLoginMp(
+				ldapOperation.CONTEXT_USER, login, utilisateurAncienMotDePasse);
+
+		try {
+			// Si existe un User avec ces paramètres on passe à la modification
+			if (person != null && person.getCn() != null) {
+				System.out.println("personne trouvé");
+				System.out.println(utilisateurAncienMotDePasse);
+				System.out.println(utilisateurNouveauMotDePasse);
+
+				// Bloc de Modification Mot de passe
+				BasicAttributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("displayName");
+				attribut.add(login);
+				attributes.put(attribut);
+
+				NamingEnumeration e;
+
+				e = dirContext.search(ldapOperation.CONTEXT_USER, attributes);
+
+				if (e.hasMore()) {
+					try {
+						String pathUser = "cn=" + vb.getPerson().getCn() + ","
+								+ ldapOperation.CONTEXT_USER;
+						attributes = new BasicAttributes(true);
+						attributes.put("userPassword",
+								utilisateurNouveauMotDePasse);
+						dirContext.modifyAttributes(pathUser,
+								DirContext.REPLACE_ATTRIBUTE, attributes);
+						status = true;
+						// LogClass logClass = new LogClass();
+						// logClass.addTrack(
+						// "modification",
+						// "Evènement de log de modification de mot de passe  ",
+						// vb.getPerson(), "INFO",
+						// appMgr);
+						System.out
+								.println("***************Succes modification mot de passe***************");
+					} catch (Exception e2) {
+						status1 = true;
+						setMessage(messageSource.getMessage("erreurUpdatePwd",
+								new Object[] {}, lm.createLocal()));
+						System.out
+								.println("***************Erreur modification mot de passe***************");
+					}
+				}
+
+			}
+			// Si n'existe ce User Pop-up à afficher
+			else {
+				System.out.println("Mot de passe irroné");
+				status1 = true;
+				setMessage(messageSource.getMessage(
+						"ancienMotDePasseIncorrecte", new Object[] {},
+						lm.createLocal()));
+			}
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+		}
+
+	}
+	
+	/* ancien methode  
+	@SuppressWarnings("rawtypes")
+	public void update() {
+		status = false;
+		status1 = false;
+		DirContext dirContext = ldapOperation.getDirContext();
+		BasicAttributes attributes = new BasicAttributes(true); 
+		Attribute attribut = new BasicAttribute("userPassword");
+		attribut.add(utilisateurAncienMotDePasse);
+		attributes.put(attribut);
+		String login;
+		int id;
+		System.out.println(utilisateurAncienMotDePasse);
+		System.out.println(utilisateurNouveauMotDePasse);
+		try {
+			NamingEnumeration e = dirContext.search(ldapOperation.CONTEXT_USER, attributes);
+			if(e.hasMore()){
+				System.out.println("Mot de passe trouvé");
+				Binding b = (Binding) e.next();
+				login = dirContext.getAttributes(b.getNameInNamespace()).get("displayName").get(0).toString();
+				System.out.println("   -Login Connected : "+vb.getPerson().getLogin());
+				System.out.println("   -Login : "+login);
+				id = Integer.parseInt(dirContext .getAttributes(b.getNameInNamespace())
+						.get("uid").get(0).toString());
+				System.out.println("   -Id connected    : "+vb.getPerson().getId());
+				System.out.println("   -Id    : "+id);
+				if (login.equals(vb.getPerson().getLogin()) && id == vb.getPerson().getId()) {
+					try {
+						String pathUser = "cn=" + vb.getPerson().getCn() + "," + ldapOperation.CONTEXT_USER;
+						attributes = new BasicAttributes(true); 
+						attributes.put("userPassword",utilisateurNouveauMotDePasse);
+						dirContext.modifyAttributes(pathUser,DirContext.REPLACE_ATTRIBUTE,attributes);
+						status = true;
+						LogClass logClass = new LogClass();
+						logClass.addTrack(
+								"modification",
+								"Evénement de log de modification de mot de passe  ", vb.getPerson(), "INFO",
+								appMgr);
+						System.out.println("***************Succes modification mot de passe***************");
+					} catch (Exception e2) {
+						status1 = true;
+						setMessage(messageSource.getMessage("erreurUpdatePwd",
+								new Object[] {}, lm.createLocal()));
+						System.out.println("***************Erreur modification mot de passe***************");
+					}
+				} else {
+					System.out.println("Ancien mot de passe incorrecte");
+					status1 = true;
+					setMessage(messageSource.getMessage("ancienMotDePasseIncorrecte",
+							new Object[] {}, lm.createLocal()));
+				}
+				setMessage(messageSource.getMessage("erreurInsertUserDuplicateShortName",
+						new Object[] {}, lm.createLocal()));
+			} else {
+				System.out.println("Mot de passe non trouvé");
+				status1 = true;
+				setMessage(messageSource.getMessage("ancienMotDePasseIncorrecte",
+						new Object[] {}, lm.createLocal()));
+			}
+		} catch (Exception e) {
+			status1 = true;
+			setMessage(messageSource.getMessage("erreurUpdatePwd",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("***************Erreur modification mot de passe***************");
+		}
+
+	}
+*/
+	// **************************** Getter && Setter********************
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setUtilisateurAncienMotDePasse(
+			String utilisateurAncienMotDePasse) {
+		this.utilisateurAncienMotDePasse = utilisateurAncienMotDePasse;
+	}
+
+	public String getUtilisateurAncienMotDePasse() {
+		return utilisateurAncienMotDePasse;
+	}
+
+	public void setUtilisateurNouveauMotDePasse(
+			String utilisateurNouveauMotDePasse) {
+		this.utilisateurNouveauMotDePasse = utilisateurNouveauMotDePasse;
+	}
+
+	public String getUtilisateurNouveauMotDePasse() {
+		return utilisateurNouveauMotDePasse;
+	}
+
+}

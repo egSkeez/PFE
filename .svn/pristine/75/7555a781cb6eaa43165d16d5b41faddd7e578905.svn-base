@@ -1,0 +1,10 @@
+#Parametre Acces Mail
+mailhost=192.168.2.42
+mailuser=gbo@elmedina.tn
+mailpassword=aaa
+#Parametre Acces FAX
+fax.host=smtp.xtensus.net
+fax.user=gbo.admin@xtensus.net
+fax.password=3GCZTPWUG2$$
+fax.port=4559
+fax.acronim.domain=xtensus.net

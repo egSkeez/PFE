@@ -1,0 +1,10 @@
+mail.smtp.host=smtp.gmail.com
+mail.session.user=xte.mfx
+mail.session.pass=AFH774GR
+mail.smtp.socketFactory.port=465
+mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+mail.smtp.auth=true
+mail.smtp.port=465
+mailFrom=xte.mfx@gmail.com
+mail.acronim.domain=@faxmaker.com
+mail.smtp.connectiontimeout=2000

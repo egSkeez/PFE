@@ -1,0 +1,267 @@
+package xtensus.faxmail.beans;
+
+import gnu.inet.ftp.ServerResponseException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Fax;
+import xtensus.faxmail.utils.FaxEnvoi;
+import xtensus.faxmail.utils.GedUtils;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class DetailsFaxBean {
+
+	@Autowired
+	private ConsulterFaxBean consulterFaxBean;
+
+	private ApplicationManager appMgr;
+	private Fax selectedFax;
+	private boolean status = false;
+
+	private GedUtils gedUtils;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	public boolean status1;
+
+	@Autowired
+	public DetailsFaxBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.setAppMgr(appMgr);
+		gedUtils = new GedUtils();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		selectedFax = new Fax();
+		selectedFax = vb.getFax();
+	}
+
+	public void traiter() {
+		try {
+			selectedFax.setFaxIs_treated(1);
+			appMgr.update(selectedFax);
+			gedUtils = vb.getGedUtils();
+			gedUtils.saveFax(selectedFax);
+			setStatus(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String transfereFax() {
+		String res = "nopass";
+		status = false;
+		try {
+
+			if (selectedFax.getFaxIs_treated() == 0) {
+				res = "pass";
+			} else {
+				setMessage(messageSource.getMessage("confirmTransfereFax",
+						new Object[] {}, lm.createLocal()));
+				status1 = true;
+			}
+			System.out.println("*******SelectionSucces*********");
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		return res;
+	}
+
+	public void envoieFax() {
+		FaxEnvoi faxEnvoi = new FaxEnvoi();
+		try {
+			faxEnvoi.faxEnvoi();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerResponseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+//	public void downloadFax1() {
+//
+//		InputStream inputStream = null;
+//
+//		try {
+//
+//			String fileName = selectedFax.getFaxFilename();
+//			System.out.println("file name : " + fileName);
+//
+//			byte[] byteArray = consulterFaxBean.download(fileName);
+//
+//			inputStream = new ByteArrayInputStream(byteArray);
+//
+//			FacesContext context = FacesContext.getCurrentInstance();
+//			HttpServletResponse response = (HttpServletResponse) context
+//					.getExternalContext().getResponse();
+//			response.setContentType("application/pdf");
+//			response.setHeader("Content-Disposition", "attachment; filename="
+//					+ selectedFax.getFaxFilename());
+//			OutputStream outputStream = response.getOutputStream();
+//
+//			int b;
+//			while ((b = inputStream.read()) != -1) {
+//				outputStream.write(b);
+//			}
+//
+//			outputStream.flush();
+//			outputStream.close();
+//
+//			context.responseComplete();
+//
+//		} catch (IOException e) {
+//
+//		}
+//
+//	}
+
+//	public void downloadFax() {
+//
+//		gedUtils = vb.getGedUtils();
+//		InputStream inputStream = null;
+//
+//		try {
+//
+//			String fileName = selectedFax.getFaxFilename();
+//			System.out.println("file name : " + fileName);
+//
+//			byte[] byteArray = consulterFaxBean.download(fileName);
+//
+//			inputStream = gedUtils.downloadFax(selectedFax);
+//
+//			FacesContext context = FacesContext.getCurrentInstance();
+//			HttpServletResponse response = (HttpServletResponse) context
+//					.getExternalContext().getResponse();
+//			response.setContentType("application/pdf");
+//			response.setHeader("Content-Disposition", "attachment; filename="
+//					+ selectedFax.getFaxFilename());
+//			OutputStream outputStream = response.getOutputStream();
+//
+//			int b;
+//			while ((b = inputStream.read()) != -1) {
+//				outputStream.write(b);
+//			}
+//
+//			outputStream.flush();
+//			outputStream.close();
+//
+//			context.responseComplete();
+//
+//		} catch (IOException e) {
+//
+//		}
+//
+//	}
+
+	public String retour() {
+		return ("retour");
+	}
+
+	/*********** Getters && Setters *************/
+	public Fax getSelectedFax() {
+		return selectedFax;
+	}
+
+	public void setSelectedFax(Fax selectedFax) {
+		this.selectedFax = selectedFax;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public void setGedUtils(GedUtils gedUtils) {
+		this.gedUtils = gedUtils;
+	}
+
+	public GedUtils getGedUtils() {
+		return gedUtils;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public ConsulterFaxBean getConsulterFaxBean() {
+		return consulterFaxBean;
+	}
+
+	public void setConsulterFaxBean(ConsulterFaxBean consulterFaxBean) {
+		this.consulterFaxBean = consulterFaxBean;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-12-02T14:16:24 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="entete" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d46b209a-4552-4e5c-936c-461eafb5f09f">
+	<property name="ireport.zoom" value="1.2100000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<background>
+		<band/>
+	</background>
+	<detail>
+		<band height="68">
+			<textField>
+				<reportElement x="0" y="23" width="110" height="16" uuid="5f5bb0a2-8347-4c63-9d2d-027f493bb5db"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="39" width="150" height="16" uuid="3d5c1d07-06bf-47c1-82b8-cb426bf08a83"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uniteConnecte}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="1" y="-7" width="41" height="28" uuid="fc1baca6-4e21-45b9-91c0-8e5e31770217"/>
+				<imageExpression><![CDATA["../../framGraphique/images/logoSonede.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="410" y="18" width="50" height="20" uuid="d2c3693f-d117-4047-b1ec-c33bb90e85ba"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[Tunis, le]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="460" y="18" width="90" height="20" uuid="160d32bb-89c5-47e0-8edd-ca2d05fd27ae"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<paragraph leftIndent="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

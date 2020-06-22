@@ -1,0 +1,326 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+
+
+
+
+
+import org.richfaces.component.UIToolBar;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.VariableGlobaleNotification;
+import xtensus.ldap.business.LdapFunction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ModificationPWBean {
+	private String passwordConfirm;
+	private String passwordNew;
+	private String myErrorMessageModification;
+	private List<Person> listUsers;
+	private boolean roleUser;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private VariableGlobaleNotification vbn;
+	private ApplicationManager appMgr;
+	private UIToolBar toolBar = null;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	@Autowired
+	private ApplicationContext appCtx;
+	
+	private LdapOperation ldapOperation;
+	private boolean status1 = false;
+	private boolean status2 = false;
+	private boolean status = false;
+	private String username;
+	private String nouveauMotDePasse;
+	
+
+	@Autowired
+	public ModificationPWBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		
+	}
+
+	public ModificationPWBean() {
+		
+	}
+
+	@PostConstruct
+	public void initialize() {
+		try {
+			myErrorMessageModification="";
+			System.out.println("BEGIN");
+			long deb = System.currentTimeMillis();
+			final LdapFunction ldapFunction = new LdapFunction();
+			ldapFunction.getDataFromDirectory();
+			vb.setLocale("fr_FR");
+			vb.setCopyLdapListAllUser(ldapFunction.ldapListAllUser);
+			vb.setCopyLdapListUser(ldapFunction.ldapListUser);
+			
+			vb.setNewUserId(ldapFunction.newUserId);
+			vb.setNewGroupId(ldapFunction.newGroupId);
+			vb.setCentralBoc(ldapFunction.centralBoc);
+			
+			Person person = new Person();
+			List<Person> listotherusers = new ArrayList<Person>();
+			for (int i = 0; i < vb.getCopyLdapListAllUser().size(); i++) {
+				person = vb.getCopyLdapListAllUser().get(i);
+				int j = 0;
+				boolean findUser = false;
+				do {
+					if (vb.getCopyLdapListUser().get(j).getId() == person
+							.getId()) {
+						findUser = true;
+					} else {
+						j++;
+					}
+				} while (!findUser && j < vb.getCopyLdapListUser().size());
+				if (!findUser) {
+					listotherusers.add(person);
+				}
+			}
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListGroup(ldapFunction.ldapListGroup);
+			vb.setCopyLdapListUnit(ldapFunction.ldapListUnit);
+			vb.setHashMapAllUser(ldapFunction.hashMapAllUser);
+			vb.setHashMapUnit(ldapFunction.hashMapUnit);
+
+			com.mchange.v2.c3p0.ComboPooledDataSource cpds = appCtx.getBean(com.mchange.v2.c3p0.ComboPooledDataSource.class);
+			vb.setDbType(cpds.getDriverClass().toLowerCase());
+			long fin = System.currentTimeMillis();
+			System.out.println("Duration : " + (fin - deb) );
+//			for (Entry entryUser : vb.getHashMapAllUser().entrySet()) {
+//				System.out.println("ID : " + entryUser.getKey() + " Name : " + ((Person) entryUser.getValue()).getCn() );
+//			}
+//			System.out.println("########################################");
+//			for (Entry entryUnit : vb.getHashMapUnit().entrySet()) {
+//				System.out.println("ID : " + entryUnit.getKey() + " NameUNIT : " + ((Unit) entryUnit.getValue()).getNameUnit() );
+//			}
+		} catch (Exception e) {
+			System.out.println("Erreur de connexion au serveur LDAP");
+           	e.printStackTrace();
+		}
+	}
+	
+	
+	//**********************cryptage et decryptage**********
+	
+		public String crypt(String ch) throws UnsupportedEncodingException{
+			
+			 byte[] bytes = ch.getBytes("US-ASCII");
+			return bytes.toString();
+		}
+		
+		public String decrypt(String ch) throws UnsupportedEncodingException {
+			
+			byte[] bytes = ch.getBytes("US-ASCII");
+			 String s = new String(bytes);
+			 return s;
+		}
+		//****************fin ****************************
+			
+		public void update() {
+			
+			//initialize();
+               
+			if (passwordConfirm.equals(passwordNew))
+					{
+				myErrorMessageModification = messageSource.getMessage(
+					    "confirmUpdatePwd", new Object[] {},
+				     lm.createLocal());
+			
+				
+					}
+			else  {
+				myErrorMessageModification = messageSource.getMessage(
+					     "passNonCompatible", new Object[] {},
+					     lm.createLocal());
+				
+				
+				
+			}		
+			}
+		
+	
+	//****************************
+
+
+
+
+	/****** Getters && Setters ************/
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public List<Person> getlistUsers() {
+		return listUsers;
+	}
+
+	public void setListUsers(List<Person> listUsers) {
+		this.listUsers = listUsers;
+	}
+
+	public void setRoleUser(boolean roleUser) {
+		this.roleUser = roleUser;
+	}
+
+	public boolean isRoleUser() {
+		return roleUser;
+	}
+
+	public void setToolBar(UIToolBar toolBar) {
+		this.toolBar = toolBar;
+	}
+
+	public UIToolBar getToolBar() {
+		return toolBar;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setVbn(VariableGlobaleNotification vbn) {
+		this.vbn = vbn;
+	}
+
+	public VariableGlobaleNotification getVbn() {
+		return vbn;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public ApplicationContext getAppCtx() {
+		return appCtx;
+	}
+
+	public void setAppCtx(ApplicationContext appCtx) {
+		this.appCtx = appCtx;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public List<Person> getListUsers() {
+		return listUsers;
+	}
+
+	public String getNouveauMotDePasse() {
+		return nouveauMotDePasse;
+	}
+
+	public void setNouveauMotDePasse(String nouveauMotDePasse) {
+		this.nouveauMotDePasse = nouveauMotDePasse;
+	}
+
+	public String getMyErrorMessageModification() {
+		return myErrorMessageModification;
+	}
+
+	public void setMyErrorMessageModification(String myErrorMessageModification) {
+		this.myErrorMessageModification = myErrorMessageModification;
+	}
+
+	public String getPasswordConfirm() {
+		return passwordConfirm;
+	}
+
+	public void setPasswordConfirm(String passwordConfirm) {
+		this.passwordConfirm = passwordConfirm;
+	}
+
+	public String getPasswordNew() {
+		return passwordNew;
+	}
+
+	public void setPasswordNew(String passwordNew) {
+		this.passwordNew = passwordNew;
+	}
+
+
+
+}

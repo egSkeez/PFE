@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion Valises</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel"
+						style="height:30px; padding-top:5px;">
+						<h:form>
+							<div>
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="upd1" action="#{valiseGestionBean.ajoutValise}"
+								oncomplete="document.location.href='ValiseAjout.jsf'"	>
+								<h:graphicImage id="add1"
+										value="../framGraphique/images/icone-add.png"
+										onmouseover="this.src='../framGraphique/images/icone-addMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/icone-add.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="upd1" direction="top-right"
+									value="#{msg.labelAjoutValise}" />
+									<rich:spacer width="5px" style=" height : 1px;"/>
+									<h:commandLink id="csv"
+										action="#{rapportCourriersListe.printCSVValises}"
+										status="ajaxStatusRapport">
+										<h:graphicImage value="../framGraphique/images/excel-petite.png"
+											onmouseover="this.src='../framGraphique/images/excel-petite.png'"
+											onmouseout="this.src='../framGraphique/images/excel-petite.png'"
+											alt="csv"/>
+									</h:commandLink>
+									<rich:toolTip for="csv" value="#{msg.csvExportAOC}"
+										direction="top-right" />
+							</div>
+							<a4j:keepAlive beanName="valiseGestionBean" />
+						</h:form>
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1">
+
+						</h:form>
+					</div>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listedesvalises}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="valiseGestionBean" />
+						<h:form>
+							<rich:dataTable
+								value="#{valiseGestionBean.listValiseDM}"
+								var="valise" id="data" rows="10" styleClass="rich-panel">
+
+								<rich:column sortBy="#{valise.courrierReference}"
+									filterBy="#{valise.courrierReference}"
+									filterEvent="onkeyup" label="ref" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.numero}" />
+									</f:facet>
+									<h:outputText value="#{valise.courrierReference}" />
+								</rich:column>
+
+								<rich:column sortBy="#{valise.courrierExpediteur}"
+									filterBy="#{valise.courrierExpediteur}"
+									filterEvent="onkeyup" label="ref" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.expediteur}" />
+									</f:facet>
+									<h:outputText value="#{valise.courrierExpediteur}" />
+								</rich:column>
+
+								<rich:column sortBy="#{valise.courrierDestinataireReelle}"
+									filterBy="#{valise.courrierDestinataireReelle}"
+									filterEvent="onkeyup" label="ref" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.destinataire}" />
+									</f:facet>
+									<h:outputText value="#{valise.courrierDestinataireReelle}" />
+								</rich:column>
+								<rich:column sortBy="#{valise.etatID}"
+									filterBy="#{valise.etatID}" 
+									filterEvent="onkeyup" label="id" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.etat}" />
+									</f:facet>
+									<h:outputText
+										value="#{valise.etatLibelle}" />
+								</rich:column>
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="valiseGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="cl"
+												oncomplete="document.location.href='ValiseConsultation.jsf'"	
+												action="#{valiseGestionBean.getSelectionRow}">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="consulter" />
+											</a4j:commandLink>
+											<rich:toolTip for="cl" value="#{msg.labelConsulter}"
+												direction="top-right" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record" value="#{valiseGestionBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+						
+					</rich:panel>
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

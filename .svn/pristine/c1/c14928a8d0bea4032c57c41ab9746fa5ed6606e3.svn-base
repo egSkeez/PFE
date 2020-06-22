@@ -1,0 +1,107 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<link rel="STYLESHEET" type="text/css" href="test2-css.css" title="css"></link>
+	<div class="nav" align="center"><h:form>
+		<rich:toolBar styleClass="nav" align="center" width="60%">
+			<rich:dropDownMenu styleClass="dropDownMenu">
+				<f:facet name="label">
+					<h:panelGroup>
+						<span class="menu-mid"> <h:outputText
+							value="GestionAppelOffre" /></span>
+					</h:panelGroup>
+				</f:facet>
+
+				<rich:menuItem submitMode="ajax" value="AjoutAppelOffre">
+				</rich:menuItem>
+				<rich:menuItem submitMode="ajax" value="ConsulterAppelOffre">
+				</rich:menuItem>
+
+				<rich:menuSeparator id="menuSeparator1" />
+
+				<rich:menuGroup value="GestionLot" >
+					<rich:menuItem value="AjouterLot" />
+					<rich:menuItem value="ConsulterLot" />
+				</rich:menuGroup>
+
+				<rich:menuSeparator id="menuSeparator2" />
+
+				<rich:menuGroup value="GestionPhase">
+					<rich:menuItem value="AjouterPhase" />
+					<rich:menuItem value="ConsulterPhase" />
+				</rich:menuGroup>
+
+				<rich:menuSeparator id="menuSeparator3" />
+
+				<rich:menuGroup value="GestionCahiersCharges">
+					<rich:menuItem value="AjouterCahiersCharges" />
+					<rich:menuItem value="ConsulterCahiersCharges" />
+				</rich:menuGroup>
+				
+			</rich:dropDownMenu>
+
+			<rich:dropDownMenu styleClass="select">
+				<f:facet name="label">
+					<h:panelGroup>
+					<span class="menu-mid">	<h:outputText value="Dépouillement" /></span>
+					</h:panelGroup>
+				</f:facet>
+
+				<rich:menuItem submitMode="ajax" value="DépouillementAdministratif">
+				</rich:menuItem>
+				<rich:menuSeparator id="menuSeparator11" />
+				<rich:menuItem submitMode="ajax" value="DépouillementFinancier">
+				</rich:menuItem>
+				<rich:menuSeparator id="menuSeparator12" />
+				<rich:menuItem submitMode="ajax" value="DépouillementTechnique">
+				</rich:menuItem>
+
+				<rich:menuSeparator id="menuSeparator13" />
+
+				<rich:menuGroup value="GestionSoumissionnaire">
+					<rich:menuItem value="AjouterSoumissionnaire" />
+					<rich:menuItem value="ConsulterSoumissionnaire" />
+				</rich:menuGroup>
+
+				<rich:menuSeparator id="menuSeparator14" />
+
+				<rich:menuGroup value="GestionSoumission">
+					<rich:menuItem value="AjouterSoumission" />
+					<rich:menuItem value="ConsulterSoumission" />
+				</rich:menuGroup>
+
+			</rich:dropDownMenu>
+
+			<rich:dropDownMenu styleClass="select">
+				<f:facet name="label">
+					<h:panelGroup>
+						<span class="menu-mid"><h:outputText value="GestionContrats" /></span>
+					</h:panelGroup>
+				</f:facet>
+
+				<rich:menuItem submitMode="ajax" value="AjoutContrat">
+				</rich:menuItem>
+				<rich:menuItem submitMode="ajax" value="ConsulterContrat">
+				</rich:menuItem>
+				<rich:menuItem submitMode="ajax" value="RésilierContrat">
+				</rich:menuItem>
+			</rich:dropDownMenu>
+
+			<rich:dropDownMenu styleClass="select">
+				<f:facet name="label">
+					<h:panelGroup>
+					<span class="menu-mid">	<h:outputText value="GestionNotification" /></span>
+					</h:panelGroup>
+				</f:facet>
+
+				<rich:menuItem submitMode="ajax" value="NotifierSoumissionnaire">
+				</rich:menuItem>
+			</rich:dropDownMenu>
+
+		</rich:toolBar>
+
+	</h:form></div>
+</ui:composition>

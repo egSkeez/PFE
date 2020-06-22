@@ -1,0 +1,410 @@
+package xtensus.beans.common.GBO0;
+
+import java.net.IDN;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.DonneeSupplementaire;
+import xtensus.entity.DonneeSupplementaireNature;
+import xtensus.entity.DonneeSupplementaireNatureId;
+import xtensus.entity.Entite;
+import xtensus.entity.Nature;
+import xtensus.entity.NatureCategorie;
+import xtensus.entity.Transmission;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class AdministrationTransmissionGestionBean {
+
+	private Transmission transmission;
+
+	//JS:Chèque
+	private List<Transmission> listtransmission;
+	private DataModel listTransmissionDM;
+	//Fin Chèque
+	private DonneeSupplementaireNature dsn;
+	private boolean status;
+	private boolean status1;
+	private int ordre;
+	private String libelle;
+	private boolean obligatoire;
+	private Map<Integer, Boolean> checked;
+
+	@Autowired
+	private VariableGlobale vb;
+	private DonneeSupplementaire donneeSupplementaire;
+	private List<DonneeSupplementaire> listDonneeSupplementaire;
+	private List<DonneeSupplementaireNature> listDonneeSupplementaire2;
+	private DataModel listDonneeSupplementaireDM;
+	private DataModel listDonneeSupplementaireDM2;
+	private long records=0;
+	private long records2=0;
+	// fixe
+	private DonneeSupplementaireNatureId supplementaireNatureId;
+	private DonneeSupplementaireNature donneeSupplementaireNature;
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+
+
+
+	@Autowired
+	public AdministrationTransmissionGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		transmission = new Transmission();	
+		donneeSupplementaire=new DonneeSupplementaire();
+		listDonneeSupplementaire=new ArrayList<DonneeSupplementaire>();
+		listDonneeSupplementaireDM=new ListDataModel();
+		listDonneeSupplementaireDM2=new ListDataModel();
+		supplementaireNatureId=new DonneeSupplementaireNatureId();
+		listDonneeSupplementaire2=new ArrayList<DonneeSupplementaireNature>();
+		dsn=new DonneeSupplementaireNature();
+		checked = new HashMap<Integer, Boolean>();
+		System.out
+				.println("*************Bean NatureGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		transmission=vb.getTransmission();
+
+		try {
+			
+			//Liste Donnee Supplementaire Nature Affectés 
+			System.out.println("ID Nature :"+transmission.getTransmissionId());
+			listDonneeSupplementaire2= appMgr.getListDonneeSupplementaireNatureAffectes(transmission.getTransmissionId());
+			listDonneeSupplementaireDM2.setWrappedData(listDonneeSupplementaire2);
+			
+		    //Liste des Donnes Supplementaire des natures non affectés 
+			listDonneeSupplementaire=appMgr.getListDonneeSupplementaireNatureAAffectes(transmission.getTransmissionId());
+			System.out.println("Taille Liste Donnee Supplementaire :"+listDonneeSupplementaire.size());
+			Collections.reverse(listDonneeSupplementaire);
+			listDonneeSupplementaireDM.setWrappedData(listDonneeSupplementaire);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	public void affecter2(){
+		System.out.println("Dans méthode affecter 2");
+		System.out.println("ID nature :"+transmission.getTransmissionId());
+		appMgr.deleteDonneeSupplementaireByIdNature(transmission.getTransmissionId());
+		System.out.println("taille liste Champs Affectés :"+listDonneeSupplementaire2.size());
+	}
+	public void affecter(){
+		status = false;
+		status1 = false;
+		transmission=vb.getTransmission(); 
+		try {
+		
+			//suppression des données existantes
+			appMgr.deleteDonneeSupplementaireByIdNature(transmission.getTransmissionId());
+		if(listDonneeSupplementaire2 != null && listDonneeSupplementaire2.size()>0 ){
+		for(DonneeSupplementaireNature donnee :listDonneeSupplementaire2){
+				
+				
+				DonneeSupplementaireNatureId donneeSupplId=new DonneeSupplementaireNatureId();
+				
+				donneeSupplId.setIdNature(transmission.getTransmissionId());
+				donneeSupplId.setIdDonneeSupplementaire(donnee.getDonneeSupplementaire().getIdDonneeSupplementaire());
+				donnee.setDonneesupplementairenatureId(donneeSupplId.getIdDonneeSupplementaire());
+				System.out.println(donnee);
+				appMgr.insert(donnee);
+					
+				} 	
+			
+			status=true;
+		}	
+		else if (listDonneeSupplementaire2.size() == 0) {
+			status1 = true;
+		}
+		}
+		catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+				
+			
+			
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+
+	
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public List<Transmission> getListtransmission() {
+		return listtransmission;
+	}
+
+	public void setListtransmission(List<Transmission> listtransmission) {
+		this.listtransmission = listtransmission;
+	}
+
+	public DataModel getListTransmissionDM() {
+		return listTransmissionDM;
+	}
+
+	public void setListTransmissionDM(DataModel listTransmissionDM) {
+		this.listTransmissionDM = listTransmissionDM;
+	}
+
+	public DonneeSupplementaireNature getDsn() {
+		return dsn;
+	}
+
+	public void setDsn(DonneeSupplementaireNature dsn) {
+		this.dsn = dsn;
+	}
+
+	public void setDonneeSupplementaire(DonneeSupplementaire donneeSupplementaire) {
+		this.donneeSupplementaire = donneeSupplementaire;
+	}
+
+	public DonneeSupplementaire getDonneeSupplementaire() {
+		return donneeSupplementaire;
+	}
+
+	public void setListDonneeSupplementaire(List<DonneeSupplementaire> listDonneeSupplementaire) {
+		this.listDonneeSupplementaire = listDonneeSupplementaire;
+	}
+
+	public List<DonneeSupplementaire> getListDonneeSupplementaire() {
+		return listDonneeSupplementaire;
+	}
+
+	public void setListDonneeSupplementaireDM(DataModel listDonneeSupplementaireDM) {
+		this.listDonneeSupplementaireDM = listDonneeSupplementaireDM;
+	}
+
+	public DataModel getListDonneeSupplementaireDM() {
+		return listDonneeSupplementaireDM;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		
+		if (listDonneeSupplementaireDM != null && listDonneeSupplementaireDM.getWrappedData() != null)
+			records = ((List<DonneeSupplementaire>) listDonneeSupplementaireDM.getWrappedData()).size();
+			
+		else
+			records = 0;
+		return records;
+	}
+
+	public void move() {
+		
+		System.out.println(" Fonction MOVE ");
+		
+		
+		dsn=new DonneeSupplementaireNature();
+		//supplementaireNatureId=new DonneeSupplementaireNatureId();
+		donneeSupplementaire=(DonneeSupplementaire) listDonneeSupplementaireDM.getRowData();
+		System.out.println("Donne Supplementaire:"+donneeSupplementaire.toString());
+				
+		System.out.println("ID Donnee Supplementaire :"+donneeSupplementaire.getIdDonneeSupplementaire());
+		
+		dsn.setDonneeSupplementaire(donneeSupplementaire);
+		
+	
+		listDonneeSupplementaire2.add(dsn);
+        System.out.println("liste Datatable 2:"+listDonneeSupplementaire2.size());
+        listDonneeSupplementaire.remove(donneeSupplementaire);
+        System.out.println("liste Datatable 1 après remove:"+listDonneeSupplementaire.size());
+
+        listDonneeSupplementaireDM2.setWrappedData(listDonneeSupplementaire2);
+        listDonneeSupplementaireDM.setWrappedData(listDonneeSupplementaire);
+
+	}
+	public void remove() {
+		System.out.println(" Fonction REMOVE ");
+	
+		dsn = (DonneeSupplementaireNature) listDonneeSupplementaireDM2
+				.getRowData();
+		System.out.println("Liste Donne Supplementaire avant remove:"+listDonneeSupplementaire2.size());
+		System.out.println("Donnee Supplmentaire Nature :"+dsn.toString());
+		listDonneeSupplementaire2.remove(dsn);
+		System.out.println("Liste Donne Supplementaire après remove:"+listDonneeSupplementaire2.size());
+		listDonneeSupplementaire.add(dsn.getDonneeSupplementaire());
+		
+	}
+
+	public List<DonneeSupplementaireNature> getListDonneeSupplementaire2() {
+		return listDonneeSupplementaire2;
+	}
+
+	public void setListDonneeSupplementaire2(
+			List<DonneeSupplementaireNature> listDonneeSupplementaire2) {
+		this.listDonneeSupplementaire2 = listDonneeSupplementaire2;
+	}
+
+	public void setListDonneeSupplementaireDM2(
+			DataModel listDonneeSupplementaireDM2) {
+		this.listDonneeSupplementaireDM2 = listDonneeSupplementaireDM2;
+	}
+
+	public DataModel getListDonneeSupplementaireDM2() {
+		return listDonneeSupplementaireDM2;
+	}
+
+	public void setRecords2(long records2) {
+		this.records2 = records2;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (listDonneeSupplementaireDM2 != null && listDonneeSupplementaireDM2.getWrappedData() != null)
+			records2 = ((List<DonneeSupplementaire>) listDonneeSupplementaireDM2.getWrappedData()).size();
+			
+		else
+			records2 = 0;
+		return records2;
+	}
+
+	public void setSupplementaireNatureId(DonneeSupplementaireNatureId supplementaireNatureId) {
+		this.supplementaireNatureId = supplementaireNatureId;
+	}
+
+	public DonneeSupplementaireNatureId getSupplementaireNatureId() {
+		return supplementaireNatureId;
+	}
+
+	public void setDonneeSupplementaireNature(DonneeSupplementaireNature donneeSupplementaireNature) {
+		this.donneeSupplementaireNature = donneeSupplementaireNature;
+	}
+
+	public DonneeSupplementaireNature getDonneeSupplementaireNature() {
+		return donneeSupplementaireNature;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
+	}
+
+	public int getOrdre() {
+		return ordre;
+	}
+
+	public void setLibelle(String libelle) {
+		this.libelle = libelle;
+	}
+
+	public String getLibelle() {
+		return libelle;
+	}
+
+	public void setObligatoire(boolean obligatoire) {
+		this.obligatoire = obligatoire;
+	}
+
+	public boolean isObligatoire() {
+		return obligatoire;
+	}
+
+	public void setChecked(Map<Integer, Boolean> checked) {
+		this.checked = checked;
+	}
+
+	public Map<Integer, Boolean> getChecked() {
+		return checked;
+	}
+
+
+	
+	
+}

@@ -1,0 +1,205 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Variables;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+public class MarqueurBean {
+	
+	private ApplicationManager appMgr;
+	
+	
+	private String c;
+	private boolean status = false;
+	private boolean statusModif = false;
+	public boolean modeAjout=false;
+	private boolean modeModif=false;
+	private List<Variables> var;
+	
+	
+	
+	
+	
+	
+	@Autowired
+	public MarqueurBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+		
+		this.appMgr = appMgr;
+		
+		status = false;
+		var=new ArrayList<Variables>();
+		
+		System.out.println("*************Bean Injecte***************");
+		Initialize();
+	
+	}
+	
+	@PostConstruct
+	public void Initialize(){
+		
+		System.out.println("*****************Initilisation*****************");
+	    var=appMgr.getListVariableByLibelle();
+	    if(var.size()>0){
+	    	modeModif=true;
+	    	modeAjout=false;
+	    	c=var.get(0).getVaraiablesValeur();
+	    }
+	    else{
+	    	modeAjout=true;
+	    	modeModif=false;
+	    }
+		
+	}
+//-----------------------------------------------------------------------
+	//TODO Marouen code unique
+public void modifierCode(){
+	
+	try {
+		Variables variables = new Variables();
+		variables=var.get(0);
+		String code = getC();
+		
+		Calendar cal = Calendar.getInstance();
+		
+//		code = code.replace("[ID]", "[ID]");
+//		code = code.replace("[SRV]", "[SRV]");
+//		code = code.replace("[Sens]", "[Sens]");
+		int mois = cal.get(Calendar.MONTH);
+		
+//		code = code.replace("[Mois]", "[Mois]");
+//					
+//		code = code.replace("[Annee]", "[Annee]");
+		variables.setVaraiablesValeur(code);
+		appMgr.update(variables);
+	}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
+}
+	
+	
+	public void ajouter_code(){
+		
+		try {
+			Variables variables = new Variables();
+			String code = getC();
+			Calendar cal = Calendar.getInstance();
+			code = code.replace("[ID]", "[ID]");
+			code = code.replace("[SRV]", "[SRV]");
+			code = code.replace("[Sens]", "[Sens]");
+			int mois = cal.get(Calendar.MONTH);
+			
+			code = code.replace("[Mois]", "[Mois]");
+						
+			code = code.replace("[Annee]", "[Annee]");
+			
+//			Calendar cal = Calendar.getInstance();
+//			code = code.replace("[ID]", "2454");
+//			code = code.replace("[SRV]", "DGEN");
+//			code = code.replace("[Sens]", "D");
+//			int mois = cal.get(Calendar.MONTH);
+//			
+//			code = code.replace("[Mois]", String.format("%02d", mois));
+//						
+//			code = code.replace("[Annee]", Integer.toString(cal.get(Calendar.YEAR)));
+			variables.setVaraiablesValeur(code);
+			variables.setVariablesLibelle("code_courrier_unique_personnalisable");
+			appMgr.insert(variables);
+			System.out.println("contenu variable : "+variables.getVariablesContenu());
+			status = true;
+			
+			
+		} catch (Exception e) {
+			System.out.println("***********erreur**************");
+		}
+	
+	}
+public void verification(){
+	c="hello";
+}
+
+
+
+
+
+
+	
+	
+	
+	//----------------GETTER AND SETTER-------------------
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+
+
+
+
+	public String getC() {
+		return c;
+	}
+
+	public void setC(String c) {
+		this.c = c;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isModeAjout() {
+		return modeAjout;
+	}
+
+	public void setModeAjout(boolean modeAjout) {
+		this.modeAjout = modeAjout;
+	}
+
+	public boolean isModeModif() {
+		return modeModif;
+	}
+
+	public void setModeModif(boolean modeModif) {
+		this.modeModif = modeModif;
+	}
+
+	public boolean isStatusModif() {
+		return statusModif;
+	}
+
+	public void setStatusModif(boolean statusModif) {
+		this.statusModif = statusModif;
+	}
+
+	public List<Variables> getVar() {
+		return var;
+	}
+
+	public void setVar(List<Variables> var) {
+		this.var = var;
+	}
+	
+
+}

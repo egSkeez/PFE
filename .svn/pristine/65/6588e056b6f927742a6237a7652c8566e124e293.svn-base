@@ -1,0 +1,479 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Proprietes;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class ProprieteGestionBean {
+
+	private Proprietes propriete;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listPropriete;
+	private List<Proprietes> listProp;
+	private List<Proprietes> copylistProp;
+
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+
+	private Proprietes prop;
+
+	@Autowired
+	public ProprieteGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		propriete = new Proprietes();
+		prop = new Proprietes();
+		listPropriete = new ListDataModel();
+		listProp = new ArrayList<Proprietes>();
+		copylistProp = new ArrayList<Proprietes>();
+		System.out
+				.println("*************Bean ProprieteGestionBean Injecte***************");
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titleaccor = "Ajout propriété";
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajouter propriété";
+
+		listProp = new ArrayList<Proprietes>();
+		copylistProp = new ArrayList<Proprietes>();
+		try {
+			listProp = appMgr.getList(Proprietes.class);
+			for (int i = listProp.size(); i >= 0; i--) {
+
+				prop = listProp.get(i - 1);
+				copylistProp.add(prop);
+				prop = new Proprietes();
+			}
+		} catch (Exception e) {
+			System.out.println("erreur");
+		}
+		listPropriete.setWrappedData(copylistProp);
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+			appMgr.insert(propriete);
+
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"ajout",
+					"Evénement de log d'ajout de la propriété "
+							+ propriete.getPiroprieteId() + "-"
+							+ propriete.getPiroprieteDesignation(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+
+			System.out.println("***************Succes***************");
+
+		} catch (Exception e) {
+			status3 = true;
+			System.out.println("***************Erreur***************");
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			propriete = (Proprietes) listPropriete.getRowData();
+			vb.setProprietes(propriete);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de la propriété "
+							+ propriete.getPiroprieteId() + "-"
+							+ propriete.getPiroprieteDesignation(),
+					vb.getPerson(), "INFO", appMgr);
+
+			System.out
+					.println("*******Selection ProprieteGestionBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection ProprieteGestionBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier propriété";
+		titleaccor = "Consultation propriété";
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			propriete = vb.getProprietes();
+			appMgr.update(propriete);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de la propriété "
+							+ vb.getProprietes().getPiroprieteId() + "-"
+							+ vb.getProprietes().getPiroprieteDesignation(),
+					vb.getPerson(), "INFO", appMgr);
+
+			System.out.println("UpdateTerminee");
+			listProp = new ArrayList<Proprietes>();
+			Initialize();
+			propriete = new Proprietes();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter propriété";
+		titleaccor = "Ajout propriété";
+
+	}
+
+	public void deleteSelectedRow() {
+
+		try {
+			propriete = vb.getProprietes();
+			appMgr.delete(propriete);
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression de la propriété "
+							+ propriete.getPiroprieteId() + "-"
+							+ propriete.getPiroprieteDesignation(),
+					vb.getPerson(), "INFO", appMgr);
+
+		} catch (Exception e) {
+
+		}
+		listPropriete = new ListDataModel();
+		listProp = new ArrayList<Proprietes>();
+		copylistProp = new ArrayList<Proprietes>();
+		Initialize();
+
+	}
+
+	public void annulModif() {
+		propriete = new Proprietes();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter propriété";
+
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		propriete = new Proprietes();
+		msgerror = true;
+		titleaccor = "Ajout propriété";
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listPropriete == null && listPropriete.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Proprietes>) listPropriete.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setPropriete(Proprietes propriete) {
+		this.propriete = propriete;
+	}
+
+	public Proprietes getPropriete() {
+		return propriete;
+	}
+
+	public void setListPropriete(DataModel listPropriete) {
+		this.listPropriete = listPropriete;
+	}
+
+	public DataModel getListPropriete() {
+		return listPropriete;
+	}
+
+	public void setListProp(List<Proprietes> listProp) {
+		this.listProp = listProp;
+	}
+
+	public List<Proprietes> getListProp() {
+		return listProp;
+	}
+
+	public void setCopylistProp(List<Proprietes> copylistProp) {
+		this.copylistProp = copylistProp;
+	}
+
+	public List<Proprietes> getCopylistProp() {
+		return copylistProp;
+	}
+
+	public void setProp(Proprietes prop) {
+		this.prop = prop;
+	}
+
+	public Proprietes getProp() {
+		return prop;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+}

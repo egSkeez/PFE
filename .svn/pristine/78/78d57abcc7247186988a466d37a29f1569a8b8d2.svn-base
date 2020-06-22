@@ -1,0 +1,55 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.gnl.entity.Notification;
+import xtensus.gnl.entity.UserNotification;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class UserNotificationAjoutBean {
+	private ApplicationManager appMgr;
+
+	public UserNotificationAjoutBean() {
+
+	}
+
+	@Autowired
+	public UserNotificationAjoutBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public void ajouterUserNotification(int matUser) {
+		try {
+
+			UserNotification userNotification = new UserNotification();
+			List<Notification> notifications = new ArrayList<Notification>();
+			notifications = appMgr.getList(Notification.class);
+
+			for (Notification n : notifications) {
+				userNotification.setEtat(false);
+				userNotification.setUtilisateursMatricule(matUser);
+				userNotification.setIdNotification(n.getNotificationId());
+				appMgr.insert(userNotification);
+				userNotification = new UserNotification();
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("Erreur d'affectation USER-Notification");
+		}
+	}
+
+}

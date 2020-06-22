@@ -1,0 +1,14 @@
+#----------------GMAIL----------------------------
+mail.store.protocol=pop3s
+mail.pop3.host=pop.gmail.com
+mail.pop3.user=recent:xte.mfx@gmail.com
+#mail.pop3.socketFactory=995
+#mail.pop3.socketFactory.class=javax.net.ssl.SSLSocketFactory
+mail.pop3.port=995
+mail.pop3.pass=AFH774GR
+#----------------XTENSUS----------------------------
+#mail.store.protocol=pop3s
+#mail.pop3.host=pop.xtensus.net
+#mail.pop3.user=gbo.admin@xtensus.net
+#mail.pop3.port=110
+#mail.pop3.pass=ABC321$$

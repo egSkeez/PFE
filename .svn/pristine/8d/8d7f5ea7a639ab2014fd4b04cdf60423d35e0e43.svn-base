@@ -1,0 +1,730 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ExpediteurType;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Groupecontact;
+import xtensus.entity.Groupecontactmailing;
+import xtensus.entity.GroupecontactmailingId;
+import xtensus.entity.Groupecontactpppm;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class GroupecontactGestionBean {
+
+	private Groupecontact groupecontact;
+	private String copyGroupecontactlibelle;
+	// div
+	private String divajouter;
+	private String divmodifier;
+	private String divconsult;
+	private String divnonconsult;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listgroupecontact;
+	private List<Groupecontact> listMR;
+	private List<Groupecontact> copylistMR;
+	private List<Groupecontactmailing> listGroupeContactMailing;
+	private long records = 0;
+	private int recordsData = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	private DataModel listContactAffecteDM;
+	private List<Expdestexterne> listContactAffecte;
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private String statusTableauContact;
+	private boolean statusDelete;
+	private boolean statusDeleteGroupeMailing;
+	private boolean statusNoDelete;
+	private Groupecontact moder;
+
+	@Autowired
+	public GroupecontactGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listContactAffecteDM = new ListDataModel();
+		listContactAffecte = new ArrayList<Expdestexterne>();
+		groupecontact = new Groupecontact();
+		moder = new Groupecontact();
+		listgroupecontact = new ListDataModel();
+		listMR = new ArrayList<Groupecontact>();
+		listGroupeContactMailing=new ArrayList<Groupecontactmailing>();
+		copylistMR = new ArrayList<Groupecontact>();
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out.println("*************Bean Injecte***************");
+		divajouter = "inline";
+		divmodifier = "none";
+		divconsult = "none";
+		divnonconsult = "inline";
+		infoChampObligatoir = "inline";
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajouter groupe de contact";
+		listMR = new ArrayList<Groupecontact>();
+		copylistMR = new ArrayList<Groupecontact>();
+		statusTableauContact = "none";
+		try {
+			listMR = appMgr.getList(Groupecontact.class);
+
+			for (int i = listMR.size(); i > 0; i--) {
+
+				moder = listMR.get(i - 1);
+				copylistMR.add(moder);
+				moder = new Groupecontact();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listgroupecontact.setWrappedData(copylistMR);
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+
+		try {
+			groupecontact.setGroupecontactDateCreation(new Date());
+			appMgr.insert(groupecontact);
+			status = true;
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout",
+					"Evénement de log d'ajout de groupe de mailing "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+			Initialize();
+
+		} catch (Exception e) {
+			status3 = true;
+			e.printStackTrace();
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		try {
+			groupecontact = (Groupecontact) listgroupecontact.getRowData();
+			vb.setGroupecontact(groupecontact);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation de groupe de mailing "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+			Initialize();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		divnonconsult = "inline";
+		divconsult = "none";
+		infoChampObligatoir = "inline";
+		titre = "Modification groupe de contact";
+		titleaccor =  messageSource.getMessage("Modificationgroupedecontact", new Object[]{},lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		statusTableauContact = "none";
+	}
+
+	public void getSelectionRowConst() {
+		groupecontact = (Groupecontact) listgroupecontact.getRowData();
+		vb.setGroupecontact(groupecontact);
+		List<ExpediteurType> listContactGroupecontactListeAffecte = new ArrayList<ExpediteurType>();
+		try {
+			listContactAffecte = new ArrayList<Expdestexterne>();
+			List<Groupecontactpppm> listGroupecontactContact = new ArrayList<Groupecontactpppm>();
+			int refGroupecontact = groupecontact.getIdgroupecontact();
+			listGroupecontactContact = appMgr
+					.getContactGroupecontactByIdGroupecontact(refGroupecontact);
+			if (listGroupecontactContact.size() != 0) {
+				statusTableauContact = "inline";
+			}
+			/**** Liste courrier Affecter ******/
+			for (Groupecontactpppm cd : listGroupecontactContact) {
+				Expdestexterne cr = appMgr.getExpediteurById(
+						cd.getId().getIdExpDestExterne()).get(0);
+				listContactAffecte.add(cr);
+			}
+			recordsData = listContactAffecte.size();
+			ExpediteurType exptype = new ExpediteurType();
+			for (Expdestexterne exp : listContactAffecte) {
+				Pp pp = new Pp();
+				Pm pm = new Pm();
+				exptype.setExpdestexterne(exp);
+				int refTypeUtilisateur = exp.getTypeutilisateur()
+						.getTypeUtilisateurId();
+				int refexpediteur = exp.getIdExpDestExterne();
+				if (refTypeUtilisateur == 2) {
+					exptype.setType("PM");
+					if (!appMgr.getPMByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pm = appMgr.getPMByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPm(pm);
+						exptype.setSociete(exp.getExpDestExterneNom());
+					}
+				} else if (refTypeUtilisateur == 1) {
+					exptype.setType("PP");
+					if (!appMgr.getPPByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pp = appMgr.getPPByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPp(pp);
+						if (pp.getPm() != null) {
+							int refpm = pp.getPm().getPmid();
+							pm = appMgr.getPMByIDPM(refpm).get(0);
+							int refexp = pm.getExpdestexterne()
+									.getIdExpDestExterne();
+							Expdestexterne e = new Expdestexterne();
+							e = appMgr.getExpediteurById(refexp).get(0);
+							exptype.setSociete(e.getExpDestExterneNom());
+						}
+					}
+				}
+				listContactGroupecontactListeAffecte.add(exptype);
+				pp = new Pp();
+				pm = new Pm();
+				exptype = new ExpediteurType();
+			}
+
+		} catch (Exception e) {
+			statusTableauContact = "none";
+			System.out.println("*** pas de contact dans le groupe ***");
+		}
+		listContactAffecteDM
+				.setWrappedData(listContactGroupecontactListeAffecte);
+
+		divajouter = "none";
+		infoChampObligatoir = "none";
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		
+		divmodifier = "none";
+		divnonconsult = "none";
+		divconsult = "inline";
+		titre = "Consultation groupe de contact";
+		titleaccor = messageSource.getMessage("Consultationgroupedecontact", new Object[]{},lm.createLocal());
+		
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+		try {
+			appMgr.update(groupecontact);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de groupe de mailing "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+			status1 = true;
+			listMR = new ArrayList<Groupecontact>();
+			Initialize();
+			groupecontact = new Groupecontact();
+		} catch (Exception e) {
+			status2 = true;
+		}
+		Initialize();
+
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajout groupe de contact";
+		titleaccor =  messageSource.getMessage("Ajoutgroupedecontact", new Object[]{},lm.createLocal());
+
+	}
+
+	public void getSelectionRowDelete() {
+		statusDelete = false;
+		statusNoDelete = false;
+		statusDeleteGroupeMailing= false;
+		try {
+			groupecontact = (Groupecontact) listgroupecontact.getRowData();
+			vb.setGroupecontact(groupecontact);
+			List<Groupecontactpppm> listGroupecontactContact = new ArrayList<Groupecontactpppm>();
+			int refGroupecontact = groupecontact.getIdgroupecontact();
+			listGroupecontactContact = appMgr
+					.getContactGroupecontactByIdGroupecontact(refGroupecontact);
+			listGroupeContactMailing=appMgr.getGroupecontactmailingByIdGroupecontact(refGroupecontact);
+			if (listGroupecontactContact.size() != 0) {
+				statusDelete = false;
+				statusDeleteGroupeMailing= false;
+				statusNoDelete = true;
+			} else if(listGroupeContactMailing.size()!=0){
+				statusDelete = false;
+				statusDeleteGroupeMailing= true;
+				statusNoDelete = false;
+			} else {
+				statusDelete = true;
+				statusDeleteGroupeMailing= false;
+				statusNoDelete = false;
+			}
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionGroupecontactConsulterBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		divnonconsult = "inline";
+		divconsult = "none";
+		infoChampObligatoir = "inline";
+		titre = "Modification groupe de contact";
+		titleaccor = messageSource.getMessage("Modificationgroupedecontact", new Object[]{},lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		statusTableauContact = "none";
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			// etat=vb.getEtat();
+			appMgr.delete(groupecontact);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression de groupe de mailing "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listgroupecontact = new ListDataModel();
+		listMR = new ArrayList<Groupecontact>();
+		copylistMR = new ArrayList<Groupecontact>();
+		Initialize();
+		hidechamp();
+		// etat = new Etat();
+	}
+	public void deleteSelectedRow1(){
+		try{
+			System.out.println(listGroupeContactMailing.size());
+			for(int i=0;i<listGroupeContactMailing.size();i++){
+				Groupecontactmailing groupecontactmailing=new Groupecontactmailing();
+				GroupecontactmailingId groupecontactmailingId=new GroupecontactmailingId();
+				groupecontactmailing=listGroupeContactMailing.get(i);
+				groupecontactmailingId=groupecontactmailing.getId();
+				appMgr.delete(groupecontactmailing);
+			System.out.println("delete element"+i+"avec Succée");	
+			}
+			appMgr.delete(groupecontact);
+		}catch(Exception e){
+			e.printStackTrace();
+			}
+	}
+	public void annulModif() {
+		groupecontact = new Groupecontact();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajout groupe de contact";
+		// tran.setTransmissionLibelle("");
+
+	}
+
+	public void viderchamp() {
+		groupecontact = new Groupecontact();
+		msgerror = true;
+		titleaccor =  messageSource.getMessage("Ajoutgroupedecontact", new Object[]{},lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divnonconsult = "inline";
+		divconsult = "none";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+
+	}
+
+	public void hidechamp() {
+
+		hideAccor = "none";
+		divajouter = "none";
+		divnonconsult = "none";
+		divconsult = "none";
+		divmodifier = "none";
+		infoChampObligatoir = "none";
+		status = false;
+		status1 = false;
+		status2 = false;
+		status3 = false;
+
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// *****************Getters &Setters*******************************
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listgroupecontact == null
+				&& listgroupecontact.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Groupecontact>) listgroupecontact.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public Groupecontact getGroupecontact() {
+		return groupecontact;
+	}
+
+	public void setGroupecontact(Groupecontact groupecontact) {
+		this.groupecontact = groupecontact;
+	}
+
+	public String getCopyGroupecontactlibelle() {
+		return copyGroupecontactlibelle;
+	}
+
+	public void setCopyGroupecontactlibelle(String copyGroupecontactlibelle) {
+		this.copyGroupecontactlibelle = copyGroupecontactlibelle;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public DataModel getListgroupecontact() {
+		return listgroupecontact;
+	}
+
+	public void setListgroupecontact(DataModel listgroupecontact) {
+		this.listgroupecontact = listgroupecontact;
+	}
+
+	public List<Groupecontact> getListMR() {
+		return listMR;
+	}
+
+	public void setListMR(List<Groupecontact> listMR) {
+		this.listMR = listMR;
+	}
+
+	public List<Groupecontact> getCopylistMR() {
+		return copylistMR;
+	}
+
+	public void setCopylistMR(List<Groupecontact> copylistMR) {
+		this.copylistMR = copylistMR;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public Groupecontact getModer() {
+		return moder;
+	}
+
+	public void setModer(Groupecontact moder) {
+		this.moder = moder;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public String getDivconsult() {
+		return divconsult;
+	}
+
+	public void setDivconsult(String divconsult) {
+		this.divconsult = divconsult;
+	}
+
+	public String getDivnonconsult() {
+		return divnonconsult;
+	}
+
+	public void setDivnonconsult(String divnonconsult) {
+		this.divnonconsult = divnonconsult;
+	}
+
+	public void setListContactAffecteDM(DataModel listContactAffecteDM) {
+		this.listContactAffecteDM = listContactAffecteDM;
+	}
+
+	public DataModel getListContactAffecteDM() {
+		return listContactAffecteDM;
+	}
+
+	public void setStatusTableauContact(String statusTableauContact) {
+		this.statusTableauContact = statusTableauContact;
+	}
+
+	public String getStatusTableauContact() {
+		return statusTableauContact;
+	}
+
+	public List<Expdestexterne> getListContactAffecte() {
+		return listContactAffecte;
+	}
+
+	public void setListContactAffecte(List<Expdestexterne> listContactAffecte) {
+		this.listContactAffecte = listContactAffecte;
+	}
+
+	public void setStatusDelete(boolean statusDelete) {
+		this.statusDelete = statusDelete;
+	}
+
+	public boolean isStatusDelete() {
+		return statusDelete;
+	}
+
+	public void setStatusNoDelete(boolean statusNoDelete) {
+		this.statusNoDelete = statusNoDelete;
+	}
+
+	public boolean isStatusNoDelete() {
+		return statusNoDelete;
+	}
+
+	public void setRecordsData(int recordsData) {
+		this.recordsData = recordsData;
+	}
+
+	public int getRecordsData() {
+		return recordsData;
+	}
+
+	public void setListGroupeContactMailing(List<Groupecontactmailing> listGroupeContactMailing) {
+		this.listGroupeContactMailing = listGroupeContactMailing;
+	}
+
+	public List<Groupecontactmailing> getListGroupeContactMailing() {
+		return listGroupeContactMailing;
+	}
+
+	public void setStatusDeleteGroupeMailing(boolean statusDeleteGroupeMailing) {
+		this.statusDeleteGroupeMailing = statusDeleteGroupeMailing;
+	}
+
+	public boolean isStatusDeleteGroupeMailing() {
+		return statusDeleteGroupeMailing;
+	}
+
+}

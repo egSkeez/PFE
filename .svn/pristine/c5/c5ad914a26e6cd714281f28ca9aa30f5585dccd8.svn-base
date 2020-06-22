@@ -1,0 +1,716 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Gouvernerat;
+import xtensus.entity.Pays;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Ville;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ContactModificationBean {
+
+	private ApplicationManager appMgr;
+	private Expdestexterne exp;
+	private Pp pp;
+	private Pp pp1;
+	private Pm pm;
+	private List<Pm> listPm;
+	private List<Pp> listPp;
+	private boolean statusModif;
+	private boolean select1;
+	private boolean select2 = true;
+	private String reponse1;
+	private boolean status;
+	@Autowired
+	private VariableGlobale vb;
+
+	private String selectedItemGouvernorat;
+	private String selectedItemPays;
+	private String selectedItemVille;
+	private List<Gouvernerat> listGourvernorat;
+	private List<Pays> listPays;
+	private List<Ville> listVille;
+	private List<Gouvernerat> listGourvernorat2;
+	private List<Ville> listVille2;
+	private int autrePays;
+	private boolean textbox1;
+	private boolean textbox2;
+	private boolean textbox3;
+	private boolean textbox4;
+	private boolean textbox5;
+	private boolean textbox6;
+	private boolean textbox7;
+	private boolean textbox8;
+	private boolean s1;
+	private boolean s2;
+	private String codePostale;
+
+	public ContactModificationBean() {
+
+	}
+
+	@Autowired
+	public ContactModificationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listGourvernorat = new ArrayList<Gouvernerat>();
+		listGourvernorat2 = new ArrayList<Gouvernerat>();
+		listPays = new ArrayList<Pays>();
+		listVille = new ArrayList<Ville>();
+		listVille2 = new ArrayList<Ville>();
+		exp = new Expdestexterne();
+		pp = new Pp();
+		pm = new Pm();
+		listPp = new ArrayList<Pp>();
+		listPm = new ArrayList<Pm>();
+		System.out
+				.println("**************Bean ContactModificationBean Injecte*********");
+	}
+
+	@PostConstruct
+	public void Initilaize() {
+		try {
+
+			exp = vb.getExpdestexterne();
+            codePostale = exp.getExpDestExterneCodePostale();
+            if(exp.getExpDestExterneGouvernerat() !=null){
+            List<Gouvernerat> listGovSelected =  appMgr.listGouverneratBylibelle(exp.getExpDestExterneGouvernerat());
+            if( listGovSelected.size() != 0){
+            	selectedItemGouvernorat = listGovSelected.get(0).getGouverneratId().toString();
+            }else{
+            	selectedItemGouvernorat = exp.getExpDestExterneGouvernerat();
+            }
+            }
+//			List<Pays> listPaysSelected = appMgr.listPaysBylibelle(exp.getExpDestExternePays()).get(0).getPaysId().toString();
+			if(exp.getExpDestExternePays()!=null)
+            selectedItemPays = appMgr.listPaysByRef(Integer.valueOf(exp.getExpDestExternePays())).get(0).getPaysId().toString();
+//			selectedItemPays = exp.getExpDestExternePays();
+			//			if(listPaysSelected.size() != 0){
+//				selectedItemPays = listPaysSelected.get(0).getPaysId().toString();
+//			}else{
+//				selectedItemPays = exp.getExpDestExternePays();
+//			}
+			if(exp.getExpDestExterneVille() != null){
+			List<Ville> listVilleSelected = appMgr.listVilleBylibelle(exp.getExpDestExterneVille());
+			if(listVilleSelected.size() != 0){
+				selectedItemVille = listVilleSelected.get(0).getVilleId().toString();
+			}else{
+				selectedItemVille = exp.getExpDestExterneVille();
+			}
+			}
+//			selectedItemPays = exp.getExpDestExternePays();
+//			selectedItemPays = appMgr.listPaysByRef(Integer.parseInt(exp.getExpDestExternePays())).get(0).getPaysId().toString();
+//			selectedItemPays = appMgr.listPaysBylibelle(exp.getExpDestExternePays()).get(0).getPaysId().toString();
+//			selectedItemVille =appMgr.listVilleByRef(Integer.parseInt(exp.getExpDestExterneVille())).get(0).getVilleId().toString();
+//			selectedItemVille = appMgr.listVilleBylibelle(exp.getExpDestExterneVille()).get(0).getVilleId().toString();
+//			selectedItemVille = exp.getExpDestExterneVille();
+			int existancePM = appMgr.getPMByReferenceExpediteur(
+					exp.getIdExpDestExterne()).size();
+			int existancePp = appMgr.getPPByReferenceExpediteur(
+					exp.getIdExpDestExterne()).size();
+			if (existancePM != 0) {
+				pm = appMgr.getPMByReferenceExpediteur(
+						exp.getIdExpDestExterne()).get(0);
+			}
+			if (existancePp != 0) {
+				pp = appMgr.getPPByReferenceExpediteur(
+						exp.getIdExpDestExterne()).get(0);
+			}
+			reponse1 = null;
+			
+			textbox2 = false;
+			textbox3 = false;
+			textbox4 = true;
+			textbox5 = true;
+			textbox6 = true;
+			textbox7 = false;
+			textbox8 = true;
+			listPays = appMgr.getList(Pays.class);
+			Pays pays2 = new Pays();
+			if(selectedItemPays != null && selectedItemPays.equals("179")){
+			if (appMgr.listPaysByRef(Integer.parseInt(selectedItemPays)).size() != 0) {
+				pays2 = appMgr.listPaysByRef(Integer.parseInt(selectedItemPays)).get(0);
+				listGourvernorat2 = appMgr.listGouvernoratByRefPays(pays2
+						.getPaysId());
+				listGourvernorat = listGourvernorat2;
+				List<String> S1 = new ArrayList<String>();
+				for (Gouvernerat gov : listGourvernorat) {
+					S1.add(gov.getGouverneratLibelle());
+				}
+				Collections.sort(S1);
+				for (int i = 0; i < S1.size(); i++) {
+					listGourvernorat.get(i).setGouverneratLibelle(S1.get(i));
+				}
+			}
+			
+			Gouvernerat gouvernerat2 = new Gouvernerat();
+			if(selectedItemGouvernorat != null){
+//				List<Gouvernerat> listGOV = appMgr.listGouverneratBylibelle(selectedItemGouvernorat);
+//				List<Gouvernerat> listGOV = appMgr.listGouvernoratByRefPays(Integer.parseInt(selectedItemGouvernorat));
+				List<Gouvernerat> listGOV = appMgr.listGovByRef(Integer.parseInt(selectedItemGouvernorat));
+			if (listGOV.size() != 0) {
+				gouvernerat2 = listGOV.get(0);
+				listVille2 = appMgr.listVilleByRefGouvernorat(gouvernerat2
+						.getGouverneratId());
+				listVille = listVille2;
+				List<String> S1 = new ArrayList<String>();
+				for (Ville v : listVille) {
+					S1.add(v.getVilleNom());
+				}
+				Collections.sort(S1);
+				for (int i = 0; i < S1.size(); i++) {
+					listVille.get(i).setVilleNom(S1.get(i));
+				}
+			}
+			}
+			}
+		else{
+				textbox1 = true;
+				textbox2 = true;
+				textbox4 = false;
+				textbox5 = false;
+			}
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+	}
+	public void onSelectOneMenuChange() {
+//		String pays = selectedItemPays.toString();
+		Pays pays2 = new Pays();
+		pays2 = appMgr.listPaysByRef(Integer.parseInt(selectedItemPays)).get(0);
+		listGourvernorat = appMgr.listGouvernoratByRefPays(pays2.getPaysId());
+//		getSelectedItemGouvernorat();
+		if (selectedItemPays.equals("179")) {
+			textbox1 = false;
+			textbox2 = false;
+			textbox3 = false;
+			textbox4 = true;
+			textbox5 = true;
+			textbox6 = true;
+			textbox7 = false;
+			textbox8 = true;
+			s1 = true;
+			s2 = false;
+
+		} else {
+			textbox1 = true;
+			textbox2 = true;
+			textbox3 = true;
+			textbox4 = false;
+			textbox5 = false;
+			textbox6 = false;
+			textbox7 = true;
+			textbox8 = false;
+			s1 = false;
+			s2 = true;
+
+		}
+		selectedItemGouvernorat = "";
+		selectedItemVille = "";
+		codePostale ="";
+	}
+
+	public void chargerGouvernorat(ActionEvent evt) {
+
+		String pays = selectedItemPays.toString();
+		Pays pays2 = new Pays();
+		pays2 = appMgr.listPaysBylibelle(pays).get(0);
+		listGourvernorat = appMgr.listGouvernoratByRefPays(pays2.getPaysId());
+		getSelectedItemGouvernorat();
+		selectedItemVille = "";
+
+	}
+
+	public void chargerVille(ActionEvent evt) {
+		String gouv = selectedItemGouvernorat.toString();
+		Gouvernerat gouvernerat = new Gouvernerat();
+//		gouvernerat = appMgr.listGouverneratBylibelle(gouv).get(0);
+		if(!selectedItemGouvernorat.equals("")){
+		listVille = appMgr.listVilleByRefGouvernorat(Integer
+				.valueOf(selectedItemGouvernorat));
+		}
+		System.out.println(listVille.size());
+		getSelectedItemVille();
+
+	}
+
+	public List<SelectItem> getSelectItemsGouvernorat() {
+		List<SelectItem> selectItemsGouvernorat = new ArrayList<SelectItem>();
+		selectItemsGouvernorat.add(new SelectItem(""));
+
+		List<String> S1 = new ArrayList<String>();
+		for (Gouvernerat gov : listGourvernorat) {
+			S1.add(gov.getGouverneratLibelle());
+		}
+		Collections.sort(S1);
+		for (int i = 0; i < S1.size(); i++) {
+			listGourvernorat.get(i).setGouverneratLibelle(S1.get(i));
+		}
+		for (int j = 0; j <= listGourvernorat.size() - 1; j++) {
+			Integer idGov = listGourvernorat.get(j).getGouverneratId();
+			selectItemsGouvernorat.add(new SelectItem(String.valueOf(idGov), listGourvernorat.get(j)
+					.getGouverneratLibelle()));
+		}
+
+		return selectItemsGouvernorat;
+	}
+
+	public List<SelectItem> getSelectItemsVille() {
+		List<SelectItem> selectItemsVille = new ArrayList<SelectItem>();
+		selectItemsVille.add(new SelectItem(""));
+
+		List<String> S1 = new ArrayList<String>();
+		for (Ville ville : listVille) {
+			S1.add(ville.getVilleNom());
+		}
+		Collections.sort(S1);
+		for (int i = 0; i < S1.size(); i++) {
+			listVille.get(i).setVilleNom(S1.get(i));
+		}
+
+		for (int j = 0; j <= listVille.size() - 1; j++) {
+			Integer idVille = listVille.get(j).getVilleId();
+			selectItemsVille
+					.add(new SelectItem(String.valueOf(idVille),listVille.get(j).getVilleNom()));
+		}
+
+		return selectItemsVille;
+	}
+
+	public List<SelectItem> getSelectItemsPays() {
+		List<SelectItem> selectItemsPays = new ArrayList<SelectItem>();
+		selectItemsPays.add(new SelectItem(""));
+		for (int j = 0; j <= listPays.size() - 1; j++) {
+			selectItemsPays
+					.add(new SelectItem(String.valueOf(listPays.get(j)
+							.getPaysId()),listPays.get(j).getPaysLibelle()));
+		}
+
+		return selectItemsPays;
+	}
+
+	// foction de modification
+	public void updatePM() {
+		try {
+//************
+			if (textbox2) {
+				exp.setExpDestExterneVille(selectedItemVille);
+				exp.setExpDestExterneGouvernerat(selectedItemGouvernorat);
+				exp.setExpDestExternePays(selectedItemPays);
+//				exp.setExpDestExternePays(appMgr
+//						.listPaysByRef(Integer.valueOf(selectedItemPays))
+//						.get(0).getPaysLibelle());
+			} else {
+				//
+				if(!selectedItemVille.equals("")){
+					exp.setExpDestExterneVille(appMgr
+							.listVilleByRef(Integer.valueOf(selectedItemVille))
+							.get(0).getVilleNom());
+				}
+				if(!selectedItemGouvernorat.equals("")){
+					exp.setExpDestExterneGouvernerat(appMgr
+							.listGovByRef(
+									Integer.valueOf(selectedItemGouvernorat))
+							.get(0).getGouverneratLibelle());
+				}
+				if(!selectedItemPays.equals("")){
+					exp.setExpDestExternePays(selectedItemPays);
+//					exp.setExpDestExternePays(appMgr
+//						.listPaysByRef(Integer.valueOf(selectedItemPays))
+//						.get(0).getPaysLibelle());
+				}
+			}
+			
+			
+			
+			//*************
+//			exp.setExpDestExterneVille(selectedItemVille);
+//			exp.setExpDestExternePays(selectedItemPays);
+//			exp.setExpDestExterneGouvernerat(selectedItemGouvernorat);
+			exp.setExpDestExterneCodePostale(codePostale);
+			appMgr.update(exp);
+			appMgr.update(pm);
+			vb.setExpdestexterne(exp);
+			vb.setPm(pm);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de la personne morale "
+							+ vb.getExpdestexterne().getIdExpDestExterne()
+							+ "-"
+							+ vb.getExpdestexterne().getExpDestExterneNom(),
+					vb.getPerson(), "INFO", appMgr);
+			setStatusModif(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// foction de modification
+	public void updatePP() {
+
+		try {
+			//************
+			if (textbox2) {
+				exp.setExpDestExterneVille(selectedItemVille);
+				exp.setExpDestExterneGouvernerat(selectedItemGouvernorat);
+				exp.setExpDestExternePays(selectedItemPays);
+//				exp.setExpDestExternePays(appMgr
+//						.listPaysByRef(Integer.valueOf(selectedItemPays))
+//						.get(0).getPaysLibelle());
+			} else {
+				//
+				if(!selectedItemVille.equals("")){
+					exp.setExpDestExterneVille(appMgr
+							.listVilleByRef(Integer.valueOf(selectedItemVille))
+							.get(0).getVilleNom());
+				}
+				if(!selectedItemGouvernorat.equals("")){
+					exp.setExpDestExterneGouvernerat(appMgr
+							.listGovByRef(
+									Integer.valueOf(selectedItemGouvernorat))
+							.get(0).getGouverneratLibelle());
+				}
+				if(!selectedItemPays.equals("")){
+					exp.setExpDestExternePays(selectedItemPays);
+//					exp.setExpDestExternePays(appMgr
+//						.listPaysByRef(Integer.valueOf(selectedItemPays))
+//						.get(0).getPaysLibelle());
+				}
+			}
+			
+			
+			
+			//*************
+			
+			
+			
+//			exp.setExpDestExterneVille(selectedItemVille);
+//			exp.setExpDestExternePays(selectedItemPays);
+//			exp.setExpDestExterneGouvernerat(selectedItemGouvernorat);
+			exp.setExpDestExterneCodePostale(codePostale);
+			appMgr.update(exp);
+			appMgr.update(pp);
+			vb.setExpdestexterne(exp);
+			vb.setPp(pp);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de la personne physique "
+							+ vb.getExpdestexterne().getIdExpDestExterne()
+							+ "-"
+							+ vb.getExpdestexterne().getExpDestExterneNom()
+							//ABDELHAK ajouter ligne 421 et ligne 422
+							+ "-"
+							+ vb.getExpdestexterne().getExpDestExternePrenom(),
+							//fin abdelhak
+					vb.getPerson(), "INFO", appMgr);
+			setStatusModif(true);
+		} catch (Exception e) {
+
+			System.out.println("Modif Erreur");
+		}
+
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+		int refTypeUtilisateur = exp.getTypeutilisateur()
+				.getTypeUtilisateurId();
+		if (refTypeUtilisateur == 2) {
+
+			setSelect1(false);
+			setSelect2(true);
+
+		} else if (refTypeUtilisateur == 1) {
+			setSelect1(true);
+			setSelect2(false);
+
+		}
+		setReponse1(vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle());
+	}
+
+	// ///////////////////Getters and setters///////////:
+	public void setStatusModif(boolean statusModif) {
+		this.statusModif = statusModif;
+	}
+
+	public boolean isStatusModif() {
+		return statusModif;
+	}
+
+	public void setExp(Expdestexterne exp) {
+		this.exp = exp;
+	}
+
+	public Expdestexterne getExp() {
+		return exp;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setSelect2(boolean select2) {
+		this.select2 = select2;
+	}
+
+	public boolean isSelect2() {
+		return select2;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public void setReponse1(String reponse1) {
+		this.reponse1 = reponse1;
+	}
+
+	public String getReponse1() {
+		return reponse1;
+	}
+
+	public void setListPp(List<Pp> listPp) {
+		this.listPp = listPp;
+	}
+
+	public List<Pp> getListPp() {
+		return listPp;
+	}
+
+	public void setListPm(List<Pm> listPm) {
+		this.listPm = listPm;
+	}
+
+	public List<Pm> getListPm() {
+		return listPm;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setPp1(Pp pp1) {
+		this.pp1 = pp1;
+	}
+
+	public Pp getPp1() {
+		return pp1;
+	}
+
+	public String getSelectedItemGouvernorat() {
+		return selectedItemGouvernorat;
+	}
+
+	public void setSelectedItemGouvernorat(String selectedItemGouvernorat) {
+		this.selectedItemGouvernorat = selectedItemGouvernorat;
+	}
+
+	public String getSelectedItemPays() {
+		return selectedItemPays;
+	}
+
+	public void setSelectedItemPays(String selectedItemPays) {
+		this.selectedItemPays = selectedItemPays;
+	}
+
+	public String getSelectedItemVille() {
+		return selectedItemVille;
+	}
+
+	public void setSelectedItemVille(String selectedItemVille) {
+		this.selectedItemVille = selectedItemVille;
+	}
+
+	public List<Gouvernerat> getListGourvernorat() {
+		return listGourvernorat;
+	}
+
+	public void setListGourvernorat(List<Gouvernerat> listGourvernorat) {
+		this.listGourvernorat = listGourvernorat;
+	}
+
+	public List<Pays> getListPays() {
+		return listPays;
+	}
+
+	public void setListPays(List<Pays> listPays) {
+		this.listPays = listPays;
+	}
+
+	public List<Ville> getListVille() {
+		return listVille;
+	}
+
+	public void setListVille(List<Ville> listVille) {
+		this.listVille = listVille;
+	}
+
+	public List<Gouvernerat> getListGourvernorat2() {
+		return listGourvernorat2;
+	}
+
+	public void setListGourvernorat2(List<Gouvernerat> listGourvernorat2) {
+		this.listGourvernorat2 = listGourvernorat2;
+	}
+
+	public List<Ville> getListVille2() {
+		return listVille2;
+	}
+
+	public void setListVille2(List<Ville> listVille2) {
+		this.listVille2 = listVille2;
+	}
+
+	public int getAutrePays() {
+		return autrePays;
+	}
+
+	public void setAutrePays(int autrePays) {
+		this.autrePays = autrePays;
+	}
+
+	public boolean isTextbox1() {
+		return textbox1;
+	}
+
+	public void setTextbox1(boolean textbox1) {
+		this.textbox1 = textbox1;
+	}
+
+	public boolean isTextbox2() {
+		return textbox2;
+	}
+
+	public void setTextbox2(boolean textbox2) {
+		this.textbox2 = textbox2;
+	}
+
+	public boolean isTextbox3() {
+		return textbox3;
+	}
+
+	public void setTextbox3(boolean textbox3) {
+		this.textbox3 = textbox3;
+	}
+
+	public boolean isTextbox4() {
+		return textbox4;
+	}
+
+	public void setTextbox4(boolean textbox4) {
+		this.textbox4 = textbox4;
+	}
+
+	public boolean isTextbox5() {
+		return textbox5;
+	}
+
+	public void setTextbox5(boolean textbox5) {
+		this.textbox5 = textbox5;
+	}
+
+	public boolean isTextbox6() {
+		return textbox6;
+	}
+
+	public void setTextbox6(boolean textbox6) {
+		this.textbox6 = textbox6;
+	}
+
+	public boolean isTextbox7() {
+		return textbox7;
+	}
+
+	public void setTextbox7(boolean textbox7) {
+		this.textbox7 = textbox7;
+	}
+
+	public boolean isTextbox8() {
+		return textbox8;
+	}
+
+	public void setTextbox8(boolean textbox8) {
+		this.textbox8 = textbox8;
+	}
+
+	public boolean isS1() {
+		return s1;
+	}
+
+	public void setS1(boolean s1) {
+		this.s1 = s1;
+	}
+
+	public boolean isS2() {
+		return s2;
+	}
+
+	public void setS2(boolean s2) {
+		this.s2 = s2;
+	}
+
+	public String getCodePostale() {
+		return codePostale;
+	}
+
+	public void setCodePostale(String codePostale) {
+		this.codePostale = codePostale;
+	}
+
+}

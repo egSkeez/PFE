@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<style>
+.everyThirdDay {
+	background-color: gray;
+}
+
+.weekendBold {
+	font-weight: bold;
+	font-style: italic;
+}
+</style>
+
+	<html>
+<head>
+<title>Menu de paramétrage</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<script type="text/javascript">
+        var curDt = new Date();
+        function disablementFunction(day){
+            if (day.isWeekend) return false;
+            if (curDt==undefined){
+                curDt = day.date.getDate;
+            }
+            if (day.date.getTime()- curDt.getTime() &lt; 0) return true; else return false;  
+        }
+        function disabledClassesProv(day){
+        	if (day.date.getTime()- curDt.getTime() &gt;= 0) return 'rich-calendar-boundary-dates';
+            var res = '';
+            if (day.isWeekend) res+='weekendBold ';
+            if (day.day%3==0) res+='everyThirdDay';
+            return res;
+        }
+    </script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.gestionGBO0Parametrages}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<div align="center">
+								<h:panelGrid columns="2">
+									
+									
+									<a4j:commandLink id="d" value="#{msg.gestionGBO0GestionNature}" rendered="#{not(variableGlobale.categorieParNature)}"
+										onclick="document.location.href='natureGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="ddd" value="#{msg.gestionGBO0GestionCategorieNature}" rendered="#{variableGlobale.categorieParNature}"
+										onclick="document.location.href='natureCategorieGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+						
+									</a4j:commandLink>
+									<a4j:commandLink id="d2" value="#{msg.admnistarationNature}"
+										onclick="document.location.href='administrationNatureConsulter.jsf'"
+										styleClass="xteDetailLabelparam" rendered="false">
+									</a4j:commandLink>
+									<a4j:commandLink id="d3" value="#{msg.gestionUnite}"
+										onclick="document.location.href='UniteGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									
+									<a4j:commandLink id="etemp" value="#{msg.gestionGBO0GestionEmpoyeur}"
+										onclick="document.location.href='EmployeGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									
+									<a4j:commandLink id="et" value="#{msg.gestionGBO0GestionConfidentailite}"
+										onclick="document.location.href='confidentialiteGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="mdr" value="#{msg.gestionGBO0GestionUrgence}"
+										onclick="document.location.href='urgenceGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="op" value="#{msg.gestionGBO0GestionAnnotations}"
+										onclick="document.location.href='annotationGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="TypeTransaction"
+										value="#{msg.gestionGBO0GestionTypeTransaction}"
+										onclick="document.location.href='typetransactionGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="etat" value="#{msg.gestionGBO0GestionEtat}"
+										onclick="document.location.href='etatGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="transmission" value="#{msg.gestionGBO0GestionTransmission}"
+										onclick="document.location.href='transmissionGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="variables" value="#{msg.gestionGBO0GestionVariables}"
+										onclick="document.location.href='variablesGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+
+
+									<a4j:commandLink id="Armoire" value="#{msg.gestionBBO0GestionArmoire}"
+										onclick="document.location.href='armoireGestion.jsf'"
+										styleClass="xteDetailLabelparam" rendered="false">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="Etages" value="#{msg.gestionGBO0GestionBoiteArchive}"
+										onclick="document.location.href='etagesGestion.jsf'"
+										styleClass="xteDetailLabelparam" rendered="false">
+									</a4j:commandLink>
+									<a4j:commandLink id="Relancetrace" value="#{msg.gestionGBO0GestionTrace}"
+										onclick="document.location.href='../viewsGNL/traceConsulter.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="Event" value="#{msg.gestionGBO0GestionEvenements}"
+										onclick="document.location.href='../viewsGNL/GestionGNL0.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="Message" value="#{msg.gestionGBO0GestionMessage}"
+										onclick="document.location.href='../viewsGNL/messageConsulter.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="menu" value="#{msg.gestionGBO0GestionMenu}"
+										onclick="document.location.href='menuGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+
+									<a4j:commandLink id="groupeMailing"
+										value="#{msg.gestionGBO0GestionGroupeMailing}"
+										onclick="document.location.href='groupeMailingGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="sujetMailing"
+										value="#{msg.gestionGBO0GestionSujetMailing}"
+										onclick="document.location.href='sujetMailingGestion.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="reinitializePwd"
+										value="#{msg.gestionGBO0ReinitialisationMotDePasse}"
+										onclick="document.location.href='utilisateurReinitialisationMotDePasse.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="paramCodeUnique"
+										value="#{msg.parametrageCodeUnique}"
+										onclick="document.location.href='paramCodeUnique.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+								</h:panelGrid>
+							</div>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:outputText
+									value="#{msg.SauvgardeLibelle}/#{msg.RestaurationLibelle}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+							<div align="center">
+								<h:panelGrid columns="2">
+
+									<a4j:commandLink id="sauvgarde" value="#{msg.SauvgardeLibelle}"
+										onclick="document.location.href='sauvgarde.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+									<a4j:commandLink id="restauration"
+										value="#{msg.RestaurationLibelle}"
+										onclick="document.location.href='restauration.jsf'"
+										styleClass="xteDetailLabelparam">
+									</a4j:commandLink>
+								</h:panelGrid>
+							</div>
+							<rich:spacer height="10" />
+						</rich:panel>
+					</h:form>
+
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

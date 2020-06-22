@@ -1,0 +1,128 @@
+package xtensus.beans.utils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import xtensus.entity.Courrier;
+
+public class ArchiveModel {
+
+	private Courrier courrier;
+	private String titreDocument;
+	private String dateCreation;
+	private String dateCloture;
+	private String serviceConcerne;
+	private String numeroBoite;
+	private String typeBoite;
+	private String titreBoite;
+	private String cheminFichier;
+	SimpleDateFormat sdf;
+	
+	public ArchiveModel(){
+		sdf = new SimpleDateFormat("yyyy-MM-dd");
+	}
+
+	public ArchiveModel(String titreDocument, Date dateCreation, 
+			Date dateCloture, String serviceConcerne, 
+			String numeroBoite, String typeBoite, String titreBoite,
+			String cheminFichier){
+		sdf = new SimpleDateFormat("yyyy-MM-dd");
+		this.titreDocument = titreDocument;
+		if (dateCreation == null) {
+			this.dateCreation = " ";
+		} else {
+			this.dateCreation = sdf.format(dateCreation);
+		}
+		if (dateCloture == null) {
+			this.dateCloture = " ";
+		} else {
+			this.dateCloture = sdf.format(dateCloture);
+		}
+		this.serviceConcerne = serviceConcerne;
+		this.numeroBoite = numeroBoite;
+		this.typeBoite = typeBoite;
+		this.titreBoite = titreBoite;
+		this.cheminFichier = cheminFichier;
+	}
+	
+	public String getTitreDocument() {
+		return titreDocument;
+	}
+
+	public void setTitreDocument(String titreDocument) {
+		this.titreDocument = titreDocument;
+	}
+
+	public String getDateCreation() {
+		return dateCreation;
+	}
+
+	public void setDateCreation(Date dateCreation) {
+		if (dateCreation == null) {
+			this.dateCreation = " ";
+		} else {
+			this.dateCreation = sdf.format(dateCreation);
+		}
+	}
+
+	public String getDateCloture() {
+		return dateCloture;
+	}
+
+	public void setDateCloture(Date dateCloture) {
+		if (dateCloture == null) {
+			this.dateCloture = " ";
+		} else {
+			this.dateCloture = sdf.format(dateCloture);
+		}
+	}
+
+	public String getServiceConcerne() {
+		return serviceConcerne;
+	}
+
+	public void setServiceConcerne(String serviceConcerne) {
+		this.serviceConcerne = serviceConcerne;
+	}
+
+	public String getNumeroBoite() {
+		return numeroBoite;
+	}
+
+	public void setNumeroBoite(String numeroBoite) {
+		this.numeroBoite = numeroBoite;
+	}
+
+	public String getTypeBoite() {
+		return typeBoite;
+	}
+
+	public void setTypeBoite(String typeBoite) {
+		this.typeBoite = typeBoite;
+	}
+
+	public String getTitreBoite() {
+		return titreBoite;
+	}
+
+	public void setTitreBoite(String titreBoite) {
+		this.titreBoite = titreBoite;
+	}
+
+	public String getCheminFichier() {
+		return cheminFichier;
+	}
+
+	public void setCheminFichier(String cheminFichier) {
+		this.cheminFichier = cheminFichier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+	
+}

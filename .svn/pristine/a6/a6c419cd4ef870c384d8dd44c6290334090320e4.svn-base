@@ -1,0 +1,215 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ExpediteurType;
+import xtensus.beans.utils.RapportExpediteurType;
+import xtensus.beans.utils.RapportListPP;
+import xtensus.beans.utils.RapportMailBean;
+import xtensus.beans.utils.RapportPM;
+import xtensus.beans.utils.RapportPP;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Mail;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Societe;
+import xtensus.entity.Variables;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportPersonneListBean {
+	private ApplicationManager appMgr;
+	private Export export;
+
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private ContactConsultationBean contactConsultationBean;
+	@Autowired
+	private LanguageManagerBean lm;
+	// @Autowired
+	// private DossierCourrierConsulterBean dossierCourrierConsulterBean;
+
+	@Autowired
+	private DossierGestionBean dossierGestionBean;
+	private Expdestexterne expediteur;
+	private Expdestexterne expediteur2;
+	private Pp pp;
+	private List<Pp> listPp;
+	private List<Pm> listPm;
+	private Pm pm;
+	private boolean showRaisonSociale;
+	private boolean showRaisonPhysqie;
+
+	@Autowired
+	public RapportPersonneListBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		expediteur = new Expdestexterne();
+		expediteur2 = new Expdestexterne();
+		pp = new Pp();
+		pm = new Pm();
+		listPp = new ArrayList<Pp>();
+
+	}
+
+	// Fiche Dossier Franéais
+	@SuppressWarnings("unchecked")
+	public void printPDFFR() {
+
+		try {
+			List<ExpediteurType> listcontact = contactConsultationBean.getListConsulter();
+//			listcontact.get(0).getType().equals("PM")
+			//List<RapportPM> rapportPMList = new ArrayList<RapportPM>();
+			List<RapportExpediteurType> rapportContactList = new ArrayList<RapportExpediteurType>();
+			int j =1;
+			for (ExpediteurType contact : listcontact){
+				System.out.println("######### Type contact == " + contact.getType());
+				String type = contact.getType();
+				System.out.println("adresse == " + contact.getExpdestexterne().getExpDestExterneAdresse());
+				System.out.println("code postale == " + contact.getExpdestexterne().getExpDestExterneCodePostale());
+				System.out.println("gouvernorat == " + contact.getExpdestexterne().getExpDestExterneGouvernerat());
+			}
+			for (int i = 0; i < listcontact.size(); i++){
+				
+				//RapportPM rapport = new RapportPM();
+			
+			// Expediteur
+			//pm = vb.getPm();
+				
+			//listPm=contactConsultationBean.getListPM();
+			
+					
+				RapportExpediteurType rapportExpediteurType = new RapportExpediteurType();
+			//int refExpediteur =listcontact.get(i).getExpdestexterne().getIdExpDestExterne();
+			//expediteur = appMgr.getExpediteurById(refExpediteur).get(0);
+				if (listcontact.get(i).getType()=="PP" ){
+					rapportExpediteurType.setShowRaisonSociale( false);
+					rapportExpediteurType.setShowPersonnePhysique(true);
+					System.out.println("####### Portable == " + listcontact.get(i).getPp().getPpnumPortable());
+				}else{
+					rapportExpediteurType.setShowRaisonSociale( true);
+					rapportExpediteurType.setShowPersonnePhysique(false);
+				}
+//				if (listcontact.get(i).getExpdestexterne().getExpDestExterneAdresse() == null){
+//					rapportExpediteurType.setShowAdresse(false);
+//				}
+//				
+//				if (listcontact.get(i).getExpdestexterne().getExpDestExterneCodePostale() == null){
+//					rapportExpediteurType.setShowCodePostale(false);
+//				}
+//				if (listcontact.get(i).getExpdestexterne().getExpDestExterneGouvernerat() == null){
+//					rapportExpediteurType.setShowGouvernorat(false);
+//				}
+				
+				rapportExpediteurType.setPp(listcontact.get(i).getPp());
+				rapportExpediteurType.setPm(listcontact.get(i).getPm());
+				rapportExpediteurType.setExpdestexterne(listcontact.get(i).getExpdestexterne());
+				rapportExpediteurType.setType(listcontact.get(i).getType());
+				rapportExpediteurType.setSociete(listcontact.get(i).getSociete());
+				rapportExpediteurType.setnumero(j);
+			//int refpm = listcontact.get(i).getPm().getPmid();
+			//listPp = appMgr.listPPByIDPM(refpm);
+			//rapportPM.setPm(listcontact.get(i).getPm());
+			//int refexp = listcontact.get(i).getExpdestexterne().getIdExpDestExterne();
+			//expediteur = appMgr.getExpediteurById(refexp).get(0);
+			//rapportPM.setExpediteur(expediteur);
+			//rapportPM.setNombrePersonnel(listPp.size());
+			//rapportPM.setPathJasper(vb.getPathJasper());
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe").get(0).getSocieteLibelle();
+			rapportExpediteurType.setSocieteNom(societeNom);
+			
+			String societeOrganismeParent = appMgr.listSocieteByLibelle("Ministere_Nom").get(0).getSocieteLibelle();
+			rapportExpediteurType.setSocieteOrganismeParent(societeOrganismeParent);
+			
+			String societeRepublique = appMgr.listSocieteByLibelle("Republique_Nom").get(0).getSocieteLibelle();
+			rapportExpediteurType.setSocieteRepublique(societeRepublique);
+			
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom").get(0).getSocieteLibelle();
+			rapportExpediteurType.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr.listVariablesByLibelle("Footer_Nom_Projet").get(0).getVariablesContenu();
+			rapportExpediteurType.setNomProjet(nomProjet);
+			//rapportExpediteurType.setPathJasper(vb.getPathJasper());
+			
+			String adresse = appMgr.listSocieteById(5).get(0).getSocieteLibelle();
+			rapportExpediteurType.setAdresse(adresse);
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom(societeNom);
+			rs.setSocieteOrganismeParent(societeOrganismeParent);
+			rs.setSocieteRepublique(societeRepublique);
+			rs.setSocieteVille(societeVille);
+			if (vb.getPerson().isBoc()){
+				rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}else{
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+			List<RapportSociete>listSocietePrep= new ArrayList<RapportSociete>();
+			listSocietePrep.add(rs);
+			rapportExpediteurType.setListeSociete(listSocietePrep);
+			
+			rapportContactList.add(rapportExpediteurType);
+			j++;
+					}
+			
+			
+			export.exportToPDF(rapportContactList, "Fiche_ListPersonne",
+					"Fiche_ListPersonne");
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public void printPDFFRCSV() {
+
+		try {
+			List<ExpediteurType> listcontact = vb.getListConsulter();
+			
+			export.exportToCSVCon(listcontact, "listcontact");
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setExpediteur(Expdestexterne expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public Expdestexterne getExpediteur() {
+		return expediteur;
+	}
+}

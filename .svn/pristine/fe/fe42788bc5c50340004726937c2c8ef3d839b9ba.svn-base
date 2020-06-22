@@ -1,0 +1,188 @@
+package xtensus.beans.utils;
+
+import java.util.List;
+
+import xtensus.entity.Courrier;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+
+public class ClasseGenerale {
+	// c'est une classe qui rassemble des différents objets pour qu'on puisse
+	// les utiliser dans la meme interface(tableau)
+	// variable de type Courrier
+	private Courrier cr;
+	private Courrier cr1;
+	// variable de type TransactionDest
+	private TransactionDestination trDest;
+	// variable de type Transaction
+	private Transaction tran;
+	private Transaction tran1;
+	// variable de type Contact
+	private List<Expdestexterne> listNom;
+	private List<Expdestexterne> listExpDest;
+	private Expdestexterne exp;
+	private Expdestexterne contact;
+	private List<Expdestexterne> listContact;
+	// variable de type Personne Physique(PP)
+	private Pm pm;
+	// variable de type Personne Mprale(PM)
+	private Pp pp;
+	// variable de type String
+	private String contactNom;
+	private String contactMail;
+	private String destNom;
+	private String nom;
+	private String nom1;
+
+	/********* Getters && Stetters *************/
+	private boolean selected;
+
+	public void setTran(Transaction tran) {
+		this.tran = tran;
+	}
+
+	public Transaction getTran() {
+		return tran;
+	}
+
+	public void setCr(Courrier cr) {
+		this.cr = cr;
+	}
+
+	public Courrier getCr() {
+		return cr;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public String getNom() {
+		return nom;
+	}
+
+	public TransactionDestination getTrDest() {
+		return trDest;
+	}
+
+	public void setTrDest(TransactionDestination trDest) {
+		this.trDest = trDest;
+	}
+
+	public String getDestNom() {
+		return destNom;
+	}
+
+	public void setDestNom(String destNom) {
+		this.destNom = destNom;
+	}
+
+	public void setListNom(List<Expdestexterne> listNom) {
+		this.listNom = listNom;
+	}
+
+	public List<Expdestexterne> getListNom() {
+
+		return listNom;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setExp(Expdestexterne exp) {
+		this.exp = exp;
+	}
+
+	public Expdestexterne getExp() {
+		return exp;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setListExpDest(List<Expdestexterne> listExpDest) {
+		this.listExpDest = listExpDest;
+	}
+
+	public List<Expdestexterne> getListExpDest() {
+		return listExpDest;
+	}
+
+	public void setContactNom(String contactNom) {
+		this.contactNom = contactNom;
+	}
+
+	public String getContactNom() {
+		return contactNom;
+	}
+
+	public void setContactMail(String contactMail) {
+		this.contactMail = contactMail;
+	}
+
+	public String getContactMail() {
+		return contactMail;
+	}
+
+	public void setContact(Expdestexterne contact) {
+		this.contact = contact;
+	}
+
+	public Expdestexterne getContact() {
+		return contact;
+	}
+
+	public void setListContact(List<Expdestexterne> listContact) {
+		this.listContact = listContact;
+	}
+
+	public List<Expdestexterne> getListContact() {
+		return listContact;
+	}
+
+	public void setNom1(String nom1) {
+		this.nom1 = nom1;
+	}
+
+	public String getNom1() {
+		return nom1;
+	}
+
+	public void setTran1(Transaction tran1) {
+		this.tran1 = tran1;
+	}
+
+	public Transaction getTran1() {
+		return tran1;
+	}
+
+	public void setCr1(Courrier cr1) {
+		this.cr1 = cr1;
+	}
+
+	public Courrier getCr1() {
+		return cr1;
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+}

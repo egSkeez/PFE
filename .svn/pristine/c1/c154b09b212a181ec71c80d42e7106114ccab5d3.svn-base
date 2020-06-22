@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Ajouter AO/Consultation</title>
+
+<script src="../framGraphique/calander.js" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:commandLink id="retour"
+										oncomplete="document.location.href='AOConsultation.jsf'">
+										<h:graphicImage value="../framGraphique/images/retour.png" />
+									</a4j:commandLink>
+									
+									<rich:spacer width="5px" />
+								<a4j:commandLink id="upd1"
+								onclick="document.location.href='AjoutAOConsultation.jsf'"	>
+								<h:graphicImage id="add1"
+										value="../framGraphique/images/icone-add.png"
+										onmouseover="this.src='../framGraphique/images/icone-addMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/icone-add.png'" />
+								</a4j:commandLink>
+								</div>
+								</div>
+						</h:form>
+						</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.labelAjoutaoConsultation}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:messages id="message" ajaxRendered="true" errorClass="msgError"
+								styleClass="error" />
+							
+							<h:panelGroup id="PP">
+								<table width="100%">
+									<tr>
+										<td width="70%">
+										<h:panelGrid columns="2">
+										<h:column>
+										<h:outputText value="#{msg.typeLabel} #{msg.deuxpointsLabel}" style="width: 285px !important;"	styleClass="xteDetailLabel" />
+										<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+										</h:column>
+											
+										
+										<h:selectOneRadio
+										required="true" 
+										requiredMessage="* #{msg.typeLabel} #{msg.champsobligatoire}"
+										value="#{aoConsultationBean.aoConsultation.aoConsultationType}"
+										style="direction:#{languageManager.direction};"
+										styleClass="xteDetailLabelOutput"	layout="lineDirection">
+										<f:selectItem 
+										itemLabel="#{msg.ao}"	itemValue="1" />
+										<f:selectItem
+										itemLabel="#{msg.consultation}"	itemValue="2" />
+										</h:selectOneRadio>
+										
+												<h:column>
+													<h:outputText value="#{msg.numeroAOC} #{msg.deuxpointsLabel}" style="width: 285px !important;"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:inputText id="numero"   style="width: 179px !important;"
+													value="#{aoConsultationBean.aoConsultation.aoConsultationNumero}"
+													required="true"
+													requiredMessage="* #{msg.numero} #{msg.champsobligatoire}"
+													maxlength="30" >
+													<a4j:support event="onblur" ajaxSingle="true" 
+																			action="#{aoConsultationBean.validationNum}"
+																			reRender="message" />
+													</h:inputText>
+												<h:column>
+												<h:outputText value="#{msg.objetAOC} #{msg.deuxpointsLabel}"  style="width: 285px !important;"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:inputText id="nom"  style="width: 500px !important;"
+													value="#{aoConsultationBean.aoConsultation.aoConsultationObjet}"
+													required="true"
+													requiredMessage="* #{msg.objet} #{msg.champsobligatoire}"
+													maxlength="250" />
+												<h:column>
+													<h:outputText value="#{msg.dateReceptionOffre} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel"  style="width: 285px !important;"/>
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<rich:calendar id="dR"
+																value="#{aoConsultationBean.aoConsultation.aoConsultationDateLimiteOffre}"
+																datePattern="dd/MM/yyyy HH:mm" required="true"
+																requiredMessage="* #{msg.dateReceptionOffre} #{msg.champsobligatoire}"
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}">
+															<a4j:support event="onchanged" ajaxSingle="true" 
+																			action="#{aoConsultationBean.validationDate}"
+																			reRender="mssage" />
+															</rich:calendar>
+												<h:column>
+													<h:outputText value="#{msg.dateProlongation} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel"  style="width: 285px !important;"/>
+													<rich:spacer width="5" />
+												</h:column>
+												<rich:calendar id="dR1"
+																value="#{aoConsultationBean.aoConsultation.aoConsultationDelaisProlongation}"
+																datePattern="dd/MM/yyyy HH:mm" 
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}">
+																<a4j:support event="onchanged" ajaxSingle="true" 
+																			action="#{aoConsultationBean.validationDate}"
+																			reRender="mssage" />
+															</rich:calendar>
+										<h:column>
+													<h:outputText value="#{msg.dateSeanceCommission} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel"  style="width: 285px !important;"/>
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<rich:calendar id="dR2"
+																value="#{aoConsultationBean.aoConsultation.aoConsultationDateSeanceCommission}"
+																datePattern="dd/MM/yyyy HH:mm" required="true"
+																requiredMessage="* #{msg.dateSeanceCommission} #{msg.champsobligatoire}"
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}">
+															<a4j:support event="onchanged" ajaxSingle="true" 
+																			action="#{aoConsultationBean.validationDate}"
+																			reRender="mssage" />
+															</rich:calendar>						
+											</h:panelGrid></td></tr></table>
+							</h:panelGroup>
+							<h:panelGroup id="PM">
+								
+							</h:panelGroup>
+							<rich:spacer height="10px" />
+							<div align="center">
+								<a4j:commandButton id="btnAjout"
+								value="#{msg.buttonAjouter}" type="submit"
+								action="#{aoConsultationBean.save}"
+								oncomplete="if(#{aoConsultationBean.succesAjout}==true) #{rich:component('msgPanalCA')}.show();"	></a4j:commandButton>
+							</div>
+							<rich:spacer height="10" />
+							<div align="left">
+								<h:outputText value="#{msg.infoChampObligatoir}" />
+							</div>
+						</rich:panel>
+					</h:form>
+							<!-- *******popup Info Validation d'ajout -->
+								<rich:modalPanel id="msgPanalCA" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="aoConsultationBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage
+												value="../framGraphique/images/closePopup.png" width="15"
+												height="15" />
+											</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmInsert}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}" 
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											action="#{aoConsultationBean.retour}"	
+											reRender="msgPanalCA, contenu, menuPrincipale"  />
+								  		</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur d'ajout remaining name****** -->
+								<rich:modalPanel id="msgPanalErrRemainName" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="aoConsultationBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage
+												value="../framGraphique/images/closePopup.png" width="15"
+												height="15" id="hidelinkErrRemainName" />
+											<rich:componentControl for="msgPanalErrRemainName"
+												attachTo="hidelinkErrRemainName" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText" value="Erreur" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrRemainName');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</div>
+						<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

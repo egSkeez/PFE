@@ -1,0 +1,98 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:sec="http://www.springframework.org/schema/security" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<!-- This bean points at the embedded directory server created by the ldap-server 
+		element above -->
+
+<!-- 	<bean id="contextSource" -->
+<!-- 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource"> -->
+<!-- 		<constructor-arg value="ldap://localhost:389/dc=xtensus,dc=com" /> -->
+<!-- 		<property name="userDn" value="cn=admin,dc=xtensus,dc=com" /> -->
+<!-- 		<property name="password" value="admin" /> -->
+<!-- 	</bean> -->
+	
+	<bean id="contextSource"
+		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+		<constructor-arg value="${Ldap.url}" />
+		<property name="userDn" value="${ldap.userDn}" />
+		<property name="password" value="${ldap.pwd}" />
+    </bean>	
+	<bean id="ldapAuthenticationProvider"
+		class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+		<constructor-arg>
+			<bean
+				class="org.springframework.security.ldap.authentication.BindAuthenticator">
+				<constructor-arg ref="contextSource" />
+				<property name="userSearch">
+					<bean id="userSearch"
+						class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+						<constructor-arg index="0" value="o=XteUsers" />
+						<constructor-arg index="1" value="(displayName={0})" />
+						<constructor-arg index="2" ref="contextSource" />
+					</bean>
+				</property>
+			</bean>
+		</constructor-arg>
+		<constructor-arg>
+			<bean
+				class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+				<constructor-arg ref="contextSource" />
+				<constructor-arg value="o=XteGroups" />
+				<property name="groupSearchFilter" value="(member={0})" />
+				<property name="searchSubtree" value="true" />
+				<property name="convertToUpperCase" value="true" />
+				<property name="rolePrefix" value="ROLE_" />
+				<property name="groupRoleAttribute" value="sn" />
+			</bean>
+		</constructor-arg>
+		<property name="userDetailsContextMapper">
+			<bean class="xtensus.ldap.utils.CustomUserDetailsContextMapper" />
+		</property>
+	</bean>
+
+	<sec:authentication-manager>
+		<sec:authentication-provider ref="ldapAuthenticationProvider" />
+	</sec:authentication-manager>
+
+	<sec:http auto-config="true" access-denied-page="/Ilogin/accessDenied.jsf"
+		use-expressions="true">
+
+		<sec:intercept-url pattern="/framGraphique/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/login/**" access="permitAll" />
+		<sec:intercept-url pattern="/Ilogin/**" access="permitAll" />
+		<sec:intercept-url pattern="/admin/**" access="permitAll" />
+<!-- 		<sec:intercept-url pattern="/GBO_LDAP/**" access="hasRole('ROLE_ADMIN')" /> -->
+		<sec:intercept-url pattern="/GBO/**" access="isAuthenticated()" />
+		<sec:intercept-url pattern="/GBO0/**" access="isAuthenticated()" />
+		<sec:intercept-url pattern="/**" access="isAuthenticated()" />
+		<sec:intercept-url pattern="/viewsFaxMail/**"
+			access="isAuthenticated()" />
+		<sec:form-login login-page="/Ilogin/loginDesk.jsf" 
+			default-target-url="/GBO/ acceuilGBOO.jsf" authentication-failure-url="/Ilogin/loginFailure.jsf"
+			always-use-default-target="true" />
+		<sec:logout logout-success-url="/Ilogin/login.jsf" 
+			invalidate-session="true" />
+	</sec:http>
+
+	<!-- <sec:http auto-config="true" access-denied-page="/Ilogin/accessDenied.jsf"> -->
+	<!-- <sec:intercept-url pattern="/GBO/**" access="ROLE_USER,ROLE_AMDIN" -->
+	<!-- filters="none" /> -->
+	<!-- <sec:intercept-url pattern="/GBO_LDAP/**" access="ROLE_USER,ROLE_AMDIN" -->
+	<!-- filters="none" /> -->
+	<!-- <sec:intercept-url pattern="/GBO0/**" access="ROLE_USER,ROLE_AMDIN" -->
+	<!-- filters="none" /> -->
+	<!-- <sec:intercept-url pattern="/viewsFaxMail/**" -->
+	<!-- access="ROLE_USER,ROLE_AMDIN" filters="none" /> -->
+	<!-- <sec:form-login login-page="/Ilogin/login.jsf" -->
+	<!-- login-processing-url="/j_spring_security_check" default-target-url="/GBO/acceuilGBO.jsf" -->
+	<!-- authentication-failure-url="/Ilogin/loginFailure.jsf" -->
+	<!-- always-use-default-target="true" /> -->
+	<!-- <sec:logout logout-success-url="/Ilogin/login.jsf" -->
+	<!-- invalidate-session="true" /> -->
+	<!-- </sec:http> -->
+
+
+</beans>

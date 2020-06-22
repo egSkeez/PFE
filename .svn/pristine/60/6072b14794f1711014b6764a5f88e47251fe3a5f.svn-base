@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Rechercher Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+				<rich:panel styleClass="rich-panel">
+						
+						<!-- ********************AIDE********************** -->
+						<rich:modalPanel id="aidePanal" autosized="true" height="500"
+							width="800">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="aidehidelink" />
+									<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="scroll_div">
+								<h:form>
+									<a4j:keepAlive beanName="aideEnLigneBean" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Recherche-Multicriteres-FR.png"
+										width="750" height="490" id="aidehidelink" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Recherche-Multicriteres-AR.png"
+										width="750" height="490" id="aidehidelinkAR" />
+									<rich:spacer height="10" />
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('aidePanal');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+
+								</h:form>
+							</div>
+						</rich:modalPanel>
+					</rich:panel>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="2">
+								<h:outputText value="#{msg.RechercheCourrier}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<h:form id="formRecherche">
+							<rich:spacer width="2px" height="10px" />
+							
+							
+							<table width="100%">
+								<tr>
+									<td width="50%" style="vertical-align: top;">
+										<table width="100%">
+											
+											<tr><td>
+											<h:outputText value="ID courrier : "
+												styleClass="xteDetailLabel" /></td>
+											<td>
+											<h:inputText id="ref" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierReference}">
+												<a4j:support id="refSupp" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue2}" />
+											</h:inputText></td></tr>
+											
+											<tr><td>
+											<h:outputText value="Ref courrier : "
+												styleClass="xteDetailLabel" /></td>
+											<td>
+											<h:inputText id="ref2" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierObjet}">
+												<a4j:support id="refSuppll" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue2}" />
+											</h:inputText></td></tr>
+											
+										</table>
+									</td>
+									<td width="50%" style="vertical-align: top;">
+									
+									</td>
+								</tr>
+							</table>
+							<a4j:keepAlive beanName="courrierRechercheMultiCriteresBean"
+								ajaxOnly="true" />
+							<div align="center">
+								<a4j:commandButton
+														value="Rechercher" type="submit"
+									process="ajaxStatus" styleClass="submitButton"
+									status="ajaxStatus"
+									oncomplete="document.location.href='courrierDetails.jsf'" >
+										
+									</a4j:commandButton>
+								<rich:spacer width="5" />
+								<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+									styleClass="submitButton" ajaxSingle="true"
+									action="#{courrierRechercheMultiCriteresBean.reset}"
+									reRender="formRecherche,data,scroller,annot,checkTransfert,dRep,dR,ref,motCle" />
+							</div>
+							<rich:spacer height="10" />
+							<div align="left">
+								
+							</div>
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+
+							
+
+						</h:form>
+					</rich:panel>
+					
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

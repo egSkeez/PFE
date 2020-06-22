@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2020-06-09T11:24:40 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourrierFiche" columnDirection="RTL" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="772" leftMargin="35" rightMargin="35" topMargin="35" bottomMargin="5" uuid="0076f126-9bab-4a73-8b2c-cb71016b33f4">
+	<property name="ireport.zoom" value="0.9090909090909111"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\WorkspaceDRHM\\GBO_v1.5\\WebContent\\WEB-INF\\rapports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="obj" class="java.lang.String">
+		<fieldDescription><![CDATA[obj]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="dateRecep" class="java.util.Date">
+		<fieldDescription><![CDATA[dateRecep]]></fieldDescription>
+	</field>
+	<field name="dateRep" class="java.util.Date">
+		<fieldDescription><![CDATA[dateRep]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="delais" class="java.lang.String">
+		<fieldDescription><![CDATA[delais]]></fieldDescription>
+	</field>
+	<field name="listDestinataire" class="java.lang.String">
+		<fieldDescription><![CDATA[listDestinataire]]></fieldDescription>
+	</field>
+	<field name="expDest" class="java.lang.String">
+		<fieldDescription><![CDATA[expDest]]></fieldDescription>
+	</field>
+	<field name="nature" class="java.lang.String">
+		<fieldDescription><![CDATA[nature]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="expedeteur" class="java.lang.String">
+		<fieldDescription><![CDATA[expedeteur]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="ref" class="java.lang.String">
+		<fieldDescription><![CDATA[ref]]></fieldDescription>
+	</field>
+	<field name="rapportExpediteurDestinataire" class="java.util.List">
+		<fieldDescription><![CDATA[rapportExpediteurDestinataire]]></fieldDescription>
+	</field>
+	<field name="title" class="java.lang.String"/>
+	<field name="adresse" class="java.lang.String"/>
+	<field name="listeSociete" class="java.util.List"/>
+	<variable name="variable1" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="83" splitType="Stretch">
+			<image>
+				<reportElement positionType="FixRelativeToBottom" x="257" y="45" width="57" height="18" uuid="9942411e-9cb0-48d6-81ca-e3fa5cfcbee4"/>
+				<imageExpression><![CDATA["time-left.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="45" width="772" height="20" uuid="13113bb1-25b8-4ea2-8b1c-a1124da61df3"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{title}]]></textFieldExpression>
+			</textField>
+			<subreport isUsingCache="true">
+				<reportElement isPrintRepeatedValues="false" x="100" y="0" width="671" height="45" uuid="b8e292dd-689f-4f2b-958d-1dd485e8d821"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="56">
+			<printWhenExpression><![CDATA[!$F{ref}.isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="26" width="100" height="30" uuid="88b01319-6b98-4e93-a96d-864142667fdc"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Réf]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="26" width="178" height="30" uuid="7e1f01aa-3810-4cda-8c4d-5491768e1cf6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Objet]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="278" y="26" width="148" height="30" uuid="e1bd56c8-0e9e-4aee-898f-167d9fe474df"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Expéditeur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="426" y="26" width="129" height="30" uuid="16adf135-edd7-4802-aef4-b4bfe0ebc8d0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Destinataire]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="632" y="26" width="54" height="30" uuid="b3a7f82b-be18-4210-b709-4204d7a9bc6a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date de réception]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="686" y="26" width="54" height="30" uuid="8d43d2d2-061c-4baf-847d-039bbcc8217a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date de réponse]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="740" y="26" width="30" height="30" uuid="d6463f2c-b9d8-4363-9904-aab8a9fe6448">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Délais]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="555" y="26" width="77" height="30" uuid="bb5df873-b0af-4c86-b4fe-42c86940d4a3"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nature]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="20">
+			<printWhenExpression><![CDATA[!$F{ref}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="0" y="0" width="100" height="20" isPrintWhenDetailOverflows="true" uuid="763ed23b-c3ba-4cf8-809a-2bfb07b547a3"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ref}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="100" y="0" width="178" height="20" isPrintWhenDetailOverflows="true" uuid="6d908378-7782-4b34-a7f4-1b60aeb0a3c6"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{obj}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy " isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="632" y="0" width="54" height="20" isPrintWhenDetailOverflows="true" uuid="47f79a4d-edea-4015-8881-06542dacd974"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateRecep}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="686" y="0" width="54" height="20" isPrintWhenDetailOverflows="true" uuid="d4714ce6-f30d-4a10-b64c-d99942db62b1"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateRep}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="740" y="0" width="30" height="20" isPrintWhenDetailOverflows="true" uuid="a3e3706f-37b8-49ec-908d-0cd72af8872d">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{delais}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="278" y="0" width="148" height="20" isPrintWhenDetailOverflows="true" uuid="dfcdc18c-2c83-41e4-944c-bfa05c29d5b6"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expedeteur}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="426" y="0" width="129" height="20" isPrintWhenDetailOverflows="true" uuid="a190464c-36b7-4051-bc00-11869562f196"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{listDestinataire}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="555" y="0" width="77" height="20" isPrintWhenDetailOverflows="true" uuid="239d931d-8f66-456c-9453-0e015c6f893d"/>
+				<box leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nature}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="50">
+			<printWhenExpression><![CDATA[$F{ref}.isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="15" width="772" height="25" uuid="4805fbe8-df92-4e38-8446-b038e3eac7bc"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Aucun Courrier en Retard]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="51" splitType="Stretch">
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="-2" y="34" width="772" height="15" uuid="3749cb2a-3a21-4db4-90f2-8ba69c087839"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

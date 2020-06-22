@@ -1,0 +1,37 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Urgence;
+
+public class StatistiqueUrgence {
+
+	private int count;
+	private Urgence urgence;
+
+	public StatistiqueUrgence(int count, Urgence urgence) {
+		this.count = count;
+		this.urgence = urgence;
+	}
+
+	public StatistiqueUrgence() {
+
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	
+
+}

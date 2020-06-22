@@ -1,0 +1,439 @@
+package xtensus.dao;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.hibernate.HibernateException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.beans.utils.RecherchePmModel;
+import xtensus.beans.utils.RecherchePpModel;
+//import xtensus.beans.utils.RecherchePmModel;
+//import xtensus.beans.utils.RecherchePpModel;
+//import xtensus.beans.utils.StatistiqueCourrierStructureByNature;
+//import xtensus.beans.utils.StatistiqueCourrierUtilisateur;
+import xtensus.entity.AoConsultation;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDonneeSupplementaire;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Entite;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Mail;
+import xtensus.entity.Nature;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+//import xtensus.faxmail.beans.AttachmentFileBean;
+//import xtensus.faxmail.beans.AttachmentHeadBean;
+
+@Transactional(propagation = Propagation.REQUIRED)
+public interface IGenericDao {
+
+	public void insert(Entite entity) throws HibernateException;
+
+	public void update(Entite entity) throws HibernateException;
+
+	public void delete(Entite entity) throws HibernateException;
+
+	public <T extends Entite> List<T> getList(final Class<T> t)
+			throws HibernateException;
+
+	public <T extends Entite> List<T> getListUnique(final Class<T> t)
+			throws HibernateException;
+
+	public List<Courrier> getListCourrier(String refrenceCourrier,
+			String necessiteReponse, Date dateReception, String keywords,
+			Date dateReponse) throws HibernateException;
+
+	public List<Transaction> testRecherheMulticritere(Integer id, String type)
+			throws HibernateException;
+
+	public List<CourrierDossier> listDossier(String objet, String motCles,
+			String necessiteReponse, Integer idTransmission, Integer idNature,
+			Integer idConfidentialite, Integer idUrgence)
+			throws HibernateException;
+
+	public List<Transaction> recherheMulticritereCourrier(Integer id,
+			String type, String type1, Date transactionDate,
+			List<Integer> listExpediteur, List<Integer> listDossier)
+			throws HibernateException;
+
+	public List<? extends Entite> getListWithNamedQuery(
+			final String namedQueryName) throws HibernateException;
+
+	public List<? extends Entite> getListLimitedWithNamedQuery(
+			final String namedQueryName, int rowIndex, int numberOfRows)
+			throws HibernateException;
+
+	// ** KS
+	public Entite getObjectWithNamedQuery(
+			final String namedQueryName, final Map<String, Object> parameters) throws HibernateException;
+	
+	
+	public List<? extends Entite> getListLimitedWithNamedQuery(
+			String namedQueryName, Map<String, Object> parameters,
+			int rowIndex, int numberOfRows) throws HibernateException;
+
+	// ** KS
+
+	public long getRowCount(String namedQueryName) throws HibernateException;
+
+	public List<? extends Entite> getListWithNamedQuery(
+			final String namedQueryName, final Map<String, Object> parameters)
+			throws HibernateException;
+
+	public void deleteWithNamedQuery(final String namedQueryName,
+			final Map<String, Object> parameters) throws HibernateException;
+
+	public void deleteWithNamedQuery(final String namedQueryName)
+			throws HibernateException;
+
+	public void updateWithNamedQuery(final String namedQueryName,
+			final Map<String, Object> parameters) throws HibernateException;
+
+	public void updateWithNamedQuery(final String namedQueryName)
+			throws HibernateException;
+
+	public long countList(final String namedQueryName,
+			final Map<String, Object> parameters) throws HibernateException;
+
+	public Long count(final String namedQueryName,
+			final Map<String, Object> parameters) throws HibernateException;
+
+	public List<Courrier> listDossier(String objet, String motCles,
+			String description, String necessiteReponse,
+			Integer idTransmission, Integer idNature,
+			Integer idConfidentialite, Integer idUrgence)
+			throws HibernateException;
+
+	public List<CourrierDossier> listCourrierDossier(List<Integer> list)
+			throws HibernateException;
+
+//	public List<Transaction> recherheMulticritereCourrierEnvoye(Integer idBoc,
+//			Integer id, String type, String type1, Date transactionDateDebut,
+//			Date transactionDateFin, Date dateReponse,
+//			List<Integer> listExpediteur, List<Integer> listDossier,
+//			List<Integer> listDestinataire) throws HibernateException;
+	public List<CourrierInformations> recherheMulticritereCourrierEnvoye(boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes, String secretaire,
+			String sub, String unit, String type, String type1, String typeSecretaire,
+			Integer idUser, String object, String motCle, Map<Integer, String> listExp,
+			Map<Integer, String> listDes, Integer idTransmission, Integer idNature,Integer idCategorie,
+			Date dateLimiteRep, List<Integer> listIdAnnotation, String description,
+			Integer idConfidentialite, Integer idUrgence, Date transactionDateDebut,
+			Date transactionDateFin,Date dateCourrierReel,Date dateCourrierReelFin ,boolean isBoc, String typeCourrierBoc, String recuOrEnvoyer,
+			List<Integer> listDestinataire, int firstRow, int numberOfRows, String oldRef,Integer refGeneral,
+			String necessiteReponse, String courrierReference, List<String> annees, String DBType,int etatCloturer,String courrierCopyTransfere,String courrierCopy,String colonne1,String colonne2,String colonne3,
+			String colonne4,String colonne5,String colonne6,String colonne7,String colonne8,String colonne9,String colonne10,String colonne11,String colonne12,
+			String colonne13,Date colonne14,Date colonne15,Date colonne16,Date colonne17,Date colonne18,Date colonne19,Date colonne20,
+			String colonne21,Boolean colonne22,String courrierFlagInterne,List<Integer> listIdBocMembers);
+
+@SuppressWarnings("rawtypes")
+	public List recherheMulticritereCount(boolean isResponsable, boolean isBoc,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes, String secretaire,
+			String sub, String unit, String type, String type1, String typeSecretaire,
+			Integer idUser, String object, String motCle, Map<Integer, String> listExp,
+			Map<Integer, String> listDes, Integer idTransmission, Integer idNature,Integer idCategorie,
+			Date dateLimiteRep, List<Integer> listIdAnnotation, String description,
+			Integer idConfidentialite, Integer idUrgence, Date transactionDateDebut,
+			Date transactionDateFin,Date dateCourrierReel,Date dateCourrierReelFin , String typeCourrierBoc, String recuOrEnvoyer,
+			List<Integer> listDestinataire, String oldRef,Integer refGeneral,String necessiteReponse,
+			String courrierReference, List<String> annees ,int etatCloturer, String courrierCopyTransfere,String courrierCopy,String colonne1,String colonne2,
+			String colonne3,String colonne4,String colonne5,String colonne6,String colonne7,String colonne8,String colonne9,String colonne10,String colonne11,String colonne12,
+			String colonne13,Date colonne14,Date colonne15,Date colonne16,Date colonne17,Date colonne18,Date colonne19,Date colonne20,
+			String colonne21,Boolean colonne22, String courrierFlagInterne, 
+			List<Integer> listIdBocMembers);
+
+
+	public List<Transaction> listTransactions(Date transactionDateDebut,
+			Date transactionDateFin, Date dateReponse,
+			List<Integer> listExpediteur, List<Integer> listDossier)
+			throws HibernateException;
+
+//	public List<TransactionDestination> recherheMulticritereCourrierRecu(
+//			Integer id, String type, String type1,
+//			List<Integer> listTransaction, List<Integer> listIdTransaction,
+//			List<Integer> listIdExpDest) throws HibernateException;
+	public List<TransactionDestination> recherheMulticritereCourrierRecu(boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, String secretaire,
+			String sub, String unit,
+			String type, String type1, String typeSecretaire,
+			Integer idUser,
+			String object, 
+			String motCle, List<Integer> listExpediteur,
+			List<Integer> listIdExpDest, Integer idTransmission,
+			Integer idNature, Date dateLimiteRep,
+			List<Integer> listIdAnnotation, String description,
+			Integer idConfidentialite, Integer idUrgence,Date transactionDateDebut,Date transactionDateFin) throws HibernateException;
+
+	public List<Expdestexterne> getListExpeDestExterneByCriteria(String nom,
+			String prenom, String telephone, String mail, String adresse,
+			String codePostal, String ville, String pays, String fax,
+			String gouvernorat) throws HibernateException;
+
+	public List<Pp> getListPpByCriteria(RecherchePpModel recherchePpModel,
+			List<Integer> listExpeDestExterne) throws HibernateException;
+
+	public List<Pm> getListPmByCriteria(RecherchePmModel recherchePmModel,
+			List<Integer> listExpeDestExterne) throws HibernateException;
+
+	public int getMaxIdUserNotification() throws HibernateException;
+
+	// Nouvelle Bean CourrierConsultationBean
+
+	public List<CourrierInformations> findCourrierEnvoyerANDRecuWithCriterion(
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, HashMap<String, Object> filterMap, String sortField,
+			boolean descending, String secretaire, String sub, String unit, int jourOrAutre,
+			Date dateDebut, Date dateFin, String type, String type1, String typeSecretaire,
+			Integer idUser, Integer typeTransmission, String stateTraitement, int firstIndex,
+			int maxResult, boolean forRapport, Integer courrierRubriqueId, String typeCourrier, String DBType,Integer idCourrierCourant,int flagueCloture, int flagInterne);
+
+	public List<TransactionDestination> findCourrierRecuWithCriterion(
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, HashMap<String, Object> filterMap,
+			String sortField, boolean descending, String secretaire,
+			String sub, String unit, int jourOrAutre, Date dateDebut,
+			Date dateFin, String type, String type1, String typeSecretaire,
+			Integer idUser, Integer typeTransmission, String stateTraitement,
+			int firstIndex, int maxResult, boolean forRapport, Integer courrierRubriqueId);
+
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterion(
+			HashMap<String, Object> filterMap, String sortField,
+			boolean descending, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, List<Integer> listIdBocMembers, String typeTransmission,
+			String stateTraitement, int firstIndex, int maxResult,
+			String categorieCourrierJour, Boolean forRapport, String DBType,Integer idCourrierCourant, int flagueCloture, int flagInterne);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterionLies(
+			HashMap<String, Object> filterMap, String sortField,
+			boolean descending, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, List<Integer> listIdBocMembers, String typeTransmission,
+			String stateTraitement, int firstIndex, int maxResult,
+			String categorieCourrierJour, Boolean forRapport, String DBType,Integer idCourrierCourant, int flagueCloture, int flagInterne);
+
+	public List<TransactionDestination> findCourrierRecuBOCWithCriterion(
+			int jourOrAutre, Date dateDebut, Date dateFin, String type,
+			String type1, Integer idUser, Integer typeTransmission,
+			Integer stateTraitement, int firstIndex, int maxResult,
+			Integer etatId);
+
+	public List<Nature> findNatureByCriterion(Integer firstRow,
+			Integer maxResult, HashMap<String, Object> filterMap,
+			String sortField, boolean descending);
+    //Ancien nom "CountAllCourrierEnvoyerWithCriterion"
+	public Long CountAllCourrierEnvoyerANDRecuWithCriterion(boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes,
+			HashMap<String, Object> filterMap, String secretaire, String sub,
+			String unit, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, String typeSecretaire, Integer idUser,
+			Integer typeTransmission, String stateTraitement,Integer courrierRubriqueId, boolean forStat,String typeCourrier);
+	
+	public Long countCourrierRecuWithCriterion(boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes,
+			HashMap<String, Object> filterMap, String secretaire, String sub,
+			String unit, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, String typeSecretaire, Integer idUser,
+			Integer typeTransmission, String stateTraitement,Integer courrierRubriqueId, boolean forStat);
+
+	public Long countCourrierBOCWithCriterion(
+			HashMap<String, Object> filterMap, int jourOrAutre, Date dateDebut,
+			Date dateFin, String type, List<Integer> listIdBocMembers, String typeTransmission,
+			String stateTraitement, String categorieCourrierJour);
+	public Long countCourrierBOCWithCriterionStat(
+			HashMap<String, Object> filterMap, int jourOrAutre, Date dateDebut,
+			Date dateFin, String type, List<Integer> listIdBocMembers, String typeTransmission,
+			String stateTraitement, String categorieCourrierJour);
+	public List<CourrierInformations> findDossierEnvoyerWithCriterion(
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, HashMap<String, Object> filterMap,
+			String sortField, boolean descending, String secretaire,
+			String sub, String unit, int jourOrAutre, Date dateDebut,
+			Date dateFin, String type, String type1, String typeSecretaire,
+			Integer idUser, String typeDossier, int firstIndex, int maxResult,Integer dossierRubriqueJourId);
+
+	public List<CourrierInformations> findDossierRecuWithCriterion(
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, HashMap<String, Object> filterMap,
+			String secretaire, String sub, String unit, String sortField,
+			boolean descending, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, String typeSecretaire, Integer idUser,
+			String typeDossier, int firstIndex, int maxResult,Integer dossierRubriqueJourId);
+
+	public Long countDossierEnvoyerWithCriterion(boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes,
+			HashMap<String, Object> filterMap, String secretaire, String sub,
+			String unit, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, String typeSecretaire, Integer idUser,
+			String typeDossier,Integer dossierRubriqueJourId, boolean forStat);
+
+	public Long countDossierRecuWithCriterion(boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes,
+			HashMap<String, Object> filterMap, String secretaire, String sub,
+			String unit, int jourOrAutre, Date dateDebut, Date dateFin,
+			String type, String type1, String typeSecretaire, Integer idUser,
+			String typeDossier, Integer dossierRubriqueJourId, boolean forStat);
+
+	// for Statistiques
+	public Long countCourrierRecuByUrgenceWithCriterion(boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes,
+			String secretaire, String sub, String unit, String type,
+			String type1, String typeSecretaire, Integer idUser,
+			Integer idUrgence);
+
+	public List<Object[]> countCourrierRecuByConfOrUrgWithCriterion(
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, String secretaire, String sub,
+			String unit, String type, String type1, String typeSecretaire,
+			Integer idUser, String tab);
+
+	public Long countCourrierBOCByUrgenceWithCriterion(String type,
+			Integer idUser, Integer idUrgence, String categorieCourrierJour);
+
+	public List<Object[]> countCourrierBOCByConfOrUrgWithCriterion(String type,
+			Integer idUser, String categorieCourrierJour, String tab);
+
+	public List<Courrier> findCourrierEnvoyerForLien(Integer idCourrierCourant,
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, String secretaire, String sub,
+			String unit, String type, String type1, String typeSecretaire,
+			Integer idUser,boolean isForLienCourrier);
+
+	public List<Courrier> findCourrierRecuForLien(Integer idCourrierCourant,
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, String secretaire, String sub,
+			String unit, String type, String type1, String typeSecretaire,
+			Integer idUser, boolean isForLienCourrier);
+
+	public List<Courrier> findCourrierForLienBOC(Integer idUser,
+			String categorieCourrierJour, Integer idCourrierCourant, boolean isForLienCourrier);
+	public List<Courrier> findAllCourrierForBOC(Integer idUser,
+			 Integer idCourrierCourant, boolean isForLienCourrier);
+	
+	//Statistique new
+	public List<CourrierInformations> findCourrierExterneBOCWithCriterion(
+			String type, List<Integer> listIdBocMembers, String categorieCourrierJour, Date dateDebut, Date dateFin);
+	public List<CourrierInformations> findCourrierArriveeDepartByStructure(
+			List<String> listMembers, Integer courrierDepartArrivee, Date dateDebut, Date dateFin);
+
+	public List<Object[]> courrierStatistiquesBOC(Date dateDebut, Date dateFin, List<String> types,
+			String type1, List<Integer> listIdBocMembers, String typeTransmission,
+			String stateTraitement, String categorieCourrierJour, String categorie);
+
+	public List<Object[]> courrierStatistiquesBOCReponse(String type, Date dateDebut, Date dateFin);
+
+	public List<Object[]> courrierStatistiquesBOCStructure(Date dateDebut, Date dateFin,
+			Integer categorieCourrierJour,List<String> types,List<Integer> listIdBocMembers);
+
+	public void executeSQLQuery(StringBuffer query);
+	public Integer getCourrierLastIdByTypeOrdreAndAnnee(String type, Integer annee);
+	public List<Object[]> executeQuery3(String myRequet)throws HibernateException;
+
+	List<Courrier> listCourrierNonAffecteDossier(Integer idCourrierCourant, boolean isResponsable,
+			List<Integer> listIdsSousUnites, List<Integer> listIdSubordonnes, String secretaire, String sub,
+			String unit, String type, String type1, String typeSecretaire, Integer idUser, boolean isForLienCourrier);
+
+	//[JS]
+//	public List<StatistiqueCourrierUtilisateur> countCourrierMembreBOCWithCriterion(
+//			HashMap<String, Object> filterMap, int jourOrAutre, Date dateDebut,
+//			Date dateFin, List<Integer> listIdBocMembers,String categorieCourrierJour);
+
+	public List<Object[]> courrierStatistiquesBOCStructureByNature(Date dateDebut, Date dateFin,
+			Integer categorieCourrierJour,Integer natureId,String valueAttr,List<String> types);
+	
+//	public List<StatistiqueCourrierStructureByNature> courrierStatistiquesBOCStructuretest(Date dateDebut,
+//			Date dateFin, Integer categorieCourrierJour, Integer natureId);
+	public List<Object[]> courrierStatistiquesBOCReponseParUniteNature(String type, Date dateDebut, Date dateFin,Integer idNature);
+	public List<Courrier> courrierStatistiquesNecessitReponses(String necessiteReponse, Date dateDebut, Date dateFin,
+			List<String> types, List<Integer> listIdBocMembers);
+
+	// KHA 
+	public List<CourrierInformations> recherheMulticritereCourrierEnvoyeRapport(boolean isResponsable, 
+		    String secretaire,
+			String type, String type1, String typeSecretaire,
+			List<Integer> listAgent,Integer idNature, 
+			Date transactionDateDebut, Date transactionDateFin,boolean isBoc,
+			String recuOrEnvoyer,String typeCourrierBoc,
+			int firstIndex, int maxResult,String DBType,int jourOrAutre,Integer idTransmission);
+	
+
+	public Long countCourrierNotBOCWithCriterion(
+			HashMap<String, Object> filterMap, int jourOrAutre, Date dateDebut,
+			Date dateFin, List<String> type, List<Integer> listIdBocMembers, String typeTransmission,
+			String stateTraitement, String categorieCourrierJour);
+	
+	//[JS]
+	public Integer getTransactionLastIdByTypeOrdreAndAnnees(String type, Integer annee );
+	public Integer getCourrierLastIdByTypeOrdreAndAnnees(String type, Integer annee);
+	
+	//[JS][2019-06-14]: Nombre Référence Courrier (A/D) par Bureau d'ordre 
+	public Integer getLastIDTransactionByTypeOrdreAndAnneeAndBO(int idDossier,String type,Integer annee,String boc,List<Integer> listIdBocMembers);
+	
+	//[JS][2019-06-14]: Nombre Référence Courrier (I) par Bureau d'ordre
+	public Integer getLastIDTransactionByTypeOrdreAndAnnee(String type,Integer annee);
+	public Integer getLastIDTransactionByTypeOrdreAndAnnee(String type,Integer annee,int mois);
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterionAO(
+			int idaoConsultation,boolean b, int i, int j, String string);
+	
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterionValise(
+			boolean b, int i, int j, String string);
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterionValiseFormat(
+			int courrierValiseID, boolean b, int i, int j, String string);
+	
+public List<AoConsultation> findAoConsultationByNumero(String reference);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterionValise(
+			int idcourrierFK,boolean b, int i, int j, String string);
+	public List<CourrierInformations> getListCourriersNonAffectesAvalise( boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuAvantLorsAO(
+			int idaoConsultation, Date AoConsultationDateSeanceCommission , boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuAvantLorsAOPorteur(
+			int idaoConsultation, Date aoConsultationDateSeanceCommission, boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuDansDelaisAO(
+			int idaoConsultation,Date aoConsultationDateLimiteReception,Date aoConsultationDelaisProlongation, boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuDansDelaisAOPorteur(
+			int idaoConsultation,Date aoConsultationDateLimiteReception, Date aoConsultationDelaisProlongation, boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuApresDelaisAO(
+			int idaoConsultation,Date aoConsultationDateSeanceCommission, boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuApresDelaisAOPorteur(
+			int idaoConsultation, Date aoConsultationDateSeanceCommission, boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuSansReferenceAO(Date d, Date f,String annee, String moi,
+			boolean b, int i, int j, String string);
+	
+	public List<CourrierInformations> findCourrierEnvoyerBOCRecuSansReferenceAOPorteur(Date dateDebut,Date dateFin,String annee, String moi,
+			boolean b, int i, int j, String string);
+
+	public List<CourrierInformations> findCourrierEnvoyerBOCWithCriterionValiseFormatPointer(
+			int courrierValiseID, boolean b, int i, int j, String string);
+
+	public List<Integer> getTransactionByIdDossierPourSuivi(int refDossier);
+	public List<Integer> getTransactionByIdDossierPourSuiviDestExterne(int refDossier);
+	public List<CourrierInformations> findCourrierEnvoyerANDRecuWithCriterionLies(
+			boolean isResponsable, List<Integer> listIdsSousUnites,
+			List<Integer> listIdSubordonnes, HashMap<String, Object> filterMap, String sortField,
+			boolean descending, String secretaire, String sub, String unit, int jourOrAutre,
+			Date dateDebut, Date dateFin, String type, String type1, String typeSecretaire,
+			Integer idUser, Integer typeTransmission, String stateTraitement, int firstIndex,
+			int maxResult, boolean forRapport, Integer courrierRubriqueId, String typeCourrier, String DBType,Integer idCourrierCourant,int flagueCloture, int flagInterne);
+	public List<Mail> getListMailByDestinataireAdresse(String adresseMailConnecte,int mailState);
+
+//	public List<AttachmentFileBean>listeMailAttachementFilesByIdMessage(int messageId);
+//	public List<AttachmentHeadBean>listeMailHederByIdMail(int messageId);
+	public int getTransactionReceptionPhysique(int idBOC, int refdossier);
+	public List<String> listeMessageIDIdMaile(Integer mailId, String messageID);
+	public List<Transaction> listTransactionByDossier( int dossierId);
+	public int getCountTransactionByIdExpExterne(int idExpediteur);
+}

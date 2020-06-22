@@ -1,0 +1,3615 @@
+package xtensus.beans.common.GBO;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Map.Entry;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ComposantDynamique;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.beans.utils.RapportCourrier;
+import xtensus.beans.utils.RapportCourrierConfidentilaite;
+import xtensus.beans.utils.RapportCourrierUrgence;
+import xtensus.beans.utils.RapportEnteteDePage;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+import xtensus.beans.utils.RapportPiedDePage;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.beans.utils.RechercheMulticritereModel;
+import xtensus.entity.Annotation;
+import xtensus.entity.Cheque;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDonneeSupplementaire;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Document;
+import xtensus.entity.DonneeSupplementaireNature;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.Societe;
+import xtensus.entity.Transaction;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+import java.io.*;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.util.regex.*;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+
+
+@Component
+@Scope("request")
+public class RapportCourriersListe {
+	 private static Pattern pattern;
+	    private static Matcher matcher;
+	private ApplicationManager appMgr;
+	private String documentt;
+	private String importance;
+	private String confidentialites;;
+	private Export export;
+	public boolean status3;
+	private Nature nature;
+
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private List<Document> listDocuments;
+	@Autowired
+	private VariableGlobale vb;
+
+	@Autowired
+	private CourrierConsultationBean courrierConsultationBean;
+	private LdapOperation ldapOperation;
+	List<Annotation> listAnnotations;
+	private List<Confidentialite> listConfidentilaite;
+	private List<Urgence> listUrgence;
+	private List<RapportCourrierConfidentilaite> listRapportCourrierConfidentilaite;
+	private RapportCourrierConfidentilaite rapportCourrierConfidentilaite;
+	private List<RapportCourrierUrgence> listRapportCourrierUrgence;
+	private RapportCourrierUrgence rapportCourrierUrgence;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist;
+	private RapportExpediteurDestinataire rapportExpediteurDestinataire;
+	private List<String> listSelected=new ArrayList<String>();
+	private List<RapportSociete>listeSociete= new ArrayList<RapportSociete>();
+	private List<RapportPiedDePage>piedDePage = new ArrayList<RapportPiedDePage>();
+	// ------------KHA 
+	private List<RapportEnteteDePage>enteteDePage = new ArrayList<RapportEnteteDePage>();
+	private List<RapportSociete>listeSocieteAr= new ArrayList<RapportSociete>();
+	// **
+	// @Autowired
+	// private AccueilGBOBean acceuilGbobean;
+	@Autowired
+	private CourrierConsultationJourBean courrierConsultationJourBean;
+	@Autowired
+	private CourrierConsultationAncienBean courrierConsultationAncienBean;
+    // KHA ====> nouveaux rapports
+	@Autowired
+	private CourrierConsultationRecentBean courrierConsultationRecentBean;
+	private List<Integer> listIdsSousUnit;
+	private List<Integer> listIdsSubordonne;
+	private Integer idUser;
+	private String type;
+	private String type1;
+	private Variables varConsultationCourrierSecretaire;
+	private Variables varConsultationCourrierSubordonne;
+	private Variables varConsultationCourrierSousUnite;
+	private String consultationCourrierSecretaire;
+	private String consultationCourrierSubordonne;
+	private String consultationCourrierSousUnite;
+	private HashMap<String, Object> filterMap = new HashMap<String, Object>();
+	private String typeSecretaire;
+	private List<Integer> listAgent;
+//	private Date dateDebut;
+//	private Date dateFin;
+	private List<RapportCourrierArriveeInterne> listeCourrierInterne;
+	private Properties msg;
+	private List<DonneeSupplementaireNature> listDSN;
+	private ComposantDynamique composantDynamique;
+	private CourrierDonneeSupplementaire courrierDS;
+	private CourrierDonneeSupplementaire cds;
+	private List<ComposantDynamique> listCD;
+	//======================================
+	private List<RapportChequeMontantTotal> listeMontantTotal;
+	private List<RapportChequeMontantTotal> listeMontantTotalImpayes;
+	private List<RapportChequeMontantTotal> listeMontantTotalAgent;
+	private List<RapportCourrierCheque> listeCourriersCheque;
+	private List<RapportCourrierCheque> listeCourriersChequeImpayes;
+	private List<RapportCourrierCheque> listeCourriersChequeAgent;
+	private List<RpportCourrierArriveeExterne>   listeCourrierExterne;
+	   //================================
+	private List<RapportSuiviReclamation> listeReclamation;
+	private List<RappotRapidePosteLettreRecommande> listeRapidePosteLettreRecommande;
+	private List<CourrierInformations> listcourrier;
+	private RechercheMulticritereModel criteres;
+	private Map<Integer, String> listDes = new HashMap<Integer, String>();
+	private Map<Integer, String> listExp = new HashMap<Integer, String>();
+	private List<Integer> listDestinataire = new ArrayList<Integer>();
+	private List<Integer> listIdAnnotation = new ArrayList<Integer>();
+	private String courrierFlagInterne=null;
+	private Integer idCategorie=null;
+		//===================
+//	private Date dateFinn;
+//	private Date dateDebutt;
+	 private String courrierCopyTransfere;
+	 private List<CourrierInformations> listeCourriersRP;
+	 private List<CourrierInformations> listeCourriersLR;
+	private Integer refTransaction;
+	private Transaction tr; 
+	private List<Transaction> transaction;
+	private List<Courrier> listeCourrierdInternes;
+	private List<Variables> varConsult;
+	private List<CourrierInformations> listcourrier1;
+	private List<CourrierInformations> listcourrier2;
+	private List<Cheque> listeCheques;
+	private String uniteConnectee;
+		
+	@Autowired
+	public RapportCourriersListe(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		ldapOperation = new LdapOperation();
+		nature = new Nature();
+		transmission = new Transmission();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		listDocuments = new ArrayList<Document>();
+		listRapportCourrierConfidentilaite = new ArrayList<RapportCourrierConfidentilaite>();
+		listConfidentilaite = new ArrayList<Confidentialite>();
+		listUrgence = new ArrayList<Urgence>();
+		rapportCourrierConfidentilaite = new RapportCourrierConfidentilaite();
+		listRapportCourrierUrgence = new ArrayList<RapportCourrierUrgence>();
+		rapportCourrierUrgence = new RapportCourrierUrgence();
+		rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+		rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+		listAnnotations = new ArrayList<Annotation>();
+		// KHA=========> rapports
+		varConsultationCourrierSousUnite= new Variables();
+		varConsultationCourrierSubordonne= new Variables();
+		varConsultationCourrierSecretaire= new Variables();
+		listIdsSubordonne = new ArrayList<Integer>();
+		listIdsSousUnit = new ArrayList<Integer>();
+		listeCourrierInterne= new ArrayList<RapportCourrierArriveeInterne>();
+		listDSN = new ArrayList<DonneeSupplementaireNature>();
+		composantDynamique = new ComposantDynamique();
+		courrierDS= new CourrierDonneeSupplementaire();
+		cds= new CourrierDonneeSupplementaire();
+		listCD=new ArrayList<ComposantDynamique>();
+		listeMontantTotal= new ArrayList<RapportChequeMontantTotal>();
+		listeMontantTotalImpayes = new ArrayList<RapportChequeMontantTotal>();
+		listeMontantTotalAgent = new ArrayList<RapportChequeMontantTotal>();
+		listeCourriersChequeImpayes  = new ArrayList<RapportCourrierCheque>();
+		listeCourriersChequeAgent = new ArrayList<RapportCourrierCheque>();;
+		listeCourriersCheque= new ArrayList<RapportCourrierCheque>();
+		listeCourrierExterne = new ArrayList<RpportCourrierArriveeExterne>();
+		listeReclamation = new ArrayList<RapportSuiviReclamation>();
+		listeRapidePosteLettreRecommande= new ArrayList<RappotRapidePosteLettreRecommande>();
+		listcourrier = new ArrayList<CourrierInformations>();
+		listAgent = new ArrayList<Integer>();
+//		dateFinn = new Date();
+//		dateDebutt = new Date();
+		listeCourriersRP = new ArrayList<CourrierInformations>();
+		listeCourriersLR = new ArrayList<CourrierInformations>(); 
+		
+	}
+	@PostConstruct
+	public void Initialize() {
+		try {
+			vb.setFlagCloture(0);
+			vb.setFlagInterne(0);
+			//vb.setSelectedDateD(new Date());
+			
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/******************************** Rapport Fiche Courrier ************************************************/
+	public void printPDFFR2() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle() + " Le ";
+			rapport.setSocieteVille(societeVille);
+			
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom("aaaa");
+			rs.setSocieteOrganismeParent("bbbbb");
+			rs.setSocieteRepublique("ccccc");
+			rs.setSocieteVille("dddddd");
+			listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(rapport.getSocieteNom());
+			listeSociete.get(0).setSocieteRepublique(rapport.getSocieteRepublique());
+			listeSociete.get(0).setSocieteVille(rapport.getSocieteVille());
+			listeSociete.get(0).setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+			
+			
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			nomProjet="nomProjet";
+			rapport.setNomProjet(nomProjet);
+			listConfidentilaite=new ArrayList<Confidentialite>();
+			listUrgence=new ArrayList<Urgence>();
+			listConfidentilaite = appMgr.getList(Confidentialite.class);
+			listUrgence = appMgr.getList(Urgence.class);
+			Map<Confidentialite, Integer> mapConfidentialite = new HashMap<Confidentialite, Integer>();
+			Map<Urgence, Integer> mapUrgence = new HashMap<Urgence, Integer>();
+			for (Confidentialite confidentialite : listConfidentilaite) {
+				mapConfidentialite.put(confidentialite, 0);
+			}
+			for (Urgence urgence : listUrgence) {
+				mapUrgence.put(urgence, 0);
+			}
+			List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+		
+			int firstRow = 0;
+			if(vb.getListCourriers().size()>0){
+				listCourriers=new ArrayList<CourrierInformations>();
+				listCourriers=vb.getListCourriers();
+				System.out.println(listCourriers.size());
+			}
+			
+		
+			int i = 0;
+			for (CourrierInformations courrierInformations : listCourriers) {
+				System.out.print("#" + i + 1 + "-");
+				rapport.setNumero(i + 1);
+				if (courrierInformations.getCourrier() == null) {
+					courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+				}
+				rapport.setCourrier(courrierInformations.getCourrier());
+				nature = appMgr.getNatureById(
+						courrierInformations.getCourrier().getNature()
+								.getNatureId()).get(0);
+				rapport.setNature(nature);
+				urgence = appMgr.getUrgenceById(
+						courrierInformations.getCourrier().getUrgence()
+								.getUrgenceId()).get(0);
+				mapUrgence.put(urgence, mapUrgence.get(urgence) + 1);
+				rapport.setUrgence(urgence);
+				confidentialite = appMgr.getConfidentialiteById(
+						courrierInformations.getCourrier().getConfidentialite()
+								.getConfidentialiteId()).get(0);
+				rapport.setConfidentialite(confidentialite);
+				mapConfidentialite.put(confidentialite,
+						mapConfidentialite.get(confidentialite) + 1);
+				transmission = appMgr.getTransmissionById(
+						courrierInformations.getCourrier().getTransmission()
+								.getTransmissionId()).get(0);
+				rapport.setTransmission(transmission);
+				
+//				//////////////KBS Transaction
+//				
+//				refTransaction = courrierInformations.getTransactionID();
+//				List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//				if (transaction != null)
+//				{
+//					tr = transaction.get(0);
+//				}
+//				
+//				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//				
+//				String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//				courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//				rapport.setCourrier(courrierInformations.getCourrier());
+//				
+//				/////////////// KBS Transaction
+
+
+
+				// Documents
+				listDocuments = appMgr
+						.getDocumentByIdCourrier(courrierInformations
+								.getCourrier().getIdCourrier());
+				if (!listDocuments.isEmpty()) {
+					documentt = "<b>Liste des documents : </b>"
+							+ listDocuments.get(0).getDocumentNom();
+					for (int j = 1; j < listDocuments.size(); j++) {
+						String a = String.valueOf(j + 1);
+						documentt = documentt + ";<b> (" + a + ")</b> "
+								+ listDocuments.get(j).getDocumentNom();
+					}
+
+					rapport.setListdocuments(documentt);
+				} else {
+					rapport.setListdocuments("Pas de document pour ce courrier");
+				}
+
+				// pathJasper
+				rapport.setPathJasper(vb.getPathJasper());
+
+				// Expediteur & Destinataire
+				rapportExpediteurDestinataire
+						.setExpediteur("<b>Expéditeur : </b>"
+								+ courrierInformations.getCourrierExpediteur());
+				rapportExpediteurDestinataire
+						.setDestinataire("<b>Destinataire : </b>"
+								+ courrierInformations
+										.getCourrierDestinataireReelle());
+				rapportExpediteurDestinatairelist
+						.add(rapportExpediteurDestinataire);
+				rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+				rapport.setNomProjet(nomProjet);
+				// if (i == listCourriers.size()-1) {
+
+				// }
+
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				listDocuments = new ArrayList<Document>();
+				rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+				rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+				i++;
+			}
+			// calcul confidentialite
+			StringBuilder confid = new StringBuilder(
+					"<b>Confidentialité </b> : ");
+			for (Entry<Confidentialite, Integer> entryConfid : mapConfidentialite
+					.entrySet()) {
+				System.out.println("/*" + entryConfid.getKey().getConfidentialiteLibelle() + "/*" + entryConfid.getValue());
+				
+				confid.append(entryConfid.getKey().getConfidentialiteLibelle())
+						.append(" (").append(entryConfid.getValue())
+						.append("); ");
+			}
+			//calcul urgence
+			StringBuilder urgenceStat = new StringBuilder(
+			"<b>Importance </b> : ");
+			for (Entry<Urgence, Integer> entryUrgence : mapUrgence
+					.entrySet()) {
+				System.out.println("/*" + entryUrgence.getKey().getUrgenceLibelle() + "/*" + entryUrgence.getValue());
+				urgenceStat.append(entryUrgence.getKey().getUrgenceLibelle())
+						.append(" (").append(entryUrgence.getValue())
+						.append("); ");
+			}
+			//*
+			rapportCourrierConfidentilaite.setConfidentilaiteLibelle("");
+			rapportCourrierConfidentilaite.setConfidentilaiteLibelle(confid
+					.toString());
+			rapportCourrierUrgence.setUrgenceLibelle("");
+			rapportCourrierUrgence.setUrgenceLibelle(urgenceStat.toString());
+			//*
+			listRapportCourrierConfidentilaite=new ArrayList<RapportCourrierConfidentilaite>();
+			listRapportCourrierConfidentilaite.add(rapportCourrierConfidentilaite);
+			listRapportCourrierUrgence=new ArrayList<RapportCourrierUrgence>();
+			listRapportCourrierUrgence.add(rapportCourrierUrgence);
+			//**
+			if(vb.getListCourriers().size()>0){
+			rapportcourrier.get(0).setListRapportCourrierConfidentilaite(
+					listRapportCourrierConfidentilaite);
+			rapportcourrier.get(0).setListRapportCourrierUrgence(listRapportCourrierUrgence);
+			rapportcourrier.get(0).setListeSociete(listeSociete);
+			}
+		export.exportToPDF(rapportcourrier, "CourriersListes","CourriersListes");
+			
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	// Fiche Courrier Français
+	//******************************************* méthode ***********************************
+ 
+	public void printPDFFR() {
+		try {
+			
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle() + " Le ";
+			rapport.setSocieteVille(societeVille);
+			
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom("aaaa");
+			rs.setSocieteOrganismeParent(societeOrganismeParent);
+			rs.setSocieteRepublique("ccccc");
+			rs.setSocieteVille("dddddd");
+			// KHA 
+			if(vb.getPerson().isBoc()){
+			rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			System.out.println();
+			}else{
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+			// FIN KHA
+			listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(rapport.getSocieteNom());
+			listeSociete.get(0).setSocieteRepublique(rapport.getSocieteRepublique());
+			listeSociete.get(0).setSocieteVille(rapport.getSocieteVille());
+			listeSociete.get(0).setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+			
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			listConfidentilaite = appMgr.getList(Confidentialite.class);
+			listUrgence = appMgr.getList(Urgence.class);
+			Map<Confidentialite, Integer> mapConfidentialite = new HashMap<Confidentialite, Integer>();
+			Map<Urgence, Integer> mapUrgence = new HashMap<Urgence, Integer>();
+			for (Confidentialite confidentialite : listConfidentilaite) {
+				mapConfidentialite.put(confidentialite, 0);
+			}
+			for (Urgence urgence : listUrgence) {
+				mapUrgence.put(urgence, 0);
+			}
+			List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+		
+			int firstRow = 0;
+			if (vb.getSelectedListCourrier().equals("CRjour")){
+				
+				listCourriers = courrierConsultationJourBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapport(),
+						vb.getCategorieCourrierJourForRapport(),
+						vb.getTransmissionCourrierJourForRapport(),
+						vb.getTypeCourrierTraitementJourForRapport(),
+						vb.getTypeCourrierValidationJourForRapport(), firstRow,
+						vb.getNumberOfRows(), true, vb.getCourrierRubriqueJour());
+			}
+			
+				if (vb.getSelectedListCourrier().equals("CRmois")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						vb.getNumberOfRows(), true, vb.getCourrierRubrique());
+			}
+				
+					if (vb.getSelectedListCourrier().equals("CRannee")){
+				
+						listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						vb.getNumberOfRows(), true, vb.getCourrierRubrique());
+			}
+//					
+//			
+//
+//			if(vb.getListCourriers().size()>0){
+//				listCourriers=new ArrayList<CourrierInformations>();
+//				listCourriers=vb.getListCourriers();
+//			}
+//			System.out.println(listCourriers.size());
+		
+			int i = 0;
+			for (CourrierInformations courrierInformations : listCourriers) {
+				System.out.print("#" + i + 1 + "-");
+				rapport.setNumero(i + 1);
+				if (courrierInformations.getCourrier() == null) {
+					courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+				}
+				rapport.setCourrier(courrierInformations.getCourrier());
+				nature = appMgr.getNatureById(
+						courrierInformations.getCourrier().getNature()
+								.getNatureId()).get(0);
+				rapport.setNature(nature);
+				urgence = appMgr.getUrgenceById(
+						courrierInformations.getCourrier().getUrgence()
+								.getUrgenceId()).get(0);
+				mapUrgence.put(urgence, mapUrgence.get(urgence) + 1);
+				rapport.setUrgence(urgence);
+				confidentialite = appMgr.getConfidentialiteById(
+						courrierInformations.getCourrier().getConfidentialite()
+								.getConfidentialiteId()).get(0);
+				rapport.setConfidentialite(confidentialite);
+				mapConfidentialite.put(confidentialite,
+						mapConfidentialite.get(confidentialite) + 1);
+				transmission = appMgr.getTransmissionById(
+						courrierInformations.getCourrier().getTransmission()
+								.getTransmissionId()).get(0);
+				rapport.setTransmission(transmission);
+				System.out.println("###### reponse == " + courrierInformations.getCourrier().getCourrierNecessiteReponse());
+				if (courrierInformations.getCourrier().getCourrierNecessiteReponse().equals("Oui")){
+					rapport.setShowChampNecessiteReponse(true);
+				}
+//				//////////////KBS Transaction
+//				
+//				refTransaction = courrierInformations.getTransactionID();
+//				List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//				if (transaction != null)
+//				{
+//					tr = transaction.get(0);
+//				}
+//				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//				
+//				
+//				String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//				System.out.println("######## nouvelleRefCourrier " + nouvelleRefCourrier);
+//				courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//				rapport.setCourrier(courrierInformations.getCourrier());
+//				
+//				/////////////// KBS Transaction
+
+
+				
+				// Documents
+				listDocuments = appMgr
+						.getDocumentByIdCourrier(courrierInformations
+								.getCourrier().getIdCourrier());
+				if (!listDocuments.isEmpty()) {
+					documentt = "<b>Liste des documents : </b>"
+							+ listDocuments.get(0).getDocumentNom();
+					for (int j = 1; j < listDocuments.size(); j++) {
+						String a = String.valueOf(j + 1);
+						documentt = documentt + ";<b> (" + a + ")</b> "
+								+ listDocuments.get(j).getDocumentNom();
+					}
+
+					rapport.setListdocuments(documentt);
+				} else {
+					rapport.setListdocuments("Pas de document pour ce courrier");
+				}
+
+				// pathJasper
+				rapport.setPathJasper(vb.getPathJasper());
+
+				// Expediteur & Destinataire
+				rapportExpediteurDestinataire
+						.setExpediteur("<b>Expéditeur : </b>"
+								+ courrierInformations.getCourrierExpediteur());
+				rapportExpediteurDestinataire
+						.setDestinataire("<b>Destinataire : </b>"
+								+ courrierInformations
+										.getCourrierDestinataireReelle());
+				rapportExpediteurDestinatairelist
+						.add(rapportExpediteurDestinataire);
+				rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+				rapport.setNomProjet(nomProjet);
+				// if (i == listCourriers.size()-1) {
+
+				// }
+				String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+				.get(0).getSocieteLibelle();
+				rapport.setAdresse(adr);
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				listDocuments = new ArrayList<Document>();
+				rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+				rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+				i++;
+			}
+			// calcul confidentialite
+			StringBuilder confid = new StringBuilder(
+					"<b>Confidentialité </b> : ");
+			for (Entry<Confidentialite, Integer> entryConfid : mapConfidentialite
+					.entrySet()) {
+				System.out.println("/*" + entryConfid.getKey().getConfidentialiteLibelle() + "/*" + entryConfid.getValue());
+				
+				confid.append(entryConfid.getKey().getConfidentialiteLibelle())
+						.append(" (").append(entryConfid.getValue())
+						.append("); ");
+			}
+			//calcul urgence
+			StringBuilder urgenceStat = new StringBuilder(
+			"<b>Importance </b> : ");
+			for (Entry<Urgence, Integer> entryUrgence : mapUrgence
+					.entrySet()) {
+				System.out.println("/*" + entryUrgence.getKey().getUrgenceLibelle() + "/*" + entryUrgence.getValue());
+				urgenceStat.append(entryUrgence.getKey().getUrgenceLibelle())
+						.append(" (").append(entryUrgence.getValue())
+						.append("); ");
+			}
+			//*
+			
+			rapportCourrierConfidentilaite.setConfidentilaiteLibelle(confid
+					.toString());
+			rapportCourrierUrgence.setUrgenceLibelle(urgenceStat.toString());
+
+			//*
+			listRapportCourrierConfidentilaite
+			.add(rapportCourrierConfidentilaite);
+			
+			listRapportCourrierUrgence.add(rapportCourrierUrgence);
+			//**
+			if (rapportcourrier != null && rapportcourrier.size()>0 && rapportcourrier.get(0) != null  ){
+			rapportcourrier.get(0).setListRapportCourrierConfidentilaite(
+					listRapportCourrierConfidentilaite);
+			rapportcourrier.get(0).setListRapportCourrierUrgence(listRapportCourrierUrgence);
+			System.out.println("");
+			rapportcourrier.get(0).setListeSociete(listeSociete);
+		}
+            System.out.println("------------------KHA : soustitreRapportTous ------------------");
+		 
+      
+			RapportEnteteDePage  rpep= new  RapportEnteteDePage();
+			if(vb.getPerson().isBoc()){
+			rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportBoc());	
+			}else{
+				if(vb.getPerson().isResponsable()){
+					rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportResponsable());	
+					 
+				}else {
+					rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportSecAgent());
+				}
+				
+			}
+			System.out.println(" SousTitreRapportCourrierTous = "+rpep.getSousTitreRapportCourrier());
+			enteteDePage.add(rpep);
+			if (rapportcourrier != null && rapportcourrier.size()>0 && rapportcourrier.get(0) != null  ){
+			rapportcourrier.get(0).setEnteteDePage(enteteDePage);
+			}
+			System.out.println("--------------------FIN : soustitreRapportTous ----------------");
+			
+			// KHA 18-03
+			
+			System.out.println("---------exportToPDF : CourriersListes-----------");
+			export.exportToPDF(rapportcourrier, "CourriersListes",
+			"CourriersListes");
+			/*export.exportToPDF(rapportcourrier, "CourriersListes",
+					"CourriersListes");*/
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// List<Courrier> courriers = new ArrayList<Courrier>();
+		// for (int i = 0; i < courriers.size(); i++) {
+		// rapport.setNumero(i + 1);
+		//
+		// rapport.setCourrier(courriers.get(i));
+		// int refnature = courriers.get(i).getNature().getNatureId();
+		// nature = appMgr.getNatureById(refnature).get(0);
+		//
+		// int refUrgence = courriers.get(i).getUrgence().getUrgenceId();
+		// if (refUrgence == 2) {
+		// urgence1 = urgence1 + 1;
+		// }
+		// urgence = appMgr.getUrgenceById(refUrgence).get(0);
+		//
+		// int confref = courriers.get(i).getConfidentialite()
+		// .getConfidentialiteId();
+		// if (confref == 2) {
+		// conf1 = conf1 + 1;
+		// }
+		// confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+		//
+		// int reftransmission = courriers.get(i).getTransmission()
+		// .getTransmissionId();
+		// transmission = appMgr.getTransmissionById(reftransmission).get(
+		// 0);
+		//
+		// rapport.setCourrier(courriers.get(i));
+		// rapport.setNature(nature);
+		// rapport.setUrgence(urgence);
+		// rapport.setConfidentialite(confidentialite);
+		// rapport.setTransmission(transmission);
+		//
+		// // Liste des Documents
+		// int refcourrier = courriers.get(i).getIdCourrier();
+		// if (appMgr.getDocumentByIdCourrier(refcourrier).size() != 0) {
+		// listDocuments = appMgr.getDocumentByIdCourrier(refcourrier);
+		// documentt = "<b>Liste des documents : </b>"
+		// + listDocuments.get(0).getDocumentNom();
+		// for (int j = 1; j < listDocuments.size(); j++) {
+		// String a = String.valueOf(j + 1);
+		// documentt = documentt + ";<b> (" + a + ")</b> "
+		// + listDocuments.get(j).getDocumentNom();
+		// }
+		//
+		// rapport.setListdocuments(documentt);
+		// } else {
+		// rapport.setListdocuments("Pas de document pour ce courrier");
+		// }
+		// // Destinataire / EXpediteur
+		// rapport.setPathJasper(vb.getPathJasper());
+		// CourrierDossier courrierDossier = appMgr
+		// .getCourrierDossierByIdCourrier(
+		// courriers.get(i).getIdCourrier()).get(0);
+		//
+		// int refdossier = courrierDossier.getId().getDossierId();
+		// Transaction transaction = new Transaction();
+		// transaction = appMgr.getTransactionByIdDossier(refdossier).get(
+		// 0);
+		//
+		// int refExped = transaction.getExpdest().getIdExpDest();
+		// Expdest expdest = new Expdest();
+		// expdest = appMgr.getListExpDestByIdExpDest(refExped).get(0);
+		// int refExpediteur = expdest.getIdExpDestLdap();
+		// String type = expdest.getTypeExpDest();
+		// String nom = "";
+		// // EXpediteur
+		// if (type.equals("Interne-Person")) {
+		// nom = ldapOperation.getCnById(ldapOperation.CONTEXT_USER,
+		// "uid", refExpediteur);
+		// } else if (type.equals("Interne-Unité")) {
+		// nom = ldapOperation.getCnById(ldapOperation.CONTEXT_UNIT,
+		// "departmentNumber", refExpediteur);
+		// } else if (type.equals("Externe")) {
+		// if (expdest.getExpdestexterne().getTypeutilisateur()
+		// .getTypeUtilisateurLibelle().equals("PP")) {
+		// nom = expdest.getExpdestexterne()
+		// .getExpDestExterneNom() + " (PP)";
+		// } else {
+		// nom = expdest.getExpdestexterne()
+		// .getExpDestExterneNom() + " (PM)";
+		// }
+		// }
+		//
+		// rapportExpediteurDestinataire
+		// .setExpediteur("<b>Expéditeur : </b>" + nom);
+		//
+		// // Destinataire
+		// String result = "";
+		// int refTransacation = transaction.getTransactionId();
+		// List<TransactionDestination> listTransactionDestination = new
+		// ArrayList<TransactionDestination>();
+		// listTransactionDestination = appMgr
+		// .getListTransactionDestinationByIdTransaction(refTransacation);
+		//
+		// for (TransactionDestination transactionDestination :
+		// listTransactionDestination) {
+		// expdest = new Expdest();
+		// expdest = appMgr.getListExpDestByIdExpDest(
+		// transactionDestination.getId().getIdExpDest()).get(
+		// 0);
+		// type = expdest.getTypeExpDest();
+		// if (type.equals("Interne-Person")) {
+		// result = result
+		// + ldapOperation.getCnById(
+		// ldapOperation.CONTEXT_USER, "uid",
+		// expdest.getIdExpDestLdap()) + " / ";
+		// } else if (type.equals("Interne-Unité")) {
+		// result = result
+		// + ldapOperation.getCnById(
+		// ldapOperation.CONTEXT_UNIT,
+		// "departmentNumber",
+		// expdest.getIdExpDestLdap()) + " / ";
+		// } else if (type.equals("Externe")) {
+		// if (expdest.getExpdestexterne().getTypeutilisateur()
+		// .getTypeUtilisateurLibelle().equals("PP")) {
+		// result = result
+		// + expdest.getExpdestexterne()
+		// .getExpDestExterneNom() + " (PP)"
+		// + " / ";
+		// } else {
+		// result = result
+		// + expdest.getExpdestexterne()
+		// .getExpDestExterneNom() + " (PM)"
+		// + " / ";
+		// }
+		// }
+		// }
+		// if (!result.equals("")) {
+		// int lastIndex = result.lastIndexOf("/");
+		// result = result.substring(0, lastIndex);
+		// }
+		//
+		// rapportExpediteurDestinataire
+		// .setDestinataire("<b>Destinataire : </b>" + result);
+		//
+		// rapportExpediteurDestinatairelist
+		// .add(rapportExpediteurDestinataire);
+		// rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+		// rapport.setNomProjet(nomProjet);21
+		// rapportcourrier.add(rapport);
+		// rapport = new RapportCourrier();
+		// nature = new Nature();
+		// urgence = new Urgence();
+		// confidentialite = new Confidentialite();
+		// listDocuments = new ArrayList<Document>();
+		// rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+		// rapportExpediteurDestinatairelist = new
+		// ArrayList<RapportExpediteurDestinataire>();
+		//
+		// }
+		
+
+	}
+	public void printImage() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle() + " Le ";
+			rapport.setSocieteVille(societeVille);
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom("aaaa");
+			rs.setSocieteOrganismeParent("bbbbb");
+			rs.setSocieteRepublique("ccccc");
+			rs.setSocieteVille("dddddd");
+			listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(rapport.getSocieteNom());
+			listeSociete.get(0).setSocieteRepublique(rapport.getSocieteRepublique());
+			listeSociete.get(0).setSocieteVille(rapport.getSocieteVille());
+			listeSociete.get(0).setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			listConfidentilaite = appMgr.getList(Confidentialite.class);
+			listUrgence = appMgr.getList(Urgence.class);
+			Map<Confidentialite, Integer> mapConfidentialite = new HashMap<Confidentialite, Integer>();
+			Map<Urgence, Integer> mapUrgence = new HashMap<Urgence, Integer>();
+			for (Confidentialite confidentialite : listConfidentilaite) {
+				mapConfidentialite.put(confidentialite, 0);
+			}
+			for (Urgence urgence : listUrgence) {
+				mapUrgence.put(urgence, 0);
+			}
+			List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+			
+			int firstRow = 0;
+			if (vb.getSelectedListCourrier().equals("CRjour")){
+				listCourriers = courrierConsultationJourBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapport(),
+						vb.getCategorieCourrierJourForRapport(),
+						vb.getTransmissionCourrierJourForRapport(),
+						vb.getTypeCourrierTraitementJourForRapport(),
+						vb.getTypeCourrierValidationJourForRapport(), firstRow,
+						vb.getNumberOfRows(), true, vb.getCourrierRubriqueJour());
+			}
+			if (vb.getSelectedListCourrier().equals("CRmois")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						vb.getNumberOfRows(), true, vb.getCourrierRubrique());
+			}
+			if (vb.getSelectedListCourrier().equals("CRannee")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						vb.getNumberOfRows(), true, vb.getCourrierRubrique());
+			}
+			int i = 0;
+			for (CourrierInformations courrierInformations : listCourriers) {
+				System.out.print("#" + i + 1 + "-");
+				rapport.setNumero(i + 1);
+				if (courrierInformations.getCourrier() == null) {
+					courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+				}
+				rapport.setCourrier(courrierInformations.getCourrier());
+				nature = appMgr.getNatureById(
+						courrierInformations.getCourrier().getNature()
+						.getNatureId()).get(0);
+				rapport.setNature(nature);
+				urgence = appMgr.getUrgenceById(
+						courrierInformations.getCourrier().getUrgence()
+						.getUrgenceId()).get(0);
+				mapUrgence.put(urgence, mapUrgence.get(urgence) + 1);
+				rapport.setUrgence(urgence);
+				confidentialite = appMgr.getConfidentialiteById(
+						courrierInformations.getCourrier().getConfidentialite()
+						.getConfidentialiteId()).get(0);
+				rapport.setConfidentialite(confidentialite);
+				mapConfidentialite.put(confidentialite,
+						mapConfidentialite.get(confidentialite) + 1);
+				transmission = appMgr.getTransmissionById(
+						courrierInformations.getCourrier().getTransmission()
+						.getTransmissionId()).get(0);
+				rapport.setTransmission(transmission);
+				
+//				//////////////KBS Transaction
+//				
+//				refTransaction = courrierInformations.getTransactionID();
+//				List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//				if (transaction != null)
+//				{
+//					tr = transaction.get(0);
+//				}
+//				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//				
+//				
+//				String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//				
+//				courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//				rapport.setCourrier(courrierInformations.getCourrier());
+//				
+//				/////////////// KBS Transaction
+
+				
+				// Documents
+				listDocuments = appMgr
+						.getDocumentByIdCourrier(courrierInformations
+								.getCourrier().getIdCourrier());
+				if (!listDocuments.isEmpty()) {
+					documentt = "<b>Liste des documents : </b>"
+							+ listDocuments.get(0).getDocumentNom();
+					for (int j = 1; j < listDocuments.size(); j++) {
+						String a = String.valueOf(j + 1);
+						documentt = documentt + ";<b> (" + a + ")</b> "
+								+ listDocuments.get(j).getDocumentNom();
+					}
+					
+					rapport.setListdocuments(documentt);
+				} else {
+					rapport.setListdocuments("Pas de document pour ce courrier");
+				}
+				
+				// pathJasper
+				rapport.setPathJasper(vb.getPathJasper());
+				
+				// Expediteur & Destinataire
+				rapportExpediteurDestinataire
+				.setExpediteur("<b>Expéditeur : </b>"
+						+ courrierInformations.getCourrierExpediteur());
+				rapportExpediteurDestinataire
+				.setDestinataire("<b>Destinataire : </b>"
+						+ courrierInformations
+						.getCourrierDestinataireReelle());
+				rapportExpediteurDestinatairelist
+				.add(rapportExpediteurDestinataire);
+				rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+				rapport.setNomProjet(nomProjet);
+				// if (i == listCourriers.size()-1) {
+				
+				// }
+				String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+				.get(0).getSocieteLibelle();
+				rapport.setAdresse(adr);
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				listDocuments = new ArrayList<Document>();
+				rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+				rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+				i++;
+			}
+			// calcul confidentialite
+			StringBuilder confid = new StringBuilder(
+					"<b>Confidentialité </b> : ");
+			for (Entry<Confidentialite, Integer> entryConfid : mapConfidentialite
+					.entrySet()) {
+				System.out.println("/*" + entryConfid.getKey().getConfidentialiteLibelle() + "/*" + entryConfid.getValue());
+				
+				confid.append(entryConfid.getKey().getConfidentialiteLibelle())
+				.append(" (").append(entryConfid.getValue())
+				.append("); ");
+			}
+			//calcul urgence
+			StringBuilder urgenceStat = new StringBuilder(
+					"<b>Importance </b> : ");
+			for (Entry<Urgence, Integer> entryUrgence : mapUrgence
+					.entrySet()) {
+				System.out.println("/*" + entryUrgence.getKey().getUrgenceLibelle() + "/*" + entryUrgence.getValue());
+				urgenceStat.append(entryUrgence.getKey().getUrgenceLibelle())
+				.append(" (").append(entryUrgence.getValue())
+				.append("); ");
+			}
+			//*
+			rapportCourrierConfidentilaite.setConfidentilaiteLibelle(confid
+					.toString());
+			rapportCourrierUrgence.setUrgenceLibelle(urgenceStat.toString());
+			//*
+			listRapportCourrierConfidentilaite
+			.add(rapportCourrierConfidentilaite);
+			listRapportCourrierUrgence.add(rapportCourrierUrgence);
+			//**
+			rapportcourrier.get(0).setListRapportCourrierConfidentilaite(
+					listRapportCourrierConfidentilaite);
+			rapportcourrier.get(0).setListRapportCourrierUrgence(listRapportCourrierUrgence);
+			rapportcourrier.get(0).setListeSociete(listeSociete);
+			RapportPiedDePage rpdp= new RapportPiedDePage();
+			rpdp.setAdresse("test");
+			piedDePage.add(rpdp);
+			
+			System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+			rapportcourrier.get(0).setPiedDePage(piedDePage);
+				export.exportToImage(rapportcourrier, "CourriersListes",
+						"CourriersListes");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
+
+	// Fiche Courrier Arabe
+
+	public void printPDF() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Variable
+			Variables variable = new Variables();
+			variable = appMgr.getList(Variables.class).get(0);
+
+			// Societe
+			List<Societe> societes = new ArrayList<Societe>();
+			societes = appMgr.getList(Societe.class);
+
+			String societeNom = societes.get(1).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+
+			String societeOrganismeParent = societes.get(3).getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+
+			String societeRepublique = societes.get(5).getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+
+			String societeVille = societes.get(6).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+
+			// Expediteur
+			Expdestexterne expediteur = new Expdestexterne();
+			expediteur = appMgr.getList(Expdestexterne.class).get(0);
+			String nomProjet = appMgr.getList(Variables.class).get(0)
+					.getVariablesContenu();
+			// Destinataire
+			Expdestexterne destinataire = new Expdestexterne();
+			destinataire = appMgr.getList(Expdestexterne.class).get(1);
+			List<Courrier> courriers = appMgr.getList(Courrier.class);
+			listConfidentilaite = appMgr.getList(Confidentialite.class);
+			listUrgence = appMgr.getList(Urgence.class);
+			for (int t = 0; t < listConfidentilaite.size(); t++) {
+				int refconf = listConfidentilaite.get(t).getConfidentialiteId();
+				long conf = appMgr.countListRowConfidentialite(refconf);
+				rapportCourrierConfidentilaite
+						.setConfidentilaiteLibelle(listConfidentilaite.get(t)
+								.getConfidentialiteLibelleAr());
+				rapportCourrierConfidentilaite.setNombre(conf);
+				listRapportCourrierConfidentilaite
+						.add(rapportCourrierConfidentilaite);
+				rapportCourrierConfidentilaite = new RapportCourrierConfidentilaite();
+			}
+
+			for (int t = 0; t < listUrgence.size(); t++) {
+
+				int refUrgence = listUrgence.get(t).getUrgenceId();
+				long urg = appMgr.countListRowrgence(refUrgence);
+				rapportCourrierUrgence.setUrgenceLibelle(listUrgence.get(t)
+						.getUrgenceLibelleAr());
+				rapportCourrierUrgence.setNombre(urg);
+				listRapportCourrierUrgence.add(rapportCourrierUrgence);
+				rapportCourrierUrgence = new RapportCourrierUrgence();
+			}
+			// URgence
+			String total = "<b> درجة الأهمية </b>" + "["
+					+ courriers.size() + "] : ";
+			importance = total
+					+ listRapportCourrierUrgence.get(0).getUrgenceLibelle()
+					+ " ("
+					+ String.valueOf(listRapportCourrierUrgence.get(0)
+							.getNombre()) + ")";
+			for (int k = 1; k < listRapportCourrierUrgence.size(); k++) {
+				importance = importance
+						+ "; "
+						+ listRapportCourrierUrgence.get(k).getUrgenceLibelle()
+						+ " ("
+						+ String.valueOf(listRapportCourrierUrgence.get(k)
+								.getNombre()) + ")";
+			}
+			rapport.setImpotance("<li>" + importance + "</li>");
+
+			String total1 = "<b> درجة السرية </b>" + "["
+					+ courriers.size() + "] : ";
+			confidentialites = total1
+					+ listRapportCourrierConfidentilaite.get(0)
+							.getConfidentilaiteLibelle()
+					+ " ("
+					+ String.valueOf(listRapportCourrierConfidentilaite.get(0)
+							.getNombre()) + ")";
+			for (int l = 1; l < listRapportCourrierUrgence.size(); l++) {
+				confidentialites = confidentialites
+						+ "; "
+						+ listRapportCourrierConfidentilaite.get(l)
+								.getConfidentilaiteLibelle()
+						+ " ("
+						+ String.valueOf(listRapportCourrierConfidentilaite
+								.get(l).getNombre()) + ")";
+			}
+			rapport.setConfidentialites("<li>" + confidentialites + "</li>");
+
+			rapport.setListRapportCourrierConfidentilaite(listRapportCourrierConfidentilaite);
+			rapport.setListRapportCourrierUrgence(listRapportCourrierUrgence);
+
+			int urgence1 = 0;
+			int conf1 = 0;
+			for (int i = 0; i < courriers.size(); i++) {
+				rapport.setNumero(i + 1);
+
+				rapport.setCourrier(courriers.get(i));
+				int refnature = courriers.get(i).getNature().getNatureId();
+				nature = appMgr.getNatureById(refnature).get(0);
+
+				int refUrgence = courriers.get(i).getUrgence().getUrgenceId();
+				if (refUrgence == 3) {
+					urgence1 = urgence1 + 1;
+				}
+				urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+				int confref = courriers.get(i).getConfidentialite()
+						.getConfidentialiteId();
+				if (confref == 3) {
+					conf1 = conf1 + 1;
+				}
+				confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+			}
+			rapport.setUrgen(urgence1);
+			rapport.setConf(conf1);
+			// Liste des documents
+
+			rapport.setTotal("<b>Total : </b>"
+					+ String.valueOf(courriers.size()));
+			for (int i = 0; i < courriers.size(); i++) {
+				rapport.setNumero(i + 1);
+
+				rapport.setCourrier(courriers.get(i));
+				int refnature = courriers.get(i).getNature().getNatureId();
+				nature = appMgr.getNatureById(refnature).get(0);
+
+				int refUrgence = courriers.get(i).getUrgence().getUrgenceId();
+				if (refUrgence == 2) {
+					urgence1 = urgence1 + 1;
+				}
+				urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+				int confref = courriers.get(i).getConfidentialite()
+						.getConfidentialiteId();
+				if (confref == 2) {
+					conf1 = conf1 + 1;
+				}
+				confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+
+				int reftransmission = courriers.get(i).getTransmission()
+						.getTransmissionId();
+				transmission = appMgr.getTransmissionById(reftransmission).get(0);
+
+
+				//////////////KBS Transaction
+				
+				CourrierDossier courrierDossier = appMgr.getCourrierDossierByIdCourrier(courriers.get(i).getIdCourrier()).get(0);
+				int refdossier = courrierDossier.getId().getDossierId();
+				Transaction transaction = new Transaction();
+				transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+				String nouvelleRefCourrier=transaction.getCourrierReferenceCorrespondant();
+				courriers.get(i).setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+				rapport.setReference(nouvelleRefCourrier);
+				System.out.println("/////////// printPDF Rapport Courriers liste  getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+				
+				//////////////KBS Transaction
+				
+
+				rapport.setCourrier(courriers.get(i));
+				rapport.setNature(nature);
+				rapport.setUrgence(urgence);
+				rapport.setConfidentialite(confidentialite);
+				rapport.setTransmission(transmission);
+				rapport.setExpediteur(expediteur);
+				rapport.setDestinataire(destinataire);
+				rapport.setVariable(variable);
+
+				// Liste des Documents
+				int refcourrier = courriers.get(i).getIdCourrier();
+				if (appMgr.getDocumentByIdCourrier(refcourrier).size() != 0) {
+					listDocuments = appMgr.getDocumentByIdCourrier(refcourrier);
+					documentt = listDocuments.get(0).getDocumentNomAR();
+					for (int j = 1; j < listDocuments.size(); j++) {
+						documentt = documentt + ", "
+								+ listDocuments.get(j).getDocumentNomAR();
+					}
+
+					rapport.setListdocuments(documentt);
+				} else {
+					rapport.setListdocuments("");
+				}
+				rapport.setNomProjet(nomProjet);
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				listDocuments = new ArrayList<Document>();
+			}
+
+			export.exportToPDF(rapportcourrier, "CourriersListesArabes",
+					"CourriersListesArabes");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+	public void printCodeBarre() {
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			System.out.println("  :  "+listSelected.size());
+			listConfidentilaite = appMgr.getList(Confidentialite.class);
+			listUrgence = appMgr.getList(Urgence.class);
+			Map<Confidentialite, Integer> mapConfidentialite = new HashMap<Confidentialite, Integer>();
+			Map<Urgence, Integer> mapUrgence = new HashMap<Urgence, Integer>();
+			for (Confidentialite confidentialite : listConfidentilaite) {
+				mapConfidentialite.put(confidentialite, 0);
+			}
+			for (Urgence urgence : listUrgence) {
+				mapUrgence.put(urgence, 0);
+			}
+			List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+			
+			int firstRow = 0;
+			if (vb.getSelectedListCourrier().equals("CRjour")){
+				listCourriers = courrierConsultationJourBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapport(),
+						vb.getCategorieCourrierJourForRapport(),
+						vb.getTransmissionCourrierJourForRapport(),
+						vb.getTypeCourrierTraitementJourForRapport(),
+						vb.getTypeCourrierValidationJourForRapport(), firstRow,
+						100, true, vb.getCourrierRubriqueJour());
+			}
+			if (vb.getSelectedListCourrier().equals("CRmois")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						200, true, vb.getCourrierRubrique());
+			}
+			if (vb.getSelectedListCourrier().equals("CRannee")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						300, true, vb.getCourrierRubrique());
+			}
+			int i = 0;
+			for (CourrierInformations courrierInformations : listCourriers) {
+				System.out.print("#" + i + 1 + "-");
+				rapport.setNumero(i + 1);
+				if (courrierInformations.getCourrier() == null) {
+					courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+				}
+				rapport.setCourrier(courrierInformations.getCourrier());
+				nature = appMgr.getNatureById(
+						courrierInformations.getCourrier().getNature()
+						.getNatureId()).get(0);
+				rapport.setNature(nature);
+				urgence = appMgr.getUrgenceById(
+						courrierInformations.getCourrier().getUrgence()
+						.getUrgenceId()).get(0);
+				mapUrgence.put(urgence, mapUrgence.get(urgence) + 1);
+				rapport.setUrgence(urgence);
+				confidentialite = appMgr.getConfidentialiteById(
+						courrierInformations.getCourrier().getConfidentialite()
+						.getConfidentialiteId()).get(0);
+				rapport.setConfidentialite(confidentialite);
+				mapConfidentialite.put(confidentialite,
+						mapConfidentialite.get(confidentialite) + 1);
+				transmission = appMgr.getTransmissionById(
+						courrierInformations.getCourrier().getTransmission()
+						.getTransmissionId()).get(0);
+				rapport.setTransmission(transmission);
+				
+				
+//				//////////////KBS Transaction
+//				
+//				refTransaction = courrierInformations.getTransactionID();
+//				List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//				if (transaction != null)
+//				{
+//					tr = transaction.get(0);
+//				}
+//				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//				
+//				
+//				String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//				
+//				courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//				rapport.setCourrier(courrierInformations.getCourrier());
+//				
+//				/////////////// KBS Transaction
+				
+				
+				// Documents
+				listDocuments = appMgr
+						.getDocumentByIdCourrier(courrierInformations
+								.getCourrier().getIdCourrier());
+				if (!listDocuments.isEmpty()) {
+					documentt = "<b>Liste des documents : </b>"
+							+ listDocuments.get(0).getDocumentNom();
+					for (int j = 1; j < listDocuments.size(); j++) {
+						String a = String.valueOf(j + 1);
+						documentt = documentt + ";<b> (" + a + ")</b> "
+								+ listDocuments.get(j).getDocumentNom();
+					}
+					
+					rapport.setListdocuments(documentt);
+				} else {
+					rapport.setListdocuments("Pas de document pour ce courrier");
+				}
+				
+				// pathJasper
+				rapport.setPathJasper(vb.getPathJasper());
+				
+				// Expediteur & Destinataire
+				rapportExpediteurDestinataire
+				.setExpediteur("<b>Expéditeur : </b>"
+						+ courrierInformations.getCourrierExpediteur());
+				rapportExpediteurDestinataire
+				.setDestinataire("<b>Destinataire : </b>"
+						+ courrierInformations
+						.getCourrierDestinataireReelle());
+				rapportExpediteurDestinatairelist
+				.add(rapportExpediteurDestinataire);
+				rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+				
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				listDocuments = new ArrayList<Document>();
+				rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+				rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+				i++;
+			}
+			// calcul confidentialite
+			StringBuilder confid = new StringBuilder(
+					"<b>Confidentialité </b> : ");
+			for (Entry<Confidentialite, Integer> entryConfid : mapConfidentialite
+					.entrySet()) {
+				System.out.println("/*" + entryConfid.getKey().getConfidentialiteLibelle() + "/*" + entryConfid.getValue());
+				
+				confid.append(entryConfid.getKey().getConfidentialiteLibelle())
+				.append(" (").append(entryConfid.getValue())
+				.append("); ");
+			}
+			//calcul urgence
+			StringBuilder urgenceStat = new StringBuilder(
+					"<b>Importance </b> : ");
+			for (Entry<Urgence, Integer> entryUrgence : mapUrgence
+					.entrySet()) {
+				System.out.println("/*" + entryUrgence.getKey().getUrgenceLibelle() + "/*" + entryUrgence.getValue());
+				urgenceStat.append(entryUrgence.getKey().getUrgenceLibelle())
+				.append(" (").append(entryUrgence.getValue())
+				.append("); ");
+			}
+			//*
+			rapportCourrierConfidentilaite.setConfidentilaiteLibelle(confid
+					.toString());
+			rapportCourrierUrgence.setUrgenceLibelle(urgenceStat.toString());
+			//*
+			listRapportCourrierConfidentilaite
+			.add(rapportCourrierConfidentilaite);
+			listRapportCourrierUrgence.add(rapportCourrierUrgence);
+			//**
+
+			rapportcourrier.get(0).setListRapportCourrierConfidentilaite(
+					listRapportCourrierConfidentilaite);
+			rapportcourrier.get(0).setListRapportCourrierUrgence(listRapportCourrierUrgence);
+				export.exportToPDF(rapportcourrier, "CodeBare",
+						"code barre");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
+	public void printInterne() {
+		vb.setFlagInterne(11);
+		try {
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle() + " Le ";
+			rapport.setSocieteVille(societeVille);
+			
+			RapportSociete rs = new RapportSociete();
+			rs.setSocieteNom("aaaa");
+			rs.setSocieteOrganismeParent("bbbbb");
+			rs.setSocieteRepublique("ccccc");
+			rs.setSocieteVille("dddddd");
+			// KHA 
+			if(vb.getPerson().isBoc()){
+			rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			System.out.println();
+			}else{
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+			listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(rapport.getSocieteNom());
+			listeSociete.get(0).setSocieteRepublique(rapport.getSocieteRepublique());
+			listeSociete.get(0).setSocieteVille(rapport.getSocieteVille());
+			listeSociete.get(0).setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+			
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			listConfidentilaite = appMgr.getList(Confidentialite.class);
+			listUrgence = appMgr.getList(Urgence.class);
+			Map<Confidentialite, Integer> mapConfidentialite = new HashMap<Confidentialite, Integer>();
+			Map<Urgence, Integer> mapUrgence = new HashMap<Urgence, Integer>();
+			for (Confidentialite confidentialite : listConfidentilaite) {
+				mapConfidentialite.put(confidentialite, 0);
+			}
+			for (Urgence urgence : listUrgence) {
+				mapUrgence.put(urgence, 0);
+			}
+			List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+			
+			int firstRow = 0;
+			if (vb.getSelectedListCourrier().equals("CRjour")){
+				listCourriers = courrierConsultationJourBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapport(),
+						vb.getCategorieCourrierJourForRapport(),
+						vb.getTransmissionCourrierJourForRapport(),
+						vb.getTypeCourrierTraitementJourForRapport(),
+						vb.getTypeCourrierValidationJourForRapport(), firstRow,
+						10, true, vb.getCourrierRubriqueJour());
+			}
+			if (vb.getSelectedListCourrier().equals("CRmois")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						10, true, vb.getCourrierRubrique());
+			}
+			if (vb.getSelectedListCourrier().equals("CRannee")){
+				
+				listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+						vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+						vb.getCategorieCourrierJourForRapportAncien(),
+						vb.getTransmissionCourrierJourForRapportAncien(),
+						vb.getTypeCourrierTraitementJourForRapportAncien(),
+						vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+						10, true, vb.getCourrierRubrique());
+			}
+		/*	for (CourrierInformations courrierInformations : listCourriers) {
+				int position =0;
+				if(courrierInformations.getCourrier().equals(null))
+				position=courrierInformations.getCourrier().getCourrierReferenceCorrespondant().indexOf("i");
+				System.out.println(position);
+//				pattern = Pattern.compile("I*");
+//				if(courrierInformations.getCourrier().getCourrierReferenceCorrespondant().contains("I")){
+//			     
+//			        	listCourriers2.add(courrierInformations);
+//			      
+//				}
+				
+				
+			}
+			System.out.println("***************************************");
+			System.out.println("listCourriers2 taille : "+listCourriers.size());
+			System.out.println("***************************************");*/
+			 
+			int i = 0;
+			for (CourrierInformations courrierInformations : listCourriers) {
+				System.out.print("#" + i + 1 + "-");
+				
+				if (courrierInformations.getCourrier() == null) {
+					courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+				}
+				if (courrierInformations.getCourrier().getCourrierNecessiteReponse().equals("Oui")){
+					rapport.setShowChampNecessiteReponse(true);
+				}			
+				if(appMgr.getCourrierInterene(courrierInformations.getCourrierID()).size()>0)
+				{
+					rapport.setNumero(i + 1);
+				courrierInformations.setCourrier(appMgr.getCourrierInterene(courrierInformations.getCourrierID()).get(0));
+				rapport.setCourrier(courrierInformations.getCourrier());
+				
+				nature = appMgr.getNatureById(
+						courrierInformations.getCourrier().getNature()
+						.getNatureId()).get(0);
+				rapport.setNature(nature);
+				urgence = appMgr.getUrgenceById(
+						courrierInformations.getCourrier().getUrgence()
+						.getUrgenceId()).get(0);
+				mapUrgence.put(urgence, mapUrgence.get(urgence) + 1);
+				rapport.setUrgence(urgence);
+				confidentialite = appMgr.getConfidentialiteById(
+						courrierInformations.getCourrier().getConfidentialite()
+						.getConfidentialiteId()).get(0);
+				rapport.setConfidentialite(confidentialite);
+				mapConfidentialite.put(confidentialite,
+						mapConfidentialite.get(confidentialite) + 1);
+				transmission = appMgr.getTransmissionById(
+						courrierInformations.getCourrier().getTransmission()
+						.getTransmissionId()).get(0);
+				rapport.setTransmission(transmission);
+				
+				
+//				//////////////KBS Transaction
+//				
+//				refTransaction = courrierInformations.getTransactionID();
+//				List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//				if (transaction != null)
+//				{
+//					tr = transaction.get(0);
+//				}
+//				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//				
+//				
+//				String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//				
+//				courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//				rapport.setCourrier(courrierInformations.getCourrier());
+//				
+//				/////////////// KBS Transaction
+				
+				
+								// Documents
+				listDocuments = appMgr
+						.getDocumentByIdCourrier(courrierInformations
+								.getCourrier().getIdCourrier());
+				if (!listDocuments.isEmpty()) {
+					documentt = "<b>Liste des documents : </b>"
+							+ listDocuments.get(0).getDocumentNom();
+					for (int j = 1; j < listDocuments.size(); j++) {
+						String a = String.valueOf(j + 1);
+						documentt = documentt + ";<b> (" + a + ")</b> "
+								+ listDocuments.get(j).getDocumentNom();
+					}
+					
+					rapport.setListdocuments(documentt);
+				} else {
+					rapport.setListdocuments("Pas de document pour ce courrier");
+				}
+				
+				// pathJasper
+				rapport.setPathJasper(vb.getPathJasper());
+				
+				// Expediteur & Destinataire
+				rapportExpediteurDestinataire
+				.setExpediteur("<b>Expéditeur : </b>"
+						+ courrierInformations.getCourrierExpediteur());
+				rapportExpediteurDestinataire
+				.setDestinataire("<b>Destinataire : </b>"
+						+ courrierInformations
+						.getCourrierDestinataireReelle());
+				rapportExpediteurDestinatairelist
+				.add(rapportExpediteurDestinataire);
+				rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+				rapport.setNomProjet(nomProjet);
+				String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+				.get(0).getSocieteLibelle();
+				rapport.setAdresse(adr);
+				rapportcourrier.add(rapport);
+				rapport = new RapportCourrier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				listDocuments = new ArrayList<Document>();
+				rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+				rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+				i++;
+			}
+			}
+			// calcul confidentialite
+			StringBuilder confid = new StringBuilder(
+					"<b>Confidentialité </b> : ");
+			for (Entry<Confidentialite, Integer> entryConfid : mapConfidentialite
+					.entrySet()) {
+				System.out.println("/*" + entryConfid.getKey().getConfidentialiteLibelle() + "/*" + entryConfid.getValue());
+				
+				confid.append(entryConfid.getKey().getConfidentialiteLibelle())
+				.append(" (").append(entryConfid.getValue())
+				.append("); ");
+			}
+			//calcul urgence
+			StringBuilder urgenceStat = new StringBuilder(
+					"<b>Importance </b> : ");
+			for (Entry<Urgence, Integer> entryUrgence : mapUrgence
+					.entrySet()) {
+				System.out.println("/*" + entryUrgence.getKey().getUrgenceLibelle() + "/*" + entryUrgence.getValue());
+				urgenceStat.append(entryUrgence.getKey().getUrgenceLibelle())
+				.append(" (").append(entryUrgence.getValue())
+				.append("); ");
+			}
+			//*
+			rapportCourrierConfidentilaite.setConfidentilaiteLibelle(confid
+					.toString());
+			rapportCourrierUrgence.setUrgenceLibelle(urgenceStat.toString());
+			//*
+			listRapportCourrierConfidentilaite
+			.add(rapportCourrierConfidentilaite);
+			listRapportCourrierUrgence.add(rapportCourrierUrgence);
+			System.out.println("listRapportCourrierUrgence size = "+listRapportCourrierUrgence.size());
+			//**
+			
+			rapport.setNomProjet(nomProjet);
+			
+			RapportPiedDePage rpdp= new RapportPiedDePage();
+			rpdp.setAdresse("test");
+			piedDePage.add(rpdp);
+			
+			System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+			
+			
+			
+			
+			  System.out.println("------------------KHA : soustitreRapportInterne ------------------");
+				 
+ 
+				RapportEnteteDePage  rpep= new  RapportEnteteDePage();
+				if(vb.getPerson().isBoc()){
+				rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportBoc());	
+				}else{
+					if(vb.getPerson().isResponsable()){
+						rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportResponsable());	
+						 
+					}else {
+						rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportSecAgent());
+					}
+					
+				}
+				System.out.println(" SousTitreRapportCourrierInterne = "+rpep.getSousTitreRapportCourrier());
+				enteteDePage.add(rpep);
+				if(rapportcourrier.size()!=0){
+					rapportcourrier.get(0).setListRapportCourrierConfidentilaite(
+							listRapportCourrierConfidentilaite);
+					rapportcourrier.get(0).setPiedDePage(piedDePage);
+					rapportcourrier.get(0).setListRapportCourrierUrgence(listRapportCourrierUrgence);
+					rapportcourrier.get(0).setListeSociete(listeSociete);
+					rapportcourrier.get(0).setEnteteDePage(enteteDePage);}
+				
+				
+				System.out.println("--------------------FIN : soustitreRapportInterne ----------------");
+				
+				export.exportToPDF(rapportcourrier, "CourriersListesInterne",
+						"CourriersListesInterne");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
+	
+///////////////*****************************************************////////////////
+	
+
+	public void printPDFFRCloture() {
+			try {
+				vb.setFlagCloture(4);
+				System.out.println("vb.getFlagCloture(4)" + vb.getFlagCloture());
+				System.out.println("//////////////printPDFFRCloture//////////////////");
+				List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+				RapportCourrier rapport = new RapportCourrier();
+				// Societe
+				String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+						.get(0).getSocieteLibelle();
+				System.out.println("//////////////societeNom//////////////////" + societeNom);
+
+				rapport.setSocieteNom(societeNom);
+				
+				String societeOrganismeParent = appMgr
+						.listSocieteByLibelle("Ministere_Nom").get(0)
+						.getSocieteLibelle();
+				System.out.println("//////////////societeOrganismeParent//////////////////" + societeOrganismeParent);
+
+				rapport.setSocieteOrganismeParent(societeOrganismeParent);
+				String societeRepublique = appMgr
+						.listSocieteByLibelle("Republique_Nom").get(0)
+						.getSocieteLibelle();
+				System.out.println("//////////////societeRepublique//////////////////" + societeRepublique);
+
+				
+				rapport.setSocieteRepublique(societeRepublique);
+				String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+						.get(0).getSocieteLibelle() + " Le ";
+				rapport.setSocieteVille(societeVille);
+				RapportSociete rs = new RapportSociete();
+				// KHA 
+				if(vb.getPerson().isBoc()){
+				rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+				System.out.println();
+				}else{
+					rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+				}
+				listeSociete.add(rs);
+				listeSociete.get(0).setSocieteNom(rapport.getSocieteNom());
+				listeSociete.get(0).setSocieteRepublique(rapport.getSocieteRepublique());
+				listeSociete.get(0).setSocieteVille(rapport.getSocieteVille());
+				listeSociete.get(0).setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+								
+				// Variables
+				String nomProjet = appMgr
+						.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+						.getVariablesContenu();
+				rapport.setNomProjet(nomProjet);
+				System.out.println("++++Nom Projet : "+rapport.getNomProjet());
+	
+				listConfidentilaite = appMgr.getList(Confidentialite.class);
+				listUrgence = appMgr.getList(Urgence.class);
+				Map<Confidentialite, Integer> mapConfidentialite = new HashMap<Confidentialite, Integer>();
+				Map<Urgence, Integer> mapUrgence = new HashMap<Urgence, Integer>();
+				for (Confidentialite confidentialite : listConfidentilaite) {
+					mapConfidentialite.put(confidentialite, 0);
+				}
+				for (Urgence urgence : listUrgence) {
+					mapUrgence.put(urgence, 0);
+				}
+				List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+			
+				int firstRow = 0;
+				if (vb.getSelectedListCourrier().equals("CRjour")){
+
+					System.out.println("/////////////////CRjour");
+					
+					listCourriers = courrierConsultationJourBean.searchListCourrier(vb.getFilterMap(),
+							vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapport(),
+							vb.getCategorieCourrierJourForRapport(),
+							vb.getTransmissionCourrierJourForRapport(),
+							vb.getTypeCourrierTraitementJourForRapport(),
+							vb.getTypeCourrierValidationJourForRapport(), firstRow,
+							vb.getNumberOfRows(), true, vb.getCourrierRubriqueJour());
+				}
+				
+					if (vb.getSelectedListCourrier().equals("CRmois")){
+						System.out.println("/////////////////CRmois");
+
+					listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+							vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+							vb.getCategorieCourrierJourForRapportAncien(),
+							vb.getTransmissionCourrierJourForRapportAncien(),
+							vb.getTypeCourrierTraitementJourForRapportAncien(),
+							vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+							vb.getNumberOfRows(), true, vb.getCourrierRubrique());
+				}
+					
+						if (vb.getSelectedListCourrier().equals("CRannee")){
+							System.out.println("/////////////////CRannee");
+
+							listCourriers = courrierConsultationAncienBean.searchListCourrier(vb.getFilterMap(),
+							vb.getSortField(), vb.isDescending(), vb.getTypeCourrierJourForRapportAncien(),
+							vb.getCategorieCourrierJourForRapportAncien(),
+							vb.getTransmissionCourrierJourForRapportAncien(),
+							vb.getTypeCourrierTraitementJourForRapportAncien(),
+							vb.getTypeCourrierValidationJourForRapportAncien(), firstRow,
+							vb.getNumberOfRows(), true, vb.getCourrierRubrique());
+				}
+
+				int i = 0;
+				//AH  NON : à remplacer par rapport hard codé
+				for (CourrierInformations courrierInformations : listCourriers) {
+					System.out.print("boucle For");
+					System.out.print("#" + i + 1 + "-");
+					rapport.setNumero(i + 1);
+					if (courrierInformations.getCourrier() == null) {
+						courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+						
+					}
+					if(courrierInformations.getCourrier()!=null){
+						if (courrierInformations.getCourrier().getCourrierNecessiteReponse().equals("Oui")){
+							rapport.setShowChampNecessiteReponse(true);
+						}	
+					rapport.setCourrier(courrierInformations.getCourrier());
+					nature = appMgr.getNatureById(
+							courrierInformations.getCourrier().getNature()
+									.getNatureId()).get(0);
+					rapport.setNature(nature);
+					urgence = appMgr.getUrgenceById(
+							courrierInformations.getCourrier().getUrgence()
+									.getUrgenceId()).get(0);
+					mapUrgence.put(urgence, mapUrgence.get(urgence) + 1);
+					rapport.setUrgence(urgence);
+					confidentialite = appMgr.getConfidentialiteById(
+							courrierInformations.getCourrier().getConfidentialite()
+									.getConfidentialiteId()).get(0);
+					rapport.setConfidentialite(confidentialite);
+					mapConfidentialite.put(confidentialite,
+							mapConfidentialite.get(confidentialite) + 1);
+					transmission = appMgr.getTransmissionById(
+							courrierInformations.getCourrier().getTransmission()
+									.getTransmissionId()).get(0);
+					rapport.setTransmission(transmission);
+					
+					
+//					//////////////KBS Transaction
+//					
+//					refTransaction = courrierInformations.getTransactionID();
+//					List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//					if (transaction != null)
+//					{
+//						tr = transaction.get(0);
+//					}
+//					System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//					
+//					
+//					String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//					
+//					courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//					rapport.setCourrier(courrierInformations.getCourrier());
+//					
+//					/////////////// KBS Transaction
+					
+					// Documents
+					listDocuments = appMgr
+							.getDocumentByIdCourrier(courrierInformations
+									.getCourrier().getIdCourrier());
+					if (!listDocuments.isEmpty()) {
+						documentt = "<b>Liste des documents : </b>"
+								+ listDocuments.get(0).getDocumentNom();
+						for (int j = 1; j < listDocuments.size(); j++) {
+							String a = String.valueOf(j + 1);
+							documentt = documentt + ";<b> (" + a + ")</b> "
+									+ listDocuments.get(j).getDocumentNom();
+						}
+
+						rapport.setListdocuments(documentt);
+					} else {
+						rapport.setListdocuments("Pas de document pour ce courrier");
+					}
+
+					// pathJasper
+					rapport.setPathJasper(vb.getPathJasper());
+
+					// Expediteur & Destinataire
+					rapportExpediteurDestinataire
+							.setExpediteur("<b>Expéditeur : </b>"
+									+ courrierInformations.getCourrierExpediteur());
+					rapportExpediteurDestinataire
+							.setDestinataire("<b>Destinataire : </b>"
+									+ courrierInformations
+											.getCourrierDestinataireReelle());
+					rapportExpediteurDestinatairelist
+							.add(rapportExpediteurDestinataire);
+					rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+					rapport.setNomProjet(nomProjet);
+					// if (i == listCourriers.size()-1) {
+
+					// }
+					
+//					String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+//							.get(0).getSocieteLibelle();
+//					rapport.setAdresse(adr);
+				
+					rapportcourrier.add(rapport);
+					rapport = new RapportCourrier();
+					i++;
+					
+					nature = new Nature();
+					urgence = new Urgence();
+					confidentialite = new Confidentialite();
+					listDocuments = new ArrayList<Document>();
+					rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+					rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+					
+				
+					}
+				}
+				// calcul confidentialite
+				StringBuilder confid = new StringBuilder(
+						"<b>Confidentialité </b> : ");
+				for (Entry<Confidentialite, Integer> entryConfid : mapConfidentialite
+						.entrySet()) {
+					System.out.println("/*" + entryConfid.getKey().getConfidentialiteLibelle() + "/*" + entryConfid.getValue());
+					
+					confid.append(entryConfid.getKey().getConfidentialiteLibelle())
+							.append(" (").append(entryConfid.getValue())
+							.append("); ");
+				}
+				//calcul urgence
+				StringBuilder urgenceStat = new StringBuilder(
+				"<b>Importance </b> : ");
+				for (Entry<Urgence, Integer> entryUrgence : mapUrgence
+						.entrySet()) {
+					System.out.println("/*" + entryUrgence.getKey().getUrgenceLibelle() + "/*" + entryUrgence.getValue());
+					urgenceStat.append(entryUrgence.getKey().getUrgenceLibelle())
+							.append(" (").append(entryUrgence.getValue())
+							.append("); ");
+				}
+				//*
+				rapportCourrierConfidentilaite.setConfidentilaiteLibelle(confid
+						.toString());
+				rapportCourrierUrgence.setUrgenceLibelle(urgenceStat.toString());
+				//*
+				listRapportCourrierConfidentilaite
+				.add(rapportCourrierConfidentilaite);
+				listRapportCourrierUrgence.add(rapportCourrierUrgence);
+				//**
+				if (rapportcourrier != null && rapportcourrier.size()>0 && rapportcourrier.get(0) != null  ){
+				rapportcourrier.get(0).setListRapportCourrierConfidentilaite(
+						listRapportCourrierConfidentilaite);
+				System.out.println("CONFIDENTIALITE : "+rapportcourrier.get(0).getListRapportCourrierConfidentilaite().get(0).getConfidentilaiteLibelle());
+				rapportcourrier.get(0).setListRapportCourrierUrgence(listRapportCourrierUrgence);
+				System.out.println("URGENCE : "+rapportcourrier.get(0).getListRapportCourrierUrgence().get(0).getUrgenceLibelle());
+				rapportcourrier.get(0).setListeSociete(listeSociete);
+				RapportPiedDePage rpdp= new RapportPiedDePage();
+				rpdp.setAdresse("test");
+				piedDePage.add(rpdp);
+				
+				System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+				rapportcourrier.get(0).setPiedDePage(piedDePage);
+				}
+				  System.out.println("------------------KHA : soustitreRapportCloture ------------------");
+				 
+					RapportEnteteDePage  rpep= new  RapportEnteteDePage();
+					if(vb.getPerson().isBoc()){
+					rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportBoc());	
+					}else{
+						if(vb.getPerson().isResponsable()){
+							rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportResponsable());	
+							 
+						}else {
+							rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportSecAgent());
+						}
+						
+					}
+					System.out.println(" SousTitreRapportCourrierCloture  = "+rpep.getSousTitreRapportCourrier());
+					if (rapportcourrier != null && rapportcourrier.size()>0 && rapportcourrier.get(0) != null  ){
+						System.out.println(" SousTitreRapportCourrierCloture  = ");
+					enteteDePage.add(rpep);
+					//AH  NON
+					rapportcourrier.get(0).setEnteteDePage(enteteDePage);
+					}
+					System.out.println("--------------------FIN : soustitreRapportCloture ----------------");
+				export.exportToPDF(rapportcourrier, "CourriersCloture",
+						"CourriersListesCloture");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	
+		//================================ KHA : rapports developpées=======================
+		// KHA : exporter rapport Liste des courriers Rapide poste et lettre recommandé
+		
+	
+		
+		
+		
+		// KJ
+		/*public void printPDFFRRecommande(){
+			
+			
+			try {
+				String societeNom = appMgr.listSocieteByLibelle("Nom_Societe").get(0).getSocieteLibelle();
+				System.out.println("---------/////////////////////////////////-----------");
+				//=====================debut entete 
+				RapportSociete rs = new RapportSociete();
+				rs.setSocieteNom(societeNom);
+				if(vb.getPerson().isBoc()){
+					rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+					System.out.println();
+					}
+					else
+					{
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());}
+				listeSociete.add(rs);
+				//======================= fin entete
+				
+				
+				
+				
+				List<RappotRapidePosteLettreRecommande> liste = new ArrayList<RappotRapidePosteLettreRecommande>();
+				RappotRapidePosteLettreRecommande rapport1 = new RappotRapidePosteLettreRecommande();
+				RappotRapidePosteLettreRecommande rapport2 = new RappotRapidePosteLettreRecommande();
+				//rapport1.setDateReception("07/07/2007");
+				rapport1.setExpediteur("Expéditeur1");
+				rapport1.setReference("reference1");
+				//rapport2.setDateReception("08/08/2008");
+				rapport2.setExpediteur("Expéditeur2");
+				rapport2.setReference("reference2");
+				liste.add(rapport1);
+				liste.add(rapport2);
+				RapportCourrier rapportCourrier = new RapportCourrier();
+				rapportCourrier.setListeRapidePosteLettreRecommande(liste);
+				rapportCourrier.setDestinataireNom("Destinataire");
+				rapportCourrier.setNombreTotalCourriers(20);
+				List<RapportCourrier> rappcourr = new ArrayList<RapportCourrier>();
+				rappcourr.add(rapportCourrier);
+				rappcourr.get(0).setListeSociete(listeSociete);
+			 
+				export.exportToPDF(rappcourr, "CourriesListe_RapidePoste_LettreRecommande",
+						"CourriesListe_RapidePoste_Recommande");	
+			}
+									
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		//////////////////////////******************************************////////////////////////////////////////	
+			
+			
+		//}
+	
+	
+	   public void printPDFRapidePoste() {
+			
+			try{
+			System.out.println(" KHA ===> DANS printPDFRapidePoste ");
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			rapportcourrier.add(rapport);
+			
+			// remplir entete rapport : debut
+		     RapportSociete rs = new RapportSociete();
+		    
+			if(vb.getPerson().isBoc()){
+				rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+				System.out.println();
+				}
+				else
+				{
+			rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+			System.out.println(" UniteConnecte =  "+rs.getUniteConnecte());
+			 listeSociete.add(rs);
+			 
+			// remplir entete rapport : fin
+			System.out.println("  remplir entete rapport : fin");
+			rapportcourrier.get(0).setListeSociete(listeSociete);
+			
+			// destinataire
+			System.out.println(" dest nom = "+vb.getSelectedUnit().getNameUnit());
+			rapportcourrier.get(0).setDestinataireNom(vb.getSelectedUnit().getNameUnit());
+			//========
+			
+			Unit unit = vb.getSelectedUnit();
+			type="unit_" + unit.getIdUnit();
+			type1="sub_"+unit.getResponsibleUnit().getId();
+			System.out.println("#####type= "+type);
+			System.out.println("#####type1= "+type1);
+			
+			 
+			varConsultationCourrierSecretaire= appMgr.listVariablesByLibelle("consultation_courrier_secretaire").get(0);
+			 consultationCourrierSecretaire = varConsultationCourrierSecretaire.getVaraiablesValeur();
+			 
+			 typeSecretaire = "secretary_"+unit.getSecretaryUnit().getId();
+			 System.out.println("##### typeSecretaire= "+ typeSecretaire);
+			 if(unit.getMembersUnit()!=null && unit.getMembersUnit().size()>0){
+			    for(Person p : unit.getMembersUnit()){
+			    	listAgent.add(p.getId());
+			    }
+			    System.out.println("listAgent= "+listAgent.toString());
+			 }
+			 
+			 
+			//====== de quel periode============
+			
+			String contextDate = "du "; 
+			 
+			SimpleDateFormat debut = new SimpleDateFormat("dd/MM/yyyy");
+			if (vb.getSelectedDateD() != null){
+			String dateD = debut.format(vb.getSelectedDateD());
+			contextDate=contextDate+dateD;
+			}
+			/*
+			 * // a ajouter partie si la periode est un mois/annee
+		    if(vb.getSelectedDateF()!=vb.getSelectedDateD() ){
+		    	SimpleDateFormat fin = new SimpleDateFormat("dd/MM/yyyy");
+				String dateF = fin.format(vb.getSelectedDateF());
+				System.out.println(" datef = "+dateF);
+		    	contextDate=contextDate+" à "+dateF;
+		    }
+		    */
+		    System.out.println(" contextDate = "+contextDate);
+		    rapportcourrier.get(0).setPeriodeChoisie(contextDate);
+			//================================
+		    
+		    //=== KHA : à changer
+		    // id = 41 / 40 rapide poste et lettre recommande
+			//===== 5 : par jour
+			System.out.println(" id rapide poste = "+vb.getIdRapidePoste());
+			System.out.println(" id lettre rec = "+vb.getIdLettreRecommandee());
+			//////KBS 2019-12-12///////
+			
+			 rapportcourrier.get(0).setDatePeriodeAnneeAR(vb.getDatePeriodeAnneeAR());
+			
+			 //lettre recommande
+			System.out.println("==================debut recuperation lettre recommande====");
+			   listeCourriersLR  = appMgr.recherheMulticritereCourrierEnvoyeR(
+					true,  consultationCourrierSecretaire, type,  type1,  typeSecretaire,
+					 listAgent,null, vb.getSelectedDateD(),vb.getSelectedDateF(),
+					 false,"recus","tous",1, 10,vb.getDbType(),vb.getJourOuAutr(),6);
+			   
+			 System.out.println("######### listeCourriersLR.size()" + listeCourriersLR.size());
+			   
+			   int nombreCourriers=0;
+			   if(listeCourriersLR != null && listeCourriersLR.size()>0){
+				   nombreCourriers = listeCourriersLR.size();
+				   
+				   for (CourrierInformations courrierInformations : listeCourriersLR) {	
+						courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);	
+						courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+					
+						RappotRapidePosteLettreRecommande rapport1 = new RappotRapidePosteLettreRecommande();
+						rapport1.setDateReception(courrierInformations.getCourrier().getCourrierDateReception());
+						rapport1.setExpediteur(courrierInformations.getCourrierExpediteur());
+						rapport1.setReference(courrierInformations.getCourrierDestinataireReelleDirection());
+						System.out.println("@@@@@@@listcourrier.size()" + listeCourriersLR.size());
+//			/////////////// KBS Transaction
+//
+//							
+//							System.out.println("------ ici l'id de la réclamation  ------"+ courrierInformations.getCourrierID());
+//							 refTransaction = courrierInformations.getTransactionID();
+//							 System.out.println("0000000 refTransaction");
+//			     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//			     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//			     				if (transaction != null)
+//			     				{
+//			     					tr = transaction.get(0);
+//			     				}
+//			     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//			     				
+//			     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//			     				
+//			     			String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//			    				
+//			     			courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//			    				rapport.setCourrier(courrierInformations.getCourrier());
+//
+//			     				/////////////// KBS Transaction
+	
+	       				
+						//Load fichier Properties
+						ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+						ServletContext servletContext = (ServletContext) jsfContext.getContext();
+						System.out.println("Contenu de variable local :"+vb.getLocalFr());
+						String webContentRoot = servletContext.getRealPath("/");
+						String pathConfigFile = webContentRoot	
+						+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+						msg= new Properties();
+						System.out.println("Path Fichier :"+pathConfigFile);
+						try {
+							msg.load(new FileInputStream(pathConfigFile));
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}		
+						
+//						listDSN=appMgr.getListDonneeSupplementaireNatureAffectes(vb.getIdLettreRecommandee());
+//						listCD=new ArrayList<ComposantDynamique>();
+//						Class aClass=cds.getClass();
+//						courrierDS=appMgr.getDonneeSupplementaireCourrier(courrierInformations.getCourrierID());
+//			          
+//			            
+//						if(listDSN != null && listDSN.size()>0){
+//							for(int i=0; i<listDSN.size();i++)
+//							{
+//								composantDynamique=new ComposantDynamique();
+//								System.out.println("==================================");
+//								String libelle=listDSN.get(i).getLibelleDonnee();
+//								System.out.println("Libellé "+libelle);
+//								String libelleNature= msg.getProperty(libelle);
+//								System.out.println("libelleNature :"+libelleNature);
+//								System.out.println("==================================");
+//							
+//								// chercher par libelle dans les fichiers properties
+//								composantDynamique.setName(libelle);
+//								composantDynamique.setIdChamps(listDSN.get(i).getDonneeSupplementaire().getIdDonneeSupplementaire());							
+//							
+//								listCD.add(composantDynamique);
+//								int idchamp=listCD.get(i).getIdChamps();
+//								String methodName = "getColonne"+idchamp; 
+//								Method m = null;	
+//								m = aClass.getMethod(methodName);
+//								System.out.format("Methode : %s%n", m.toGenericString());
+//								Object resultat=m.invoke(courrierDS, new Object[0]);  
+//								System.out.println("Resultat :" + resultat);
+//		                      // référence cheque
+//								if(composantDynamique.getName().equals("refLettreRecommandee")){
+//						       				/////////////// KBS Transaction
+//								//	rapport1.setReference(resultat);
+//								}
+//			                   composantDynamique.setColonne(resultat);
+//					}
+//				}
+						listeRapidePosteLettreRecommande.add(rapport1);	
+				   ////////////////////////////////////////////////////////////
+				   ////****************************************************////
+				   ////////////////////////////////////////////////////////////
+				   }
+				} 
+			   System.out.println("==================FIN recuperation lettre recommande====");
+			   
+			   // rapide poste 
+			   System.out.println("==================debut recuperation rapide poste ====");
+			   System.out.println("##### vb.getSelectedDateD() == " + vb.getSelectedDateD());
+			   System.out.println("##### vb.getSelectedDateF() == " + vb.getSelectedDateF());
+			   System.out.println("##### vb.getJourOuAutr() == " + vb.getJourOuAutr());
+			   listeCourriersRP = appMgr.recherheMulticritereCourrierEnvoyeR(
+						true,  consultationCourrierSecretaire, type,  type1,  typeSecretaire,
+						 listAgent,null, vb.getSelectedDateD(),vb.getSelectedDateF(),
+						 false,"recus","tous",1, 10,vb.getDbType(),vb.getJourOuAutr(),5);
+			   System.out.println("######## listeCourriersRP ==" + listeCourriersRP.size());
+
+			
+			  
+			if(listeCourriersRP != null && listeCourriersRP.size()>0){
+				nombreCourriers=nombreCourriers+listeCourriersRP.size();
+				for (CourrierInformations courrierInformations : listeCourriersRP) {	
+					courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);	
+					System.out.println("#### ref courrier infor == " + courrierInformations.getCourrierDestinataireReelleDirection());
+					courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(courrierInformations.getCourrierID()).get(0));
+					
+					RappotRapidePosteLettreRecommande rapport1 = new RappotRapidePosteLettreRecommande();
+					rapport1.setDateReception(courrierInformations.getCourrier().getCourrierDateReception());
+					rapport1.setExpediteur(courrierInformations.getCourrierExpediteur());
+					rapport1.setReference(courrierInformations.getCourrierDestinataireReelleDirection());
+//							/////////////// KBS Transaction
+//
+//						
+//						System.out.println("------ ici l'id de la réclamation  ------"+ courrierInformations.getCourrierID());
+//						 refTransaction = courrierInformations.getTransactionID();
+//						 System.out.println("0000000 refTransaction");
+//		     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//		     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//		     				if (transaction != null)
+//		     				{
+//		     					tr = transaction.get(0);
+//		     				}
+//		     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//		     				
+//		     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//		     				     				
+//		     String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//		    				
+//		     courrierInformations.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//		    				rapport.setCourrier(courrierInformations.getCourrier());
+//
+//		     				/////////////// KBS Transaction
+
+					//Load fichier Properties
+					ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+					ServletContext servletContext = (ServletContext) jsfContext.getContext();
+					System.out.println("Contenu de variable local :"+vb.getLocalFr());
+					String webContentRoot = servletContext.getRealPath("/");
+					String pathConfigFile = webContentRoot	
+					+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+					msg= new Properties();
+					System.out.println("Path Fichier :"+pathConfigFile);
+					try {
+						msg.load(new FileInputStream(pathConfigFile));
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}		
+					
+//					listDSN=appMgr.getListDonneeSupplementaireNatureAffectes(vb.getIdRapidePoste());
+//					listCD=new ArrayList<ComposantDynamique>();
+//					Class aClass=cds.getClass();
+//					courrierDS=appMgr.getDonneeSupplementaireCourrier(courrierInformations.getCourrierID());
+//		          
+//		            
+//					if(listDSN != null && listDSN.size()>0){ 
+//						for(int i=0; i<listDSN.size();i++)
+//						{
+//							composantDynamique=new ComposantDynamique();
+//							System.out.println("==================================");
+//							String libelle=listDSN.get(i).getLibelleDonnee();
+//							System.out.println("Libellé "+libelle);
+//							String libelleNature= msg.getProperty(libelle);
+//							System.out.println("libelleNature :"+libelleNature);
+//							System.out.println("==================================");
+//						
+//							// chercher par libelle dans les fichiers properties
+//							composantDynamique.setName(libelle);
+//							composantDynamique.setIdChamps(listDSN.get(i).getDonneeSupplementaire().getIdDonneeSupplementaire());							
+//						
+//							listCD.add(composantDynamique);
+//							int idchamp=listCD.get(i).getIdChamps();
+//							
+//							String methodName = "getColonne"+idchamp; 
+//							Method m = null;	
+//							m = aClass.getMethod(methodName);
+//							System.out.format("Methode : %s%n", m.toGenericString());
+//							Object resultat=m.invoke(courrierDS, new Object[0]);  
+//							System.out.println("Resultat :" + resultat);
+//							
+//						
+//		                   composantDynamique.setColonne(resultat);
+//				}
+//			}
+			   
+					listeRapidePosteLettreRecommande.add(rapport1);	
+				}
+			} 
+			System.out.println("########listeRapidePosteLettreRecommande ==" + listeRapidePosteLettreRecommande.size() );
+			System.out.println("==================FIN recuperation rapide poste ====");
+			System.out.println("nombre TOTAL DES Courriers = "+nombreCourriers);
+		 
+	    rapportcourrier.get(0).setNombreTotalCourriers(nombreCourriers);
+			
+	    rapportcourrier.get(0).setListeRapidePosteLettreRecommande(listeRapidePosteLettreRecommande);
+			
+			export.exportToPDF(rapportcourrier, "CourriesListe_RapidePoste_LettreRecommande",
+			"CourriesListe_RapidePoste_Recommande");	
+			System.out.println(" KHA ===> FIN DANS printPDFRapidePoste ");
+			}catch (Exception e) {
+				System.out.println("************ Echec export RapportRapidePoste  ");
+				e.printStackTrace();
+			}
+			
+		}
+		public void printPDFBordereauEnvoiMinistre() {
+			try{
+			System.out.println(" KHA ===> DANS printPDFBordereauEnvoiMinistre ");
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+			rapportcourrier.add(rapport);
+			
+			// remplir entete rapport : debut
+		    RapportSociete rs = new RapportSociete();
+			listeSociete.add(rs);
+			listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			// remplir entete rapport : fin
+			
+            System.out.println("size = "+listeSociete.size());
+			rapportcourrier.get(0).setListeSociete(listeSociete);
+			
+			
+			
+			 ////////////////////////////////////////////////////////////
+			 ////***********************Manque le rapport************////
+			 ////////////////////////////////////////////////////////////
+			
+		export.exportToPDF(rapportcourrier,"BordereauEnvoi_Ministre_Agriculture","BordereauEnvoi_Ministre_Agriculture");
+		System.out.println(" KHA ===> FIN DANS printPDFBordereauEnvoiMinistre ");
+			}catch (Exception e) {
+				System.out.println("************ Echec export BordereauEnvoiMinistre  ");
+			}
+			
+		}
+		
+		public void printPDFBordereauCourrierArrivee() {
+			try{
+				System.out.println(" KHA ===> DANS printPDFBordereauCourrierArrivee ");
+		
+			
+				varConsult = appMgr.listVariablesByLibelle("consultation_courrier_secretaire");
+				System.out.println("////////   varConsult.size()    "  +  varConsult.size());
+			varConsultationCourrierSecretaire= appMgr.listVariablesByLibelle("consultation_courrier_secretaire").get(0);
+			 consultationCourrierSecretaire = varConsultationCourrierSecretaire.getVaraiablesValeur();
+			 System.out.println("//////// consultationCourrierSecretaire   "   +   consultationCourrierSecretaire);
+			
+			System.out.println("ne pas considerer les sous unitee  ");
+			consultationCourrierSousUnite = "Non";
+			consultationCourrierSubordonne = "Non";
+			
+			System.out.println("FilterMap = "+vb.getFilterMap());
+			
+			List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+			RapportCourrier rapport = new RapportCourrier();
+		    rapportcourrier.add(rapport);
+			// remplir entete SONEDE rapport : debut
+			System.out.println("======remplir entete SONEDE rapport : debut======");
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+						.get(0).getSocieteLibelle();
+			System.out.println(" societeNom = "+societeNom);
+		
+			RapportSociete rs = new RapportSociete();
+			
+			listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(societeNom);
+			
+			if(vb.getPerson().getAssociatedDirection()!=null){
+				listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+				rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}else{
+			listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}
+			// remplir entete SONEDE rapport : fin
+			System.out.println("======remplir entete SONEDE rapport : fin=======");
+			
+			rapportcourrier.get(0).setDatePeriodeAnneeFR(vb.getDatePeriodeAnneeFR());
+			
+			// KHA ====>  liste des courriers arrivee EXTERNE � l'unite concern�e
+			List<CourrierInformations> listCourriers = new ArrayList<CourrierInformations>();
+
+			System.out.println("==============DEBUT=======================");			
+			
+			Date dateTest = new Date();
+			System.out.println("############# Date Test == " + dateTest);
+			
+//			Calendar calendar = Calendar.getInstance();
+//			calendar.set(Calendar.DAY_OF_MONTH, 1);
+//			calendar.set(Calendar.HOUR_OF_DAY, 0);
+//			calendar.set(Calendar.MINUTE, 0);
+//			calendar.set(Calendar.SECOND, 0);
+//			calendar.set(Calendar.MILLISECOND, 0);
+//			dateDebut = calendar.getTime();
+			
+			HashMap<String, Integer> mapArrive = new HashMap<String, Integer>();
+				// 2 : arrivee
+			System.out.println(" recuperer liste arrivee DEBUT 1");
+			 List<Object[]> listCourrierArrive = appMgr.courrierStatistiquesBOCStructure(vb.getSelectedDateD(), vb.getSelectedDateF(), 2,null,null);
+			System.out.println("listCourrierArrive size="+listCourrierArrive.size());
+			
+			System.out.println(" recuperer liste arrivee DEBUT 2 ");
+			for (Object [] o : listCourrierArrive) {
+				String intervenant = (String) o[0];
+				System.out.println("###### intervenant == " + intervenant);
+				Integer intervenantCount = 0;
+				if (o[1] instanceof Integer) {
+					intervenantCount = (Integer) o[1];
+				} else if (o[1] instanceof BigInteger) {
+					intervenantCount = ((BigInteger) o[1]).intValue();
+				}
+				mapArrive.put(intervenant, intervenantCount);
+			}
+				System.out.println("######## mapArrive = "+mapArrive.toString()); 
+				Unit unit = vb.getSelectedUnit();
+				
+				// unité
+				if(mapArrive.containsKey("unit_" + unit.getIdUnit())){
+					System.out.println("===========DANS UNIT================");
+					List<CourrierInformations>	listCourriersUnit= new ArrayList<CourrierInformations>();
+					// il va chercher avec le type : courrier rubrique = 2
+					type="unit_" + unit.getIdUnit();
+					listCourriersUnit = appMgr.findCourrierEnvoyerANDRecuByCriteria(true, listIdsSousUnit,
+					listIdsSubordonne, filterMap, "",false, consultationCourrierSecretaire,	consultationCourrierSubordonne,
+					consultationCourrierSousUnite, vb.getJourOuAutr(), vb.getSelectedDateD(),vb.getSelectedDateF(), type, type1, typeSecretaire, idUser,1,	"",
+							0, 10, false,2, "Recu", vb.getDbType(),null,0,0);		
+					listCourriers.addAll(listCourriersUnit);
+					System.out.println("size listCourriersUnit = "+listCourriersUnit.size());
+					}
+				
+				// responsable
+				if(unit.getResponsibleUnit() != null){
+					System.out.println("===========DANS responsable================");
+					if(mapArrive.containsKey("sub_" + unit.getResponsibleUnit().getId())){
+						List<CourrierInformations>	listCourriersSub= new ArrayList<CourrierInformations>();
+						
+						System.out.println("===========DANS RESPONSABLE================");
+						idUser=vb.getSelectedUnit().getResponsibleUnit().getId();
+						System.out.println("idUser = "+idUser);
+						System.out.println("type = "+type);
+						type1 = "sub_" + idUser;
+						
+						listCourriersSub = appMgr.findCourrierEnvoyerANDRecuByCriteria(true, listIdsSousUnit,
+								listIdsSubordonne, filterMap, "",
+								false, consultationCourrierSecretaire,
+								consultationCourrierSubordonne,
+								consultationCourrierSousUnite, vb.getJourOuAutr(), vb.getSelectedDateD(),
+								vb.getSelectedDateF(), type, type1, typeSecretaire, idUser,1,
+								"",	0, 10, false,1, "Recu", vb.getDbType(),null,4,0);	
+						
+						listCourriers.addAll(listCourriersSub);
+						System.out.println("size listCourriersSub = "+listCourriersSub.size());
+					}
+					
+				
+				}
+				// secretaire
+				if(unit.getSecretaryUnit() != null){
+					System.out.println("===========DANS SECRETARY================");
+					if(mapArrive.containsKey("secretary_" + unit.getSecretaryUnit().getId())){
+						List<CourrierInformations>	listCourriersSecretary= new ArrayList<CourrierInformations>();
+						
+						// les secretaires : 4
+
+						if (consultationCourrierSecretaire.equals("Oui")) {
+							try {
+								typeSecretaire = "secretary_"
+										+ vb.getSelectedUnit()
+												.getSecretaryUnit().getId();
+								System.out.println("typeSecretaire = "+typeSecretaire);
+							} catch (NullPointerException e) {
+								consultationCourrierSecretaire = "Non";
+							}
+						}
+						listCourriersSecretary = appMgr.findCourrierEnvoyerANDRecuByCriteria(true, listIdsSousUnit,
+								listIdsSubordonne, filterMap, "",false, consultationCourrierSecretaire,
+								consultationCourrierSubordonne,
+								consultationCourrierSousUnite, vb.getJourOuAutr(), vb.getSelectedDateD(),
+								vb.getSelectedDateF(), type, type1, typeSecretaire, idUser,1,
+								"",
+								0, 10, false,
+								4, "Recu", vb.getDbType(),null,4,0);	
+						listCourriers.addAll(listCourriersSecretary);
+						System.out.println("size listCourriersSecretary = "+listCourriersSecretary.size());
+					}
+					
+				}
+				for (Person person : unit.getMembersUnit()) {
+					System.out.println("===========DANS AGENT================");
+					System.out.println("#### person == " + person);
+					if(mapArrive.containsKey("agent_" + person.getId())){
+						List<CourrierInformations>	listCourriersAgent= new ArrayList<CourrierInformations>();
+						
+						type="agent_" + person.getId();
+						listCourriersAgent = appMgr.findCourrierEnvoyerANDRecuByCriteria(true, listIdsSousUnit,
+								listIdsSubordonne, filterMap, "",
+								false, consultationCourrierSecretaire,
+								consultationCourrierSubordonne,
+								consultationCourrierSousUnite, vb.getJourOuAutr(), vb.getSelectedDateD(),
+								vb.getSelectedDateF(), type, type1, typeSecretaire, idUser,1,
+								"",	0, 10, false,2, "Recu", vb.getDbType(),null,4,0);	
+						
+						listCourriers.addAll(listCourriersAgent);
+						System.out.println("size listCourriersAgent = "+listCourriersAgent.size());
+}
+					
+				}
+			 
+			System.out.println("###### size listCourriers === "+listCourriers.size());
+		System.out.println("=====================fin====================");	
+		// =============> remplir le rapport
+		
+		 if(listCourriers!=null && listCourriers.size()>0){
+			 
+			for(CourrierInformations crf: listCourriers){
+				courrierConsultationRecentBean.searchExpediteurDestinataire(crf);
+				crf.setCourrier(appMgr.getCourrierByIdCourrier(crf.getCourrierID()).get(0));
+
+			}
+			
+				System.out.println("@@@@@@@listcourrier.size()" + listCourriers.size());
+
+			int numero = 0;
+			int numeroE =0 ;
+			for(CourrierInformations crf: listCourriers){
+				
+			
+//						/////////////// KBS Transaction   ///////////////
+//
+//					
+//					System.out.println("------ ici l'id de la réclamation  ------"+ crf.getCourrierID());
+//					 refTransaction = crf.getTransactionID();
+//					 System.out.println("0000000 refTransaction");
+//	     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//	     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//	     				if (transaction != null)
+//	     				{
+//	     					tr = transaction.get(0);
+//	     				}
+//	     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//	     				
+//	     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//	     				     				
+//	     				String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//	    				
+//	     				crf.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//
+//	     				/////////////// KBS Transaction   ///////////////
+	     		System.out.println("######## crf.getExpType()== " + crf.getExpType());
+				if(crf.getExpType().equals("Externe")){
+					 System.out.println("====================EXTERNE========================");
+					 RpportCourrierArriveeExterne rcae =  new RpportCourrierArriveeExterne();
+					 rcae.setCourrier(crf.getCourrier());
+					System.out.println(" couirrier id = "+crf.getCourrier());
+					System.out.println("num courrier = "+numero);
+					rcae.setNum(numero+1);
+					System.out.println("numero="+rapport.getNum());
+					System.out.println(" courrier exp = "+crf.getCourrierExpediteur());
+					rcae.setExpediteurNom(crf.getCourrierExpediteur());
+					System.out.println("date recept courrier= "+crf.getCourrier().getCourrierDateReception());
+					rcae.setDateRecep(crf.getCourrier().getCourrierDateReception());
+					System.out.println(" destinataire reel = "+crf.getCourrierDestinataireReelle());
+					rcae.setListeDestinataire(crf.getCourrierDestinataireReelle());
+					
+					System.out.println(" objet = "+crf.getCourrierObjet());
+					rcae.setObjet(crf.getCourrierObjet());
+					rcae.setReference(crf.getCourrierDestinataireReelleDirection());
+					listeCourrierExterne.add(rcae);
+					rcae = new RpportCourrierArriveeExterne();
+					numero++;
+					System.out.println("##### listeCourrierExterne size == " + listeCourrierExterne.size());
+				}else{
+					 System.out.println("====================INTERNE========================");
+				 
+					 
+					RapportCourrierArriveeInterne rcai = new RapportCourrierArriveeInterne();
+					rcai.setNum(numeroE+1);
+					rcai.setCourrier(crf.getCourrier());
+					 System.out.println(" couirrier id = "+crf.getCourrier());
+					System.out.println("2 courrier exp = "+crf.getCourrierExpediteur());
+					rcai.setExpediteurNom(crf.getCourrierExpediteur());
+					System.out.println("2 date recept courrier= "+crf.getCourrier().getCourrierDateReception());
+					rcai.setDateRecep(crf.getCourrier().getCourrierDateReception());
+					System.out.println(" 2 destinataire reel = "+crf.getCourrierDestinataireReelle());
+					rcai.setListeDestinataire(crf.getCourrierDestinataireReelle());
+					rcai.setReference(crf.getCourrierDestinataireReelleDirection());
+					System.out.println(" 2 objet = "+crf.getCourrierObjet());
+
+					rcai.setObjet(crf.getCourrierObjet());
+					System.out.println(" remplir listeCourrierInterne===> begin");
+					listeCourrierInterne.add(rcai);
+					System.out.println("##### listeCourrierInterne size == " + listeCourrierInterne.size());
+					System.out.println(" remplir listeCourrierInterne===> end");
+					
+					numeroE++;
+					}
+			}
+			
+		   }else{
+			   RpportCourrierArriveeExterne rcae =  new RpportCourrierArriveeExterne();
+			   listeCourrierExterne.add(rcae);
+			   RapportCourrierArriveeInterne rcai = new RapportCourrierArriveeInterne();
+			   listeCourrierInterne.add(rcai);
+		   }
+			
+			rapportcourrier.get(0).setListeSociete(listeSociete);
+			
+			//===> unite concernante
+			rapportcourrier.get(0).setSelectedUnit(vb.getSelectedUnit());
+			System.out.println(" set liste courrier arrivee interne ");
+			if(listeCourrierInterne!=null && listeCourrierInterne.size()>0){
+				System.out.println(" DANS setListeCourrierInterne");
+			rapportcourrier.get(0).setListeCourrierInterne(listeCourrierInterne);
+			System.out.println("END setListeCourrierInterne");
+			}
+			if(listeCourrierExterne!=null && listeCourrierExterne.size()>0){
+				System.out.println(" DANS setListeCourrierExterne");
+				rapportcourrier.get(0).setListeCourrierExterne(listeCourrierExterne);
+			}
+			
+		
+	export.exportToPDF(rapportcourrier,"Bordereau_Courrier_Arrivee","BordereauCourrierArrivee");
+		System.out.println(" KHA ===> FIN DANS printPDFBordereauCourrierArrivee ");
+			}catch (Exception e) {
+				System.out.println("************ Echec export BordereauCourrierArrivee  ");
+				e.printStackTrace();
+			}
+			
+		}
+		public void printPDFEtatCheque(){
+	
+			try{
+		System.out.println("KHA : DANS printPDFEtatCheque");
+		List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+		RapportCourrier rapport = new RapportCourrier();
+		rapportcourrier.add(rapport);
+		
+		// remplir entete SONEDE rapport : debut
+		System.out.println("======remplir entete SONEDE rapport : debut======");
+		String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+		System.out.println(" societeNom = "+societeNom);
+	 
+		rapportcourrier.get(0).setDatePeriodeAnneeFR(vb.getDatePeriodeAnneeFR());
+		rapportcourrier.get(0).setSocieteNom(societeNom);
+		// remplir entete rapport
+		if(vb.getPerson().getAssociatedDirection()!=null){
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+		}else{
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}
+		RapportSociete rs = new RapportSociete();
+		
+		listeSociete.add(rs);
+		listeSociete.get(0).setSocieteNom(societeNom);
+		
+		if(vb.getPerson().getAssociatedDirection()!=null){
+			listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+		}else{
+		listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+		}
+		rapportcourrier.get(0).setListeSociete(listeSociete);
+		// remplir entete SONEDE rapport : fin
+		System.out.println("======remplir entete SONEDE rapport : fin=======");
+	
+		// MONTANT TOTAL
+		RapportChequeMontantTotal rcmt = new RapportChequeMontantTotal();
+		//============== 
+		
+		// 35 : id nature courrier cheque
+		 
+		//===========================
+		Unit unit = vb.getSelectedUnit();
+		type="unit_" + unit.getIdUnit();
+		type1="sub_"+unit.getResponsibleUnit().getId();
+		System.out.println("type= "+type+"/"+"type1= "+type1);
+		
+		 
+		varConsultationCourrierSecretaire= appMgr.listVariablesByLibelle("consultation_courrier_secretaire").get(0);
+		 consultationCourrierSecretaire = varConsultationCourrierSecretaire
+				.getVaraiablesValeur();
+		 
+		 typeSecretaire = "secretary_"+unit.getSecretaryUnit().getId();
+		 
+		 if(unit.getMembersUnit()!=null && unit.getMembersUnit().size()>0){
+		    for(Person p : unit.getMembersUnit()){
+		    	listAgent.add(p.getId());
+		    }
+		    System.out.println("listAgent= "+listAgent.toString());
+		 }
+		 
+		 
+		//====== de quel periode============
+		
+		String contextDate = "du "; 
+		 
+		SimpleDateFormat debut = new SimpleDateFormat("dd/MM/yyyy");
+		if (vb.getSelectedDateD() != null){
+		String dateD = debut.format(vb.getSelectedDateD());
+		contextDate=contextDate+dateD;
+		}
+	    
+		/*
+		 * // a ajouter partie si la periode est un mois/annee
+	    if(vb.getSelectedDateF()!=vb.getSelectedDateD() ){
+	    	SimpleDateFormat fin = new SimpleDateFormat("dd/MM/yyyy");
+			String dateF = fin.format(vb.getSelectedDateF());
+			System.out.println(" datef = "+dateF);
+	    	contextDate=contextDate+" à "+dateF;
+	    }
+	    */
+	    System.out.println(" contextDate = "+contextDate);
+	    rapportcourrier.get(0).setPeriodeChoisie(contextDate);
+		//================================
+	    
+	    //=== KHA : à changer
+	     System.out.println("IdCheque = "+vb.getIdCheque());
+		//===== 5 : par jour
+	     
+		listcourrier = appMgr.recherheMulticritereCourrierEnvoyeR(
+				true,  consultationCourrierSecretaire, type,  type1,  typeSecretaire,
+				 listAgent,38, vb.getSelectedDateD(),vb.getSelectedDateF(),
+				 false,"recus","tous",1, 10,vb.getDbType(),vb.getJourOuAutr(),null);
+		System.out.println("listcourrier : "+listcourrier.size());
+		vb.setListCourriers(listcourrier);
+		
+		System.out.println();
+		for (CourrierInformations courrierInformations : listcourrier) {	
+			courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);								
+		}
+		System.out.println("###### listcourrier size == " + listcourrier.size());
+		
+		
+		int k =0;
+		Double montantTotal = 0.0;
+		
+		
+		if(listcourrier!=null && listcourrier.size()>0){
+			System.out.println("##### Dans listcourrier");
+			for(CourrierInformations cr: listcourrier){
+				RapportCourrierCheque rapportCheque = new RapportCourrierCheque();
+			    Courrier courrier = appMgr.getCourrierByIdCourrier(cr.getCourrierID()).get(0);
+			//	rapportCheque.setReferenceCourrier(courrier.getCourrierReferenceCorrespondant());
+				rapportCheque.setObjetCourrier(courrier.getCourrierObjet());
+				listeCheques = appMgr.getListeChequeByCourrier(courrier.getIdCourrier());
+				System.out.println("########## listeCheques size == " + listeCheques.size());
+				//Load fichier Properties
+				ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+				ServletContext servletContext = (ServletContext) jsfContext.getContext();
+				System.out.println("Contenu de variable local :"+vb.getLocalFr());
+				String webContentRoot = servletContext.getRealPath("/");
+				String pathConfigFile = webContentRoot	
+				+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+				msg= new Properties();
+				System.out.println("Path Fichier :"+pathConfigFile);
+				try {
+					msg.load(new FileInputStream(pathConfigFile));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}		
+//				if (listeCheques != null && listeCheques.size() ==0){
+//					rapportcourrier.get(0).setHideTableau(true);
+//				}
+				for (Cheque cheque : listeCheques){
+					rapportCheque = new RapportCourrierCheque();
+					System.out.println("###### cheque.getChequeNum() == " + cheque.getChequeNum());
+					rapportCheque.setBanque(cheque.getChequeBanque());
+					if (cheque.getChequeBarre()){
+						rapportCheque.setChequeStringBarre("Oui");
+					}else{
+						rapportCheque.setChequeStringBarre("Non");
+					}
+					
+					rapportCheque.setBeneficiaire(cheque.getChequeBeneficiaire());
+					rapportCheque.setDateCheq(cheque.getChequeDate());
+					rapportCheque.setMontantCheq(cheque.getChequeMontant());
+					rapportCheque.setNumeroCheq(cheque.getChequeNum());
+					montantTotal = montantTotal + cheque.getChequeMontant();
+				
+//	           		/////////////// KBS Transaction
+//						
+//						System.out.println("------ ici l'id de la réclamation  ------"+ cr.getCourrierID());
+//						 refTransaction = cr.getTransactionID();
+//						 System.out.println("0000000 refTransaction");
+//		     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//		     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//		     				if (transaction != null)
+//		     				{
+//		     					tr = transaction.get(0);
+//		     				}
+//		     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//		     				
+//		     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//		     				
+//		     			String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//		     			cr.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//		    				rapportCheque.setReferenceCourrier(cheque.getChequeId().toString());
+//		     		/////////////// KBS Transaction
+				k++;
+				listeCourriersCheque.add(rapportCheque);
+			}
+				}
+			rcmt.setMontantTotal(montantTotal);
+			listeMontantTotal.add(rcmt);
+			listeMontantTotal.get(0).setMontantTotal(montantTotal);
+			
+			}
+		
+		rapportcourrier.get(0).setListeSociete(listeSociete);
+		rapportcourrier.get(0).setListeCourriersCheque(listeCourriersCheque);
+		rapportcourrier.get(0).setListeMontantTotal(listeMontantTotal);
+		
+		export.exportToPDF(rapportcourrier,"Rapport_Etat_Cheque","Rapport Etat Cheque");
+		System.out.println(" KHA ===> FIN DANS printPDFEtatCheque ");
+	}catch(Exception e){
+		e.printStackTrace();
+		System.out.println("************ Echec export Etat Cheque  ");
+	}
+}
+		
+		
+		public void printPDFEtatChequeImpayes(){
+			
+			try{
+		System.out.println("KHA : DANS printPDFEtatCheque");
+		List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+		RapportCourrier rapport = new RapportCourrier();
+		rapportcourrier.add(rapport);
+		
+		// remplir entete SONEDE rapport : debut
+		System.out.println("======remplir entete SONEDE rapport : debut======");
+		String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+		System.out.println(" societeNom = "+societeNom);
+	 
+		rapportcourrier.get(0).setDatePeriodeAnneeFR(vb.getDatePeriodeAnneeFR());
+		rapportcourrier.get(0).setSocieteNom(societeNom);
+		// remplir entete rapport
+		if(vb.getPerson().getAssociatedDirection()!=null){
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+		}else{
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}
+		RapportSociete rs = new RapportSociete();
+		
+		listeSociete.add(rs);
+		listeSociete.get(0).setSocieteNom(societeNom);
+		
+		if(vb.getPerson().getAssociatedDirection()!=null){
+			listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+		}else{
+		listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+		}
+		rapportcourrier.get(0).setListeSociete(listeSociete);
+		// remplir entete SONEDE rapport : fin
+		System.out.println("======remplir entete SONEDE rapport : fin=======");
+	
+		// MONTANT TOTAL
+		RapportChequeMontantTotal rcmt = new RapportChequeMontantTotal();
+		//============== 
+		
+		// 35 : id nature courrier cheque
+		 
+		//===========================
+		Unit unit = vb.getSelectedUnit();
+		type="unit_" + unit.getIdUnit();
+		type1="sub_"+unit.getResponsibleUnit().getId();
+		System.out.println("type= "+type+"/"+"type1= "+type1);
+		
+		 
+		varConsultationCourrierSecretaire= appMgr.listVariablesByLibelle("consultation_courrier_secretaire").get(0);
+		 consultationCourrierSecretaire = varConsultationCourrierSecretaire
+				.getVaraiablesValeur();
+		 
+		 typeSecretaire = "secretary_"+unit.getSecretaryUnit().getId();
+		 
+		 if(unit.getMembersUnit()!=null && unit.getMembersUnit().size()>0){
+		    for(Person p : unit.getMembersUnit()){
+		    	listAgent.add(p.getId());
+		    }
+		    System.out.println("listAgent= "+listAgent.toString());
+		 }
+		 
+		 
+		//====== de quel periode============
+		
+		String contextDate = "du "; 
+		 
+		SimpleDateFormat debut = new SimpleDateFormat("dd/MM/yyyy");
+		if (vb.getSelectedDateD() != null){
+		String dateD = debut.format(vb.getSelectedDateD());
+		contextDate=contextDate+dateD;
+		}
+	    
+		/*
+		 * // a ajouter partie si la periode est un mois/annee
+	    if(vb.getSelectedDateF()!=vb.getSelectedDateD() ){
+	    	SimpleDateFormat fin = new SimpleDateFormat("dd/MM/yyyy");
+			String dateF = fin.format(vb.getSelectedDateF());
+			System.out.println(" datef = "+dateF);
+	    	contextDate=contextDate+" à "+dateF;
+	    }
+	    */
+	    System.out.println(" contextDate = "+contextDate);
+	    rapportcourrier.get(0).setPeriodeChoisie(contextDate);
+		//================================
+	    
+	    //=== KHA : à changer
+	     System.out.println("IdCheque = "+vb.getIdCheque());
+		//===== 5 : par jour
+	     
+		listcourrier1 = appMgr.recherheMulticritereCourrierEnvoyeR(
+				true,  consultationCourrierSecretaire, type,  type1,  typeSecretaire,
+				 listAgent,59, vb.getSelectedDateD(),vb.getSelectedDateF(),
+				 false,"recus","tous",1, 10,vb.getDbType(),vb.getJourOuAutr(),null);
+		
+		System.out.println("#### listcourrier1 : "+listcourrier1.size());
+		vb.setListCourriers(listcourrier1);
+		
+		System.out.println();
+		for (CourrierInformations courrierInformations : listcourrier1) {	
+			courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);								
+		}
+		
+		
+		int k =0;
+		Double montantTotal = 0.0;
+		if(listcourrier1!=null && listcourrier1.size()>0){
+			System.out.println("##### Dans listcourrier1");
+			listeCheques = new ArrayList<Cheque>();
+			listeCourriersCheque = new ArrayList<RapportCourrierCheque>();
+			for(CourrierInformations cr: listcourrier1){
+				System.out.println("########## listcourrier1 courrier== " + listcourrier1.get(0).getCourrier());
+				RapportCourrierCheque rapportCheque = new RapportCourrierCheque();
+			    Courrier courrier = appMgr.getCourrierByIdCourrier(cr.getCourrierID()).get(0);
+			//	rapportCheque.setReferenceCourrier(courrier.getCourrierReferenceCorrespondant());
+				rapportCheque.setObjetCourrier(courrier.getCourrierObjet());
+				listeCheques = appMgr.getListeChequeByCourrier(courrier.getIdCourrier());
+				System.out.println("########## listeCheques size == " + listeCheques.size());
+				//Load fichier Properties
+				ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+				ServletContext servletContext = (ServletContext) jsfContext.getContext();
+				System.out.println("Contenu de variable local :"+vb.getLocalFr());
+				String webContentRoot = servletContext.getRealPath("/");
+				String pathConfigFile = webContentRoot	
+				+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+				msg= new Properties();
+				System.out.println("Path Fichier :"+pathConfigFile);
+				try {
+					msg.load(new FileInputStream(pathConfigFile));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}		
+				for (Cheque cheque : listeCheques){
+					
+					System.out.println("###### cheque.getChequeNum() == " + cheque.getChequeNum());
+					rapportCheque.setBanque(cheque.getChequeBanque());
+					if (cheque.getChequeBarre()){
+						rapportCheque.setChequeStringBarre("Oui");
+					}else{
+						rapportCheque.setChequeStringBarre("Non");
+					}
+					
+					rapportCheque.setBeneficiaire(cheque.getChequeBeneficiaire());
+					rapportCheque.setDateCheq(cheque.getChequeDate());
+					rapportCheque.setMontantCheq(cheque.getChequeMontant());
+					rapportCheque.setNumeroCheq(cheque.getChequeNum());
+					rapportCheque.setReferenceCourrier(cheque.getChequeId().toString());
+					montantTotal = montantTotal + cheque.getChequeMontant();
+					listeCourriersCheque.add(rapportCheque);
+					k++;
+				}
+	           		/////////////// KBS Transaction
+						
+//						System.out.println("------ ici l'id de la réclamation  ------"+ cr.getCourrierID());
+//						 refTransaction = cr.getTransactionID();
+//						 System.out.println("0000000 refTransaction");
+//		     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//		     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//		     				if (transaction != null)
+//		     				{
+//		     					tr = transaction.get(0);
+//		     				}
+//		     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//		     				
+//		     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//		     				
+//		     			String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//		     			System.out.println(" ########### cr.getCourrier() ==  " + cr.getCourrier());
+//		     			cr.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+		     		/////////////// KBS Transaction
+				
+			}
+			System.out.println(" ########### listeCourriersCheque size ==  " + listeCourriersCheque.size());
+			rcmt.setMontantTotal(montantTotal);
+			listeMontantTotal.add(rcmt);
+			listeMontantTotal.get(0).setMontantTotal(montantTotal);
+			}
+		
+		rapportcourrier.get(0).setListeSociete(listeSociete);
+		rapportcourrier.get(0).setListeCourriersChequeImpayes(listeCourriersCheque);
+		rapportcourrier.get(0).setListeMontantTotal(listeMontantTotal);
+		export.exportToPDF(rapportcourrier,"Rapport_Etat_ChequeImpayes","Rapport Etat Cheque Impaye");
+		System.out.println(" KHA ===> FIN DANS printPDFEtatCheque ");
+	}catch(Exception e){
+		e.printStackTrace();
+		System.out.println("************ Echec export Etat Cheque  ");
+	}
+
+	
+
+
+}
+		public void printPDFEtatChequeAgent(){
+			
+			try{
+		System.out.println("KHA : DANS printPDFEtatCheque");
+		List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+		RapportCourrier rapport = new RapportCourrier();
+		rapportcourrier.add(rapport);
+		
+		// remplir entete SONEDE rapport : debut
+		System.out.println("======remplir entete SONEDE rapport : debut======");
+		String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+		System.out.println(" societeNom = "+societeNom);
+	 
+		rapportcourrier.get(0).setDatePeriodeAnneeFR(vb.getDatePeriodeAnneeFR());
+		rapportcourrier.get(0).setSocieteNom(societeNom);
+		// remplir entete rapport
+		if(vb.getPerson().getAssociatedDirection()!=null){
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+		}else{
+			rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}
+		
+		// remplir entete SONEDE rapport : fin
+		System.out.println("======remplir entete SONEDE rapport : fin=======");
+		RapportSociete rs = new RapportSociete();
+		
+		listeSociete.add(rs);
+		listeSociete.get(0).setSocieteNom(societeNom);
+		
+		if(vb.getPerson().getAssociatedDirection()!=null){
+			listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+		}else{
+		listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+		}
+		rapportcourrier.get(0).setListeSociete(listeSociete);
+		// MONTANT TOTAL
+		RapportChequeMontantTotal rcmt = new RapportChequeMontantTotal();
+		
+		//============== 
+		
+		// 35 : id nature courrier cheque
+		 
+		//===========================
+		Unit unit = vb.getSelectedUnit();
+		type="unit_" + unit.getIdUnit();
+		type1="sub_"+unit.getResponsibleUnit().getId();
+		System.out.println("type= "+type+"/"+"type1= "+type1);
+		
+		 
+		varConsultationCourrierSecretaire= appMgr.listVariablesByLibelle("consultation_courrier_secretaire").get(0);
+		 consultationCourrierSecretaire = varConsultationCourrierSecretaire
+				.getVaraiablesValeur();
+		 
+		 typeSecretaire = "secretary_"+unit.getSecretaryUnit().getId();
+		 
+		 if(unit.getMembersUnit()!=null && unit.getMembersUnit().size()>0){
+		    for(Person p : unit.getMembersUnit()){
+		    	listAgent.add(p.getId());
+		    }
+		    System.out.println("listAgent= "+listAgent.toString());
+		 }
+		 
+		 
+		//====== de quel periode============
+		
+		String contextDate = "du "; 
+		 
+		SimpleDateFormat debut = new SimpleDateFormat("dd/MM/yyyy");
+		if (vb.getSelectedDateD() != null){
+		String dateD = debut.format(vb.getSelectedDateD());
+		contextDate=contextDate+dateD;
+		}
+	    
+		/*
+		 * // a ajouter partie si la periode est un mois/annee
+	    if(vb.getSelectedDateF()!=vb.getSelectedDateD() ){
+	    	SimpleDateFormat fin = new SimpleDateFormat("dd/MM/yyyy");
+			String dateF = fin.format(vb.getSelectedDateF());
+			System.out.println(" datef = "+dateF);
+	    	contextDate=contextDate+" à "+dateF;
+	    }
+	    */
+	    System.out.println(" contextDate = "+contextDate);
+	    rapportcourrier.get(0).setPeriodeChoisie(contextDate);
+		//================================
+	    
+	    //=== KHA : à changer
+	     System.out.println("IdCheque = "+vb.getIdCheque());
+		//===== 5 : par jour
+		listcourrier2 = appMgr.recherheMulticritereCourrierEnvoyeR(
+				true,  consultationCourrierSecretaire, type,  type1,  typeSecretaire,
+				 listAgent,80, vb.getSelectedDateD(),vb.getSelectedDateF(),
+				 false,"recus","tous",1, 10,vb.getDbType(),vb.getJourOuAutr(),null);
+		System.out.println("listcourrier : "+listcourrier.size());
+		vb.setListCourriers(listcourrier);
+		
+		System.out.println();
+		for (CourrierInformations courrierInformations : listcourrier) {	
+			courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);								
+		}
+		System.out.println("###### listcourrier size == " + listcourrier.size());
+		
+		
+		int k =0;
+		Double montantTotal = 0.0;
+		if(listcourrier2!=null && listcourrier2.size()>0){
+			System.out.println("##### Dans listcourrier2");
+			listeCheques = new ArrayList<Cheque>();
+			listeCourriersCheque = new ArrayList<RapportCourrierCheque>();
+			for(CourrierInformations cr: listcourrier2){
+				RapportCourrierCheque rapportCheque = new RapportCourrierCheque();
+			    Courrier courrier = appMgr.getCourrierByIdCourrier(cr.getCourrierID()).get(0);
+			//	rapportCheque.setReferenceCourrier(courrier.getCourrierReferenceCorrespondant());
+				rapportCheque.setObjetCourrier(courrier.getCourrierObjet());
+				listeCheques = appMgr.getListeChequeByCourrier(courrier.getIdCourrier());
+				System.out.println("########## listeCheques size == " + listeCheques.size());
+				//Load fichier Properties
+				ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+				ServletContext servletContext = (ServletContext) jsfContext.getContext();
+				System.out.println("Contenu de variable local :"+vb.getLocalFr());
+				String webContentRoot = servletContext.getRealPath("/");
+				String pathConfigFile = webContentRoot	
+				+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+				msg= new Properties();
+				System.out.println("Path Fichier :"+pathConfigFile);
+				try {
+					msg.load(new FileInputStream(pathConfigFile));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}		
+				for (Cheque cheque : listeCheques){
+					rapportCheque = new RapportCourrierCheque();
+					System.out.println("###### cheque.getChequeNum() == " + cheque.getChequeNum());
+					rapportCheque.setBanque(cheque.getChequeBanque());
+					if (cheque.getChequeBarre()){
+						rapportCheque.setChequeStringBarre("Oui");
+					}else{
+						rapportCheque.setChequeStringBarre("Non");
+					}
+					
+					rapportCheque.setBeneficiaire(cheque.getChequeBeneficiaire());
+					rapportCheque.setDateCheq(cheque.getChequeDate());
+					rapportCheque.setMontantCheq(cheque.getChequeMontant());
+					System.out.println("###### cheque.getChequeMontant() == " + cheque.getChequeMontant());
+					rapportCheque.setNumeroCheq(cheque.getChequeNum());
+					montantTotal = montantTotal + cheque.getChequeMontant();
+				
+//	           		/////////////// KBS Transaction
+//						
+//						System.out.println("------ ici l'id de la réclamation  ------"+ cr.getCourrierID());
+//						 refTransaction = cr.getTransactionID();
+//						 System.out.println("0000000 refTransaction");
+//		     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//		     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//		     				if (transaction != null)
+//		     				{
+//		     					tr = transaction.get(0);
+//		     				}
+//		     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//		     				
+//		     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//		     				
+//		     			String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//		     			//cr.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//		     			rapportCheque.setReferenceCourrier(cheque.getChequeId().toString());
+//		     		/////////////// KBS Transaction
+				k++;
+				listeCourriersCheque.add(rapportCheque);
+			}}
+			rcmt.setMontantTotal(montantTotal);
+			listeMontantTotal.add(rcmt);
+			System.out.println("######### rcmt == " + rcmt.getMontantTotal());
+			System.out.println("######### montantTotal == " + montantTotal);
+			//listeMontantTotal.get(0).setMontantTotal(montantTotal);
+			System.out.println("######### montantTotal == " + montantTotal);
+			}
+		
+		
+		rapportcourrier.get(0).setListeSociete(listeSociete);
+		rapportcourrier.get(0).setListeCourriersChequeAgent(listeCourriersCheque);
+		rapportcourrier.get(0).setListeMontantTotal(listeMontantTotal);
+		export.exportToPDF(rapportcourrier,"Rapport_Etat_ChequeAgent","Rapport Etat Cheque Agent");
+		System.out.println(" KHA ===> FIN DANS printPDFEtatCheque ");
+	}catch(Exception e){
+		e.printStackTrace();
+		System.out.println("************ Echec export Etat Cheque  ");
+	}
+
+	
+
+
+}
+ 
+		
+		public void printPDFListReclamation(){
+			try{
+				System.out.println(" dans printPDFListReclamation");
+				List<RapportCourrier> rapportcourrier = new ArrayList<RapportCourrier>();
+				RapportCourrier rapport = new RapportCourrier();
+				rapportcourrier.add(rapport);
+			  
+				RapportSociete rs = new RapportSociete();
+				
+				listeSociete.add(rs);
+				// ==== à changer seulLement pour le BO
+				if(vb.getPerson().getAssociatedDirection()!=null){
+					 uniteConnectee = vb.getPerson().getAssociatedDirection().getNameUnit();
+					listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+					rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+				
+				}else{
+				uniteConnectee = vb.getPerson().getAssociatedBOC().getNameBOC();
+				listeSociete.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+				rapportcourrier.get(0).setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+				}
+				rapportcourrier.get(0).setListeSociete(listeSociete);
+				rapportcourrier.get(0).setDatePeriodeAnneeAR(vb.getDatePeriodeAnneeAR());
+				//===========================
+				Unit unit = vb.getSelectedUnit();
+				type="unit_" + unit.getIdUnit();
+				type1="sub_"+unit.getResponsibleUnit().getId();
+				System.out.println("type= "+type+"/"+"type1= "+type1);
+				
+				 
+				varConsultationCourrierSecretaire= appMgr.listVariablesByLibelle("consultation_courrier_secretaire").get(0);
+				 consultationCourrierSecretaire = varConsultationCourrierSecretaire.getVaraiablesValeur();
+				 
+				 typeSecretaire = "secretary_"+unit.getSecretaryUnit().getId();
+				 
+				 if(unit.getMembersUnit()!=null && unit.getMembersUnit().size()>0){
+				    for(Person p : unit.getMembersUnit()){
+				    	listAgent.add(p.getId());
+				    }
+				    System.out.println("listAgent= "+listAgent.toString());
+				 }
+				 
+				 
+				//====== de quel periode============
+				
+				String contextDate = "du "; 
+				SimpleDateFormat debut = new SimpleDateFormat("dd/MM/yyyy");
+				if (vb.getSelectedDateD() != null){
+				String dateD = debut.format(vb.getSelectedDateD());
+				contextDate=contextDate+dateD;
+				}
+			   //================== liste des reclamations 
+				listcourrier = appMgr.recherheMulticritereCourrierEnvoyeR(
+						true,  consultationCourrierSecretaire, type,  type1,  typeSecretaire,
+						 listAgent,66, vb.getSelectedDateD(),vb.getSelectedDateF(),
+						 false,"recus","tous",1, 10,vb.getDbType(),vb.getJourOuAutr(),null);
+				
+				//System.out.println("@@@@@@@listcourrier.size()" + listcourrier.size());
+				
+				int num = 0;
+				
+				if(listcourrier!=null && listcourrier.size()>0){
+				for(CourrierInformations cr : listcourrier){
+					
+				// CODE ATTRIBUE PAR L'APPLICATION
+				
+				num=num+1;
+				//===
+				
+				courrierConsultationRecentBean.searchExpediteurDestinataire(cr);	
+
+			    RapportSuiviReclamation rsr = new RapportSuiviReclamation();
+			    System.out.println(" non dynamique ");
+			    rsr.setNumeroCourrier(num);
+			    rsr.setDateRecepReclammation(cr.getCourrier().getCourrierDateReception());
+			    System.out.println(" date reception = "+cr.getCourrier().getCourrierDateReception());
+				rsr.setExpediteurNomReclamation(cr.getCourrierExpediteur());
+				System.out.println(" expediteur = "+cr.getCourrierExpediteur());
+				rsr.setObjetReclamation(cr.getCourrierObjet());
+				System.out.println(" objet = "+cr.getCourrierObjet());
+				rsr.setRefReclamation(cr.getCourrierDestinataireReelleDirection());
+				rsr.setListeDestinataireRec(cr.getCourrierDestinataireReelle());
+				System.out.println(" destinataire reel = "+cr.getCourrierDestinataireReelle());
+				rsr.setDateReponseAuReclam(cr.getDateReponseDest());
+				System.out.println(" date reponse = "+cr.getDateReponseDest());
+				
+				//== à verifier 
+				rsr.setDateTransfertReclamation(cr.getCourrierDateReceptionEnvoi());
+				System.out.println(" date transfert = "+cr.getCourrierDateReceptionEnvoi());
+				//====
+// 				/////////////// KBS Transaction
+//					courrierDS = appMgr.getDonneeSupplementaireCourrier(cr.getCourrierID());
+//					rsr.setDateTransfertReclamation(courrierDS.getColonne16());
+//				
+//				System.out.println("------ ici l'id de la réclamation  ------"+ cr.getCourrierID());
+//				 refTransaction = cr.getTransactionID();
+//				 System.out.println("0000000 refTransaction");
+//     			  List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+//     			System.out.println("transaction.size();   ====   " + transaction.size());  
+//     				if (transaction != null)
+//     				{
+//     					tr = transaction.get(0);
+//     				}
+//     				System.out.println("tr.getTransactionId()"   + tr.getTransactionId());
+//     				
+//     				System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+//     				System.out.println("rsr.getRefReclamation" + rsr.getRefReclamation());
+//     				
+//     			String	nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+//    				
+//     			cr.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+//    				rapport.setCourrier(cr.getCourrier());
+//
+//     				/////////////// KBS Transaction
+				
+			    //Load fichier Properties
+				ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+				ServletContext servletContext = (ServletContext) jsfContext.getContext();
+				System.out.println("Contenu de variable local :"+vb.getLocalFr());
+				String webContentRoot = servletContext.getRealPath("/");
+				String pathConfigFile = webContentRoot	
+				+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+				msg= new Properties();
+				System.out.println("Path Fichier :"+pathConfigFile);
+				try {
+					msg.load(new FileInputStream(pathConfigFile));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}		
+				
+//				listDSN=appMgr.getListDonneeSupplementaireNatureAffectes(vb.getIdReclammation());
+//				listCD=new ArrayList<ComposantDynamique>();
+//				Class aClass=cds.getClass();
+//				courrierDS=appMgr.getDonneeSupplementaireCourrier(cr.getCourrierID());
+//	          
+//	            
+//				if(listDSN != null && listDSN.size()>0){
+//					for(int i=0; i<listDSN.size();i++)
+//					{
+//						composantDynamique=new ComposantDynamique();
+//						System.out.println("==================================");
+//						String libelle=listDSN.get(i).getLibelleDonnee();
+//						System.out.println("Libellé "+libelle);
+//						String libelleNature= msg.getProperty(libelle);
+//						System.out.println("libelleNature :"+libelleNature);
+//						System.out.println("==================================");
+//						composantDynamique.setName(libelle);
+//						composantDynamique.setIdChamps(listDSN.get(i).getDonneeSupplementaire().getIdDonneeSupplementaire());							
+//					
+//						listCD.add(composantDynamique);
+//						int idchamp=listCD.get(i).getIdChamps();
+//						
+//						String methodName = "getColonne"+idchamp; 
+//						Method m = null;	
+//						m = aClass.getMethod(methodName);
+//						System.out.format("Methode : %s%n", m.toGenericString());
+//						Object resultat=m.invoke(courrierDS, new Object[0]);  
+//						System.out.println("Resultat :" + resultat);
+//						
+//	                   if(composantDynamique.getName().equals("dateReclamation")){
+//	                	   rsr.setDateReclamation(resultat);
+//					   }
+//	                   if(composantDynamique.getName().equals("numPoliceReclamation")){
+//	                	   rsr.setNumPoliceReclamation(resultat);
+//	                   }
+//				}
+//			}	 
+				
+				
+				//====================================
+				listeReclamation.add(rsr);
+				
+				
+				
+			}
+		}
+		rapportcourrier.get(0).setListeReclamation(listeReclamation);
+		export.exportToPDF(rapportcourrier,"EtatSuiviReclamations","RapportEtatReclamation");
+		System.out.println("=================== fin printPDFListReclamation ================== ");
+			}catch(Exception e){
+				System.out.println("************** echec export Etat Reclamations ***********");
+				e.printStackTrace();
+			}
+		}
+			
+		//================================ KHA : rapports developpées : FIN=======================	
+ 
+	 public void setRapportExpediteurDestinatairelist(
+			List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist) {
+		this.rapportExpediteurDestinatairelist = rapportExpediteurDestinatairelist;
+	}
+
+	public List<RapportExpediteurDestinataire> getRapportExpediteurDestinatairelist() {
+		return rapportExpediteurDestinatairelist;
+	}
+
+	public void setCourrierConsultationBean(
+			CourrierConsultationBean courrierConsultationBean) {
+		this.courrierConsultationBean = courrierConsultationBean;
+	}
+
+	public CourrierConsultationBean getCourrierConsultationBean() {
+		return courrierConsultationBean;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public List<String> getListSelected() {
+		return listSelected;
+	}
+
+	public void setListSelected(List<String> listSelected) {
+		this.listSelected = listSelected;
+	}
+
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+
+	public List<RapportSociete> getListeSocieteAr() {
+		return listeSocieteAr;
+	}
+
+	public CourrierConsultationRecentBean getCourrierConsultationRecentBean() {
+		return courrierConsultationRecentBean;
+	}
+
+	public void setCourrierConsultationRecentBean(
+			CourrierConsultationRecentBean courrierConsultationRecentBean) {
+		this.courrierConsultationRecentBean = courrierConsultationRecentBean;
+	}
+
+	public void setListeSocieteAr(List<RapportSociete> listeSocieteAr) {
+		this.listeSocieteAr = listeSocieteAr;
+	}
+
+	public List<RapportCourrierArriveeInterne> getListeCourrierInterne() {
+		return listeCourrierInterne;
+	}
+
+	public void setListeCourrierInterne(
+			List<RapportCourrierArriveeInterne> listeCourrierInterne) {
+		this.listeCourrierInterne = listeCourrierInterne;
+	}
+
+	public Integer getRefTransaction() {
+		return refTransaction;
+	}
+
+	public void setRefTransaction(Integer refTransaction) {
+		this.refTransaction = refTransaction;
+	}
+
+	public Transaction getTr() {
+		return tr;
+	}
+
+	public void setTr(Transaction tr) {
+		this.tr = tr;
+	}
+
+	public List<Transaction> getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(List<Transaction> transaction) {
+		this.transaction = transaction;
+	}
+
+	public List<Courrier> getListeCourrierdInternes() {
+		return listeCourrierdInternes;
+	}
+
+	public void setListeCourrierdInternes(List<Courrier> listeCourrierdInternes) {
+		this.listeCourrierdInternes = listeCourrierdInternes;
+	}
+
+		 
+}

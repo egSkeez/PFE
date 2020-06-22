@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourrierFicheLiee_subreportLienCourrier" pageWidth="523" pageHeight="802" columnWidth="523" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="43d89201-7677-45cf-82fb-8db43aaa2626">
+	<property name="ireport.zoom" value="1.6105100000000028"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="annotation" class="xtensus.entity.Annotation">
+		<fieldDescription><![CDATA[annotation]]></fieldDescription>
+	</field>
+	<field name="document" class="xtensus.entity.Document">
+		<fieldDescription><![CDATA[document]]></fieldDescription>
+	</field>
+	<field name="confidentialite" class="xtensus.entity.Confidentialite">
+		<fieldDescription><![CDATA[confidentialite]]></fieldDescription>
+	</field>
+	<field name="dossier" class="xtensus.entity.Dossier">
+		<fieldDescription><![CDATA[dossier]]></fieldDescription>
+	</field>
+	<field name="nature" class="xtensus.entity.Nature">
+		<fieldDescription><![CDATA[nature]]></fieldDescription>
+	</field>
+	<field name="dest" class="java.lang.String">
+		<fieldDescription><![CDATA[dest]]></fieldDescription>
+	</field>
+	<field name="transmission" class="xtensus.entity.Transmission">
+		<fieldDescription><![CDATA[transmission]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="exp" class="java.lang.String">
+		<fieldDescription><![CDATA[exp]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="47" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="590118c4-9274-486b-8d2b-39e6f5226db2" x="0" y="27" width="46" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Réf.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="fdd78e3a-1a86-4884-a1aa-16494b760e90" x="46" y="27" width="158" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Objet]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="debbf2e0-e28b-45b5-91cd-1d950de41e92" x="456" y="27" width="67" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nature]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="76c8290a-c671-493d-bee7-8981f8660e2b" x="0" y="7" width="523" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Courrier(s) lié(s)
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c52fcba6-b015-4e89-9843-080c489c2dd7" x="204" y="27" width="115" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Expéditeur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="53cbef62-0c8a-4973-9f35-bcaea432397d" x="319" y="27" width="137" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Destinataire]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="5e146d88-b71d-4616-999f-c0a75ed1e563" positionType="Float" stretchType="RelativeToBandHeight" x="0" y="0" width="46" height="20" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierReferenceCorrespondant()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="dae29caf-7c4d-43af-b8d3-dd47b7ff8120" positionType="Float" stretchType="RelativeToBandHeight" x="46" y="0" width="158" height="20" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierObjet()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="59c3c036-f57d-4a60-b40f-7852f88912dc" positionType="Float" stretchType="RelativeToBandHeight" x="456" y="0" width="67" height="20" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nature}.getNatureLibelle()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="f132171f-1765-4fd7-844c-2f38a45bdbef" positionType="Float" stretchType="RelativeToBandHeight" x="204" y="0" width="115" height="20" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{exp}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="4f455d56-4879-4b37-914d-b3d5ba82b9c2" positionType="Float" stretchType="RelativeToBandHeight" x="319" y="0" width="137" height="20" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{dest}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

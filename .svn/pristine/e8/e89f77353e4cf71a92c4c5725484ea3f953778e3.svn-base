@@ -1,0 +1,831 @@
+package xtensus.beans.common.GBO_LDAP;
+
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ConnexionLdap;
+import xtensus.ldap.business.LdapFunction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Group;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+public class GroupeGestionBean {
+	
+	@Autowired
+	private ApplicationManager appMgr;
+	private int groupReference;
+	private String groupName;
+	private String groupDescription;
+	public final String CONTEXT_GROUP = "o=XteGroups,dc=xtensus,dc=com";
+	public final String CONTEXT_USER = "o=XteUsers,dc=xtensus,dc=com";
+	private List<Group> listgroups;
+	private List<Person> listusers;
+	private List<Person> listcurrentsusers;
+	private List<Person> listavailablesusers;
+	private Person person;
+	private Group group;
+	private DataModel listGroup;
+	private DataModel listCurrentsUsers;
+	private DataModel listAvailablesUsers;
+	private String pathGroup;
+	private int indexGroup;
+	public ConnexionLdap connexionLdap;
+	private boolean openaccor;
+	private int records;
+	private int records1;
+	private int records2;
+	public boolean status;
+	public boolean status1;
+	public boolean status2;
+	public boolean status3;
+	public boolean status4;
+	public boolean status5;
+	public boolean status6;
+	public boolean status7;
+	private String copyGroupName;
+	private String titleaccor;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String hidebuttonValidateGroup;
+	private String hidebuttonDelUpGroup;
+	private String showButtonValidate;
+	private String hideAccor;
+	@Autowired
+	private VariableGlobale vb;
+	private boolean msgerror;
+	private boolean inputdisable;
+	private boolean openaccor1;
+	private LdapOperation ldapOperation;
+	private Hashtable<String, String> hashtable;
+	
+	public GroupeGestionBean(){
+		hashtable = new Hashtable<String, String>();
+		try {
+			hashtable = ConnexionLdap.getConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		ldapOperation = new LdapOperation();
+		listgroups =new ArrayList<Group>();
+		listGroup = new ListDataModel();
+		titleaccor="Ajout groupe";
+		openaccor=false;
+		openaccor1=false;
+		msgerror=true;
+		inputdisable=false;
+		showButtonValidate="true";
+		hidebuttonValidateGroup="inline";
+		hidebuttonDelUpGroup="none";
+		hideAccor="none";
+		group=new Group();
+	}
+	
+	
+	@PostConstruct
+	public void initialize(){
+		System.out.println("dans la fonction des Groups");
+		listusers = new ArrayList<Person>();
+		listgroups = new ArrayList<Group>();
+		listGroup = new ListDataModel();
+		listcurrentsusers =new ArrayList<Person>();
+		listavailablesusers =new ArrayList<Person>();
+		listCurrentsUsers = new ListDataModel();
+		listAvailablesUsers = new ListDataModel();
+		try {
+			listCurrentsUsers.setWrappedData(listcurrentsusers);
+			listAvailablesUsers.setWrappedData(listavailablesusers);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeChargement*******");
+		}
+		listgroups = vb.getCopyLdapListGroup();
+		groupReference = vb.getNewGroupId();
+		listusers = vb.getCopyLdapListAllUser();
+		System.out.print("----------------------------------------------------------------------------le plus grand Id est : ");
+		System.out.println("--------------------------------------------------------------------------verif list group : ");
+		if(listgroups.isEmpty()){
+			System.out.println("la liste est vide");
+		}else{
+		for (int i = 0; i < listgroups.size(); i++) {
+			System.out.println("              -"+listgroups.get(i).getCn());
+		}}
+		try {
+			listGroup.setWrappedData(listgroups);
+			System.out.println("*******ChargementAvecSuccesss******");
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeChargement*******");
+		}
+	}
+
+
+	public void save() {
+		DirContext dirContext;
+		groupReference++;
+		System.out.println("++++++++++la valeur de Id est :"+groupReference);
+		group=new Group();
+		status3=false;
+		status5=false;
+			
+		if(groupDescription.equalsIgnoreCase("")) {groupDescription = " ";}
+		String entryDN="cn="+groupName+","+CONTEXT_GROUP;
+		Attribute ObjectClass=new BasicAttribute("objectClass");
+		ObjectClass.add("top");
+		ObjectClass.add("posixGroup");
+		ObjectClass.add("extensibleObject");
+		try {
+			dirContext=new InitialDirContext(hashtable);
+			BasicAttributes entry=new BasicAttributes();
+			entry.put(ObjectClass);
+			entry.put("cn",groupName);group.setCn(groupName);
+			entry.put("gidNumber",String.valueOf(groupReference));group.setId(groupReference);
+			entry.put("description",groupDescription);group.setDescription(groupDescription);
+//			entry.put("member", "");
+			group.setListUser(new ArrayList<Person>());
+			
+			dirContext.createSubcontext(entryDN, entry);
+			status3=true;
+			dirContext.close();
+			System.out.println("groupe ajouté avec succés");
+		} catch (NamingException e) {
+			setMessage(messageSource.getMessage("erreurInsertUtilisateurRemain",
+					new Object[] {}, lm.createLocal()));
+			status5=true;
+			this.groupName="";
+			System.err.println("Add Groupe:error adding entry,"+e);
+			e.printStackTrace();
+		}
+	    listgroups.add(0,group);
+	    vb.getCopyLdapListGroup().add(group);
+		try {
+			listGroup.setWrappedData(listgroups);
+			System.out.println("*******ChargementAvecSucces******");
+			} catch (Exception e) {
+				System.out.println("*******ErreurDeChargement*******");
+			}
+			
+       
+	}
+	
+	public void initializesave(){
+		status=false;
+		status3=false;
+		status5=false;
+	}
+	
+	public void updategroup() {
+	    DirContext dirContext;
+	    String newPath;
+	    String pathGroup;
+	    Group copyGroup;
+	    status1=false;
+		status4=false;
+		copyGroup = new Group();
+		copyGroup.setId(group.getId());
+		copyGroup.setListUser(group.getListUser());
+		if(groupDescription.equals("")) {groupDescription=" ";}    
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			pathGroup = "cn="+copyGroupName+","+CONTEXT_GROUP;
+			Attributes attributes = new BasicAttributes(true); 	
+		    Attribute newname = new BasicAttribute("cn"); 
+			newname.add(groupName);copyGroup.setCn(groupName);
+			Attribute newdescription = new BasicAttribute("description"); 
+			newdescription.add(groupDescription);copyGroup.setDescription(groupDescription);
+			
+			attributes.put(newname);
+			attributes.put(newdescription);
+			if(copyGroupName.equals(groupName)){
+				dirContext.modifyAttributes(pathGroup,DirContext.REPLACE_ATTRIBUTE,attributes);
+				 status1=true;
+					setMessage(messageSource.getMessage("confirmUpdate",
+							new Object[] {}, lm.createLocal()));
+				System.out.println("sucees de modif");
+			}else{
+			newPath="cn="+groupName+","+CONTEXT_GROUP;
+			dirContext.rename(pathGroup,newPath);
+			dirContext.modifyAttributes(newPath,DirContext.REPLACE_ATTRIBUTE,attributes);
+			status1=true;
+				setMessage(messageSource.getMessage("confirmUpdate",
+						new Object[] {}, lm.createLocal()));
+			System.out.println("sucees de modif");
+		}
+		dirContext.close();
+		} catch (NamingException e) {
+			status4=true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		System.err.println("Erreur lors de l'acces au serveur LDAP" + e);
+		e.printStackTrace();
+		}
+		listgroups.set(indexGroup, copyGroup);
+		vb.setCopyLdapListGroup(listgroups);
+		try {
+			listGroup.setWrappedData(listgroups);
+			System.out.println("*******ChargementAvecSucces******");
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeChargement*******");
+		}
+
+
+	}
+	
+	public void initializeupdate(){
+		status1=false;
+		status4=false;
+	}
+	
+	public void deletegroup(){
+		DirContext dirContext;
+		try {
+			dirContext=new InitialDirContext(hashtable);
+			dirContext.unbind(pathGroup);
+			dirContext.close();
+			listgroups.remove(group);
+			vb.setCopyLdapListGroup(listgroups);
+			listGroup.setWrappedData(listgroups);
+			group = new Group();
+		} catch (NamingException e) {
+		System.out.println("Erreur lors de l'accés au serveur LDAPé"+e);
+			e.printStackTrace();
+		}
+		System.out.println("*******Suppression terminée******");
+	}
+	
+	public void getdeletegroup(){
+    	status2=true;
+    	setMessage(messageSource.getMessage("confirmDeleteUsers",
+				new Object[] {}, lm.createLocal()));
+    	if(listcurrentsusers.isEmpty()){
+    		status2=false;
+			setMessage(messageSource.getMessage("confirmDeletegroup",
+					new Object[] {}, lm.createLocal()));
+    	}
+		
+	}
+
+	public void getSelectionRow() {
+		System.out.println("dans la fonction selectedRow");
+		listcurrentsusers = new ArrayList<Person>();
+		listavailablesusers = new ArrayList<Person>();
+		group = new Group();
+		titleaccor="Consultation groupe";
+		try {
+			 group = (Group) listGroup.getRowData();
+			System.out.println("*******SelectionSucces*********");
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+	
+		openaccor=true;
+		openaccor1=true;
+		msgerror=false;
+		inputdisable=true;
+		showButtonValidate="true";
+		hidebuttonValidateGroup="none";
+		hidebuttonDelUpGroup="inline";
+		hideAccor="inline";
+		this.groupName=group.getCn();
+		this.groupDescription=group.getDescription();
+		pathGroup="cn="+groupName+","+CONTEXT_GROUP;
+		this.copyGroupName=groupName;
+		listcurrentsusers = ldapOperation.getLdapListMembers("member", pathGroup);
+		System.out.println("les membres du "+group.getCn()+" sont :");
+		for (int i = 0; i < group.getListUser().size(); i++) {
+			System.out.println("       -"+group.getListUser().get(i).getCn());
+		}
+		indexGroup = listgroups.indexOf(group);
+		boolean findUser;
+		int j;
+		for (int i = 0; i < listusers.size(); i++) {
+			listavailablesusers.add(listusers.get(i));
+		}
+		if(!listcurrentsusers.isEmpty()){
+		for (int i = 0; i < listcurrentsusers.size(); i++) {
+			findUser = false;
+			j = 0;
+			do {
+				if(listcurrentsusers.get(i).getId() == listavailablesusers.get(j).getId()){
+					listavailablesusers.remove(listavailablesusers.get(j));
+					findUser = true;
+				}else {
+					j++;
+				}
+			} while (!findUser && j<listavailablesusers.size());
+		}
+		}
+		try {
+			listCurrentsUsers.setWrappedData(listcurrentsusers);
+			listAvailablesUsers.setWrappedData(listavailablesusers);
+			System.out.println("*******ChargementAvecSucces******");
+			} catch (Exception e) {
+				System.out.println("*******ErreurDeChargement*******");
+			}
+	}
+
+	public void viderchampgroup(){
+		initializesave();
+		List<Person> copyselectItem ;
+		List<Person> copyselectedItem ;
+		this.groupDescription="";
+		this.groupName="";
+		copyselectItem=new ArrayList<Person>();
+		copyselectedItem=new ArrayList<Person>();
+				try{		
+				listCurrentsUsers.setWrappedData(copyselectItem);
+				listAvailablesUsers.setWrappedData(copyselectedItem);
+				}catch (Exception exc) {
+					System.out.println("Erreur lors de l'acces au serveur LDAP:" +exc);
+					exc.printStackTrace();
+				}
+		msgerror=true;
+		titleaccor="Ajout groupe";
+		openaccor1=false;
+		openaccor=true;
+		inputdisable=false;
+		showButtonValidate="true";
+		hidebuttonDelUpGroup="none";
+		hidebuttonValidateGroup="inline";
+		hideAccor="inline";
+	}
+	
+	public void affectUser(){
+		person = new Person();
+		try {
+			 showButtonValidate="false";
+			 person = (Person) listAvailablesUsers.getRowData();
+			 listavailablesusers.remove(person);
+			 listcurrentsusers.add(0, person);
+			 listCurrentsUsers.setWrappedData(listcurrentsusers);
+			 listAvailablesUsers.setWrappedData(listavailablesusers);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		
+	}
+	
+	public void desaffectUser(){
+		person = new Person();
+		try {
+			 showButtonValidate="false";
+			 person = (Person) listCurrentsUsers.getRowData();
+			 listcurrentsusers.remove(person);
+			 listavailablesusers.add(0, person);
+			 listCurrentsUsers.setWrappedData(listcurrentsusers);
+			 listAvailablesUsers.setWrappedData(listavailablesusers);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+	}
+	
+	public void validAffectation(){
+		System.out.println("dans la fonction d'affectation");
+		System.out.println("DN associé : "+pathGroup);
+		System.out.println("****"+group.getListUser());
+		status6=false;
+		status7=false;
+		DirContext dirContext;
+		String copyUser;
+		LdapFunction ldapFunction = new LdapFunction();
+		List<Person> copyListUser = new ArrayList<Person>();
+		copyListUser = ldapFunction.getLdapListMembers("member", pathGroup);
+		try {
+			dirContext=new InitialDirContext(hashtable);
+		if(!copyListUser.isEmpty()){
+			System.out.println("dans la suppression");
+				System.out.println("la longueur de la liste est :"+copyListUser.size());
+			for (int i = 0; i < copyListUser.size(); i++) {
+				copyUser="cn="+copyListUser.get(i).getCn()+","+CONTEXT_USER;
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("member",copyUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathGroup,DirContext.REMOVE_ATTRIBUTE,attributes);
+				System.out.println(copyListUser.get(i).getCn()+" est supprimé");
+			}
+			
+		}
+		if(!listcurrentsusers.isEmpty()){
+			System.out.println("dans l'ajout");
+				System.out.println("la longueur de la liste est :"+listcurrentsusers.size());
+				for (int i = 0; i < listcurrentsusers.size(); i++) {
+					System.out.println("--"+listcurrentsusers.get(i).getCn());}
+			for (int i = 0; i < listcurrentsusers.size(); i++) {
+				System.out.println("--"+listcurrentsusers.get(i).getCn());
+				copyUser="cn="+listcurrentsusers.get(i).getCn()+","+CONTEXT_USER;
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("member",copyUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathGroup,DirContext.ADD_ATTRIBUTE,attributes);
+				System.out.println(listcurrentsusers.get(i).getCn()+" ajouté avecn succés");
+			}
+		}
+		status6=true;
+		setMessage(messageSource.getMessage("confirmAffectation",
+				new Object[] {}, lm.createLocal()));
+		dirContext.close();
+		} catch (NamingException e) {
+			System.out.println("erreur de suppression");
+			status7=true;
+			setMessage(messageSource.getMessage("ErreurAffectation",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("Erreur lors de l'accés au serveur LDAPé"+e);
+				e.printStackTrace();
+		}
+		group.setListUser(listcurrentsusers);
+		listgroups.set(indexGroup, group);
+		vb.setCopyLdapListGroup(listgroups);
+		
+	}
+	
+	public void initializeaffect(){
+		showButtonValidate="true";
+		status6=false;
+		status7=false;
+	}
+
+	public int getGroupReference() {
+		return groupReference;
+	}
+
+	public void setGroupReference(int groupReference) {
+		this.groupReference = groupReference;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public String getGroupDescription() {
+		return groupDescription;
+	}
+
+	public void setGroupDescription(String groupDescription) {
+		this.groupDescription = groupDescription;
+	}
+
+	public List<Group> getListgroups() {
+		return listgroups;
+	}
+
+	public void setListgroups(List<Group> listgroups) {
+		this.listgroups = listgroups;
+	}
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+	public DataModel getListGroup() {
+		return listGroup;
+	}
+
+	public void setListGroup(DataModel listGroup) {
+		this.listGroup = listGroup;
+	}
+    
+	
+	public DataModel getListCurrentsUsers() {
+		return listCurrentsUsers;
+	}
+
+	public void setListCurrentsUsers(DataModel listCurrentsUsers) {
+		this.listCurrentsUsers = listCurrentsUsers;
+	}
+
+	
+	public DataModel getListAvailablesUsers() {
+		return listAvailablesUsers;
+	}
+
+	public void setListAvailablesUsers(DataModel listAvailablesUsers) {
+		this.listAvailablesUsers = listAvailablesUsers;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if(listGroup==null && listGroup.getWrappedData()==null)
+			records=0;
+		else
+			records=((List<Group>)listGroup.getWrappedData()).size();
+		return records;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public long getRecords1() {
+		if(listCurrentsUsers==null && listCurrentsUsers.getWrappedData()==null)
+			records1=0;
+		else
+			records1=((List<Person>)listCurrentsUsers.getWrappedData()).size();
+		return records1;
+	}
+
+	public void setRecords1(int records1) {
+		this.records1 = records1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if(listAvailablesUsers==null && listAvailablesUsers.getWrappedData()==null)
+			records2=0;
+		else 
+			records2=((List<Person>)listAvailablesUsers.getWrappedData()).size();
+		
+		return records2;
+	}
+
+	public void setRecords2(int records2) {
+		this.records2 = records2;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus4() {
+		return status4;
+	}
+
+	public void setStatus4(boolean status4) {
+		this.status4 = status4;
+	}
+
+	public boolean isStatus5() {
+		return status5;
+	}
+
+	public void setStatus5(boolean status5) {
+		this.status5 = status5;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getCopyGroupName() {
+		return copyGroupName;
+	}
+
+	public void setCopyGroupName(String copyGroupName) {
+		this.copyGroupName = copyGroupName;
+	}
+
+	public void setHidebuttonValidateGroup(String hidebuttonValidateGroup) {
+		this.hidebuttonValidateGroup = hidebuttonValidateGroup;
+	}
+
+	public String getHidebuttonValidateGroup() {
+		return hidebuttonValidateGroup;
+	}
+
+	public void sethidebuttonDelUpGroup(String hidebuttonDelUpGroup) {
+		this.hidebuttonDelUpGroup = hidebuttonDelUpGroup;
+	}
+
+	public String getHidebuttonDelUpGroup() {
+		return hidebuttonDelUpGroup;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setInputdisable(boolean inputdisable) {
+		this.inputdisable = inputdisable;
+	}
+
+	public boolean isInputdisable() {
+		return inputdisable;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setListcurrentsusers(List<Person> listcurrentsusers) {
+		this.listcurrentsusers = listcurrentsusers;
+	}
+
+	public List<Person> getListcurrentsusers() {
+		return listcurrentsusers;
+	}
+
+	public void setListavailablesusers(List<Person> listavailablesusers) {
+		this.listavailablesusers = listavailablesusers;
+	}
+
+	public List<Person> getListavailablesusers() {
+		return listavailablesusers;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setListusers(List<Person> listusers) {
+		this.listusers = listusers;
+	}
+
+	public List<Person> getListusers() {
+		return listusers;
+	}
+
+	public void setPathGroup(String pathGroup) {
+		this.pathGroup = pathGroup;
+	}
+
+	public String getPathGroup() {
+		return pathGroup;
+	}
+
+	public int getIndexGroup() {
+		return indexGroup;
+	}
+
+	public void setIndexGroup(int indexGroup) {
+		this.indexGroup = indexGroup;
+	}
+
+	public boolean isStatus6() {
+		return status6;
+	}
+
+	public void setStatus6(boolean status6) {
+		this.status6 = status6;
+	}
+
+	public boolean isStatus7() {
+		return status7;
+	}
+
+	public void setStatus7(boolean status7) {
+		this.status7 = status7;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setShowButtonValidate(String showButtonValidate) {
+		this.showButtonValidate = showButtonValidate;
+	}
+
+	public String getShowButtonValidate() {
+		return showButtonValidate;
+	}
+
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+	public void setHashtable(Hashtable<String, String> hashtable) {
+		this.hashtable = hashtable;
+	}
+
+
+	public Hashtable<String, String> getHashtable() {
+		return hashtable;
+	}
+
+	
+}

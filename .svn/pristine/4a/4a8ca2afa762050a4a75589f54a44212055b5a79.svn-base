@@ -1,0 +1,428 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.CourrierDossierId;
+import xtensus.entity.Dossier;
+import xtensus.entity.Nature;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class DossierCourrierConsulterBean {
+
+	ApplicationManager appMgr;
+
+	@Autowired
+	private LanguageManagerBean lm;
+	private Dossier dossier;
+	List<Courrier> listCourrier;
+	List<Courrier> listCourrierAffecte;
+	List<Courrier> listCourrierNonAffecte;
+	List<CourrierDossierListe> listCourrierDossierListeAffecte;
+	List<CourrierDossierListe> listCourrierDossierListeNonAffecte;
+	List<CourrierDossier> listDossierCourrier;
+
+	private DataModel listCourrierAffecteDM;
+	private DataModel listCourrierNonAffecteDM;
+	private long records;
+	private long records2;
+
+	private Date dateCreation;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String showButtonValidate;
+	private boolean status;
+	private boolean status1;
+	// **
+	private String consultationCourrierSecretaire;
+	private String consultationCourrierSubordonne;
+	private String consultationCourrierSousUnite;
+	private Integer idUser;
+	private String type;
+	private String type1;
+	private String typeSecretaire;
+	private List<Integer> listIdsSousUnit;
+	private List<Integer> listIdsSubordonne;
+
+	// **
+
+	public DossierCourrierConsulterBean() {
+	}
+
+	@Autowired
+	public DossierCourrierConsulterBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		showButtonValidate = "true";
+		listCourrier = new ArrayList<Courrier>();
+		listCourrierAffecte = new ArrayList<Courrier>();
+		listCourrierNonAffecte = new ArrayList<Courrier>();
+		listDossierCourrier = new ArrayList<CourrierDossier>();
+		listCourrierAffecteDM = new ListDataModel();
+		listCourrierNonAffecteDM = new ListDataModel();
+		listCourrierDossierListeAffecte = new ArrayList<CourrierDossierListe>();
+		listCourrierDossierListeNonAffecte = new ArrayList<CourrierDossierListe>();
+		listIdsSousUnit = new ArrayList<Integer>();
+		listIdsSubordonne = new ArrayList<Integer>();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			// **
+			consultationCourrierSecretaire = appMgr.listVariablesById(3).get(0)
+					.getVaraiablesValeur();
+
+			consultationCourrierSubordonne = appMgr.listVariablesById(4).get(0)
+					.getVaraiablesValeur();
+			consultationCourrierSousUnite = appMgr.listVariablesById(5).get(0)
+					.getVaraiablesValeur();
+			// identify connected user
+			idUser = vb.getPerson().getId();
+			type = "";
+			type1 = "";
+			if (vb.getPerson().isBoc()) {
+				type = "boc_" + vb.getPerson().getAssociatedBOC().getIdBOC();
+				type1 = "";
+			} else if (vb.getPerson().isResponsable()) {
+				type = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+				type1 = "sub_" + idUser;
+				// NEW
+
+				for (Unit unit : vb.getPerson().getAssociatedDirection()
+						.getListUnitsChildUnit()) {
+					listIdsSousUnit.add(unit.getIdUnit());
+					try {
+						listIdsSubordonne
+								.add(unit.getResponsibleUnit().getId());
+					} catch (Exception e) {
+						System.out.println("#Sub-Unit without Responsible");
+					}
+
+				}
+				// FIn NEW
+				try {
+					typeSecretaire = "secretary_"
+							+ vb.getPerson().getAssociatedDirection()
+									.getSecretaryUnit().getId();
+				} catch (NullPointerException e) {
+					consultationCourrierSecretaire = "Non";
+				}
+
+			} else if (vb.getPerson().isSecretary()) {
+				type = "secretary_" + idUser;
+				type1 = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+			} else if (vb.getPerson().isAgent()) {
+				type = "agent_" + idUser;
+				type1 = "";
+			}
+			// fin identify connected user
+
+			// **
+			showButtonValidate = "true";
+			dossier = vb.getDossier();
+			// listCourrier = appMgr.getList(Courrier.class);
+
+			long startTime = System.currentTimeMillis();
+			listCourrierNonAffecte = appMgr.listCourrierNonAffecteDossier(null, vb
+					.getPerson().isResponsable(), listIdsSousUnit,
+					listIdsSubordonne, consultationCourrierSecretaire,
+					consultationCourrierSubordonne,
+					consultationCourrierSousUnite, type, type1, typeSecretaire,
+					idUser, false);
+			System.out.println("Time (listCourrierNonAffecte) = " + (System.currentTimeMillis() - startTime));
+			int refDossier = dossier.getDossierId();
+			listDossierCourrier = appMgr.getCourrierDossierByIdDossier(refDossier);
+			/**** Liste courrier Affecter ******/
+			for (CourrierDossier cd : listDossierCourrier) {
+				Courrier cr = appMgr.getCourrierByIdCourrier(cd.getId().getIdCourrier()).get(0);
+				listCourrierAffecte.add(cr);
+			}
+
+			List<Nature> natList = appMgr.getList(Nature.class);
+			Map<Integer, Nature> natMap = new HashMap<Integer, Nature>();
+			for (Nature n : natList) natMap.put(n.getNatureId(), n);
+
+			List<Confidentialite> confList = appMgr.getList(Confidentialite.class);
+			Map<Integer, Confidentialite> confMap = new HashMap<Integer, Confidentialite>();
+			for (Confidentialite c : confList) confMap.put(c.getConfidentialiteId(), c);
+
+			List<Transmission> transList = appMgr.getList(Transmission.class);
+			Map<Integer, Transmission> transMap = new HashMap<Integer, Transmission>();
+			for (Transmission t : transList) transMap.put(t.getTransmissionId(), t);
+
+			List<Urgence> urgList = appMgr.getList(Urgence.class);
+			Map<Integer,Urgence> urgMap = new HashMap<Integer,Urgence>();
+			for (Urgence u : urgList) urgMap.put(u.getUrgenceId(), u);
+
+			/**** chargement des tableaux ******/
+			for (Courrier cr : listCourrierAffecte) {
+				CourrierDossierListe courrierDossierListe = new CourrierDossierListe();
+				courrierDossierListe.setDossier(dossier);
+				courrierDossierListe.setCourrier(cr);
+				courrierDossierListe.setNature(natMap.get(cr.getNature().getNatureId()));
+				courrierDossierListe.setConfidentialite(confMap.get(cr.getConfidentialite().getConfidentialiteId()));
+				courrierDossierListe.setTransmission(transMap.get(cr.getTransmission().getTransmissionId()));
+				courrierDossierListe.setUrgence(urgMap.get(cr.getUrgence().getUrgenceId()));
+				listCourrierDossierListeAffecte.add(courrierDossierListe);
+			}
+			for (Courrier cr : listCourrierNonAffecte) {
+				CourrierDossierListe courrierDossierListe = new CourrierDossierListe();
+				courrierDossierListe.setDossier(dossier);
+				courrierDossierListe.setCourrier(cr);
+				courrierDossierListe.setNature(natMap.get(cr.getNature().getNatureId()));
+				courrierDossierListe.setConfidentialite(confMap.get(cr.getConfidentialite().getConfidentialiteId()));
+				courrierDossierListe.setTransmission(transMap.get(cr.getTransmission().getTransmissionId()));
+				courrierDossierListe.setUrgence(urgMap.get(cr.getUrgence().getUrgenceId()));
+				listCourrierDossierListeNonAffecte.add(courrierDossierListe);
+			}
+			System.out.println("Time (for) = " + (System.currentTimeMillis() - startTime));
+
+			listCourrierNonAffecteDM.setWrappedData(listCourrierDossierListeNonAffecte);
+			listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeChargement DossierCourrierConsulterBean*******");
+		}
+	}
+
+	public void affect() {
+		showButtonValidate = "false";
+		CourrierDossierListe cr = (CourrierDossierListe) listCourrierNonAffecteDM.getRowData();
+		listCourrierDossierListeNonAffecte.remove(cr);
+		listCourrierDossierListeAffecte.add(0, cr);
+		listCourrierNonAffecteDM.setWrappedData(listCourrierDossierListeNonAffecte);
+		listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+
+	}
+
+	public void desaffect() {
+		showButtonValidate = "false";
+		CourrierDossierListe cr = (CourrierDossierListe) listCourrierAffecteDM
+				.getRowData();
+		listCourrierDossierListeAffecte.remove(cr);
+		listCourrierDossierListeNonAffecte.add(0, cr);
+		listCourrierNonAffecteDM
+				.setWrappedData(listCourrierDossierListeNonAffecte);
+		listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+
+	}
+
+	public void saveChange() {
+		try {
+			status = false;
+			status1 = false;
+			appMgr.deleteDossierCourrierByIdDossier(dossier.getDossierId());
+			CourrierDossier cd;
+			List<CourrierDossierId> listCourrierAffected = new ArrayList<CourrierDossierId>();
+			for (CourrierDossierListe cr : listCourrierDossierListeAffecte) {
+
+				CourrierDossierId courrierDossierId = new CourrierDossierId(cr
+						.getCourrier().getIdCourrier(), dossier.getDossierId());
+				if (!listCourrierAffected.contains(courrierDossierId)) {
+					cd = new CourrierDossier();
+					cd.setId(courrierDossierId);
+					appMgr.insert(cd);
+					listCourrierAffected.add(courrierDossierId);
+				}
+			}
+			vb.setListCourriesrAffectes(listCourrierDossierListeAffecte);
+			setMessage(messageSource.getMessage("confirmAffectation",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"affectation",
+					"Evénement de log d'affectation des courriers au dossier "
+							+ dossier.getDossierId() + "-"
+							+ dossier.getDossierReference(), vb.getPerson(),
+					"INFO", appMgr);
+
+		} catch (Exception e) {
+			setMessage(messageSource.getMessage("labelError", new Object[] {},
+					lm.createLocal()));
+			status1 = true;
+			e.printStackTrace();
+		}
+	}
+
+	/************** Getters && setters ********************/
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setDateCreation(Date dateCreation) {
+		this.dateCreation = dateCreation;
+	}
+
+	public Date getDateCreation() {
+		return dateCreation;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listCourrierNonAffecteDM == null && listCourrierNonAffecteDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<CourrierDossierListe>) listCourrierNonAffecteDM.getWrappedData()).size();
+		return records;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (listCourrierAffecteDM == null
+				&& listCourrierAffecteDM.getWrappedData() == null)
+			records2 = 0;
+		else
+			records2 = ((List<CourrierDossierListe>) listCourrierAffecteDM
+					.getWrappedData()).size();
+		return records2;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public void setRecords2(long records2) {
+		this.records2 = records2;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public List<Courrier> getListCourrier() {
+		return listCourrier;
+	}
+
+	public void setListCourrier(List<Courrier> listCourrier) {
+		this.listCourrier = listCourrier;
+	}
+
+	public List<Courrier> getListCourrierAffecte() {
+		return listCourrierAffecte;
+	}
+
+	public void setListCourrierAffecte(List<Courrier> listCourrierAffecte) {
+		this.listCourrierAffecte = listCourrierAffecte;
+	}
+
+	public List<Courrier> getListCourrierNonAffecte() {
+		return listCourrierNonAffecte;
+	}
+
+	public void setListCourrierNonAffecte(List<Courrier> listCourrierNonAffecte) {
+		this.listCourrierNonAffecte = listCourrierNonAffecte;
+	}
+
+	public List<CourrierDossier> getListDossierCourrier() {
+		return listDossierCourrier;
+	}
+
+	public void setListDossierCourrier(List<CourrierDossier> listDossierCourrier) {
+		this.listDossierCourrier = listDossierCourrier;
+	}
+
+	public DataModel getListCourrierAffecteDM() {
+		return listCourrierAffecteDM;
+	}
+
+	public void setListCourrierAffecteDM(DataModel listCourrierAffecteDM) {
+		this.listCourrierAffecteDM = listCourrierAffecteDM;
+	}
+
+	public DataModel getListCourrierNonAffecteDM() {
+		return listCourrierNonAffecteDM;
+	}
+
+	public void setListCourrierNonAffecteDM(DataModel listCourrierNonAffecteDM) {
+		this.listCourrierNonAffecteDM = listCourrierNonAffecteDM;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public void setShowButtonValidate(String showButtonValidate) {
+		this.showButtonValidate = showButtonValidate;
+	}
+
+	public String getShowButtonValidate() {
+		return showButtonValidate;
+	}
+
+}

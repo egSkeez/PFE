@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Affectation des rôles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" >
+						<h:form>
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:commandLink id="retour"
+									onclick="document.location.href='groupList.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onclick="this.src='../framGraphique/images/retourClick.png'"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+								</div>
+								<div id="barreIconeDroite">
+									<a4j:commandLink id="helpButton"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+								</div>
+							</div>
+						</h:form>
+						<rich:modalPanel id="aidePanal" autosized="true" height="500"
+							width="800">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:graphicImage value="../framGraphique/images/help_16.png"
+										id="help" />
+									<h:outputText
+										value="Aide : Interface #{aideEnLigneBean.titreInterface}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="aidehidelink" />
+									<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="scroll_div">
+								<h:form>
+									<a4j:keepAlive beanName="aideEnLigneBean" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Affectation-role.jpg"
+										width="750" height="490" id="aidehidelink" />
+										<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Groupe-Affectation-Role-AR.png"
+										width="750" height="490" id="aidehidelinkAR" />
+									<rich:spacer height="10" />
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('aidePanal');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+								</h:form>
+							</div>
+						</rich:modalPanel>
+					</rich:panel>
+					<h:form>
+						<rich:simpleTogglePanel switchType="client"
+							label="#{msg.group} #{groupeAffectationRoleBean.nomGroupe}"
+							styleClass="xteEnregistrementLabelOutput" opened="false"
+							style=" width : 100%;">
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.ContactNom}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText value="#{groupeAffectationRoleBean.nomGroupe}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+										</h:panelGrid></td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+
+											<h:outputText value="#{msg.CourrierDes}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{groupeAffectationRoleBean.descriptionGroupe}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+								</tr>
+							</table>
+
+						</rich:simpleTogglePanel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.affectDesaffectFacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<div style="align: center; float: left; width: 382px;">
+								<rich:dataTable
+									value="#{groupeAffectationRoleBean.roleAvailableDataModel}"
+									var="role" id="data1" rows="10" styleClass="rich-panel"
+									onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+									onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+									<f:facet name="header">
+										<h:panelGrid columns="2" style="margin:-3px;">
+											<h:outputText value="#{msg.rolesDisponibles}"
+												styleClass="xteEnregistrementLabelOutput"
+												style="padding-right:212px;" />
+										</h:panelGrid>
+									</f:facet>
+									<rich:column width="7%" sortBy="#{role.referenceRole}"
+										filterBy="#{role.referenceRole}" filterEvent="onkeyup"
+										label="#{msg.Reference}">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}" />
+										</f:facet>
+										<h:outputText value="#{role.referenceRole}" />
+									</rich:column>
+									<rich:column sortBy="#{role.nomRole}"
+										filterBy="#{role.nomRole}" filterEvent="onkeyup"
+										label="#{msg.libelle1}" width="20%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.libelle1}" />
+										</f:facet>
+										<h:outputText value="#{role.nomRole}" />
+									</rich:column>
+									<rich:column width="10%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.operation}" />
+										</f:facet>
+										<div align="center">
+											<h:panelGrid columns="6">
+												<a4j:commandLink id="modifyRole"
+													action="#{groupeAffectationRoleBean.getSelectedRowRole1}"
+													oncomplete="document.location.href='roleGestion.jsf'">
+													<h:graphicImage value="../framGraphique/images/Edit.png"
+														alt="details" />
+												</a4j:commandLink>
+												<rich:toolTip for="modifyRole" direction="top-right"
+													value="#{msg.Modif}" />
+												<a4j:commandLink id="ed"
+													action="#{groupeAffectationRoleBean.getSelectedRowRole1}"
+													oncomplete="document.location.href='groupeConsultationRole.jsf'">
+													<h:graphicImage
+														value="../framGraphique/images/icone-detail.png"
+														alt="editer" />
+												</a4j:commandLink>
+												<rich:toolTip for="ed" value="#{msg.labelConsulter}"
+													direction="top-right" />
+												<a4j:commandLink id="upd"
+													action="#{groupeAffectationRoleBean.affectRole}"
+													reRender="data1,data2,records1,records2,scroller1,scroller2,buttonValidate">
+													<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+														alt="details" />
+												</a4j:commandLink>
+												<rich:toolTip for="upd" direction="top-right"
+													value="#{msg.buttonAffecter}" />
+											</h:panelGrid>
+										</div>
+									</rich:column>
+								</rich:dataTable>
+								<div align="center">
+									<rich:datascroller for="data1" id="scroller1" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="records1"
+										value="#{groupeAffectationRoleBean.records1}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+								</div>
+							</div>
+							<div style="align: center; float: right; width: 382px;">
+								<rich:dataTable
+									value="#{groupeAffectationRoleBean.roleAffectedDataModel}"
+									var="role1" id="data2" rows="10" style=" width : 382px;"
+									onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+									onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+									<f:facet name="header">
+										<h:panelGrid columns="2" style="margin:-3px;">
+											<h:outputText value="#{msg.rolesCourants}"
+												styleClass="xteEnregistrementLabelOutput"
+												style="padding-right:229px;" />
+										</h:panelGrid>
+									</f:facet>
+									<rich:column width="7%" sortBy="#{role1.referenceRole}"
+										filterBy="#{role1.referenceRole}" filterEvent="onkeyup"
+										label="#{msg.Reference}">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}" />
+										</f:facet>
+										<h:outputText value="#{role1.referenceRole}" />
+									</rich:column>
+									<rich:column sortBy="#{role1.nomRole}"
+										filterBy="#{role1.nomRole}" filterEvent="onkeyup"
+										label="#{msg.libelle1}" width="20%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.libelle1}" />
+										</f:facet>
+										<h:outputText value="#{role1.nomRole}" />
+									</rich:column>
+									<rich:column width="10%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.operation}" />
+										</f:facet>
+										<div align="center">
+											<h:panelGrid columns="6">
+												<a4j:commandLink id="modifyRole"
+													action="#{groupeAffectationRoleBean.getSelectedRowRole2}"
+													oncomplete="document.location.href='roleGestion.jsf'">
+													<h:graphicImage value="../framGraphique/images/Edit.png"
+														alt="details" />
+												</a4j:commandLink>
+												<rich:toolTip for="modifyRole" direction="top-right"
+													value="#{msg.Modif}" />
+												<a4j:commandLink id="ed"
+													action="#{groupeAffectationRoleBean.getSelectedRowRole2}"
+													oncomplete="document.location.href='groupeConsultationRole.jsf'">
+													<h:graphicImage
+														value="../framGraphique/images/icone-detail.png"
+														alt="editer" />
+												</a4j:commandLink>
+												<rich:toolTip for="ed" value="#{msg.labelConsulter}"
+													direction="top-right" />
+												<a4j:commandLink id="upd"
+													action="#{groupeAffectationRoleBean.desaffectRole}"
+													reRender="data1,data2,records1,records2,scroller1,scroller2,buttonValidate">
+													<h:graphicImage value="../framGraphique/images/Delete.png"
+														alt="details" />
+												</a4j:commandLink>
+												<rich:toolTip for="upd" direction="top-right"
+													value="#{msg.labelDesaffect}" />
+											</h:panelGrid>
+										</div>
+									</rich:column>
+								</rich:dataTable>
+								<div align="center">
+									<rich:datascroller for="data2" id="scroller2" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									<h:outputText id="records2"
+										value="#{groupeAffectationRoleBean.records2}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+								</div>
+							</div>
+							<rich:spacer width="100%" height="8" />
+							<div align="center" id="buttonValidate">
+								<a4j:commandButton
+									disabled="#{groupeAffectationRoleBean.showButtonValidate}"
+									id="buttonValidate" value="#{msg.buttonValidate}" type="submit"
+									action="#{groupeAffectationRoleBean.validAffectation}"
+									oncomplete="if(#{groupeAffectationRoleBean.status1}==true) #{rich:component('msgPanalErrAff')}.show(); if(#{groupeAffectationRoleBean.status}==true) #{rich:component('msgPanalCAff')}.show(); "
+									reRender="msgPanalErrAff,msgPanalCAff"></a4j:commandButton>
+							</div>
+							<rich:spacer width="100%" height="-6" />
+							<rich:spacer width="100%" height="8" />
+						</rich:panel>
+					</h:form>
+					<!-- *********popup Info erreur Affectation******** -->
+					<rich:modalPanel id="msgPanalErrAff" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="groupeAffectationRoleBean"
+							ajaxOnly="true" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelError}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkErrAff" />
+								<rich:componentControl for="msgPanalErrAff"
+									attachTo="hidelinkErrAff" operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/erreurrrrr.png" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{groupeAffectationRoleBean.message}" />
+									</td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									onclick="Richfaces.hideModalPanel('msgPanalErrAff');"
+									action="#{groupeAffectationRoleBean.initializeaffect}"
+									type="submit" reRender="case2" ajaxSingle="true"
+									styleClass="submitButton" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+					<!-- *******popup Info Validation d'affectation -->
+					<rich:modalPanel id="msgPanalCAff" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="groupeAffectationRoleBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkCAff" />
+								<rich:componentControl for="msgPanalCAff"
+									attachTo="hidelinkCAff" operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{groupeAffectationRoleBean.message}" />
+									</td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									onclick="document.location.href='groupeConsultation.jsf'"
+									type="submit" ajaxSingle="true" styleClass="submitButton" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

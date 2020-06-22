@@ -1,0 +1,529 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ListeArmoiresModel;
+import xtensus.beans.utils.ListeDocument;
+import xtensus.entity.Classement_archivage_niveau_02;
+import xtensus.entity.Classement_archivage_niveau_01;
+import xtensus.services.ApplicationManager;
+import java.util.Collections;
+@Component()
+@Scope("request")
+public class ArmoireGestionBean {
+
+	private Classement_archivage_niveau_02 armoire;
+	private DataModel listType;
+	private List<Classement_archivage_niveau_02> listarmoire;
+	private int records;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+	@Autowired
+	private VariableGlobale vb;
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private boolean statusDelete;
+	private boolean statusDelete1;
+
+	private int etagesNombreDossiers;
+	private int typePocesseur;
+	private int pocesseurId;
+  private 	List<ListeArmoiresModel> listeArmo;
+  private ListeArmoiresModel armoiresModel;
+	@Autowired
+	public ArmoireGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		setArmoire(new Classement_archivage_niveau_02());
+		listType = new ListDataModel();
+		listarmoire = new ArrayList<Classement_archivage_niveau_02>();
+		
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		listeArmo = new ArrayList<ListeArmoiresModel>();
+		armoiresModel=new ListeArmoiresModel();
+		System.out.println("*************Bean Injecte***************");
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		
+		//titleaccor = messageSource.getMessage("Ajoutarmoire",new Object[] {}, lm.createLocal());
+		titleaccor = messageSource.getMessage("actionAjout",new Object[] {}, lm.createLocal());
+		titleaccor+= " "+messageSource.getMessage("niv_02_nom",new Object[] {}, lm.createLocal());
+		listarmoire = new ArrayList<Classement_archivage_niveau_02>();
+		//2020-06-12
+		int ord=1;
+		listeArmo=new ArrayList<ListeArmoiresModel>();
+		try {
+			 typePocesseur=0;
+			 pocesseurId=0;
+			if(vb.getPerson().isBoc()){
+				typePocesseur=1;
+				pocesseurId=vb.getPerson().getAssociatedBOC().getIdBOC();
+			}
+			else{
+				typePocesseur=2;
+				pocesseurId=vb.getPerson().getAssociatedDirection().getIdUnit();
+			}
+			
+			
+			//Récupérer la liste de niveau 02 de le BO/Unité Connecté
+			listarmoire=appMgr.getListClassementNiveau02ByTypeConnecte(pocesseurId,typePocesseur);
+		//	listarmoire = appMgr.getList(Classement_archivage_niveau_02.class);
+			if (vb.isInRestoration()) {
+				listarmoire.remove(listarmoire.size()-1);
+			} else {
+				System.out.println("Non");
+			}
+			//2020-06-12
+			for(Classement_archivage_niveau_02 armoires:listarmoire){
+				ListeArmoiresModel armoire=new ListeArmoiresModel();
+				armoire.setArmoire(armoires);
+				armoire.setOrdre(ord);
+				ord++;
+				listeArmo.add(armoire);
+				
+				}
+			Collections.reverse(listeArmo); 
+			listType.setWrappedData(listeArmo);
+		} catch (Exception e) {
+		e.printStackTrace();
+			System.out.println("erreur"+e.getCause());
+		}
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		List<ListeArmoiresModel> copylistarmoire = new ArrayList<ListeArmoiresModel>();
+		//2020-06-12
+		listeArmo=new ArrayList<ListeArmoiresModel>();
+		try {
+			armoire.setClassement_archivage_niveau_02_Etat("Libre");
+			armoire.setClassement_archivage_niveau_02_PocesseurType(typePocesseur);
+			armoire.setClassement_archivage_niveau_02_Structure_BO(pocesseurId);
+			appMgr.insert(armoire);
+			//ajoutEtages(armoire, etagesNombreDossiers);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			//**
+//			LogClass logClass = new LogClass();
+//			logClass.addTrack("ajout",
+//					"Evénement de log d'ajout de l'armoire " + armoire.getIdarmoire() + "-" + armoire.getArmoireLibelle() ,
+//					vb.getPerson(), "INFO", appMgr);
+
+		} catch (Exception e) {
+			setMessage(messageSource.getMessage("CourrierAjoutMsgErreur",
+					new Object[] {}, lm.createLocal()));
+			status3 = true;
+			System.out.println(e.getMessage());
+		}
+		try {
+			listarmoire=appMgr.getListClassementNiveau02ByTypeConnecte(pocesseurId,typePocesseur);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+	
+		int ord=1;
+		//2020-06-12
+		for(Classement_archivage_niveau_02 armoires:listarmoire){
+			ListeArmoiresModel armoire=new ListeArmoiresModel();
+	
+			armoire.setArmoire(armoires);
+			armoire.setOrdre(ord);
+			ord++;
+			listeArmo.add(armoire);
+			
+			}
+		for (int i = (listeArmo.size() - 1); i >= 0; i--) {
+			copylistarmoire.add(listeArmo.get(i));
+		}
+		listType.setWrappedData(copylistarmoire);
+//		listType.setWrappedData(copylistarmoire);
+
+	}
+
+	public void ajoutEtages(Classement_archivage_niveau_02 ar, int nbDossier) {
+		Classement_archivage_niveau_01 etages = new Classement_archivage_niveau_01();
+		String liblle = ar.getClassement_archivage_niveau_02_Libelle() + "_";
+		String description = ar.getClassement_archivage_niveau_02_Description() + "_";
+		int nbEtages = ar.getClassement_archivage_niveau_02_ContenanceNivInferieur();
+		if (nbDossier == 0) {
+			nbDossier = 1;
+		}
+		try {
+			for (int i = 0; i < nbEtages; i++) {
+				int n = i + 1;
+				etages.setClassement_archivage_niveau_02(ar);
+				etages.setClassement_archivage_niveau_01_Libelle(liblle + n);
+				etages.setClassement_archivage_niveau_01_Description(description + n);
+				etages.setClassement_archivage_niveau_01_NombreDossiers(nbDossier);
+				etages.setClassement_archivage_niveau_01_Etat("Libre");
+				appMgr.insert(etages);
+				etages = new Classement_archivage_niveau_01();
+			}
+			System.out.println("***************Succes***************");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("***************Erreur***************");
+		}
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+		try {
+			armoire = vb.getArmoire();
+			appMgr.update(armoire);
+			status1 = true;
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de l'armoire " + armoire.getClassement_archivage_niveau_02_Id() + "-" + armoire.getClassement_archivage_niveau_02_Libelle() ,
+					vb.getPerson(), "INFO", appMgr);
+			setMessage(messageSource.getMessage("confirmUpdate",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			Initialize();
+			armoire = new Classement_archivage_niveau_02();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+//		Initialize();
+	}
+
+	public void testDeleteSelectedRow() {
+		statusDelete = false;
+		statusDelete1 = false;
+		//2020-06/12
+		armoiresModel = (ListeArmoiresModel) listType.getRowData();
+		armoire=armoiresModel.getArmoire();
+		vb.setArmoire(armoire);
+		int refar = armoire.getClassement_archivage_niveau_02_Id();
+		int nb = appMgr.listEtagesByIdArmoire(refar).size();
+		if (nb == 0) {
+			statusDelete = true;
+			statusDelete1 = false;
+		} else {
+			statusDelete = false;
+			statusDelete1 = true;
+		}
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			armoire = vb.getArmoire();
+			appMgr.delete(armoire);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression de l'armoire " + armoire.getClassement_archivage_niveau_02_Id() + "-" + armoire.getClassement_archivage_niveau_02_Libelle() ,
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		Initialize();
+	}
+
+	public void getSelectionRow() {
+		try {
+			armoiresModel = (ListeArmoiresModel) listType.getRowData();
+			armoire=armoiresModel.getArmoire();
+			vb.setArmoire(armoire);
+			int refar = armoire.getClassement_archivage_niveau_02_Id();
+			etagesNombreDossiers = appMgr.listEtagesByIdArmoire(refar).size();
+			setArmoire(vb.getArmoire());
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation de l'armoire " + armoire.getClassement_archivage_niveau_02_Id() + "-" + armoire.getClassement_archivage_niveau_02_Libelle() ,
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//titleaccor = messageSource.getMessage("Consultationarmoire",new Object[] {}, lm.createLocal());
+		titleaccor = messageSource.getMessage("actionModification",new Object[] {}, lm.createLocal());
+		titleaccor+= " "+messageSource.getMessage("niv_02_nom",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status1 = false;
+		status2 = false;
+		status3 = false;
+		armoire = new Classement_archivage_niveau_02();
+		msgerror = true;
+		//titleaccor = messageSource.getMessage("Ajoutarmoire",new Object[] {}, lm.createLocal());
+		titleaccor = messageSource.getMessage("actionAjout",new Object[] {}, lm.createLocal());
+		titleaccor+= " "+messageSource.getMessage("niv_02_nom",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+	}
+
+	/**************************** Getter && Setter ********************/
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public LanguageManagerBean gevillem() {
+		return lm;
+	}
+
+	public void sevillem(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listType == null && listType.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Classement_archivage_niveau_02>) listType.getWrappedData()).size();
+		return records;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public DataModel getListType() {
+		return listType;
+	}
+
+	public void sevilleistType(DataModel listType) {
+		this.listType = listType;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setArmoire(Classement_archivage_niveau_02 armoire) {
+		this.armoire = armoire;
+	}
+
+	public Classement_archivage_niveau_02 getArmoire() {
+		return armoire;
+	}
+
+	public void setEtagesNombreDossiers(int etagesNombreDossiers) {
+		this.etagesNombreDossiers = etagesNombreDossiers;
+	}
+
+	public int getEtagesNombreDossiers() {
+		return etagesNombreDossiers;
+	}
+
+	public void setStatusDelete(boolean statusDelete) {
+		this.statusDelete = statusDelete;
+	}
+
+	public boolean isStatusDelete() {
+		return statusDelete;
+	}
+
+	public void setStatusDelete1(boolean statusDelete1) {
+		this.statusDelete1 = statusDelete1;
+	}
+
+	public boolean isStatusDelete1() {
+		return statusDelete1;
+	}
+
+	public int getTypePocesseur() {
+		return typePocesseur;
+	}
+
+	public void setTypePocesseur(int typePocesseur) {
+		this.typePocesseur = typePocesseur;
+	}
+
+	public int getPocesseurId() {
+		return pocesseurId;
+	}
+
+	public void setPocesseurId(int pocesseurId) {
+		this.pocesseurId = pocesseurId;
+	}
+
+	public List<ListeArmoiresModel> getListeArmo() {
+		return listeArmo;
+	}
+
+	public void setListeArmo(List<ListeArmoiresModel> listeArmo) {
+		this.listeArmo = listeArmo;
+	}
+
+	public void setArmoiresModel(ListeArmoiresModel armoiresModel) {
+		this.armoiresModel = armoiresModel;
+	}
+
+	public ListeArmoiresModel getArmoiresModel() {
+		return armoiresModel;
+	}
+
+	
+}

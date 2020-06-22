@@ -1,0 +1,286 @@
+package xtensus.beans.utils;
+
+import java.util.Date;
+
+import xtensus.entity.Courrier;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Typetransaction;
+
+public class SuiviCourrierCourrier {
+	private Courrier courrier;
+	private Transaction transaction;
+	private Typetransaction typeTransaction;
+	private String destinataireReelle;
+	private String expediteur;
+	private String listDestinataire;
+	private TransactionDestination transactionDestination;
+	private String dateConsultation;
+	private String dateTransfert;
+	private String dateReception;
+	private String dateReponse;
+	private boolean requireResponse;
+	private boolean doNotRequireResponse;
+	private boolean timelyResponse;
+	private boolean notTimelyResponse;
+	private boolean notYetResponded;
+	private String toleranceRange;
+	private boolean mailSent;
+	private String align;
+	private String etatValidation;
+	private Integer numeroOrdreTransaction;
+	private String dureeTraitement;
+	//*** AC
+	private boolean consulter;
+	private boolean pasConsulter;
+	private String repond;
+	
+	private Date TransactionDestDateReceptionPhysique;
+	public SuiviCourrierCourrier(){
+		this.requireResponse = false;
+		this.doNotRequireResponse = false;
+		this.timelyResponse = false;
+		this.notTimelyResponse = false;
+		this.notYetResponded = false;
+		this.toleranceRange = "";
+		this.align = "left";
+	}
+	
+
+	/*********** Getters && Setters ******************/
+	
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public void setListDestinataire(String listDestinataire) {
+		this.listDestinataire = listDestinataire;
+	}
+
+	public String getListDestinataire() {
+		return listDestinataire;
+	}
+
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public String getExpediteur() {
+		return expediteur;
+	}
+
+	public void setTypeTransaction(Typetransaction typeTransaction) {
+		this.typeTransaction = typeTransaction;
+	}
+
+	public Typetransaction getTypeTransaction() {
+		return typeTransaction;
+	}
+
+	public void setDestinataireReelle(String destinataireReelle) {
+		this.destinataireReelle = destinataireReelle;
+	}
+
+	public String getDestinataireReelle() {
+		return destinataireReelle;
+	}
+
+	public void setTransactionDestination(TransactionDestination transactionDestination) {
+		this.transactionDestination = transactionDestination;
+	}
+
+	public TransactionDestination getTransactionDestination() {
+		return transactionDestination;
+	}
+
+	public void setDateConsultation(String dateConsultation) {
+		this.dateConsultation = dateConsultation;
+	}
+
+	public String getDateConsultation() {
+		return dateConsultation;
+	}
+
+	public void setDateTransfert(String dateTransfert) {
+		this.dateTransfert = dateTransfert;
+	}
+
+	public String getDateTransfert() {
+		return dateTransfert;
+	}
+
+	public void setDateReception(String dateReception) {
+		this.dateReception = dateReception;
+	}
+
+	public String getDateReception() {
+		return dateReception;
+	}
+
+	public void setRequireResponse(boolean requireResponse) {
+		this.requireResponse = requireResponse;
+	}
+
+	public boolean isRequireResponse() {
+		return requireResponse;
+	}
+
+	public void setDoNotRequireResponse(boolean doNotRequireResponse) {
+		this.doNotRequireResponse = doNotRequireResponse;
+	}
+
+	public boolean isDoNotRequireResponse() {
+		return doNotRequireResponse;
+	}
+
+	public void setTimelyResponse(boolean timelyResponse) {
+		this.timelyResponse = timelyResponse;
+	}
+
+	public boolean isTimelyResponse() {
+		return timelyResponse;
+	}
+
+	public void setNotTimelyResponse(boolean notTimelyResponse) {
+		this.notTimelyResponse = notTimelyResponse;
+	}
+
+	public boolean isNotTimelyResponse() {
+		return notTimelyResponse;
+	}
+
+	public void setToleranceRange(String toleranceRange) {
+		this.toleranceRange = toleranceRange;
+	}
+
+	public String getToleranceRange() {
+		return toleranceRange;
+	}
+
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+
+	public void setMailSent(boolean mailSent) {
+		this.mailSent = mailSent;
+	}
+
+
+	public boolean isMailSent() {
+		return mailSent;
+	}
+
+
+	public void setDateReponse(String dateReponse) {
+		this.dateReponse = dateReponse;
+	}
+
+
+	public String getDateReponse() {
+		return dateReponse;
+	}
+
+
+	public void setAlign(String align) {
+		this.align = align;
+	}
+
+
+	public String getAlign() {
+		return align;
+	}
+
+
+	public void setNotYetResponded(boolean notYetResponded) {
+		this.notYetResponded = notYetResponded;
+	}
+
+
+	public boolean isNotYetResponded() {
+		return notYetResponded;
+	}
+
+
+	public String getEtatValidation() {
+		return etatValidation;
+	}
+
+
+	public void setEtatValidation(String etatValidation) {
+		this.etatValidation = etatValidation;
+	}
+
+
+	public boolean isConsulter() {
+		return consulter;
+	}
+
+
+	public void setConsulter(boolean consulter) {
+		this.consulter = consulter;
+	}
+
+
+	public boolean isPasConsulter() {
+		return pasConsulter;
+	}
+
+
+	public void setPasConsulter(boolean pasConsulter) {
+		this.pasConsulter = pasConsulter;
+	}
+
+
+	public Integer getNumeroOrdreTransaction() {
+		return numeroOrdreTransaction;
+	}
+
+
+	public void setNumeroOrdreTransaction(Integer numeroOrdreTransaction) {
+		this.numeroOrdreTransaction = numeroOrdreTransaction;
+	}
+
+
+	public String getDureeTraitement() {
+		return dureeTraitement;
+	}
+
+
+	public void setDureeTraitement(String dureeTraitement) {
+		this.dureeTraitement = dureeTraitement;
+	}
+
+
+	public String getRepond() {
+		return repond;
+	}
+
+
+	public void setRepond(String repond) {
+		this.repond = repond;
+	}
+
+
+	public Date getTransactionDestDateReceptionPhysique() {
+		return TransactionDestDateReceptionPhysique;
+	}
+
+
+	public void setTransactionDestDateReceptionPhysique(
+			Date transactionDestDateReceptionPhysique) {
+		TransactionDestDateReceptionPhysique = transactionDestDateReceptionPhysique;
+	}
+
+
+}

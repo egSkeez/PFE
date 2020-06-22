@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourriersListes_subreportRechercheMultCol2" pageWidth="168" pageHeight="802" columnWidth="168" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="f483dcdc-5fd5-4251-ab81-1b2ce99d86f4">
+	<property name="ireport.zoom" value="2.143588810000002"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\WorkspaceDRHM\\GBO_v1.5\\WebContent\\WEB-INF\\rapports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="selectItemsAnnotation" class="java.util.List">
+		<fieldDescription><![CDATA[selectItemsAnnotation]]></fieldDescription>
+	</field>
+	<field name="typeDateRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typeDateRecherche]]></fieldDescription>
+	</field>
+	<field name="evenementChoixTypeDate" class="java.lang.String">
+		<fieldDescription><![CDATA[evenementChoixTypeDate]]></fieldDescription>
+	</field>
+	<field name="criteresRecherche" class="xtensus.beans.utils.RechercheMulticritereModel">
+		<fieldDescription><![CDATA[criteresRecherche]]></fieldDescription>
+	</field>
+	<field name="typrRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typrRecherche]]></fieldDescription>
+	</field>
+	<field name="libeleTransaction" class="java.lang.String">
+		<fieldDescription><![CDATA[libeleTransaction]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="annotations" class="java.util.List">
+		<fieldDescription><![CDATA[annotations]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getMotCle().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="0" width="35" height="12" uuid="63b4fc50-5f87-447c-8a47-25630cf4f54f"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Mots clé :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="35" y="0" width="133" height="12" uuid="2ddb380e-366f-483b-b929-c929dc5b887f"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getMotCle()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getExpediteur().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="0" width="43" height="12" uuid="4bccb586-9ab5-4e3a-8853-c6f6f8641d84"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Expéditeur :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="43" y="0" width="125" height="12" uuid="6f5ded59-71c6-458e-8ba9-2d5980ffd1c2"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getExpediteur()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getDestinataire().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="0" width="48" height="12" uuid="8ba22e75-9a71-410d-a4c1-97f76fadb89c"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Destinataire :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="48" y="0" width="120" height="12" uuid="a227cdcb-61ba-474f-be81-1285b5ee61da"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getDestinataire()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getSelectedItemsTr().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="0" width="83" height="12" uuid="d21b16ab-075b-4cca-aa71-11d1816d6aa4"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Mode de transmission :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="83" y="0" width="85" height="12" uuid="5b51a48c-3bb8-42df-a155-099c9319c2e8"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Par Porteur"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getSelectedItemNature().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="0" width="29" height="12" uuid="dd6cbed6-185e-4190-affd-64bec6f91c02"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Nature :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="29" y="0" width="139" height="12" uuid="ea5ef6d0-9453-47f7-8c2f-4130dced0526"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getSelectedItemNature().equals("1")?"Lettre":"Facture"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

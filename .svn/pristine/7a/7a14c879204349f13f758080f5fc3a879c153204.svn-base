@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style=" height : 30px;">
+						<h:form>
+							<h:panelGrid columns="25">
+								<a4j:commandLink id="retour" title="next"
+									onclick="document.location.href='courrierUtilisateurTree.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onclick="this.src='../framGraphique/images/retourClick.png'"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="12" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.detailsUnite}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.Reference}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRechercheUniteBean.unit.idUnit}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+											<h:outputText value="#{msg.unitName}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{annuaireRechercheUniteBean.unit.nameUnit}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;">
+											</h:outputText>
+										</h:panelGrid></td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+
+											<h:outputText value="#{msg.abreviation}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{annuaireRechercheUniteBean.unit.shortNameUnit}"
+												style=" width : 140px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.comment}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{annuaireRechercheUniteBean.unit.descriptionUnit}"
+												style=" width : 140px;" styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+								</tr>
+							</table>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="12" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.listDirectionMembers}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:extendedDataTable groupingColumn="job"
+								value="#{annuaireRechercheUniteBean.listCurrentMember}"
+								var="memberVar" id="data1" rows="10" width="100%"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{memberVar.id}" filterBy="#{memberVar.id}"
+									filterEvent="onkeyup" label="#{msg.Reference}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<h:outputText value="#{memberVar.id}" />
+								</rich:column>
+								<rich:column sortBy="#{memberVar.prenom}"
+									filterBy="#{memberVar.prenom}" filterEvent="onkeyup"
+									label="#{msg.prenom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.prenom}" />
+									</f:facet>
+									<h:outputText value="#{memberVar.prenom}" />
+								</rich:column>
+								<rich:column sortBy="#{memberVar.nom}"
+									filterBy="#{memberVar.nom}" filterEvent="onkeyup"
+									label="#{msg.nom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nom}" />
+									</f:facet>
+									<h:outputText value="#{memberVar.nom}" />
+								</rich:column>
+								<rich:column filterEvent="onkeyup" label="#{msg.email}"
+									sortBy="#{memberVar.nom}" filterBy="#{memberVar.nom}"
+									width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.email}" />
+									</f:facet>
+									<h:outputText value="#{memberVar.email}" />
+								</rich:column>
+								<rich:column sortBy="#{memberVar.telephoneNumber}"
+									filterBy="#{memberVar.telephoneNumber}" filterEvent="onkeyup"
+									label="#{msg.telephone}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{memberVar.telephoneNumber}" />
+								</rich:column>
+								<rich:column width="13%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="annuaireRechercheUniteBean"
+										ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="1">
+											<a4j:commandLink id="upd"
+												action="#{annuaireRechercheUniteBean.getSelectedUser}"
+												oncomplete="document.location.href='annuaireRechercheUtilisateurDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="upd" direction="top-right"
+												value="#{msg.labelConsulter}" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd2" direction="top-right"
+										value="#{msg.labelDesaffect}" />
+								</rich:column>
+								<rich:column filterEvent="onkeyup" sortBy="#{memberVar.title}"
+									filterBy="#{memberVar.title}" id="job" label="Rôle " width="1%"
+									visible="false">
+									<f:facet name="header">
+										<h:outputText value="Rôle " />
+									</f:facet>
+									<h:outputText value="#{memberVar.title}" />
+								</rich:column>
+							</rich:extendedDataTable>
+							<div align="center">
+								<rich:datascroller for="data1" id="scroller1" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record1"
+									value="#{annuaireRechercheUniteBean.recordsCurrentMember}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

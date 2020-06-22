@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourrierSuivi_subreportTransaction" pageWidth="525" pageHeight="802" columnWidth="525" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="b25ae80d-846f-4e78-bdc0-e82daa442c91">
+	<property name="ireport.zoom" value="1.4641000000000017"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="align" class="java.lang.String">
+		<fieldDescription><![CDATA[align]]></fieldDescription>
+	</field>
+	<field name="mailSent" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[mailSent]]></fieldDescription>
+	</field>
+	<field name="destinataireReelle" class="java.lang.String">
+		<fieldDescription><![CDATA[destinataireReelle]]></fieldDescription>
+	</field>
+	<field name="pasConsulter" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[pasConsulter]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="typeTransaction" class="xtensus.entity.Typetransaction">
+		<fieldDescription><![CDATA[typeTransaction]]></fieldDescription>
+	</field>
+	<field name="dateTransfert" class="java.lang.String">
+		<fieldDescription><![CDATA[dateTransfert]]></fieldDescription>
+	</field>
+	<field name="toleranceRange" class="java.lang.String">
+		<fieldDescription><![CDATA[toleranceRange]]></fieldDescription>
+	</field>
+	<field name="transactionDestination" class="xtensus.entity.TransactionDestination">
+		<fieldDescription><![CDATA[transactionDestination]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="doNotRequireResponse" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[doNotRequireResponse]]></fieldDescription>
+	</field>
+	<field name="dateReception" class="java.lang.String">
+		<fieldDescription><![CDATA[dateReception]]></fieldDescription>
+	</field>
+	<field name="listDestinataire" class="java.lang.String">
+		<fieldDescription><![CDATA[listDestinataire]]></fieldDescription>
+	</field>
+	<field name="notYetResponded" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[notYetResponded]]></fieldDescription>
+	</field>
+	<field name="dateConsultation" class="java.lang.String">
+		<fieldDescription><![CDATA[dateConsultation]]></fieldDescription>
+	</field>
+	<field name="timelyResponse" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[timelyResponse]]></fieldDescription>
+	</field>
+	<field name="notTimelyResponse" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[notTimelyResponse]]></fieldDescription>
+	</field>
+	<field name="numeroOrdreTransaction" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numeroOrdreTransaction]]></fieldDescription>
+	</field>
+	<field name="dateReponse" class="java.lang.String">
+		<fieldDescription><![CDATA[dateReponse]]></fieldDescription>
+	</field>
+	<field name="expediteur" class="java.lang.String">
+		<fieldDescription><![CDATA[expediteur]]></fieldDescription>
+	</field>
+	<field name="dureeTraitement" class="java.lang.String">
+		<fieldDescription><![CDATA[dureeTraitement]]></fieldDescription>
+	</field>
+	<field name="requireResponse" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[requireResponse]]></fieldDescription>
+	</field>
+	<field name="etatValidation" class="java.lang.String">
+		<fieldDescription><![CDATA[etatValidation]]></fieldDescription>
+	</field>
+	<field name="transaction" class="xtensus.entity.Transaction">
+		<fieldDescription><![CDATA[transaction]]></fieldDescription>
+	</field>
+	<field name="consulter" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[consulter]]></fieldDescription>
+	</field>
+	<field name="repond" class="java.lang.String"/>
+	<variable name="compteur" class="java.lang.Integer" resetType="Column" incrementType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$V{compteur}+1]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="47" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="6ffe8382-6e28-41cf-baec-d03071ee1536" x="0" y="32" width="28" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ord.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b5112271-ed8f-421c-85bd-814f9d39ef6c" x="28" y="32" width="132" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Expéditeur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="796700cf-43c0-4d49-b151-9f24229339a9" x="160" y="32" width="133" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Destinataire]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6ffe8382-6e28-41cf-baec-d03071ee1536" x="293" y="32" width="55" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reçu]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6ffe8382-6e28-41cf-baec-d03071ee1536" x="348" y="32" width="55" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Consulté]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4fc4a839-0769-46e8-be63-4142dae372ae" x="458" y="32" width="34" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Durée]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="e6e86c50-8ff2-4ee7-9775-897600aaf476" x="403" y="32" width="55" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Traité]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="69cf452b-6d91-4f81-a4fe-4a5f3abf9f4d" x="492" y="32" width="33" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Délais]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="abf401b5-3a76-4f20-829d-a36a7792edc6" x="0" y="11" width="525" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Circuit du courrier]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="e2e7a0f8-fa35-421b-88ea-7b490f0fd2bd" positionType="Float" stretchType="RelativeToBandHeight" x="293" y="0" width="55" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transaction}.getTransactionDateTransaction()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="MM/dd/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="a9db0078-a818-45c0-a212-3bde1fc98622" positionType="Float" stretchType="RelativeToBandHeight" x="348" y="0" width="55" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateConsultation}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="a9db0078-a818-45c0-a212-3bde1fc98622" positionType="Float" stretchType="RelativeToBandHeight" x="160" y="0" width="133" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{listDestinataire}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="f3768065-6ab8-4972-88e5-ba1dca81c27b" positionType="Float" stretchType="RelativeToBandHeight" x="28" y="0" width="132" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="b6ed6be6-d63e-4518-98b7-9a7eb6d747ed" positionType="Float" stretchType="RelativeToBandHeight" x="458" y="0" width="34" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dureeTraitement}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="8f07289a-f875-49cb-b97c-e3fd5574d838" positionType="Float" stretchType="RelativeToBandHeight" x="403" y="0" width="55" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateTransfert}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="30b8d72a-44a0-4f30-ba3a-2ca68891d459" positionType="Float" stretchType="RelativeToBandHeight" x="0" y="0" width="28" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{compteur}]]></textFieldExpression>
+			</textField>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement uuid="b6f4ef5c-db03-4897-ba07-0a2493d2fcdb" positionType="Float" stretchType="RelativeToBandHeight" x="504" y="2" width="10" height="10">
+					<printWhenExpression><![CDATA[$F{repond}.equals( "Ne nécessite pas une réponse" )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["one.png"]]></imageExpression>
+			</image>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement uuid="1cef167e-ab93-407f-b67a-a664c27453ac" positionType="Float" stretchType="RelativeToBandHeight" x="504" y="2" width="10" height="10">
+					<printWhenExpression><![CDATA[$F{repond}.equals( "Nécessite une réponse avec délai dépassé" )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["two.png"]]></imageExpression>
+			</image>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement uuid="93c9cac9-d61f-4b56-b70a-fe7723b615d2" positionType="Float" stretchType="RelativeToBandHeight" x="504" y="2" width="10" height="10">
+					<printWhenExpression><![CDATA[$F{repond}.equals( "Répondu dans les délais" )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["three.png"]]></imageExpression>
+			</image>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement uuid="663f1b6d-b241-4119-bcd8-703d5e375270" positionType="Float" stretchType="RelativeToBandHeight" x="504" y="2" width="10" height="10">
+					<printWhenExpression><![CDATA[$F{repond}.equals( "Nécessite une réponse" )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["four.png"]]></imageExpression>
+			</image>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement uuid="5788a1de-a51a-44ce-a972-a7606bcf999b" positionType="Float" stretchType="RelativeToBandHeight" x="504" y="2" width="10" height="10">
+					<printWhenExpression><![CDATA[$F{repond}.equals( "Répondu après les délais" )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA["five.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement uuid="85e2bf7c-7653-45a6-bc92-4842b0215be8" positionType="Float" stretchType="RelativeToBandHeight" x="492" y="0" width="33" height="15" isPrintWhenDetailOverflows="true"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<summary>
+		<band height="62">
+			<staticText>
+				<reportElement uuid="370c9e79-ed5e-4aee-ad9a-2a71e781b19a" x="7" y="6" width="100" height="15"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Légende :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5311739e-2243-41f1-b85b-60a49730a5c5" x="33" y="21" width="138" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Ne nécessite pas une réponse]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5cc452fd-4440-463e-965c-b6166ea71e41" x="33" y="38" width="112" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Nécessite une réponse ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="55658004-1fb9-4676-b3eb-65a6be4c8354" x="195" y="21" width="193" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Nécessite une réponse avec délai dépassé]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7b0d24ce-f723-4a29-a55b-63cb1d14b97b" x="411" y="21" width="114" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Répondu dans les délais ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7e55f119-deb5-4008-8917-ddcc6bc37af0" x="195" y="38" width="113" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Répondu après les délais]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="2ef486ca-070e-445d-843f-9860cae770e4" mode="Transparent" x="0" y="6" width="525" height="55"/>
+				<graphicElement>
+					<pen lineWidth="0.25"/>
+				</graphicElement>
+			</rectangle>
+			<image>
+				<reportElement uuid="663f1b6d-b241-4119-bcd8-703d5e375270" x="22" y="41" width="10" height="10"/>
+				<imageExpression><![CDATA["four.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement uuid="5788a1de-a51a-44ce-a972-a7606bcf999b" x="184" y="41" width="10" height="10"/>
+				<imageExpression><![CDATA["five.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement uuid="93c9cac9-d61f-4b56-b70a-fe7723b615d2" x="400" y="24" width="10" height="11"/>
+				<imageExpression><![CDATA["three.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement uuid="1cef167e-ab93-407f-b67a-a664c27453ac" x="184" y="24" width="10" height="10"/>
+				<imageExpression><![CDATA["two.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement uuid="8fb409cc-f029-4c20-8486-30bab7060423" x="22" y="24" width="10" height="10"/>
+				<imageExpression><![CDATA["one.png"]]></imageExpression>
+			</image>
+		</band>
+	</summary>
+</jasperReport>

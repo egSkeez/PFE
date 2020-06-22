@@ -1,0 +1,496 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.codehaus.groovy.ast.expr.ListExpression;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ExpediteurType;
+
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Groupecontactpppm;
+import xtensus.entity.GroupecontactpppmId;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Typeutilisateur;
+
+import xtensus.entity.Groupecontact;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class GroupeContactAffectationBean {
+
+	private ApplicationManager appMgr;
+
+	@Autowired
+	private LanguageManagerBean lm;
+	private Groupecontact groupecontact;
+	List<Expdestexterne> listContact;
+	List<Expdestexterne> listContactAffecte;
+	List<Expdestexterne> listContactNonAffecte;
+	List<ExpediteurType> listContactGroupecontactListeAffecte;
+	List<ExpediteurType> listContactGroupecontactListeAffecteInitiale;
+	List<ExpediteurType> listContactGroupecontactListeNonAffecte;
+	List<Groupecontactpppm> listGroupecontactContact;
+
+	private DataModel listContactAffecteDM;
+	private DataModel listContactNonAffecteDM;
+	private long records;
+	private long records2;
+
+	private Date dateCreation;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String showButtonValidate;
+	private boolean status;
+	private boolean status1;
+	private List<Person> listusers;
+	private LdapOperation ldapOperation;
+
+	private boolean showSynchronizeLdapUser;
+
+	@Autowired
+	public GroupeContactAffectationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		showButtonValidate = "true";
+		listContact = new ArrayList<Expdestexterne>();
+		listContactAffecte = new ArrayList<Expdestexterne>();
+		listContactNonAffecte = new ArrayList<Expdestexterne>();
+		listGroupecontactContact = new ArrayList<Groupecontactpppm>();
+		listContactAffecteDM = new ListDataModel();
+		listContactNonAffecteDM = new ListDataModel();
+		listContactGroupecontactListeAffecte = new ArrayList<ExpediteurType>();
+		listContactGroupecontactListeNonAffecte = new ArrayList<ExpediteurType>();
+		listContactGroupecontactListeAffecteInitiale = new ArrayList<ExpediteurType>();
+		listusers = new ArrayList<Person>();
+		ldapOperation = new LdapOperation();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			showButtonValidate = "true";
+			groupecontact = vb.getGroupecontact();
+			/********* chargement liste des contact **********/
+			listContact = appMgr.getList(Expdestexterne.class);
+			//listContact = appMgr.getListAllAxpDestExternJustPpAndPm();// permet d'avoir la liste des expdestExterne qui ne comporte pas la liste des utilisateurs interne 
+			/******************************************************/
+			int refGroupecontact = groupecontact.getIdgroupecontact();
+			listGroupecontactContact = appMgr
+					.getContactGroupecontactByIdGroupecontact(refGroupecontact);
+			/**** Liste courrier Affecter ******/
+			Expdestexterne cr;
+			for (Groupecontactpppm cd : listGroupecontactContact) {
+				cr = new Expdestexterne();
+				cr = appMgr.getExpediteurById(
+						cd.getId().getIdExpDestExterne()).get(0);
+				listContactAffecte.add(cr);
+
+			}
+			/**** Liste courrier NonAffecter ******/
+			for (Expdestexterne ex : listContact) {
+				if (!listContactAffecte.contains(ex))
+					listContactNonAffecte.add(ex);
+			}
+			/**** chargement des tableaux ******/
+
+			ExpediteurType exptype = new ExpediteurType();
+			for (Expdestexterne exp : listContactAffecte) {
+				Pp pp = new Pp();
+				Pm pm = new Pm();
+				exptype.setExpdestexterne(exp);
+				int refTypeUtilisateur = exp.getTypeutilisateur()
+						.getTypeUtilisateurId();
+				int refexpediteur = exp.getIdExpDestExterne();
+				if (refTypeUtilisateur == 2) {
+					exptype.setType("PM");
+					if (!appMgr.getPMByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pm = appMgr.getPMByReferenceExpediteur(refexpediteur).get(0);
+						exptype.setPm(pm);
+						exptype.setSociete(exp.getExpDestExterneNom());
+					}
+				} else if (refTypeUtilisateur == 1) {
+					exptype.setType("PP");
+					if (!appMgr.getPPByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pp = appMgr.getPPByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPp(pp);
+						if (pp.getPm() != null) {
+							int refpm = pp.getPm().getPmid();
+							pm = appMgr.getPMByIDPM(refpm).get(0);
+							int refexp = pm.getExpdestexterne()
+									.getIdExpDestExterne();
+							Expdestexterne e = new Expdestexterne();
+							e = appMgr.getExpediteurById(refexp).get(0);
+							exptype.setSociete(e.getExpDestExterneNom());
+						}
+					}
+				}else{
+					exptype.setType("Personnel");
+				}
+				listContactGroupecontactListeAffecte.add(exptype);
+				listContactGroupecontactListeAffecteInitiale.add(exptype);
+				pp = new Pp();
+				pm = new Pm();
+				exptype = new ExpediteurType();
+			}
+
+			exptype = new ExpediteurType();
+			for (Expdestexterne exp : listContactNonAffecte) {
+				Pp pp = new Pp();
+				Pm pm = new Pm();
+				exptype.setExpdestexterne(exp);
+				int refTypeUtilisateur = exp.getTypeutilisateur()
+						.getTypeUtilisateurId();
+				int refexpediteur = exp.getIdExpDestExterne();
+				if (refTypeUtilisateur == 2) {
+					exptype.setType("PM");
+					if (!appMgr.getPMByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pm = appMgr.getPMByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPm(pm);
+						exptype.setSociete(exp.getExpDestExterneNom());
+					}
+				} else if (refTypeUtilisateur == 1) {
+					exptype.setType("PP");
+					if (!appMgr.getPPByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pp = appMgr.getPPByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPp(pp);
+						if (pp.getPm() != null) {
+							int refpm = pp.getPm().getPmid();
+							pm = appMgr.getPMByIDPM(refpm).get(0);
+							int refexp = pm.getExpdestexterne()
+									.getIdExpDestExterne();
+							Expdestexterne e = new Expdestexterne();
+							e = appMgr.getExpediteurById(refexp).get(0);
+							exptype.setSociete(e.getExpDestExterneNom());
+						}
+					}
+				}else{
+					exptype.setType("Personnel");
+				}
+				listContactGroupecontactListeNonAffecte.add(exptype);
+				pp = new Pp();
+				pm = new Pm();
+				exptype = new ExpediteurType();
+			}
+
+			listContactNonAffecteDM
+					.setWrappedData(listContactGroupecontactListeNonAffecte);
+			listContactAffecteDM
+					.setWrappedData(listContactGroupecontactListeAffecte);
+			setMessage(messageSource.getMessage("confirmSynchroniseLdapList",
+					new Object[] {}, lm.createLocal()));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public void showPopUp(){
+		showSynchronizeLdapUser = true;
+	}
+    public void synchroniseLdapUser(){
+    	try {
+    		ldapOperation.getListUser(listusers);
+    		// type Utilisateur
+    		Typeutilisateur typeUser = appMgr.getTypeUtilisateurById(3).get(0);
+    		for (Person person : listusers) {
+    			Expdestexterne expDestExterne = new Expdestexterne();
+    			List<Expdestexterne> listExpDestExterne = appMgr.getListExpDestExternUserByLdapUID(person.getId());
+    			if(!listExpDestExterne.isEmpty()){
+    				expDestExterne = listExpDestExterne.get(0);
+    				//expDestExterne.setIdExpDestExterne(listExpDestExterne.get(0).getIdExpDestExterne());
+    			}
+    			expDestExterne.setExpDestExterneLdapUID(person.getId());
+    			expDestExterne.setTypeutilisateur(typeUser);
+    			expDestExterne.setExpDestExterneNom(person.getNom());
+    			expDestExterne.setExpDestExternePrenom(person.getPrenom());
+    			expDestExterne.setExpDestExterneTelephone(person.getTelephoneNumber().toString());
+    			expDestExterne.setExpDestExterneMail(person.getEmail());
+    			expDestExterne.setExpDestExterneAdresse(person.getAdresse());
+    			expDestExterne.setExpDestExterneCodePostale(person.getCodePostal().toString());
+    			appMgr.update(expDestExterne);
+			}
+    		// verify that the user stored in data base exist in LDAP
+    		List<Expdestexterne> listExpdestBD = appMgr.listExpDestByType(3);
+    		for (Expdestexterne expdestexterne : listExpdestBD) {
+    		  Person person = ldapOperation.getUserById(expdestexterne.getExpDestExterneLdapUID());
+    		  if(person.getCn() == null){
+    			  appMgr.deleteGroupeContactPpPmByIdExpDestExterne(expdestexterne.getIdExpDestExterne());
+    			  appMgr.delete(expdestexterne);
+    		  }
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    }
+	public void affect() {
+		showButtonValidate = "false";
+		ExpediteurType ext = (ExpediteurType) listContactNonAffecteDM
+				.getRowData();
+		listContactGroupecontactListeNonAffecte.remove(ext);
+		listContactGroupecontactListeAffecte.add(0, ext);
+		listContactNonAffecteDM
+				.setWrappedData(listContactGroupecontactListeNonAffecte);
+		listContactAffecteDM
+				.setWrappedData(listContactGroupecontactListeAffecte);
+
+	}
+
+	public void desaffect() {
+		showButtonValidate = "false";
+		ExpediteurType ext = (ExpediteurType) listContactAffecteDM.getRowData();
+		listContactGroupecontactListeAffecte.remove(ext);
+		listContactGroupecontactListeNonAffecte.add(0, ext);
+		listContactNonAffecteDM
+				.setWrappedData(listContactGroupecontactListeNonAffecte);
+		listContactAffecteDM
+				.setWrappedData(listContactGroupecontactListeAffecte);
+
+	}
+
+	public void saveChange() {
+		try {
+			status = false;
+			status1 = false;
+			appMgr.deleteContactGroupecontactByIdGroupecontact(groupecontact
+					.getIdgroupecontact());
+			Groupecontactpppm cd;
+			GroupecontactpppmId courrierGroupecontactId;
+			for (ExpediteurType ext : listContactGroupecontactListeAffecte) {
+				courrierGroupecontactId = new GroupecontactpppmId();
+				cd = new Groupecontactpppm();
+				courrierGroupecontactId.setIdExpDestExterne(ext.getExpdestexterne().getIdExpDestExterne());
+				courrierGroupecontactId.setIdgroupecontact(groupecontact.getIdgroupecontact());
+				cd.setId(courrierGroupecontactId);
+				appMgr.insert(cd);
+			}
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation d'utilisateurs au groupe "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(), vb.getPerson(), "INFO", appMgr);
+			if(listContactGroupecontactListeAffecte.size()>=listContactGroupecontactListeAffecteInitiale.size()){
+			setMessage(messageSource.getMessage("confirmAffectation1",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			}else{
+				setMessage(messageSource.getMessage("confirmAffectation2",
+						new Object[] {}, lm.createLocal()));
+				status = true;	
+			}
+		} catch (Exception e) {
+			setMessage(messageSource.getMessage("labelError", new Object[] {},
+					lm.createLocal()));
+			status1 = true;
+			e.printStackTrace();
+		}
+	}
+
+	/************** Getters && setters ********************/
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setDateCreation(Date dateCreation) {
+		this.dateCreation = dateCreation;
+	}
+
+	public Date getDateCreation() {
+		return dateCreation;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listContactNonAffecteDM == null
+				&& listContactNonAffecteDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<ExpediteurType>) listContactNonAffecteDM.getWrappedData()).size();
+		return records;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (listContactAffecteDM == null
+				&& listContactAffecteDM.getWrappedData() == null)
+			records2 = 0;
+		else
+			records2 = ((List<ExpediteurType>) listContactAffecteDM
+					.getWrappedData()).size();
+		return records2;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public void setRecords2(long records2) {
+		this.records2 = records2;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public Groupecontact getGroupecontact() {
+		return groupecontact;
+	}
+
+	public void setGroupecontact(Groupecontact groupecontact) {
+		this.groupecontact = groupecontact;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public void setShowButtonValidate(String showButtonValidate) {
+		this.showButtonValidate = showButtonValidate;
+	}
+
+	public String getShowButtonValidate() {
+		return showButtonValidate;
+	}
+
+	public List<Expdestexterne> getListContact() {
+		return listContact;
+	}
+
+	public void setListContact(List<Expdestexterne> listContact) {
+		this.listContact = listContact;
+	}
+
+	public List<Expdestexterne> getListContactAffecte() {
+		return listContactAffecte;
+	}
+
+	public void setListContactAffecte(List<Expdestexterne> listContactAffecte) {
+		this.listContactAffecte = listContactAffecte;
+	}
+
+	public List<Expdestexterne> getListContactNonAffecte() {
+		return listContactNonAffecte;
+	}
+
+	public void setListContactNonAffecte(
+			List<Expdestexterne> listContactNonAffecte) {
+		this.listContactNonAffecte = listContactNonAffecte;
+	}
+
+	public List<ExpediteurType> getListContactGroupecontactListeAffecte() {
+		return listContactGroupecontactListeAffecte;
+	}
+
+	public void setListContactGroupecontactListeAffecte(
+			List<ExpediteurType> listContactGroupecontactListeAffecte) {
+		this.listContactGroupecontactListeAffecte = listContactGroupecontactListeAffecte;
+	}
+
+	public List<ExpediteurType> getListContactGroupecontactListeNonAffecte() {
+		return listContactGroupecontactListeNonAffecte;
+	}
+
+	public void setListContactGroupecontactListeNonAffecte(
+			List<ExpediteurType> listContactGroupecontactListeNonAffecte) {
+		this.listContactGroupecontactListeNonAffecte = listContactGroupecontactListeNonAffecte;
+	}
+
+	public List<Groupecontactpppm> getListGroupecontactContact() {
+		return listGroupecontactContact;
+	}
+
+	public void setListGroupecontactContact(
+			List<Groupecontactpppm> listGroupecontactContact) {
+		this.listGroupecontactContact = listGroupecontactContact;
+	}
+
+	public DataModel getListContactAffecteDM() {
+		return listContactAffecteDM;
+	}
+
+	public void setListContactAffecteDM(DataModel listContactAffecteDM) {
+		this.listContactAffecteDM = listContactAffecteDM;
+	}
+
+	public DataModel getListContactNonAffecteDM() {
+		return listContactNonAffecteDM;
+	}
+
+	public void setListContactNonAffecteDM(DataModel listContactNonAffecteDM) {
+		this.listContactNonAffecteDM = listContactNonAffecteDM;
+	}
+
+	public boolean isShowSynchronizeLdapUser() {
+		return showSynchronizeLdapUser;
+	}
+
+	public void setShowSynchronizeLdapUser(boolean showSynchronizeLdapUser) {
+		this.showSynchronizeLdapUser = showSynchronizeLdapUser;
+	}
+
+}

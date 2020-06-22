@@ -1,0 +1,781 @@
+package xtensus.beans.utils;
+
+import java.util.Date;
+import java.util.List;
+
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Entite;
+import xtensus.entity.Expdest;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+
+public class CourrierInformations extends Entite implements
+		java.io.Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7521864987192564835L;
+	private Integer courrierID;
+	private String courrierReference;
+	private String courrierObjet;
+	private String courrierNature;
+	private Date courrierDateReceptionEnvoi;
+	private String courrierExpediteur;
+	private String courrierDestinataireReelle;
+	private String courrierDestinataireReelleDirection;
+	private String referenceDestinataireReelle;
+	private String courrierAutreDestinataires;
+	private String courrierCommentaire;
+	private int courrierRecu;
+	private int courrierAValider;
+	private String typeCourrier;
+	private boolean shared;
+	private boolean notShared;
+	private boolean forwardable;
+	private boolean notForwardable;
+	private boolean opened;
+	private boolean notOpened;
+	private boolean forValidating;
+	private boolean validated;
+	private boolean unValidated;
+	private boolean inValidating;
+	private boolean treated;
+	private boolean untreated;
+	private String codeUniqueCourrier;
+	// ** KS
+	private Integer transactionDestinationReelID;
+	private Integer etatID;
+	private Date transactionDateConsultation;
+	private Expdest expDest;
+	private Integer transactionID;
+	private Courrier courrier;
+	private Transaction transaction;
+	private TransactionDestination transactionDestination;
+	private Object courrierExpediteurObjet;
+	private Dossier dossier;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private List<Transaction> courrierAllTransactions; // a utilisé lors de la
+														// premiére execution
+														// d'un courrier arrivée
+														// au niveau du boc
+	private List<Transaction> courrierAllTransactionsByEtat; // a utilsé lors de
+																// la deuxieme
+																// execution
+																// d'un courrier
+																// arrivées au
+																// niveau du boc
+	// Added
+	private Integer courrierOldNum;
+	private String courrierCircuit;
+	private Integer dossierID;
+	private Integer expID;
+	private Integer transactionOrdre;
+	private Integer idUtilisateur;
+	private Integer expLdap;
+	private String expType;
+	private String expNom;
+	private String expPrenom;
+	private Integer expTypeUser;
+	private Integer expLdapOld;
+	private String expTypeOld;
+	private String expNomOld;
+	private String expPrenomOld;
+	private Integer expTypeUserOld;
+	private Integer minTransactionID;
+	private String destReelList;
+	private String destList;
+	private String transactionDestinationReelleTypeDestinataire;
+	// KHA reception physique
+	private Boolean courrierAvecDocumentPhysique;
+	// KHA Modification Courrier
+	private List<ItemSelected> listSelectedItemDest;
+	private List<Object> listSelectedObject;
+	private List<Person> listSelectedPerson;
+	private List<Pp> listSelectetdPP;
+	private List<Pm> listSelectetdPM;
+	private List<Unit> listSelectetdUnit;
+	private List<BOC> listSelectetdBoc;
+	// KHA ======= Fin Modification Courrier
+
+	// KHA
+	private Date dateReponseDest;
+	private String etatLibelle;
+	private String codeCourrierList;
+    // KBS 
+	private Date dateTransmission;
+	private Date datePointage;
+	public String getCodeCourrierList() {
+		return codeCourrierList;
+	}
+
+	public void setCodeCourrierList(String codeCourrierList) {
+		this.codeCourrierList = codeCourrierList;
+	}
+
+	// AH : ajouter pour la notion de Annotation par Destinatairessssssss
+	private List<ListeDestinatairesModel> listeDestinatairesAvecAnnotations;
+
+	// JS : Style Gras
+	private String style;
+   private boolean disbledBontonConsultation;
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public String getCourrierObjet() {
+		return courrierObjet;
+	}
+
+	public void setCourrierObjet(String courrierObjet) {
+		this.courrierObjet = courrierObjet;
+	}
+
+	public String getCourrierNature() {
+		return courrierNature;
+	}
+
+	public void setCourrierNature(String courrierNature) {
+		this.courrierNature = courrierNature;
+	}
+
+	public Date getCourrierDateReceptionEnvoi() {
+		return courrierDateReceptionEnvoi;
+	}
+
+	public void setCourrierDateReceptionEnvoi(Date courrierDateReceptionEnvoi) {
+		this.courrierDateReceptionEnvoi = courrierDateReceptionEnvoi;
+	}
+
+	public String getCourrierExpediteur() {
+		return courrierExpediteur;
+	}
+
+	public void setCourrierExpediteur(String courrierExpediteur) {
+		this.courrierExpediteur = courrierExpediteur;
+	}
+
+	public String getCourrierDestinataireReelle() {
+		return courrierDestinataireReelle;
+	}
+
+	public void setCourrierDestinataireReelle(String courrierDestinataireReelle) {
+		System.out.println("AH Dans set Dest : " + courrierDestinataireReelle);
+		this.courrierDestinataireReelle = courrierDestinataireReelle;
+	}
+
+	public String getCourrierAutreDestinataires() {
+		return courrierAutreDestinataires;
+	}
+
+	public void setCourrierAutreDestinataires(String courrierAutreDestinataires) {
+		this.courrierAutreDestinataires = courrierAutreDestinataires;
+	}
+
+	public String getCourrierCommentaire() {
+		return courrierCommentaire;
+	}
+
+	public void setCourrierCommentaire(String courrierCommentaire) {
+		this.courrierCommentaire = courrierCommentaire;
+	}
+
+	public int getCourrierRecu() {
+		return courrierRecu;
+	}
+
+	public void setCourrierRecu(int courrierRecu) {
+		this.courrierRecu = courrierRecu;
+	}
+
+	public int getCourrierAValider() {
+		return courrierAValider;
+	}
+
+	public void setCourrierAValider(int courrierAValider) {
+		this.courrierAValider = courrierAValider;
+	}
+
+	public String getTypeCourrier() {
+		return typeCourrier;
+	}
+
+	public void setTypeCourrier(String typeCourrier) {
+		this.typeCourrier = typeCourrier;
+	}
+
+	public boolean isShared() {
+		return shared;
+	}
+
+	public void setShared(boolean shared) {
+		this.shared = shared;
+	}
+
+	public boolean isNotShared() {
+		return notShared;
+	}
+
+	public void setNotShared(boolean notShared) {
+		this.notShared = notShared;
+	}
+
+	public boolean isForwardable() {
+		return forwardable;
+	}
+
+	public void setForwardable(boolean forwardable) {
+		this.forwardable = forwardable;
+	}
+
+	public boolean isNotForwardable() {
+		return notForwardable;
+	}
+
+	public void setNotForwardable(boolean notForwardable) {
+		this.notForwardable = notForwardable;
+	}
+
+	public boolean isOpened() {
+		return opened;
+	}
+
+	public void setOpened(boolean opened) {
+		this.opened = opened;
+	}
+
+	public boolean isNotOpened() {
+		return notOpened;
+	}
+
+	public void setNotOpened(boolean notOpened) {
+		this.notOpened = notOpened;
+	}
+
+	public boolean isForValidating() {
+		return forValidating;
+	}
+
+	public void setForValidating(boolean forValidating) {
+		this.forValidating = forValidating;
+	}
+
+	public boolean isValidated() {
+		return validated;
+	}
+
+	public void setValidated(boolean validated) {
+		this.validated = validated;
+	}
+
+	public boolean isUnValidated() {
+		return unValidated;
+	}
+
+	public void setUnValidated(boolean unValidated) {
+		this.unValidated = unValidated;
+	}
+
+	public boolean isInValidating() {
+		return inValidating;
+	}
+
+	public void setInValidating(boolean inValidating) {
+		this.inValidating = inValidating;
+	}
+
+	public boolean isTreated() {
+		return treated;
+	}
+
+	public void setTreated(boolean treated) {
+		this.treated = treated;
+	}
+
+	public boolean isUntreated() {
+		return untreated;
+	}
+
+	public void setUntreated(boolean untreated) {
+		this.untreated = untreated;
+	}
+
+	public Integer getTransactionDestinationReelID() {
+		return transactionDestinationReelID;
+	}
+
+	public void setTransactionDestinationReelID(
+			Integer transactionDestinationReelID) {
+		this.transactionDestinationReelID = transactionDestinationReelID;
+	}
+
+	public Integer getEtatID() {
+		return etatID;
+	}
+
+	public void setEtatID(Integer etatID) {
+		this.etatID = etatID;
+	}
+
+	public Date getTransactionDateConsultation() {
+		return transactionDateConsultation;
+	}
+
+	public void setTransactionDateConsultation(Date transactionDateConsultation) {
+		this.transactionDateConsultation = transactionDateConsultation;
+	}
+
+	// public Integer getExpDestInterneID() {
+	// return expDestInterneID;
+	// }
+
+	// public void setExpDestInterneID(Integer expDestInterneID) {
+	// this.expDestInterneID = expDestInterneID;
+	// }
+
+	// public Integer getExpDestExterneID() {
+	// return expDestExterneID;
+	// }
+
+	// public void setExpDestExterneID(Integer expDestExterneID) {
+	// this.expDestExterneID = expDestExterneID;
+	// }
+
+	public Expdest getExpDest() {
+		return expDest;
+	}
+
+	public void setExpDest(Expdest expDest) {
+		this.expDest = expDest;
+	}
+
+	public Integer getTransactionID() {
+		return transactionID;
+	}
+
+	public void setTransactionID(Integer transactionID) {
+		this.transactionID = transactionID;
+	}
+
+	public String getCourrierReference() {
+		return courrierReference;
+	}
+
+	public void setCourrierReference(String courrierReference) {
+		this.courrierReference = courrierReference;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public TransactionDestination getTransactionDestination() {
+		return transactionDestination;
+	}
+
+	public void setTransactionDestination(
+			TransactionDestination transactionDestination) {
+		this.transactionDestination = transactionDestination;
+	}
+
+	public Object getCourrierExpediteurObjet() {
+		return courrierExpediteurObjet;
+	}
+
+	public void setCourrierExpediteurObjet(Object courrierExpediteurObjet) {
+		this.courrierExpediteurObjet = courrierExpediteurObjet;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public List<Transaction> getCourrierAllTransactions() {
+		return courrierAllTransactions;
+	}
+
+	public void setCourrierAllTransactions(
+			List<Transaction> courrierAllTransactions) {
+		this.courrierAllTransactions = courrierAllTransactions;
+	}
+
+	public Integer getCourrierID() {
+		return courrierID;
+	}
+
+	public void setCourrierID(Integer courrierID) {
+		this.courrierID = courrierID;
+	}
+
+	public Integer getCourrierOldNum() {
+		return courrierOldNum;
+	}
+
+	public void setCourrierOldNum(Integer courrierOldNum) {
+		this.courrierOldNum = courrierOldNum;
+	}
+
+	public String getCourrierCircuit() {
+		return courrierCircuit;
+	}
+
+	public void setCourrierCircuit(String courrierCircuit) {
+		this.courrierCircuit = courrierCircuit;
+	}
+
+	public void setDossierID(Integer dossierID) {
+		this.dossierID = dossierID;
+	}
+
+	public Integer getDossierID() {
+		return dossierID;
+	}
+
+	public void setExpID(Integer expID) {
+		this.expID = expID;
+	}
+
+	public Integer getExpID() {
+		return expID;
+	}
+
+	public void setTransactionOrdre(Integer transactionOrdre) {
+		this.transactionOrdre = transactionOrdre;
+	}
+
+	public Integer getTransactionOrdre() {
+		return transactionOrdre;
+	}
+
+	public void setIdUtilisateur(Integer idUtilisateur) {
+		this.idUtilisateur = idUtilisateur;
+	}
+
+	public Integer getIdUtilisateur() {
+		return idUtilisateur;
+	}
+
+	public void setExpLdap(Integer expLdap) {
+		this.expLdap = expLdap;
+	}
+
+	public Integer getExpLdap() {
+		return expLdap;
+	}
+
+	public void setExpNom(String expNom) {
+		this.expNom = expNom;
+	}
+
+	public String getExpNom() {
+		return expNom;
+	}
+
+	public void setExpPrenom(String expPrenom) {
+		this.expPrenom = expPrenom;
+	}
+
+	public String getExpPrenom() {
+		return expPrenom;
+	}
+
+	public void setExpTypeUser(Integer expTypeUser) {
+		this.expTypeUser = expTypeUser;
+	}
+
+	public Integer getExpTypeUser() {
+		return expTypeUser;
+	}
+
+	public String getExpNomOld() {
+		return expNomOld;
+	}
+
+	public void setExpNomOld(String expNomOld) {
+		this.expNomOld = expNomOld;
+	}
+
+	public String getExpPrenomOld() {
+		return expPrenomOld;
+	}
+
+	public void setExpPrenomOld(String expPrenomOld) {
+		this.expPrenomOld = expPrenomOld;
+	}
+
+	public Integer getExpTypeUserOld() {
+		return expTypeUserOld;
+	}
+
+	public void setExpTypeUserOld(Integer expTypeUserOld) {
+		this.expTypeUserOld = expTypeUserOld;
+	}
+
+	public String getExpType() {
+		return expType;
+	}
+
+	public void setExpType(String expType) {
+		this.expType = expType;
+	}
+
+	public Integer getExpLdapOld() {
+		return expLdapOld;
+	}
+
+	public void setExpLdapOld(Integer expLdapOld) {
+		this.expLdapOld = expLdapOld;
+	}
+
+	public String getExpTypeOld() {
+		return expTypeOld;
+	}
+
+	public void setExpTypeOld(String expTypeOld) {
+		this.expTypeOld = expTypeOld;
+	}
+
+	public String getDestReelList() {
+		return destReelList;
+	}
+
+	public void setDestReelList(String destReelList) {
+		this.destReelList = destReelList;
+	}
+
+	public String getDestList() {
+		return destList;
+	}
+
+	public void setDestList(String destList) {
+		this.destList = destList;
+	}
+
+	public void setMinTransactionID(Integer minTransactionID) {
+		this.minTransactionID = minTransactionID;
+	}
+
+	public Integer getMinTransactionID() {
+		return minTransactionID;
+	}
+
+	public String getTransactionDestinationReelleTypeDestinataire() {
+		return transactionDestinationReelleTypeDestinataire;
+	}
+
+	public void setTransactionDestinationReelleTypeDestinataire(
+			String transactionDestinationReelleTypeDestinataire) {
+		this.transactionDestinationReelleTypeDestinataire = transactionDestinationReelleTypeDestinataire;
+	}
+
+	public List<ListeDestinatairesModel> getListeDestinatairesAvecAnnotations() {
+		return listeDestinatairesAvecAnnotations;
+	}
+
+	public void setListeDestinatairesAvecAnnotations(
+			List<ListeDestinatairesModel> listeDestinatairesAvecAnnotations) {
+		this.listeDestinatairesAvecAnnotations = listeDestinatairesAvecAnnotations;
+	}
+
+	public Boolean getCourrierAvecDocumentPhysique() {
+		return courrierAvecDocumentPhysique;
+	}
+
+	public void setCourrierAvecDocumentPhysique(
+			Boolean CourrierAvecDocumentPhysique) {
+		this.courrierAvecDocumentPhysique = CourrierAvecDocumentPhysique;
+	}
+
+	public List<ItemSelected> getListSelectedItemDest() {
+		return listSelectedItemDest;
+	}
+
+	public void setListSelectedItemDest(List<ItemSelected> listSelectedItemDest) {
+		this.listSelectedItemDest = listSelectedItemDest;
+	}
+
+	public List<Object> getListSelectedObject() {
+		return listSelectedObject;
+	}
+
+	public void setListSelectedObject(List<Object> listSelectedObject) {
+		this.listSelectedObject = listSelectedObject;
+	}
+
+	public List<Person> getListSelectedPerson() {
+		return listSelectedPerson;
+	}
+
+	public void setListSelectedPerson(List<Person> listSelectedPerson) {
+		this.listSelectedPerson = listSelectedPerson;
+	}
+
+	public List<Pp> getListSelectetdPP() {
+		return listSelectetdPP;
+	}
+
+	public void setListSelectetdPP(List<Pp> listSelectetdPP) {
+		this.listSelectetdPP = listSelectetdPP;
+	}
+
+	public List<Pm> getListSelectetdPM() {
+		return listSelectetdPM;
+	}
+
+	public void setListSelectetdPM(List<Pm> listSelectetdPM) {
+		this.listSelectetdPM = listSelectetdPM;
+	}
+
+	public List<Unit> getListSelectetdUnit() {
+		return listSelectetdUnit;
+	}
+
+	public void setListSelectetdUnit(List<Unit> listSelectetdUnit) {
+		this.listSelectetdUnit = listSelectetdUnit;
+	}
+
+	public List<BOC> getListSelectetdBoc() {
+		return listSelectetdBoc;
+	}
+
+	public void setListSelectetdBoc(List<BOC> listSelectetdBoc) {
+		this.listSelectetdBoc = listSelectetdBoc;
+	}
+
+	public Date getDateReponseDest() {
+		return dateReponseDest;
+	}
+
+	public void setDateReponseDest(Date dateReponseDest) {
+		this.dateReponseDest = dateReponseDest;
+	}
+
+	public void setCourrierAllTransactionsByEtat(
+			List<Transaction> courrierAllTransactionsByEtat) {
+		this.courrierAllTransactionsByEtat = courrierAllTransactionsByEtat;
+	}
+
+	public List<Transaction> getCourrierAllTransactionsByEtat() {
+		return courrierAllTransactionsByEtat;
+	}
+
+	public void setReferenceDestinataireReelle(
+			String referenceDestinataireReelle) {
+		this.referenceDestinataireReelle = referenceDestinataireReelle;
+	}
+
+	public String getReferenceDestinataireReelle() {
+		return referenceDestinataireReelle;
+	}
+
+	public void setCourrierDestinataireReelleDirection(
+			String courrierDestinataireReelleDirection) {
+		this.courrierDestinataireReelleDirection = courrierDestinataireReelleDirection;
+	}
+
+	public String getCourrierDestinataireReelleDirection() {
+		return courrierDestinataireReelleDirection;
+	}
+
+	public void setStyle(String style) {
+		this.style = style;
+	}
+
+	public String getStyle() {
+		return style;
+	}
+
+	public String getEtatLibelle() {
+		return etatLibelle;
+	}
+
+	public void setEtatLibelle(String etatLibelle) {
+		this.etatLibelle = etatLibelle;
+	}
+
+	public Date getDatePointage() {
+		return datePointage;
+	}
+
+	public void setDatePointage(Date datePointage) {
+		this.datePointage = datePointage;
+	}
+
+
+	public void setCodeUniqueCourrier(String codeUniqueCourrier) {
+		this.codeUniqueCourrier = codeUniqueCourrier;
+	}
+
+	public String getCodeUniqueCourrier() {
+		return codeUniqueCourrier;
+	}
+
+	public Date getDateTransmission() {
+		return dateTransmission;
+	}
+
+	public void setDateTransmission(Date dateTransmission) {
+		this.dateTransmission = dateTransmission;
+	}
+
+	public void setDisbledBontonConsultation(boolean disbledBontonConsultation) {
+		this.disbledBontonConsultation = disbledBontonConsultation;
+	}
+
+	public boolean isDisbledBontonConsultation() {
+		return disbledBontonConsultation;
+	}
+
+
+
+}

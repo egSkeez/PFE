@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-11-01T16:09:05 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fiche_ListPersonne" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8045696b-f086-4cb3-961a-7b3f7ebe33ad">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="16"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="pp" class="xtensus.entity.Pp">
+		<fieldDescription><![CDATA[pp]]></fieldDescription>
+	</field>
+	<field name="pm" class="xtensus.entity.Pm">
+		<fieldDescription><![CDATA[pm]]></fieldDescription>
+	</field>
+	<field name="expdestexterne" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expdestexterne]]></fieldDescription>
+	</field>
+	<field name="numero" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numero]]></fieldDescription>
+	</field>
+	<field name="sentByFax" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[sentByFax]]></fieldDescription>
+	</field>
+	<field name="sentByEmail" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[sentByEmail]]></fieldDescription>
+	</field>
+	<field name="sentByPorter" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[sentByPorter]]></fieldDescription>
+	</field>
+	<field name="sentByPostal" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[sentByPostal]]></fieldDescription>
+	</field>
+	<field name="societe" class="java.lang.String">
+		<fieldDescription><![CDATA[societe]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="type" class="java.lang.String">
+		<fieldDescription><![CDATA[type]]></fieldDescription>
+	</field>
+	<field name="adresse" class="java.lang.String"/>
+	<field name="listeSociete" class="java.util.List"/>
+	<field name="showPersonnePhysique" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showPersonnePhysique]]></fieldDescription>
+	</field>
+	<field name="showRaisonSociale" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showRaisonSociale]]></fieldDescription>
+	</field>
+	<field name="showAdresse" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showAdresse]]></fieldDescription>
+	</field>
+	<field name="showCodePostale" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showCodePostale]]></fieldDescription>
+	</field>
+	<field name="showGouvernorat" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[showGouvernorat]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="133" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="-10" y="92" width="525" height="15" uuid="1fb89e27-01cd-4168-9da2-26e355fa921f"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fiche Liste des contacts]]></text>
+			</staticText>
+			<subreport>
+				<reportElement x="0" y="0" width="551" height="58" uuid="3a4ae710-6d98-415d-9679-df43f60c96b4"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="148" splitType="Stretch">
+			<staticText>
+				<reportElement x="17" y="33" width="83" height="20" uuid="1fb89e27-01cd-4168-9da2-26e355fa921f">
+					<printWhenExpression><![CDATA[$F{showRaisonSociale}]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Raison sociale :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="33" width="74" height="20" uuid="8261d730-9614-4c3c-8c99-bbac156b19c6"/>
+				<textElement textAlignment="Center" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExterneNom()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="17" y="53" width="34" height="20" uuid="1fb89e27-01cd-4168-9da2-26e355fa921f"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Email :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="51" y="53" width="173" height="20" uuid="8261d730-9614-4c3c-8c99-bbac156b19c6"/>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExterneMail()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="17" y="73" width="100" height="20" uuid="24c21e04-9855-44cf-abed-253f2de0b69e"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Numéro téléphone : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="117" y="73" width="100" height="20" uuid="8261d730-9614-4c3c-8c99-bbac156b19c6">
+					<printWhenExpression><![CDATA[$F{showRaisonSociale}]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExterneTelephone()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="252" y="33" width="31" height="20" uuid="a1b7affd-525b-4ff9-ade2-dcf30a8dc0b5"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[type :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="283" y="33" width="100" height="20" uuid="175e54d7-dbc0-4583-a72c-3e968d6734f1"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{type}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="133" width="555" height="1" uuid="0e9d03e7-12c5-47f2-8526-9e2d5ee676c2"/>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement x="161" y="33" width="78" height="20" uuid="8261d730-9614-4c3c-8c99-bbac156b19c6"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExternePrenom()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="17" y="93" width="62" height="20" uuid="24c21e04-9855-44cf-abed-253f2de0b69e"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Adresse :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="79" y="93" width="94" height="20" uuid="8261d730-9614-4c3c-8c99-bbac156b19c6">
+					<printWhenExpression><![CDATA[$F{showGouvernorat}]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExterneGouvernerat()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="5" y="0" width="100" height="20" uuid="a3151d12-afe0-45ee-a0c3-f06a7d8168d8"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero}+")"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="17" y="33" width="83" height="20" uuid="f626a822-f361-42b3-afa2-24cb79ce70b4">
+					<printWhenExpression><![CDATA[$F{showPersonnePhysique}]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nom  et Prénom :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="117" y="73" width="100" height="20" uuid="b8c3bfc8-8102-453c-b38b-a38a8f56bc1e">
+					<printWhenExpression><![CDATA[$F{showPersonnePhysique}]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{pp}.getPpnumPortable()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="93" width="94" height="20" uuid="a953714e-7742-4dd4-967c-dca9c45dac57">
+					<printWhenExpression><![CDATA[$F{showAdresse}]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExterneAdresse()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="180" y="93" width="94" height="20" uuid="aca39b0d-cdef-4b8e-a171-322173143386">
+					<printWhenExpression><![CDATA[$F{showCodePostale}]]></printWhenExpression>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExterneCodePostale()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="66" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="45" width="554" height="20" uuid="4785a3e7-6566-4c50-b147-34ddf9fd62bb"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

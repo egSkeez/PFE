@@ -1,0 +1,177 @@
+package xtensus.beans.utils;
+import java.util.List;
+
+
+
+import xtensus.entity.Annotation;
+import xtensus.entity.Bureauordre;
+import xtensus.entity.Courrier;
+
+import xtensus.entity.Direction;
+import xtensus.entity.Entite;
+import xtensus.entity.Nature;
+import xtensus.entity.Societe;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.entity.Confidentialite;
+
+public class BordereauEnvoi extends Entite{
+	private Courrier courrier;
+	private Bureauordre bureauOrdre;
+	private List<Societe> societes;
+	private List<Annotation> annotation;
+	private List<Urgence> urgence;
+	private List<Confidentialite> Confidentialite;
+	private Direction direction;
+	private List<Direction> directions;
+	private List<Nature> Natures;
+	private Variables variable;
+	private String destinataire;
+	private String expediteur;
+	private String nomProjet;
+	private String pathJasper;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeNom;
+	private String societeVille;
+	private String codeUnique;
+	
+	private List<RapportSociete> listeSociete;
+	private List<RapportPiedDePage>piedDePage;
+	private String adresse;
+	
+	public Courrier getCourrier() {
+		return courrier;
+	}
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+	public Bureauordre getBureauOrdre() {
+		return bureauOrdre;
+	}
+
+	public void setBureauOrdre(Bureauordre bureauOrdre) {
+		this.bureauOrdre = bureauOrdre;
+	}
+	
+	public List<Societe> getSocietes() {
+		return societes;
+	}
+	public void setSocietes(List<Societe> societes) {
+		this.societes = societes;
+	}
+	public List<Annotation> getAnnotation() {
+		return annotation;
+	}
+	public void setAnnotation(List<Annotation> annotation) {
+		this.annotation = annotation;
+	}
+	public List<Urgence> getUrgence() {
+		return urgence;
+	}
+	public void setUrgence(List<Urgence> urgence) {
+		this.urgence = urgence;
+	}
+	public Direction getDirection() {
+		return direction;
+	}
+	public void setDirection(Direction direction) {
+		this.direction = direction;
+	}
+	public List<Direction> getDirections() {
+		return directions;
+	}
+	public void setDirections(List<Direction> directions) {
+		this.directions = directions;
+	}
+	public List<Nature> getNatures() {
+		return Natures;
+	}
+	public void setNatures(List<Nature> natures) {
+		Natures = natures;
+	}
+	public Variables getVariable() {
+		return variable;
+	}
+	public void setVariable(Variables variable) {
+		this.variable = variable;
+	}
+	public List<Confidentialite> getConfidentialite() {
+		return Confidentialite;
+	}
+	public void setConfidentialite(List<Confidentialite> confidentialite) {
+		Confidentialite = confidentialite;
+	}
+	public String getDestinataire() {
+		return destinataire;
+	}
+	public void setDestinataire(String destinataire) {
+		this.destinataire = destinataire;
+	}
+	public String getExpediteur() {
+		return expediteur;
+	}
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+	public String getNomProjet() {
+		return nomProjet;
+	}
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+	public String getPathJasper() {
+		return pathJasper;
+	}
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+	public String getSocieteVille() {
+		return societeVille;
+	}
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+	public String getSocieteNom() {
+		return societeNom;
+	}
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+	public String getAdresse() {
+		return adresse;
+	}
+	public void setPiedDePage(List<RapportPiedDePage> piedDePage) {
+		this.piedDePage = piedDePage;
+	}
+	public List<RapportPiedDePage> getPiedDePage() {
+		return piedDePage;
+	}
+	public String getCodeUnique() {
+		return codeUnique;
+	}
+	public void setCodeUnique(String codeUnique) {
+		this.codeUnique = codeUnique;
+	}	
+}

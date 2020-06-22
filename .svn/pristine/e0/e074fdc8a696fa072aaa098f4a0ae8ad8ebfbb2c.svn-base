@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style=" height : 30px;">
+						<h:form>
+							<h:panelGrid columns="25">
+								<a4j:commandLink id="retour" title="next" action="#{annuaireRechercheUtilisateurBean.retour}">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onclick="this.src='../framGraphique/images/retourClick.png'"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+								<rich:spacer width="20" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="12" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.detailsUser}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.matricule}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.id}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+											<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.prenom}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;">
+
+											</h:outputText>
+											<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.nom}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+											<h:outputText value="#{msg.abreviation}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.shortName}"
+												styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+											<h:outputText value="#{msg.uniteCourante}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.associatedDirection.nameUnit}"
+												styleClass="xteDetailLabelOutput" />
+
+										</h:panelGrid></td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+
+											<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{annuaireRechercheUtilisateurBean.person.email}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputLabel
+												value="#{annuaireRechercheUtilisateurBean.person.telephoneNumber}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.Expfax}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.fax}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.adresse}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.postalCode}#{msg.pointvirgule}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+
+											<h:outputText
+												value="#{annuaireRechercheUtilisateurBean.person.codePostal}"
+												style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+								</tr>
+							</table>
+
+						</rich:panel>
+
+
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<head>
+<title>GBO | Consultation Fax</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<h:panelGrid columns="9">
+								<a4j:commandLink id="retour"
+									action="#{consultationFaxBean.retour}">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										alt="retour" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.buttonRetour}" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.ListFaxs}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+
+							<rich:dataTable value="#{consulterFaxBean.faxList}" var="faxItem"
+								rows="10" styleClass="rich-dataTable" id="faxList">
+
+
+								<rich:column sortBy="#{faxItem.faxId}"
+									filterBy="#{faxItem.faxId}" filterEvent="onkeyup" label="id"
+									width="5%">
+
+									<f:facet name="header">Référence fax</f:facet>
+									<h:outputText value="#{faxItem.faxId}" />
+								</rich:column>
+
+								<rich:column sortBy="#{faxItem.faxSenderNumber}"
+									filterBy="#{faxItem.faxSenderNumber}" filterEvent="onkeyup"
+									label="sender">
+									<f:facet name="header">Expediteur</f:facet>
+									<h:outputText value="#{faxItem.faxSenderNumber}" />
+								</rich:column>
+
+
+								<rich:column sortBy="#{faxItem.faxReceivedDate}"
+									filterBy="#{faxItem.faxReceivedDate}" filterEvent="onkeyup"
+									label="date">
+									<f:facet name="header">Date de réception</f:facet>
+									<h:outputText value="#{faxItem.faxReceivedDate}">
+										<f:convertDateTime pattern="d/M/yyyy à HH:m:s	" />
+									</h:outputText>
+								</rich:column>
+
+								<rich:column width="15%">
+									<f:facet name="header">
+										<h:outputText value="Operation" />
+									</f:facet>
+
+									<center>
+										<h:panelGrid columns="8">
+											<a4j:keepAlive beanName="consulterFaxBean" />
+											<a4j:commandLink action="#{consulterFaxBean.details}"
+												id="details">
+												<f:setPropertyActionListener
+													target="#{detailsFaxBean.selectedFax}" value="#{faxItem}" />
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="Consulter" />
+											</a4j:commandLink>
+											<rich:toolTip for="consulter" value="Consulter" />
+
+											<a4j:commandLink id="supprimer">
+												<h:graphicImage value="../framGraphique/images/Delete.png"
+													alt="Supprimer" />
+											</a4j:commandLink>
+											<rich:toolTip for="supprimer" value="Supprimer" />
+
+											<a4j:htmlCommandLink action="#{detailsFaxBean.downloadFax}"
+												id="telecharger">
+												<f:setPropertyActionListener
+													target="#{detailsFaxBean.selectedFax}" value="#{faxItem}" />
+												<h:graphicImage value="../framGraphique/images/Download.png"
+													alt="Download" />
+
+											</a4j:htmlCommandLink>
+											<rich:toolTip for="telecharger" value="#{msg.Telechargement}" />
+
+											<a4j:commandButton value="Traiter" type="submit"
+												action="#{detailsFaxBean.traiter}"
+												oncomplete="if(#{detailsFaxBean.status}==true) #{rich:component('msgPanal')}.show();">
+												<f:setPropertyActionListener
+													target="#{detailsFaxBean.selectedFax}" value="#{faxItem}" />
+											</a4j:commandButton>
+
+										</h:panelGrid>
+									</center>
+								</rich:column>
+							</rich:dataTable>
+							<rich:datascroller for="faxList" id="scroller" />
+
+							<div align="center">
+								<h:outputText value="Nombre d'enregistrements : "
+									styleClass="xteNombreEnregistrementLabelOutput" />
+
+								<h:outputText id="compt" value="#{consulterFaxBean.compteur}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+					</h:form>
+				</div>
+
+				<!-- *********popup ajout********* -->
+				<rich:modalPanel id="msgPanal" autosized="true" height="90"
+					width="300">
+					<a4j:keepAlive beanName="detailsFaxBean" />
+					<f:facet name="header">
+						<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+							<rich:spacer width="2" />
+							<h:outputText value="#{msg.labelInfo}"
+								styleClass="xtePopupInformationTextHeader" />
+						</h:panelGrid>
+					</f:facet>
+
+					<f:facet name="controls">
+						<h:panelGroup>
+							<h:graphicImage value="../framGraphique/images/closePopup.png"
+								width="15" height="15" id="hidelink1" />
+							<rich:componentControl for="msgPanal" attachTo="hidelink1"
+								operation="hide" event="onclick" />
+						</h:panelGroup>
+					</f:facet>
+					<h:form>
+						<table align="center">
+							<tr>
+								<td align="left"><h:graphicImage
+										value="../framGraphique/images/information.png" /></td>
+								<td align="center" colspan="2"><h:outputText
+										styleClass="xtePopupInformationText"
+										value="L'ajout a été traité avec succès." /></td>
+							</tr>
+						</table>
+
+						<table align="center">
+							<tr>
+								<td align="center"><a4j:commandButton
+										value="#{msg.buttonOk}"
+										oncomplete="Richfaces.hideModalPanel('msgPanal');"
+										type="submit" ajaxSingle="true" styleClass="submitButton"
+										onclick="document.location.href='ConsultationMail.jsf'"
+										reRender="data,scroller,formulaireUtilisateur" /></td>
+
+							</tr>
+						</table>
+					</h:form>
+				</rich:modalPanel>
+
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(monthi8[w4s.getMonth()]); //]]>
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(s6ix[s3x]); //]]>
+						</script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+								//<![CDATA[
+								document.write(w4s.getDate()); //]]>
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+							//<![CDATA[
+							document.write(s0x[w4s.getDay()]); //]]>
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(w4s.getFullYear()); //]]>
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+	</body>
+</ui:composition>

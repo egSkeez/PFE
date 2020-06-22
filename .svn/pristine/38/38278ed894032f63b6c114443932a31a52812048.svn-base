@@ -1,0 +1,928 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ExpediteurType;
+import xtensus.entity.Classement_archivage_niveau_02;
+import xtensus.entity.Courrier;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Groupecontactpppm;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ContactConsultationBean {
+
+	private ApplicationManager appMgr;
+	private DataModel list;
+	private Expdestexterne listExp;
+	private List<Expdestexterne> listExpDest;
+	private List<Expdestexterne> listExpDest1;
+	private List<Expdestexterne> listExpDest2;
+	private List<Expdestexterne> listED;
+	private List<Expdestexterne> listED1;
+	private List<Groupecontactpppm> listGroupeContact;
+	private List<String> res;
+	private Expdestexterne dt;
+	private Expdestexterne dt1;
+	private List<Transaction> listTr;
+	private Courrier cr;
+	public String type = "Expéditeur";
+	private List<String> selectedItems;
+	private Expdestexterne selectedItem;
+	private Expdestexterne selectedDest;
+	private Set<Integer> rowsToUpdate = new HashSet<Integer>();
+	int a;
+	int k = 0;
+	private int var;
+	public boolean statusModif;
+	private boolean contactUtilise;
+	
+	private boolean pmAvecPPAffecte;
+	private String type1;
+	private boolean statusExpDest;
+	private Pp pp;
+	private Pm pm;
+	private List<Pm> listPM;
+	private List<Pp> listPP;
+	private List<Pm> listPMByType;
+	private List<Pp> listPPByType;
+	private List<Pp> listPP1;
+	private List<Pp> listNbrPP;
+	private List<ExpediteurType> listConsulter;
+	private ExpediteurType exptype;
+
+	private int nbr;
+	private Expdestexterne contactNom;
+	private Expdestexterne contact;
+	private Expdestexterne expDest;
+	private Expdestexterne expDest1;
+	private List<Expdestexterne> listContactNom;
+	private boolean select1;
+	private boolean select2 = true;
+	private boolean select3;
+	private boolean select4 = true;
+
+	private String reponse1;
+	private int cin;
+	private String portable;
+	private String matricule;
+	private String cnss;
+	private String registre;
+	private String nomDest = "";
+
+
+	ArrayList<SelectItem> selectItems = new ArrayList<SelectItem>();
+
+	@Autowired
+	private VariableGlobale vb;
+
+	private long records = 0;
+
+	public ContactConsultationBean() {
+
+	}
+
+	@Autowired
+	public ContactConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		dt = new Expdestexterne();
+		dt1 = new Expdestexterne();
+		list = new ListDataModel();
+		listPM = new ArrayList<Pm>();
+		listPP = new ArrayList<Pp>();
+		listPMByType = new ArrayList<Pm>();
+		listPPByType = new ArrayList<Pp>();
+		listPP1 = new ArrayList<Pp>();
+		setRes(new ArrayList<String>());
+		listExpDest = new ArrayList<Expdestexterne>();
+		listExpDest1 = new ArrayList<Expdestexterne>();
+		listExpDest2 = new ArrayList<Expdestexterne>();
+		pp = new Pp();
+		pm = new Pm();
+		contactNom = new Expdestexterne();
+		contact = new Expdestexterne();
+		expDest = new Expdestexterne();
+		expDest1 = new Expdestexterne();
+		listContactNom = new ArrayList<Expdestexterne>();
+		type1 = new String();
+		listED = new ArrayList<Expdestexterne>();
+		listED1 = new ArrayList<Expdestexterne>();
+		listTr = new ArrayList<Transaction>();
+		listNbrPP = new ArrayList<Pp>();
+
+		exptype = new ExpediteurType();
+		listConsulter = new ArrayList<ExpediteurType>();
+		listGroupeContact = new ArrayList<Groupecontactpppm>();
+		System.out
+				.println("**************BeanInjecte ContactConsultationBean*********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+
+			statusExpDest = true;
+
+			// listExpDest = appMgr.getList(Expdestexterne.class);
+			listGroupeContact = appMgr.getList(Groupecontactpppm.class);
+			listExpDest = appMgr.getListAllAxpDestExternJustPpAndPm();// permet
+																		// d'avoir
+																		// la
+																		// liste
+																		// des
+																		// expdestExterne
+																		// qui
+																		// ne
+																		// comporte
+																		// pas
+																		// la
+																		// liste
+																		// des
+																		// utilisateurs
+																		// interne
+			for (Expdestexterne exp : listExpDest) {
+				exptype.setExpdestexterne(exp);
+				int refTypeUtilisateur = exp.getTypeutilisateur()
+						.getTypeUtilisateurId();
+				int refexpediteur = exp.getIdExpDestExterne();
+				if (refTypeUtilisateur == 2) {
+					if (!appMgr.getPMByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pm = appMgr.getPMByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPm(pm);
+						exptype.setSociete(exp.getExpDestExterneNom());
+						exptype.setType("PM");
+						listConsulter.add(exptype);
+						exptype = new ExpediteurType();
+					}
+				} else if (refTypeUtilisateur == 1) {
+					if (!appMgr.getPPByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pp = appMgr.getPPByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPp(pp);
+						if (pp.getPm() != null) {
+							int refpm = pp.getPm().getPmid();
+							pm = appMgr.getPMByIDPM(refpm).get(0);
+							int refexp = pm.getExpdestexterne()
+									.getIdExpDestExterne();
+							Expdestexterne e = new Expdestexterne();
+							e = appMgr.getExpediteurById(refexp).get(0);
+							exptype.setSociete(e.getExpDestExterneNom());
+						}
+						exptype.setType("PP");
+						listConsulter.add(exptype);
+						exptype = new ExpediteurType();
+					}
+				}
+				pp = new Pp();
+				pm = new Pm();
+				exptype = new ExpediteurType();
+			}
+
+			System.out
+					.println("*******ChargementAvecSucces   ContactConsultationBean******");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		vb.setListConsulter(listConsulter);
+		list.setWrappedData(listConsulter);
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			exptype = (ExpediteurType) list.getRowData();
+			dt = exptype.getExpdestexterne();
+
+			vb.setExpdestexterne(dt);
+			vb.setPm((Pm) dt.getPms());
+			vb.setPp((Pp) dt.getPps());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getSelectionRow2() {
+		String res = "noPass";
+		try {
+			exptype = (ExpediteurType) list.getRowData();
+			dt = exptype.getExpdestexterne();
+			System.out.println("SR : DT => " + dt);
+
+			vb.setExpdestexterne(dt);
+			String contactPays;
+			if (dt.getTypeutilisateur().getTypeUtilisateurId() == 1) {
+				res = "PP";
+				System.out.println("SR : res : " + res);
+				vb.setPp(exptype.getPp());
+				contactPays = appMgr
+						.listPaysByRef(
+								Integer.valueOf(dt.getExpDestExternePays()))
+						.get(0).getPaysLibelle();
+				vb.setContactPays(contactPays);
+			} else if (dt.getTypeutilisateur().getTypeUtilisateurId() == 2) {
+				res = "PM";
+				System.out.println("SR : res 2 : " + res);
+				vb.setPm(exptype.getPm());
+				List<Pp> pps = new ArrayList<Pp>();
+				int refpm = exptype.getPm().getPmid();
+				pps = appMgr.listPPByIDPM(refpm);
+				nbr = pps.size();
+				vb.setNombrePP(nbr);
+				contactPays = appMgr
+						.listPaysByRef(
+								Integer.valueOf(dt.getExpDestExternePays()))
+						.get(0).getPaysLibelle();
+				vb.setContactPays(contactPays);
+				// TODO
+			}
+			System.out
+					.println("*******SelectionSucces ContactConsultationBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection ContactConsultationBean*******");
+			System.out.println(e.getMessage());
+		}
+		return res;
+
+	}
+
+	public void getSelectionRowForFax() {
+		exptype = (ExpediteurType) list.getRowData();
+		dt = exptype.getExpdestexterne();
+		vb.setExpdestexterne(dt);
+	}
+
+	public String getSelectionRow3() {
+		try {
+			exptype = (ExpediteurType) list.getRowData();
+			System.out.println("SR : exptype" + exptype);
+			dt = exptype.getExpdestexterne();
+			System.out.println("SR : DT" + dt);
+			vb.setExpdestexterne(dt);
+			vb.setPm(exptype.getPm());
+			vb.setPp(exptype.getPp());
+			int refTypeUtilisateur = dt.getTypeutilisateur()
+					.getTypeUtilisateurId();
+			if (refTypeUtilisateur == 1) {
+				var = 1;
+				return "ModifPP";
+			} else if (refTypeUtilisateur == 2) {
+				var = 0;
+				return "ModifPM";
+			}
+			System.out
+					.println("*******SelectionSucces ContactConsultationBean*********");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out
+					.println("*******ErreurDeSelection ContactConsultationBean*******");
+		}
+		return dt.getTypeutilisateur().getTypeUtilisateurLibelle();
+	}
+
+	public void deleteSelectedRow() {
+		System.out.println("DANS deleteSelectedRow");
+		try {
+			
+
+			int reftype = dt.getTypeutilisateur().getTypeUtilisateurId();
+			if (reftype == 2) {
+			
+				appMgr.delete(exptype.getPm());
+				appMgr.delete(dt);
+				LogClass logClass = new LogClass();
+				logClass.addTrack(
+						"suppression",
+						"Evénement de log de suppression de la personne morale "
+								+ vb.getExpdestexterne().getIdExpDestExterne()
+								+ "-"
+								+ vb.getExpdestexterne().getExpDestExterneNom(),
+						vb.getPerson(), "INFO", appMgr);
+			}
+			if (reftype == 1) {
+			
+				appMgr.delete(exptype.getPp());
+				appMgr.delete(dt);
+				LogClass logClass = new LogClass();
+				logClass.addTrack(
+						"suppression",
+						"Evénement de log de suppression de la personne physique "
+								+ vb.getExpdestexterne().getIdExpDestExterne()
+								+ "-"
+								+ vb.getExpdestexterne().getExpDestExterneNom(),
+						vb.getPerson(), "INFO", appMgr);
+			}
+
+			
+			System.out.println("succes deleteSelectedRow");
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			System.out.println("erreur deleteSelectedRow");
+		}
+	}
+
+	public void getDeleteSelectionRow() {
+		try {
+			
+			listGroupeContact = appMgr.getList(Groupecontactpppm.class);
+			contactUtilise = false;
+			
+			pmAvecPPAffecte = false;
+
+			List<Pp> listPP;
+			exptype = (ExpediteurType) list.getRowData();
+			dt = exptype.getExpdestexterne();
+			
+			vb.setExpdestexterne(dt);
+			if (dt.getTypeutilisateur().getTypeUtilisateurId() == 1) {
+				int transactionCount = appMgr.getCountTransactionByIdExpExterne(dt.getIdExpDestExterne().intValue());
+				if (transactionCount > 0) {
+					contactUtilise = true;
+				} else {
+					int nb = 0;
+					if (listGroupeContact != null)
+						for (int i = 0; i < listGroupeContact.size(); i++) {
+
+							Groupecontactpppm groupecontactpppm = new Groupecontactpppm();
+							groupecontactpppm = listGroupeContact.get(i);
+							
+							if (dt.getIdExpDestExterne().equals(
+									groupecontactpppm.getId()
+											.getIdExpDestExterne())) {
+								nb++;
+							}
+						}
+					// if(nb==0){
+					// status1=true;
+					// }else{
+					// status1=false;
+					// }
+					//
+					// ****************************************************
+					if (nb > 0) {
+						contactUtilise = true;
+					}
+					System.out.println("NB --- > "+nb);
+					
+				}
+			} else if (dt.getTypeutilisateur().getTypeUtilisateurId() == 2) {
+				// C'est un PM
+				int transactionCount = appMgr.getCountTransactionByIdExpExterne(dt.getIdExpDestExterne().intValue());
+				if ( transactionCount > 0) {
+					
+					contactUtilise = true;
+
+				} else {
+					// Vérifier si le PM contient des PP affectés
+					vb.setPm(exptype.getPm());
+					listPP = new ArrayList<Pp>();
+					// Liste des PP affecté au PM selectionné
+					listPP = appMgr.listPPByIDPM(exptype.getPm().getPmid());
+					if (listPP != null && !listPP.isEmpty()) {
+						pmAvecPPAffecte = true;
+					}
+				}
+
+			} else {
+				System.out.println("C'EST UN CONTACT AUTRE PP OU PM");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<SelectItem> getSelectItems() {
+
+		List<SelectItem> selectItems = new ArrayList<SelectItem>();
+		for (int j = 0; j <= listExpDest.size() - 1; j++) {
+			selectItems.add(new SelectItem(listExpDest.get(j)
+					.getExpDestExterneNom()));
+
+		}
+		return selectItems;
+
+	}
+
+	public void afficher() {
+		for (int j = 0; j <= listExpDest.size() - 1; j++) {
+
+			System.out.println(selectedItems);
+		}
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+		reponse1 = vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle();
+		if (vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle().equals("PM")) {
+
+			setSelect1(false);
+			setSelect2(true);
+
+		} else {
+			setSelect1(true);
+			setSelect2(false);
+
+		}
+		reponse1 = vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle();
+		try {
+			if (reponse1.equals("PP")) {
+				pp.setExpdestexterne(vb.getExpdestexterne());
+				appMgr.insert(pp);
+				vb.setPp(pp);
+				pm = (Pm) vb.getExpdestexterne().getPms();
+				appMgr.delete(pm);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void evenementChoixTransfert2(ActionEvent evt) {
+		reponse1 = vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle();
+		if (vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle().equals("PM")) {
+
+			setSelect4(false);
+			setSelect3(true);
+
+		} else {
+			setSelect4(true);
+			setSelect3(false);
+
+		}
+		reponse1 = vb.getExpdestexterne().getTypeutilisateur()
+				.getTypeUtilisateurLibelle();
+	}
+
+	/*
+	 * public String Dest() { vb.setTypeUtili("Destinataire"); if
+	 * (vb.getDestNom() == null) { for (int j = 0; j < listExpDest.size(); j++)
+	 * { listExpDest.get(j).setSelected(false); } } return "dest";
+	 * 
+	 * }
+	 */
+
+	// ************Getter & Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (list == null && list.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<ExpediteurType>) list.getWrappedData()).size();
+		return records;
+	}
+
+	public void setList(DataModel list) {
+		this.list = list;
+	}
+
+	public DataModel getList() {
+		return list;
+	}
+
+	public Expdestexterne getDt() {
+		return dt;
+	}
+
+	public void setDt(Expdestexterne dt) {
+		this.dt = dt;
+	}
+
+	public List<ExpediteurType> getListConsulter() {
+		return listConsulter;
+	}
+
+	public void setListConsulter(List<ExpediteurType> listConsulter) {
+		this.listConsulter = listConsulter;
+	}
+
+	public ExpediteurType getExptype() {
+		return exptype;
+	}
+
+	public void setExptype(ExpediteurType exptype) {
+		this.exptype = exptype;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setListExp(Expdestexterne listExp) {
+		this.listExp = listExp;
+	}
+
+	public Expdestexterne getListExp() {
+		return listExp;
+	}
+
+	
+
+	public void setSelectItems(ArrayList<SelectItem> selectItems) {
+		this.selectItems = selectItems;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public void setDt1(Expdestexterne dt1) {
+		this.dt1 = dt1;
+	}
+
+	public Expdestexterne getDt1() {
+		return dt1;
+	}
+
+	public void setCr(Courrier cr) {
+		this.cr = cr;
+	}
+
+	public Courrier getCr() {
+		return cr;
+	}
+
+	
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setSelectedItems(List<String> selectedItems) {
+		this.selectedItems = selectedItems;
+	}
+
+	public List<String> getSelectedItems() {
+		return selectedItems;
+	}
+
+	public void setListExpDest(List<Expdestexterne> listExpDest) {
+		this.listExpDest = listExpDest;
+	}
+
+	public List<Expdestexterne> getListExpDest() {
+		return listExpDest;
+	}
+
+	public void setRes(List<String> res) {
+		this.res = res;
+	}
+
+	public List<String> getRes() {
+		return res;
+	}
+
+	public Expdestexterne getSelectedItem() {
+		return selectedItem;
+	}
+
+	public void setSelectedItem(Expdestexterne selectedItem) {
+		this.selectedItem = selectedItem;
+	}
+
+	public void setSelectedDest(Expdestexterne selectedDest) {
+		this.selectedDest = selectedDest;
+	}
+
+	public Expdestexterne getSelectedDest() {
+		return selectedDest;
+	}
+
+	public void setRowsToUpdate(Set<Integer> rowsToUpdate) {
+		this.rowsToUpdate = rowsToUpdate;
+	}
+
+	public Set<Integer> getRowsToUpdate() {
+		return rowsToUpdate;
+	}
+
+	public boolean isContactUtilise() {
+		return contactUtilise;
+	}
+
+	public void setContactUtilise(boolean contactUtilise) {
+		this.contactUtilise = contactUtilise;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	
+
+	public boolean isPmAvecPPAffecte() {
+		return pmAvecPPAffecte;
+	}
+
+	public void setPmAvecPPAffecte(boolean pmAvecPPAffecte) {
+		this.pmAvecPPAffecte = pmAvecPPAffecte;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setListPM(List<Pm> listPM) {
+		this.listPM = listPM;
+	}
+
+	public List<Pm> getListPM() {
+		return listPM;
+	}
+
+	public void setListPP(List<Pp> listPP) {
+		this.listPP = listPP;
+	}
+
+	public List<Pp> getListPP() {
+		return listPP;
+	}
+
+	public void setContactNom(Expdestexterne contactNom) {
+		this.contactNom = contactNom;
+	}
+
+	public Expdestexterne getContactNom() {
+		return contactNom;
+	}
+
+	public void setExpDest(Expdestexterne expDest) {
+		this.expDest = expDest;
+	}
+
+	public Expdestexterne getExpDest() {
+		return expDest;
+	}
+
+	public void setType1(String type1) {
+		this.type1 = type1;
+	}
+
+	public String getType1() {
+		return type1;
+	}
+
+	public void setListED(List<Expdestexterne> listED) {
+		this.listED = listED;
+	}
+
+	public List<Expdestexterne> getListED() {
+		return listED;
+	}
+
+	public void setListPP1(List<Pp> listPP1) {
+		this.listPP1 = listPP1;
+	}
+
+	public List<Pp> getListPP1() {
+		return listPP1;
+	}
+
+	public void setExpDest1(Expdestexterne expDest1) {
+		this.expDest1 = expDest1;
+	}
+
+	public Expdestexterne getExpDest1() {
+		return expDest1;
+	}
+
+	public void setListED1(List<Expdestexterne> listED1) {
+		this.listED1 = listED1;
+	}
+
+	public List<Expdestexterne> getListED1() {
+		return listED1;
+	}
+
+	public void setContact(Expdestexterne contact) {
+		this.contact = contact;
+	}
+
+	public Expdestexterne getContact() {
+		return contact;
+	}
+
+	public boolean isStatusExpDest() {
+		return statusExpDest;
+	}
+
+	public void setStatusExpDest(boolean statusExpDest) {
+		this.statusExpDest = statusExpDest;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setListTr(List<Transaction> listTr) {
+		this.listTr = listTr;
+	}
+
+	public List<Transaction> getListTr() {
+		return listTr;
+	}
+
+	public void setVar(int var) {
+		this.var = var;
+	}
+
+	public int getVar() {
+		return var;
+	}
+
+	public void setSelect2(boolean select2) {
+		this.select2 = select2;
+	}
+
+	public boolean isSelect2() {
+		return select2;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public boolean isStatusModif() {
+		return statusModif;
+	}
+
+	public void setStatusModif(boolean statusModif) {
+		this.statusModif = statusModif;
+	}
+
+	public void setListNbrPP(List<Pp> listNbrPP) {
+		this.listNbrPP = listNbrPP;
+	}
+
+	public List<Pp> getListNbrPP() {
+		return listNbrPP;
+	}
+
+	public void setNbr(int nbr) {
+		this.nbr = nbr;
+	}
+
+	public int getNbr() {
+		return nbr;
+	}
+
+	public List<Expdestexterne> getListContactNom() {
+		return listContactNom;
+	}
+
+	public void setListContactNom(List<Expdestexterne> listContactNom) {
+		this.listContactNom = listContactNom;
+	}
+
+	public void setReponse1(String reponse1) {
+		this.reponse1 = reponse1;
+	}
+
+	public String getReponse1() {
+		return reponse1;
+	}
+
+	public void setSelect4(boolean select4) {
+		this.select4 = select4;
+	}
+
+	public boolean isSelect4() {
+		return select4;
+	}
+
+	public void setSelect3(boolean select3) {
+		this.select3 = select3;
+	}
+
+	public boolean isSelect3() {
+		return select3;
+	}
+
+	public int getA() {
+		return a;
+	}
+
+	public void setA(int a) {
+		this.a = a;
+	}
+
+	public int getK() {
+		return k;
+	}
+
+	public void setK(int k) {
+		this.k = k;
+	}
+
+	public int getCin() {
+		return cin;
+	}
+
+	public void setCin(int cin) {
+		this.cin = cin;
+	}
+
+	public String getPortable() {
+		return portable;
+	}
+
+	public void setPortable(String portable) {
+		this.portable = portable;
+	}
+
+	public void setRegistre(String registre) {
+		this.registre = registre;
+	}
+
+	public String getRegistre() {
+		return registre;
+	}
+
+	public void setCnss(String cnss) {
+		this.cnss = cnss;
+	}
+
+	public String getCnss() {
+		return cnss;
+	}
+
+	public void setMatricule(String matricule) {
+		this.matricule = matricule;
+	}
+
+	public String getMatricule() {
+		return matricule;
+	}
+
+	public String getNomDest() {
+		return nomDest;
+	}
+
+	public void setNomDest(String nomDest) {
+		this.nomDest = nomDest;
+	}
+
+	public List<Groupecontactpppm> getListGroupeContact() {
+		return listGroupeContact;
+	}
+
+	public void setListGroupeContact(List<Groupecontactpppm> listGroupeContact) {
+		this.listGroupeContact = listGroupeContact;
+	}
+
+}

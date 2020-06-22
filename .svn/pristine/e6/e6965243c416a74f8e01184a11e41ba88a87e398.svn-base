@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-08-23T16:09:51 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Sous_Rapport_EtatAO_Recu" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a4242e26-42d5-4712-a6c1-f9102971440e">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="314" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="50" width="220" height="200" uuid="a6d5533e-7c4e-45ed-a893-708733ed0d88"/>
+				<box topPadding="6">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="14"/>
+					<paragraph lineSpacing="Double"/>
+				</textElement>
+				<text><![CDATA[المكلف بأشغال لجنة الشراءات
+الإسم و اللقب:
+................................................
+عدد العروض المستلمة:...................
+التاريخ:......................................
+الإمضاء]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="220" y="50" width="335" height="200" uuid="c555499c-f37f-4ffa-b3a3-d75f442c4229"/>
+				<box topPadding="38">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="14" isBold="false"/>
+					<paragraph lineSpacing="Double"/>
+				</textElement>
+				<text><![CDATA[مكتب الظبط المعني
+الإمضاء]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

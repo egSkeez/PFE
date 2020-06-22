@@ -1,0 +1,383 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Menu;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class RoleConsultationBean  {
+
+	private int referenceRole;
+	private String nomRole;
+	private String descriptionRole;
+	private long records = 0;
+	private LdapOperation ldapOperation;
+
+	@Autowired
+	private VariableGlobale vb;
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private DataModel menuDataModel;
+	private List<ItemMenu> listItemMenu;
+	private List<Integer> listIdMenus;
+	
+	public class SousMenus{
+		private int idSousMenu;
+		private int ordreSousMenu;
+		private String nomSousMenu;
+		private String nomSousMenuArabe;
+		private String menuPrincipal;
+		private boolean checkedSousMenu;
+		private boolean notCheckedSousMenu;
+
+		public SousMenus(){
+			this.checkedSousMenu = false;
+			this.notCheckedSousMenu = false;
+		}
+
+		public void setIdSousMenu(int idSousMenu) {
+			this.idSousMenu = idSousMenu;
+		}
+
+		public int getIdSousMenu() {
+			return idSousMenu;
+		}
+
+		public void setNomSousMenu(String nomSousMenu) {
+			this.nomSousMenu = nomSousMenu;
+		}
+
+		public String getNomSousMenu() {
+			return nomSousMenu;
+		}
+
+		public void setMenuPrincipal(String menuPrincipal) {
+			this.menuPrincipal = menuPrincipal;
+		}
+
+		public String getMenuPrincipal() {
+			return menuPrincipal;
+		}
+
+		public void setNomSousMenuArabe(String nomSousMenuArabe) {
+			this.nomSousMenuArabe = nomSousMenuArabe;
+		}
+
+		public String getNomSousMenuArabe() {
+			return nomSousMenuArabe;
+		}
+
+		public void setCheckedSousMenu(boolean checkedSousMenu) {
+			this.checkedSousMenu = checkedSousMenu;
+		}
+
+		public boolean isCheckedSousMenu() {
+			return checkedSousMenu;
+		}
+
+		public void setOrdreSousMenu(int ordreSousMenu) {
+			this.ordreSousMenu = ordreSousMenu;
+		}
+
+		public int getOrdreSousMenu() {
+			return ordreSousMenu;
+		}
+
+		public void setNotCheckedSousMenu(boolean notCheckedSousMenu) {
+			this.notCheckedSousMenu = notCheckedSousMenu;
+		}
+
+		public boolean isNotCheckedSousMenu() {
+			return notCheckedSousMenu;
+		}
+		
+		
+	}
+	
+	public class ItemMenu{
+		private int idMenuPrincipal;
+		private String menuPrincipal;
+		private boolean checkedMenu;
+		private boolean notCheckedMenu;
+		private List<SousMenus> sousMenus;
+
+		public ItemMenu(){
+			this.sousMenus = new ArrayList<SousMenus>();
+			this.checkedMenu = false;
+			this.notCheckedMenu = false;
+		}
+
+		public void setMenuPrincipal(String menuPrincipal) {
+			this.menuPrincipal = menuPrincipal;
+		}
+
+		public String getMenuPrincipal() {
+			return menuPrincipal;
+		}
+
+		public void setCheckedMenu(boolean checkedMenu) {
+			this.checkedMenu = checkedMenu;
+		}
+
+		public boolean isCheckedMenu() {
+			return checkedMenu;
+		}
+
+		public void setSousMenus(List<SousMenus> sousMenus) {
+			this.sousMenus = sousMenus;
+		}
+
+		public List<SousMenus> getSousMenus() {
+			return sousMenus;
+		}
+
+		public void setIdMenuPrincipal(int idMenuPrincipal) {
+			this.idMenuPrincipal = idMenuPrincipal;
+		}
+
+		public int getIdMenuPrincipal() {
+			return idMenuPrincipal;
+		}
+
+		public void setNotCheckedMenu(boolean notCheckedMenu) {
+			this.notCheckedMenu = notCheckedMenu;
+		}
+
+		public boolean isNotCheckedMenu() {
+			return notCheckedMenu;
+		}
+	}
+	
+	@Autowired
+	public RoleConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr){
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		menuDataModel = new ListDataModel();
+		listItemMenu = new ArrayList<ItemMenu>();
+		menuDataModel.setWrappedData(listItemMenu);
+		listIdMenus = new ArrayList<Integer>();
+		System.out.println("*************Bean RoleGestionBean Injected***************");
+	}
+	
+	@PostConstruct
+	public void initialize() {
+		status = false;
+		status1 = false;
+		nomRole = vb.getRoleModel().getNomRole();
+		descriptionRole = vb.getRoleModel().getDescriptionRole();
+		List<Menu> listMenus = new ArrayList<Menu>();
+		listMenus = appMgr.getListMenusByIdRole(vb.getRoleModel().getReferenceRole());
+		for (Menu menu : listMenus) {
+			listIdMenus.add(menu.getMenuId());
+		}
+		listItemMenu = getItemMenuFromListPrincipalMenu(appMgr.getListMenuPrincipal());
+		menuDataModel.setWrappedData(listItemMenu);
+	}
+	
+	public String retour(){
+		if (vb.getRedirect().equals("redirectFromGARToDetailsRole")) {
+			return "redirectFromDetailsRoleToGAR";
+		} else if (vb.getRedirect().equals("redirectFromGCToDetailsRole")){
+			return "redirectFromDetailsRoleToGC";
+		} else {
+			return "";
+		}
+	}
+	
+	private List<ItemMenu> getItemMenuFromListPrincipalMenu(List<Menu> listMenuPrincipal) {
+		List<ItemMenu> result = new ArrayList<RoleConsultationBean.ItemMenu>();
+		List<Menu> listSousMenu;
+		ItemMenu itemMenu;
+		SousMenus sousMenus;
+		List<SousMenus> listSousMenus;
+		boolean checked;
+		int i = 1;
+		for (Menu menuPrincipal : listMenuPrincipal) {
+			itemMenu = new ItemMenu();
+			itemMenu.setMenuPrincipal(i+"."+menuPrincipal.getMenuLibelle());
+			itemMenu.setIdMenuPrincipal(menuPrincipal.getMenuId());
+			listSousMenu = new ArrayList<Menu>();
+			listSousMenu = appMgr.getListSousMenuByIdMenuPrincipal(menuPrincipal.getMenuId());
+			listSousMenus = new ArrayList<RoleConsultationBean.SousMenus>();
+			int j = 1;
+			for (Menu sousMenu : listSousMenu) {
+				sousMenus = new SousMenus();
+				sousMenus.setIdSousMenu(sousMenu.getMenuId());
+				sousMenus.setOrdreSousMenu(j);
+				sousMenus.setMenuPrincipal(menuPrincipal.getMenuLibelle());
+				sousMenus.setNomSousMenu(sousMenu.getMenuLibelle());
+				sousMenus.setNomSousMenuArabe(sousMenu.getMenuLibelleArabe());
+				if (listIdMenus.contains(sousMenu.getMenuId())) {
+					sousMenus.setCheckedSousMenu(true);
+				} else {
+					sousMenus.setNotCheckedSousMenu(true);
+				}
+				listSousMenus.add(sousMenus);
+				j++;
+			}
+			checked = true;
+			for (SousMenus sousMenus2 : listSousMenus) {
+				if (!sousMenus2.isCheckedSousMenu()) {
+					checked = false;
+					break;
+				}
+			}
+			if ((checked && !listSousMenus.isEmpty()) || (checked && listIdMenus.contains(itemMenu.getIdMenuPrincipal()))) {
+				itemMenu.setCheckedMenu(true);
+			} else {
+				itemMenu.setNotCheckedMenu(true);
+			}
+			itemMenu.setSousMenus(listSousMenus);
+			result.add(itemMenu);
+			i++;
+		}
+		return result ;
+	}
+	
+	
+	// **************************** Getter && Setter********************
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (menuDataModel == null && menuDataModel.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<ItemMenu>) menuDataModel.getWrappedData()).size();
+		return records;
+	}
+	
+	public VariableGlobale getVb() {
+		return vb;
+	}
+	
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+	
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+	
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+	
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+	
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+	
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
+	
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	public boolean isStatus() {
+		return status;
+	}
+	
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	
+	public boolean isStatus1() {
+		return status1;
+	}
+	
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+	
+	public void setNomRole(String nomRole) {
+		this.nomRole = nomRole;
+	}
+
+	public String getNomRole() {
+		return nomRole;
+	}
+
+	public void setDescriptionRole(String descriptionRole) {
+		this.descriptionRole = descriptionRole;
+	}
+
+	public String getDescriptionRole() {
+		return descriptionRole;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setReferenceRole(int referenceRole) {
+		this.referenceRole = referenceRole;
+	}
+
+	public int getReferenceRole() {
+		return referenceRole;
+	}
+
+	public void setMenuDataModel(DataModel menuDataModel) {
+		this.menuDataModel = menuDataModel;
+	}
+
+	public DataModel getMenuDataModel() {
+		return menuDataModel;
+	}
+
+	public void setListItemMenu(List<ItemMenu> listItemMenu) {
+		this.listItemMenu = listItemMenu;
+	}
+
+	public List<ItemMenu> getListItemMenu() {
+		return listItemMenu;
+	}
+
+	public void setListIdMenus(List<Integer> listIdMenus) {
+		this.listIdMenus = listIdMenus;
+	}
+
+	public List<Integer> getListIdMenus() {
+		return listIdMenus;
+	}
+	
+}

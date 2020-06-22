@@ -1,0 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml2/DTD/xhtml1-strict.dtd">
+<link rel="stylesheet" media="all" type="text/css" href="stylesTemplate/template.css" />
+<div  id="banner">
+        
+                        <div id="banner-compte" >
+                        	  <p class="banner-compte"> <%=session.getAttribute("NOM")%> <%=session.getAttribute("PRENOM")%></p>
+                        </div>
+       
+                        <div id="baner-soft" >   
+                        		<img this.src=="<%=request.getContextPath()%>'\WebContent\tiles-component\stylesTemplate\images\soft-name.png'" />
+                           
+                            
+                        </div>
+     
+        </div>

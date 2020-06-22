@@ -1,0 +1,401 @@
+package xtensus.beans.common.GBO;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.DownloadException;
+import xtensus.beans.common.Ged;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.dao.utils.DMSConnexionImplement;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.Suivitransmissioncourrier;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierConsulterAccuseReceptionBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private LdapOperation ldapOperation;
+	private Suivitransmissioncourrier suivitransmissioncourrier;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private String etatAccuse;
+	private String raison;
+	private String accuseName;
+	@Autowired
+	private Ged ged;
+	
+	private boolean showGedErrorMessage;
+	private Document accuseReception;
+	private Suivitransmissioncourrier suivitransmissioncourrierAncien;
+	private String raisonAncien;
+	private String etatAccuseAncien;
+	private boolean existeHistorique;
+
+	@Autowired
+	public CourrierConsulterAccuseReceptionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		courrier = new Courrier();
+		suivitransmissioncourrier = new Suivitransmissioncourrier();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		//
+		
+		//
+		vb.setMasquerPanelDetailCourrier(false);
+		try {
+			existeHistorique=false;
+		
+		courrier = vb.getCourrier();
+		List<Suivitransmissioncourrier> listAccuseCourriers = appMgr.accuseReceptionByIdCourrier(
+				courrier.getIdCourrier());
+		if (listAccuseCourriers.size() != 0) {
+			suivitransmissioncourrier = listAccuseCourriers.get(listAccuseCourriers.size()-1);
+			int refetat = suivitransmissioncourrier.getEtat().getEtatId();
+			int refRaison = suivitransmissioncourrier
+			.getRaisonnontransmission().getIdraisonnontransmission();
+			if(vb.getLocale().equals("ar")){
+				etatAccuse = appMgr.listEtatByRef(refetat).get(0).getEtatLibelleAr();
+				raison = appMgr.listRaisonById(refRaison).get(0)
+				.getRaisonnontransmissionLibelleAr();
+			}else{
+				etatAccuse = appMgr.listEtatByRef(refetat).get(0).getEtatLibelle();	
+				raison = appMgr.listRaisonById(refRaison).get(0)
+				.getRaisonnontransmissionLibelle();
+			}
+			//
+			Resource rsrc = new ClassPathResource("/paramAlfresco.properties");
+			String pathConfigFile = rsrc.getFile().getAbsolutePath();
+			Properties props = new Properties();
+			props.load(new FileInputStream(pathConfigFile));
+			String URL = props.getProperty("alfresco.Url");
+			String namingConfigFilePath = vb.getNamingConfigFilePath();
+			String login = props.getProperty("alfresco.login");
+			String mdp = props.getProperty("alfresco.password");
+			vb.setDmsAccessLayer(DMSConnexionImplement.getConnexionGed(login,
+					mdp, URL, namingConfigFilePath));
+			showGedErrorMessage = DMSConnexionImplement.connetionStatus;
+			List<Document> listAccuse = appMgr.listDocumentByIdDocumentAndDeleteFlagAndCatgDoc(courrier.getIdCourrier(), true, 4);
+			System.out.println("listAccuse===============> "+listAccuse.size());
+			System.out.println("showGedErrorMessage===> "+showGedErrorMessage);		
+			if(!listAccuse.isEmpty()){
+				accuseReception = listAccuse.get(listAccuse.size()-1);
+				accuseName = ged.readDocument(accuseReception).getName();
+				
+			}else{
+				accuseName = "Non Disponible";
+			}
+
+		} else {
+			etatAccuse = "";
+			raison = "";
+		}
+		
+		if(listAccuseCourriers.size() == 2){
+			existeHistorique=true;
+			suivitransmissioncourrierAncien=listAccuseCourriers.get(0);
+			int refetat = suivitransmissioncourrierAncien.getEtat().getEtatId();
+			int refRaison = suivitransmissioncourrierAncien
+			.getRaisonnontransmission().getIdraisonnontransmission();
+			if(vb.getLocale().equals("ar")){
+				etatAccuseAncien = appMgr.listEtatByRef(refetat).get(0).getEtatLibelleAr();
+				raisonAncien = appMgr.listRaisonById(refRaison).get(0)
+				.getRaisonnontransmissionLibelleAr();
+			}else{
+				etatAccuseAncien = appMgr.listEtatByRef(refetat).get(0).getEtatLibelle();	
+				raisonAncien = appMgr.listRaisonById(refRaison).get(0)
+				.getRaisonnontransmissionLibelle();
+			}
+		}
+		
+		} catch (Exception e) {
+			accuseName="Non Disponible";
+			e.printStackTrace();
+		}
+	}
+	public void downloadAccuse() {
+
+		InputStream inputStream = null;
+		try {
+
+			// ------------ couche acces GED -------------
+			inputStream = ged.readDocument(accuseReception).getInputStream();
+//			docName = ged.readDocument(document).getName();
+			// ------------ couche acces GED -------------
+
+			FacesContext context = FacesContext.getCurrentInstance();
+			HttpServletResponse response = (HttpServletResponse) context
+					.getExternalContext().getResponse();
+//			if (document.getDocumentType().equals(".pdf")) {
+//				response.setContentType("application/pdf");
+//			} else if (document.getDocumentType().equals(".jpg")) {
+//				response.setContentType("image/jpeg");
+//			} else if (document.getDocumentType().equals(".gif")) {
+//				response.setContentType("image/gif");
+//			} else if (document.getDocumentType().equals(".png")) {
+//				response.setContentType("image/png");
+//			}
+			accuseReception.setDocumentType(accuseReception.getDocumentType().toLowerCase());
+			
+			if (accuseReception.getDocumentType().equals(".pdf")) {
+				response.setContentType("application/pdf");
+			}
+			if (accuseReception.getDocumentType().equals(".gif")) {
+				response.setContentType("image/gif");
+			}
+			if (accuseReception.getDocumentType().equals(".jpg")) {
+				response.setContentType("image/jpeg");
+			}
+			if (accuseReception.getDocumentType().equals(".png")) {
+				response.setContentType("image/png");
+			}
+			if (accuseReception.getDocumentType().equals(".vsd")) {
+				response.setContentType("application/x-visio");
+			}
+			if (accuseReception.getDocumentType().equals(".zip")) {
+				response.setContentType("application/zip");
+			}
+			if (accuseReception.getDocumentType().equals(".rar")) {
+				response.setContentType("application/x-rar-compressed");
+			}
+			if (accuseReception.getDocumentType().equals(".doc")) {
+				response.setContentType("application/msword");
+			}
+			if (accuseReception.getDocumentType().equals(".docx")) {
+				response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+			}
+			if (accuseReception.getDocumentType().equals(".xls")) {
+				response.setContentType("application/vnd.ms-excel");
+			}
+			if (accuseReception.getDocumentType().equals(".xlsx")) {
+				response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			}
+			
+			response.setHeader("Content-Disposition", "inline; filename="
+					+ accuseName + accuseReception.getDocumentType());
+
+			OutputStream outputStream = response.getOutputStream();
+
+			int b;
+			while ((b = inputStream.read()) != -1) {
+				outputStream.write(b);
+			}
+
+			outputStream.flush();
+			outputStream.close();
+
+			context.responseComplete();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (DownloadException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String testPassageAjoutAccuseReception() {
+		String resultat = "pass";
+		setStatus(false);
+		int refCourrier = courrier.getIdCourrier();
+		int nb = appMgr.accuseReceptionByIdCourrier(refCourrier).size();
+		if (nb != 0) {
+			resultat = "noPass";
+			setMessage(messageSource.getMessage(
+					"accuseReceptionCourrierSucces", new Object[] {},
+					lm.createLocal()));
+			setStatus(true);
+		}
+		return resultat;
+
+	}
+
+	/****************** Getters && Setters ********************/
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setSuivitransmissioncourrier(
+			Suivitransmissioncourrier suivitransmissioncourrier) {
+		this.suivitransmissioncourrier = suivitransmissioncourrier;
+	}
+
+	public Suivitransmissioncourrier getSuivitransmissioncourrier() {
+		return suivitransmissioncourrier;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setEtatAccuse(String etatAccuse) {
+		this.etatAccuse = etatAccuse;
+	}
+
+	public String getEtatAccuse() {
+		return etatAccuse;
+	}
+
+	public void setRaison(String raison) {
+		this.raison = raison;
+	}
+
+	public String getRaison() {
+		return raison;
+	}
+
+	public boolean isShowGedErrorMessage() {
+		return showGedErrorMessage;
+	}
+
+	public void setShowGedErrorMessage(boolean showGedErrorMessage) {
+		this.showGedErrorMessage = showGedErrorMessage;
+	}
+
+	public String getAccuseName() {
+		return accuseName;
+	}
+
+	public void setAccuseName(String accuseName) {
+		accuseName = accuseName;
+	}
+
+	public Document getAccuseReception() {
+		return accuseReception;
+	}
+
+	public void setAccuseReception(Document accuseReception) {
+		this.accuseReception = accuseReception;
+	}
+
+	public Suivitransmissioncourrier getSuivitransmissioncourrierAncien() {
+		return suivitransmissioncourrierAncien;
+	}
+
+	public void setSuivitransmissioncourrierAncien(
+			Suivitransmissioncourrier suivitransmissioncourrierAncien) {
+		this.suivitransmissioncourrierAncien = suivitransmissioncourrierAncien;
+	}
+
+	public String getRaisonAncien() {
+		return raisonAncien;
+	}
+
+	public void setRaisonAncien(String raisonAncien) {
+		this.raisonAncien = raisonAncien;
+	}
+
+	public String getEtatAccuseAncien() {
+		return etatAccuseAncien;
+	}
+
+	public void setEtatAccuseAncien(String etatAccuseAncien) {
+		this.etatAccuseAncien = etatAccuseAncien;
+	}
+
+	public boolean isExisteHistorique() {
+		return existeHistorique;
+	}
+
+	public void setExisteHistorique(boolean existeHistorique) {
+		this.existeHistorique = existeHistorique;
+	}
+
+}

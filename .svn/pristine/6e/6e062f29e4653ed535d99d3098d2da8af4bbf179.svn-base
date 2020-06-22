@@ -1,0 +1,97 @@
+#log4j.rootLogger=WARN, GUI, Console
+log4j.rootLogger=INFO,GUI, Console, level-error, level-warning, level-info, level-debug, level-trace
+
+log4j.logger.Velocity=DEBUG
+log4j.logger.org.w3c.unicorn.Framework=DEBUG
+
+#log4j.logger.org.w3c.unicorn=ALL, 
+#log4j.logger.org.w3c.unicorn.action=DEBUG, 
+#log4j.logger.org.w3c.unicorn.contract=WARN, 
+#log4j.logger.org.w3c.unicorn.input=WARN, 
+#log4j.logger.org.w3c.unicorn.output=WARN, 
+#log4j.logger.org.w3c.unicorn.request=WARN, 
+#log4j.logger.org.w3c.unicorn.response=WARN, 
+#log4j.logger.org.w3c.unicorn.tasklist=WARN, 
+#log4j.logger.org.w3c.unicorn.tasklisttree=WARN, 
+#log4j.logger.org.w3c.unicorn.util=WARN, 
+
+#log4j.logger.org.w3c.unicorn=ALL, package-unicorn
+#log4j.logger.org.w3c.unicorn.action=ALL, package-action
+#log4j.logger.org.w3c.unicorn.contract=ALL, package-contract
+#log4j.logger.org.w3c.unicorn.input=ALL, package-input
+#log4j.logger.org.w3c.unicorn.output=ALL, package-output
+#log4j.logger.org.w3c.unicorn.request=ALL, package-request
+#log4j.logger.org.w3c.unicorn.response=ALL, package-response
+#log4j.logger.org.w3c.unicorn.tasklist=ALL, package-tasklist
+#log4j.logger.org.w3c.unicorn.util=ALL, package-util
+
+#log4j.appender.GUI=org.apache.log4j.lf5.LF5Appender
+#log4j.appender.GUI.MaxNumberOfRecords=10000
+#log4j.appender.GUI.CallSystemExitOnClose=false
+
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=%-5p (%F:%L) : %m%n
+
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+log4j.appender.file.maxFileSize=100KB
+log4j.appender.file.maxBackupIndex=5
+log4j.appender.file.File=/tmp/test.log
+log4j.appender.file.threshold=info
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{ABSOLUTE} %5p %c{1}:%L - %m%n
+
+log4j.appender.level-error=org.apache.log4j.RollingFileAppender
+log4j.appender.level-error.File=c:\error.log
+log4j.appender.level-error.MaxFileSize=1024KB
+log4j.appender.level-error.MaxBackupIndex=1
+log4j.appender.level-error.Threshold=error
+log4j.appender.level-error.layout=org.apache.log4j.PatternLayout
+log4j.appender.level-error.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss} %-5p (%F:%L) %m%n
+log4j.appender.level-error.filter.LevelToMatch=error
+log4j.appender.level-error.filter.AcceptOnMatch=true
+
+log4j.appender.level-warning=org.apache.log4j.RollingFileAppender
+log4j.appender.level-warning.File=c:\warning.log
+log4j.appender.level-warning.MaxFileSize=1024KB
+log4j.appender.level-warning.MaxBackupIndex=1
+log4j.appender.level-warning.Threshold=warn
+log4j.appender.level-warning.layout=org.apache.log4j.PatternLayout
+log4j.appender.level-warning.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss} %-5p (%F:%L) %m%n
+log4j.appender.level-warning.filter.LevelToMatch=warning
+log4j.appender.level-warning.filter.AcceptOnMatch=true
+
+log4j.appender.level-info=org.apache.log4j.RollingFileAppender
+log4j.appender.level-info.File=c:\info.log
+log4j.appender.level-info.MaxFileSize=1024KB
+log4j.appender.level-info.MaxBackupIndex=1
+log4j.appender.level-info.layout=org.apache.log4j.PatternLayout
+log4j.appender.level-info.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss} %-5p (%F:%L) %m%n
+log4j.appender.level-info.filter.LevelToMatch=info
+log4j.appender.level-info.filter.AcceptOnMatch=true
+
+log4j.appender.level-debug=org.apache.log4j.RollingFileAppender
+log4j.appender.level-debug.File=c:\debug.log
+log4j.appender.level-debug.MaxFileSize=1024KB
+log4j.appender.level-debug.MaxBackupIndex=1
+log4j.appender.level-debug.layout=org.apache.log4j.PatternLayout
+log4j.appender.level-debug.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss} %-5p (%F:%L) %m%n
+log4j.appender.level-debug.filter.LevelToMatch=debug
+log4j.appender.level-debug.filter.AcceptOnMatch=true
+
+log4j.appender.level-trace=org.apache.log4j.RollingFileAppender
+log4j.appender.level-trace.File=c:\trace.log
+log4j.appender.level-trace.MaxFileSize=1024KB
+log4j.appender.level-trace.MaxBackupIndex=1
+log4j.appender.level-trace.layout=org.apache.log4j.PatternLayout
+log4j.appender.level-trace.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss} %-5p (%F:%L) %m%n
+log4j.appender.level-trace.filter.LevelToMatch=trace
+log4j.appender.level-trace.filter.AcceptOnMatch=true
+
+log4j.appender.package-unicorn=org.apache.log4j.RollingFileAppender
+log4j.appender.package-unicorn.File=c:\all.log
+log4j.appender.package-unicorn.MaxFileSize=1024KB
+log4j.appender.package-unicorn.MaxBackupIndex=1
+log4j.appender.package-unicorn.Threshold=trace
+log4j.appender.package-unicorn.layout=org.apache.log4j.PatternLayout
+log4j.appender.package-unicorn.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss} %-5p (%F:%L) %m%n

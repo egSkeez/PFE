@@ -1,0 +1,411 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion Valises</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel"
+						style="height:30px; padding-top:5px;">
+						<h:form>
+							<div>
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="upd1" action="#{valiseGestionBean.ajoutValise}" rendered="#{variableGlobale.person.boc}"
+								oncomplete="document.location.href='ValiseAjout.jsf'"	>
+								<h:graphicImage id="add1"
+										value="../framGraphique/images/icone-add.png"
+										onmouseover="this.src='../framGraphique/images/icone-addMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/icone-add.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="upd1" direction="top-right"
+									value="#{msg.labelAjoutValise}" />
+									<rich:spacer width="5px" style=" height : 1px;"/>
+									<h:commandLink id="csv"
+										action="#{rapportCourriersListe.printCSVValises}"
+										status="ajaxStatusRapport">
+										<h:graphicImage value="../framGraphique/images/excel-petite.png"
+											onmouseover="this.src='../framGraphique/images/excel-petite.png'"
+											onmouseout="this.src='../framGraphique/images/excel-petite.png'"
+											alt="csv"/>
+									</h:commandLink>
+									<rich:toolTip for="csv" value="#{msg.csvExportAOC}"
+										direction="top-right" />
+							</div>
+							<a4j:keepAlive beanName="valiseGestionBean" />
+						</h:form>
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1">
+
+						</h:form>
+					</div>
+					<rich:panel styleClass="rich-panel" id="panelValise">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listedesvalises}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="valiseGestionBean" />
+						<h:form>
+							<rich:dataTable
+								value="#{valiseGestionBean.listValiseDM}"
+								var="valise" id="data" rows="10" styleClass="rich-panel">
+
+								<rich:column sortBy="#{valise.courrierReference}"
+									filterBy="#{valise.courrierReference}"
+									filterEvent="onkeyup" label="ref" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.numero}" />
+									</f:facet>
+									<h:outputText value="#{valise.courrierReference}" />
+								</rich:column>
+
+								<rich:column sortBy="#{valise.courrierExpediteur}"
+									filterBy="#{valise.courrierExpediteur}"
+									filterEvent="onkeyup" label="ref" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.expediteur}" />
+									</f:facet>
+									<h:outputText value="#{valise.courrierExpediteur}" />
+								</rich:column>
+
+								<rich:column sortBy="#{valise.courrierDestinataireReelle}"
+									filterBy="#{valise.courrierDestinataireReelle}"
+									filterEvent="onkeyup" label="ref" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.destinataire}" />
+									</f:facet>
+									<h:outputText value="#{valise.courrierDestinataireReelle}" />
+								</rich:column>
+								<rich:column sortBy="#{valise.etatID}"
+									filterBy="#{valise.etatID}" 
+									filterEvent="onkeyup" label="id" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.etat}" />
+									</f:facet>
+									<h:outputText
+										value="#{valise.etatLibelle}" />
+								</rich:column>
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="valiseGestionBean" />
+									<center>
+										<h:panelGrid columns="11">
+											<a4j:commandLink id="cl"
+												oncomplete="document.location.href='ValiseConsultation.jsf'"	
+												action="#{valiseGestionBean.getSelectionRow}">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="consulter" />
+											</a4j:commandLink>
+											<rich:toolTip for="cl" value="#{msg.labelConsulter}"
+												direction="top-right" />
+												
+												
+										<a4j:commandLink id="ed"
+										action="#{valiseGestionBean.getSelectionRow}"
+										rendered="#{valise.affichageAffectation}"
+										oncomplete="document.location.href='affectationDesaffectationCourrierValise.jsf'">
+										<h:graphicImage value="../framGraphique/images/Edit.png"
+											alt="editer" width="16" height="16" />
+									</a4j:commandLink>
+									<rich:toolTip for="ed" value="#{msg.affectationCourrierValise}" />												
+						
+									<a4j:commandLink id="tr"
+									action="#{valiseGestionBean.getSelectionRow}"
+										rendered="#{valise.affichageTransmission}"
+										oncomplete="#{rich:component('msgPanalTransmission')}.show();">
+										<h:graphicImage width="16" height="16"
+											value="../framGraphique/images/transmettre.png"
+											alt="consulter" />
+									</a4j:commandLink>
+									<rich:toolTip for="tr" value="#{msg.transmettreValise}" />
+												
+									<a4j:commandLink id="recep"
+										rendered="#{valise.affichageReception}"
+										action="#{valiseGestionBean.getSelectionRowReception}"
+									     oncomplete="document.location.href='ValiseConsultation.jsf'"
+										reRender="formeReception">
+										<h:graphicImage width="16" height="16"
+											value="../framGraphique/images/accuseReception.png"
+											alt="consulter" />
+									</a4j:commandLink>
+									
+									<rich:toolTip for="recep" value="#{msg.receptionValise}" />
+												<a4j:commandLink id="pointage"
+										rendered="#{valise.affichagePointage}"
+										action="#{valiseGestionBean.getSelectionRow}"
+										oncomplete="document.location.href='ValisePointage.jsf'">
+										<h:graphicImage width="16" height="16"
+											value="../framGraphique/images/pointage.png"  />
+									</a4j:commandLink>									
+									<rich:toolTip for="pointage" value="#{msg.pointageValise}" />
+									
+									
+									<a4j:commandLink id="deletelink" ajaxSingle="true" 
+								action="#{valiseGestionBean.getSelectionRowDelete}"
+								oncomplete="if(#{valiseGestionBean.status2}==false) #{rich:component('askDelete')}.show();
+									if(#{valiseGestionBean.status2}==true) #{rich:component('cantDelete')}.show();"
+									reRender="askDeleteError,askDelete,cantDelete,data">
+								<h:graphicImage value="../framGraphique/images/Delete.png"	alt="Delete"  width="16" height="16" />								
+								</a4j:commandLink>
+								<rich:toolTip for="deletelink" value="#{msg.supprimerValise}" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+										
+								
+								</rich:column>
+								
+							
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record" value="#{valiseGestionBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+						
+							<rich:modalPanel id="msgPanalTransmission" autosized="true"
+							height="90" width="350">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelConfirm}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink22" alt="Fermer" />
+									<rich:componentControl for="msgPanalTransmission"
+										attachTo="hidelink22" operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<a4j:keepAlive beanName="valiseGestionBean" />
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.transmetreValise}" />
+										</td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOui}"
+										action="#{valiseGestionBean.transmissionValise}"
+										oncomplete="Richfaces.hideModalPanel('msgPanalTransmission'); #{rich:component('msgPanalTransmissionConfirmation')}.show();"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+									<a4j:commandButton value="#{msg.buttonNon}"
+										styleClass="submitButton"
+										onclick="Richfaces.hideModalPanel('msgPanalTransmission');" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<rich:modalPanel id="msgPanalTransmissionConfirmation"
+							autosized="true" height="110" width="350">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<a4j:outputPanel
+									onclick="#{rich:component('msgPanalTransmissionConfirmation')}.hide()">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hide3" alt="Fermer" />
+										<rich:componentControl for="msgPanalTransmissionConfirmation"
+											attachTo="hide3" operation="hide" event="onclick" />
+									</h:panelGroup>
+								</a4j:outputPanel>
+							</f:facet>
+
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											escape="false"
+											style="white-space: pre-wrap;word-wrap: break-word; width:220px;height:150px"
+											styleClass="xtePopupInformationText"
+											value="#{msg.confirmationTransmissionValise}" />
+									</td>
+								</tr>
+							</table>
+							<div align="center">
+
+								<rich:spacer width="10" />
+								<a4j:commandButton value="#{msg.buttonOk}"
+									styleClass="submitButton" reRender="ed,pointage,cl,recep,barreIcone,contenu"
+									onclick="document.location.href='ValiseConsultation.jsf'" />
+							</div>
+						</rich:modalPanel>
+						
+						<rich:modalPanel id="cantDelete" autosized="true" height="110"
+							width="390">
+							<a4j:keepAlive beanName="valiseGestionBean" ajaxOnly="true" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkdcantDelete" alt="Fermer" />
+									<rich:componentControl for="cantDelete" attachTo="hidelinkdcantDelete"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{valiseGestionBean.messageDel}" /></td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('cantDelete'); "
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+								</div>
+							</h:form>
+							
+						</rich:modalPanel>
+						
+						<rich:modalPanel id="askDelete" autosized="true" height="100"
+							width="350">
+							<a4j:keepAlive beanName="valiseGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink" />
+									<rich:componentControl for="askDelete" attachTo="hidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.confirmDelete}" /></td>
+								</tr>
+							</table>
+							
+
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOui}" type="submit"
+									action="#{valiseGestionBean.deleteSelectedValise}"
+									oncomplete="document.location.href='ValiseListe.jsf'" reRender="data"
+									ajaxSingle="true" styleClass="submitButton" />
+
+								<rich:spacer width="5" />
+								<a4j:commandButton value="#{msg.buttonNon}"
+									onclick="Richfaces.hideModalPanel('askDelete');" type="submit"
+									ajaxSingle="true" styleClass="submitButton" />
+							</div>
+						
+							</h:form>
+
+						</rich:modalPanel>
+						
+					</rich:panel>
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

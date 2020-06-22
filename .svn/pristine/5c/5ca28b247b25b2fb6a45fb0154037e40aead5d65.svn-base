@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FicheSuivi-AR_Documents" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="70c4b560-ef4d-4d6e-98bd-5fa12d0426a4">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="documentReference" class="java.lang.String"/>
+	<field name="documentNomAR" class="java.lang.String"/>
+	<field name="documentObjetAR" class="java.lang.String"/>
+	<field name="documentCommentaireAR" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="15" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="c1d28ea8-6c05-45fa-882f-31aeb32a4037" x="197" y="0" width="159" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الموضوع
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="25e05651-8f5e-42e9-b6fe-899eb5261262" x="434" y="0" width="91" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المرجع]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="10ad16ed-7c81-442e-ae3a-651671af9c87" x="356" y="0" width="78" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الوثيقة ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c1d28ea8-6c05-45fa-882f-31aeb32a4037" x="0" y="0" width="197" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الملاحظات
+]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField>
+				<reportElement uuid="7d4f11ca-52db-4246-bec5-e39d81a6ac05" x="434" y="0" width="91" height="15"/>
+				<box rightPadding="4">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentReference}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="bbc74793-e7d8-4f28-bb2f-59b52bf3ea38" x="356" y="0" width="78" height="15"/>
+				<box rightPadding="4">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentNomAR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="3cc281b8-da27-4719-bb3e-f833f2050d09" x="197" y="0" width="159" height="15"/>
+				<box rightPadding="4">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentObjetAR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="426c95ca-51e9-42dc-bc46-ef1c4debf4de" x="0" y="0" width="197" height="15"/>
+				<box rightPadding="4">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentCommentaireAR}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

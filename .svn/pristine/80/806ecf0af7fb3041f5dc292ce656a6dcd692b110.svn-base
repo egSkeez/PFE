@@ -1,0 +1,61 @@
+package xtensus.beans.utils;
+
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.Validator;
+import javax.faces.validator.ValidatorException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+
+import xtensus.beans.common.LanguageManagerBean;
+
+public class ValidationMontant  implements Validator{
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	public ValidationMontant() {
+	}
+
+	public void validate(FacesContext facesContext, UIComponent uIComponent,
+			Object object) throws ValidatorException {
+		
+		Double montant = (Double) object;
+		
+		if (montant==0) {
+			FacesMessage message = new FacesMessage();
+			message.setSummary("Montant invalide");
+			
+			throw new ValidatorException(message);
+		}
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+}
+

@@ -1,0 +1,142 @@
+package xtensus.beans.common.GBO;
+
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import com.itextpdf.text.log.SysoLogger;
+
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.sauvgardeRestauration.SQLtoDB;
+import xtensus.beans.utils.CourrierConsulterInformations;
+import xtensus.beans.utils.StatistiqueConfidentialite;
+import xtensus.beans.utils.StatistiqueUrgence;
+import xtensus.dao.utils.DMSConnexionImplement;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component()
+@Scope("request")
+public class AccueilGBOOBean {
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private boolean variableUserAgent;
+	@Autowired
+    private UserAgentProcessor userAgentProcessor;
+
+
+	@Autowired
+	public AccueilGBOOBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.setAppMgr(appMgr);
+	}
+
+
+	// @PostConstruct
+	// public void Initialize() {
+	// System.out.println("Debut Acceuil");
+	// courrierArrivee=0;
+	// courrierDepart=0;
+	// courrierTotal=0;
+	// courrierNouveaux=0;
+	// necessitnatReponseDemain=0;
+	// necessitnatReponseSemaine=0;
+	// necessitnatReponseDateDepasse=0;
+	// courrierAValider=0;
+	// courrierNouveaux=0;
+	// dossierArrivee=0;
+	// dossierDepart=0;
+	// dossierTotal=0;
+	// mesDossier=0;
+	// pourcentageDossierArrivee = "0,0";
+	// pourcentageCourrierDepart = "0,0";
+	// pourcentageCourrierArrivee = "0,0";
+	// pourcentageCourrierDepart = "0,0";
+	// List<StatistiqueUrgence> listStatUrgence = new
+	// ArrayList<StatistiqueUrgence>();
+	// List<StatistiqueConfidentialite> listStatConfid = new
+	// ArrayList<StatistiqueConfidentialite>();
+	// statistiqueUrgencesDM.setWrappedData(listStatUrgence);
+	// statistiqueConfidentialitesDM.setWrappedData(listStatConfid);
+	// showMailErrorMessage = EmailUtil.checkConnection();
+	// showFaxErrorMessage = FaxUtil.checkConnection();
+	// System.out.println("FIN Acceuil");
+	// }
+	@PostConstruct
+	public void Initialize() {
+		
+			System.out.println("userAgentProcessor.isPhone() : "+userAgentProcessor.isPhone());
+			if(userAgentProcessor.isPhone())
+			{ System.out.println("is phone ");
+				setVariableUserAgent(true);
+			}else{
+				setVariableUserAgent(false);
+			}
+			
+	}
+
+
+
+	public void setVariableUserAgent(boolean variableUserAgent) {
+		this.variableUserAgent = variableUserAgent;
+	}
+
+
+
+	public boolean isVariableUserAgent() {
+		return variableUserAgent;
+	}
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+}

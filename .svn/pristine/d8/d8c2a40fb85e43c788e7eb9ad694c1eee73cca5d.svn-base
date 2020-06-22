@@ -1,0 +1,437 @@
+package xtensus.beans.common.GNL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ListeNotificationByUserAndEtat;
+import xtensus.services.ApplicationManager;
+import xtensus.gnl.entity.Evenement;
+import xtensus.gnl.entity.Notification;
+import xtensus.gnl.entity.UserNotification;
+import xtensus.ldap.model.Person;
+
+
+@Component()
+@Scope("request")
+public class DetailEvenementBean {
+
+	private Evenement evenement;
+	private DataModel listevenement;
+	private List<Evenement> listN;
+	private List<Evenement> copylistN;
+	private Notification notification;
+	private DataModel listNotificationDM;
+	private List<Notification> listNotification;
+	private UserNotification userNotification;
+	private List<UserNotification> listUserNotification;
+	private List<UserNotification> listUserNotificationConsult;
+	private ListeNotificationByUserAndEtat notificationConsult;
+	private List<ListeNotificationByUserAndEtat> listNotificationConsult;
+	private Person user;
+	private String typeEvenement;
+	
+	private int compteur;
+
+	private long records = 0;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public DetailEvenementBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+	
+		this.appMgr = appMgr;
+		evenement = new Evenement();
+		notification = new Notification();
+		listevenement = new ListDataModel();
+		
+		listNotification = new ArrayList<Notification>();
+		listNotificationDM = new ListDataModel();
+		
+		listNotificationConsult = new ArrayList<ListeNotificationByUserAndEtat>();
+		notificationConsult = new ListeNotificationByUserAndEtat();
+		
+		listUserNotificationConsult = new ArrayList<UserNotification>();
+		listUserNotification = new ArrayList<UserNotification>();
+		userNotification = new UserNotification();
+		
+		listN = new ArrayList<Evenement>();
+		copylistN = new ArrayList<Evenement>();
+
+		System.out
+				.println("*************Bean DetailsEvenementBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		evenement = vb.getEvenement();
+		user = vb.getPerson();
+		int refUser = user.getId();
+		int refEvenement = evenement.getEvenementId();
+		typeEvenement = evenement.getTypeEvenement().getTypeEvenementLibelle();
+		listNotification = appMgr.listNotificationByEvenement(refEvenement);
+		//listUserNotification = appMgr.listNotificationByUser(refUser);
+		
+		for (int i = 0; i < listNotification.size(); i++) {
+//			for (int j = 0; j < listUserNotification.size(); j++) {
+				
+			notificationConsult.setUtilisateur(user);
+			notificationConsult.setNotification(listNotification.get(i));
+				//if(listNotification.get(i).getNotificationId()==listUserNotification.get(j).getIdNotification())
+//				{
+			notificationConsult.setEtat(listNotification.get(i).getNotificationActivation());
+//				}				
+//			}
+			listNotificationConsult.add(notificationConsult);
+			notificationConsult = new ListeNotificationByUserAndEtat();
+		}
+		listNotificationDM.setWrappedData(listNotificationConsult);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void rechargeDM(ActionEvent event){
+		List<Notification> items = (List<Notification>) listNotificationDM.getWrappedData();
+		vb.setListNotification(items);
+	}
+	
+
+	// Get Selection Rows
+			public void getSelectedRowForUpdate() {
+
+				try {
+					notification = (Notification) listNotificationDM.getRowData();
+					vb.setNotification(notification);
+
+					System.out.println("*******SelectionVariableConsulterBean*********");
+					Initialize();
+
+				} catch (Exception e) {
+					System.out
+							.println("*******ErreurDeSelectionVariableConsulterBean*******");
+				}
+
+			}
+			
+			public void getSelectedRowForDelete(){
+				try {
+					notification = (Notification) listNotificationDM.getRowData();
+					vb.setNotification(notification);
+
+					System.out.println("*******SelectionEvenementConsulterBean*********");
+					Initialize();
+
+				} catch (Exception e) {
+					System.out
+							.println("*******ErreurDeSelectionEvenementConsulterBean*******");
+				}
+			}
+			
+			
+		
+
+		public void getSelectedRowForDetails(){
+			try {
+				notification = (Notification) listNotificationDM.getRowData();
+				vb.setNotification(notification);
+				System.out.println("*******SelectionEvenementConsulterBean*********");
+
+			} catch (Exception e) {
+				System.out
+						.println("*******ErreurDeSelectionEvenementConsulterBean*******");
+			}
+
+		}
+
+	public void updateSelectedRow() {
+		status1 = false;
+
+		try {
+			//evenement = vb.getEvenement();
+			appMgr.update(evenement);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			listN = new ArrayList<Evenement>();
+			Initialize();
+			evenement = new Evenement();
+		} catch (Exception e) {
+			
+		}
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			//evenement = vb.getEvenement();
+			appMgr.delete(evenement);
+			System.out.println("DeleteTerminee");
+
+		} catch (Exception e) {
+
+		}
+		listevenement = new ListDataModel();
+		listN = new ArrayList<Evenement>();
+		copylistN = new ArrayList<Evenement>();
+		Initialize();
+		// evenement = new Evenement();
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	@SuppressWarnings("unchecked")
+	public void validate(ActionEvent event){
+		status = false;
+		listUserNotificationConsult = new ArrayList<UserNotification>();
+		listNotificationConsult = (List<ListeNotificationByUserAndEtat>) listNotificationDM.getWrappedData();
+		for (ListeNotificationByUserAndEtat item : listNotificationConsult) {
+			userNotification.setUtilisateursMatricule(item.getUtilisateur().getId());
+			userNotification.setIdNotification(item.getNotification().getNotificationId());
+			userNotification.setEtat(item.isEtat());
+			listUserNotificationConsult.add(userNotification);
+			userNotification = new UserNotification();
+		}
+		
+		for (UserNotification item1 : listUserNotification) {
+			for (UserNotification item2 : listUserNotificationConsult) {
+			if((item1.getUtilisateursMatricule() == item2.getUtilisateursMatricule()) && (item1.getIdNotification()==item2.getIdNotification())){
+				item1.setEtat(item2.isEtat());
+				try {
+					appMgr.update(item1);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			}
+		}
+		status = true;
+	}
+	
+	//Fiche 
+	
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listevenement == null && listevenement.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Evenement>) listevenement.getWrappedData()).size();
+		return records;
+	}
+
+	public Evenement getEvenement() {
+		return evenement;
+	}
+
+	public void setEvenement(Evenement evenement) {
+		this.evenement = evenement;
+	}
+
+	public DataModel getListevenement() {
+		return listevenement;
+	}
+
+	public void setListevenement(DataModel listevenement) {
+		this.listevenement = listevenement;
+	}
+
+	public List<Evenement> getListN() {
+		return listN;
+	}
+
+	public void setListN(List<Evenement> listN) {
+		this.listN = listN;
+	}
+
+	public List<Evenement> getCopylistN() {
+		return copylistN;
+	}
+
+	public void setCopylistN(List<Evenement> copylistN) {
+		this.copylistN = copylistN;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setListNotificationDM(DataModel listNotificationDM) {
+		this.listNotificationDM = listNotificationDM;
+	}
+
+	public DataModel getListNotificationDM() {
+		return listNotificationDM;
+	}
+	
+	public void setListNotification(List<Notification> listNotification) {
+		this.listNotification = listNotification;
+	}
+
+	public List<Notification> getListNotification() {
+		return listNotification;
+	}
+
+	public void setNotification(Notification notification) {
+		this.notification = notification;
+	}
+
+	public Notification getNotification() {
+		return notification;
+	}
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	@SuppressWarnings("unchecked")
+	public int getCompteur() {
+		try {
+			compteur = ((List<Notification>) listNotificationDM.getWrappedData())
+					.size();
+			return compteur;
+		} catch (NullPointerException n) {
+			compteur = 0;
+			return compteur;
+		}
+	}
+
+	public void setNotificationConsult(ListeNotificationByUserAndEtat notificationConsult) {
+		this.notificationConsult = notificationConsult;
+	}
+
+	public ListeNotificationByUserAndEtat getNotificationConsult() {
+		return notificationConsult;
+	}
+
+	public void setListNotificationConsult(List<ListeNotificationByUserAndEtat> listNotificationConsult) {
+		this.listNotificationConsult = listNotificationConsult;
+	}
+
+	public List<ListeNotificationByUserAndEtat> getListNotificationConsult() {
+		return listNotificationConsult;
+	}
+
+	public void setUser(Person user) {
+		this.user = user;
+	}
+
+	public Person getUser() {
+		return user;
+	}
+
+	public void setListUserNotification(List<UserNotification> listUserNotification) {
+		this.listUserNotification = listUserNotification;
+	}
+
+	public List<UserNotification> getListUserNotification() {
+		return listUserNotification;
+	}
+
+	public void setUserNotification(UserNotification userNotification) {
+		this.userNotification = userNotification;
+	}
+
+	public UserNotification getUserNotification() {
+		return userNotification;
+	}
+
+	public List<UserNotification> getListUserNotificationConsult() {
+		return listUserNotificationConsult;
+	}
+
+	public void setListUserNotificationConsult(
+			List<UserNotification> listUserNotificationConsult) {
+		this.listUserNotificationConsult = listUserNotificationConsult;
+	}
+
+	public void setTypeEvenement(String typeEvenement) {
+		this.typeEvenement = typeEvenement;
+	}
+
+	public String getTypeEvenement() {
+		return typeEvenement;
+	}
+
+
+}

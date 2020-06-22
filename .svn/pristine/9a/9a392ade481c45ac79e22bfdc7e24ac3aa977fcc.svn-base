@@ -1,0 +1,302 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.ajax4jsf.model.SequenceRange;
+import org.ajax4jsf.model.SerializableDataModel;
+import org.richfaces.model.FilterField;
+import org.richfaces.model.Modifiable;
+import org.richfaces.model.Ordering;
+import org.richfaces.model.SortField2;
+
+import xtensus.beans.utils.CourrierInformations;
+
+public class DossierAncienDataModel  extends SerializableDataModel implements Modifiable {
+
+	private static final long serialVersionUID = -5910962190485027028L;
+	private Integer currentPk;
+	private Map<Integer, CourrierInformations> wrappedData = new HashMap<Integer, CourrierInformations>();
+	private List<Integer> wrappedKeys = null;
+	private Integer rowCount; // better to buffer row count locally
+	private Integer rowIndex;
+	private Integer oldFirstRow=3;
+	private Integer totalCount;
+
+	// Beans
+	private DossierAncienConsultationBean dossierAncienBean;
+
+	// Filtre recherche
+	private String typeDossier;
+	private String dossierRubrique;
+
+	// For filter and Sort
+	private String sortField;
+	private boolean descending;
+	private HashMap<String, Object> filterMap = new HashMap<String, Object>();
+	
+	// for calling walk Restrictions
+//	private boolean modifyVisited;
+	private boolean walkVisited;
+
+	private Integer firstPage;
+
+	@PostConstruct
+	public void init() {
+		typeDossier ="Tous";
+		//typeDossier ="Recu";
+		dossierRubrique ="1";
+	}
+	
+	/**
+	 * This method never called from framework. (non-Javadoc)
+	 * 
+	 * @see org.ajax4jsf.model.ExtendedDataModel#getRowKey()
+	 */
+	@Override
+	public Object getRowKey() {
+		return currentPk;
+	}
+
+	/**
+	 * This method normally called by Visitor before request Data Row.
+	 */
+	@Override
+	public void setRowKey(Object key) {
+		this.currentPk = (Integer) key;
+
+	}
+	/**
+	 * This is main part of Visitor pattern. Method called by framework many
+	 * times during request processing.
+	 */
+	@Override
+	public void walk(FacesContext context, DataVisitor visitor, Range range,
+			Object argument) throws IOException {
+		System.out.println("IN DSancien WALK");
+		int firstRow = 0;
+		int numberOfRows = 0;
+		if (dossierAncienBean.getVb().isOldPage() && dossierAncienBean.getVb().getFirstPageJour() != null) {
+			firstPage = dossierAncienBean.getVb().getFirstPageJour();
+			numberOfRows = dossierAncienBean.getVb().getNumberOfRows();
+			firstRow = (firstPage - 1) * numberOfRows;
+		} else {
+			firstRow = ((SequenceRange) range).getFirstRow();
+			numberOfRows = ((SequenceRange) range).getRows();
+		}
+		if(dossierAncienBean.getVb().getSelectedListCourrier().equals("DSancien")){
+			if (walkVisited == false || firstRow != oldFirstRow) {
+				System.out.println("IN ANCIEN WALK true");
+				dossierAncienBean.getVb().setNumberOfRows(numberOfRows);
+				dossierAncienBean.getVb().setFilterMap(filterMap);
+				dossierAncienBean.getVb().setSortField(sortField);
+				dossierAncienBean.getVb().setDescending(descending);
+				dossierAncienBean.getVb().setFirstPageDAncien(firstPage);
+				walkVisited = true;
+				try {
+					oldFirstRow = firstRow;
+					wrappedKeys = new ArrayList<Integer>();
+					for (CourrierInformations item : dossierAncienBean
+							.searchListDossier(filterMap, sortField, descending,
+									typeDossier, firstRow, numberOfRows,dossierRubrique)) {
+//						wrappedKeys.add(item.getDossier().getDossierId());
+//						wrappedData.put(item.getDossier().getDossierId(), item);
+//						visitor.process(context, item.getDossier().getDossierId(), argument);
+						wrappedKeys.add(item.getTransaction().getTransactionId());
+						wrappedData.put(item.getTransaction().getTransactionId(), item);
+						visitor.process(context, item.getTransaction().getTransactionId(), argument);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	// for filter and Sort
+	@Override
+	public void modify(List<FilterField> filterFields, List<SortField2> sortFields) {
+		filterMap.clear();
+		walkVisited = false;
+		SortField2 sortField2 = null;
+//		ExtendedFilterField extendedFilterField = null;
+//		String value = null;
+//		Expression expression = null;
+//		String expressionStr = null;
+		if (sortFields != null && !sortFields.isEmpty()) {
+			sortField2 = sortFields.get(0);
+			int index = sortField2.getExpression().getExpressionString()
+					.lastIndexOf(".");
+			this.sortField = sortField2.getExpression().getExpressionString()
+					.substring(index).replace("}", "").replace(".", "");
+			if (sortField2.getOrdering() == Ordering.DESCENDING) {
+				this.descending = true;
+			} else {
+				this.descending = false;
+			}
+		}
+	}
+	/**
+	 * This method must return actual data rows count from the Data Provider. It
+	 * is used by pagination control to determine total number of data items.
+	 */
+
+	@Override
+	public int getRowCount() {
+		if (rowCount == null) {
+			try {
+				rowCount = dossierAncienBean.getCountDossier(filterMap, typeDossier,dossierRubrique,false).intValue();
+				return rowCount;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return 0;
+			}
+		} else {
+			return rowCount;
+		}
+	}
+	
+	@Override
+	public CourrierInformations getRowData() {
+		if (currentPk == null) {
+			return null;
+		} else {
+			CourrierInformations ret = wrappedData.get(currentPk);
+			if (ret == null) {
+				wrappedData.put(currentPk, ret);
+				return ret;
+			} else {
+				return ret;
+			}
+		}
+	}
+	
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public int getRowIndex() {
+		if(rowIndex == null){
+			return 0;
+		}
+		return rowIndex;
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public Object getWrappedData() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Never called by framework.
+	 */
+	@Override
+	public boolean isRowAvailable() {
+		if (currentPk == null) {
+			return false;
+		} else {
+			// return getDataProvider().hasAuctionItemByPk(currentPk);
+			return true;
+		}
+	}
+	
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setRowIndex(int rowIndex) {
+		this.rowIndex = rowIndex;
+		// throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setWrappedData(Object data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * This method suppose to produce SerializableDataModel that will be
+	 * serialized into View State and used on a post-back. In current
+	 * implementation we just mark current model as serialized. In more
+	 * complicated cases we may need to transform data to actually serialized
+	 * form.
+	 */
+	public SerializableDataModel getSerializableModel(Range range) {
+		if (wrappedKeys != null) {
+			return this;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * This is helper method that is called by framework after model update. In
+	 * must delegate actual database update to Data Provider.
+	 */
+	@Override
+	public void update() {
+		System.out.println("UPDATE CALL , SO change my Implementation");
+	}
+
+	public void permitionWalkVisit(ActionEvent evt){
+		walkVisited = false;
+	}
+    // Getters & Setters
+	public String getTypeDossier() {
+		return typeDossier;
+	}
+
+	public void setTypeDossier(String typeDossier) {
+		this.typeDossier = typeDossier;
+	}
+
+	public DossierAncienConsultationBean getDossierAncienBean() {
+		return dossierAncienBean;
+	}
+
+	public void setDossierAncienBean(DossierAncienConsultationBean dossierAncienBean) {
+		this.dossierAncienBean = dossierAncienBean;
+	}
+
+	public String getDossierRubrique() {
+		return dossierRubrique;
+	}
+
+	public void setDossierRubrique(String dossierRubrique) {
+		this.dossierRubrique = dossierRubrique;
+	}
+
+	public Integer getTotalCount() {
+		if (totalCount == null) {
+			totalCount = dossierAncienBean.getCountDossier(filterMap, typeDossier,dossierRubrique,true).intValue();
+		}
+		return totalCount;
+	}
+
+	public void setTotalCount(Integer totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	public Integer getFirstPage() {
+		return firstPage;
+	}
+
+	public void setFirstPage(Integer firstPage) {
+		this.firstPage = firstPage;
+	}
+}

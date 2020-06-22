@@ -1,0 +1,269 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ListPPByPM;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class ContactPersonnePhysiqueConsultationBean {
+	private ApplicationManager appMgr;
+	private List<Pp> listNbrPP;
+	private List<ListPPByPM> byPpPms;
+	private DataModel list1;
+	private DataModel listPPModel;
+	private int nbr;
+	private int n;
+	private Expdestexterne dt;
+	private Pp pp;
+	@Autowired
+	private VariableGlobale vb;
+	private long records = 0;
+	private String typeExpUser;
+
+	public ContactPersonnePhysiqueConsultationBean() {
+
+	}
+
+	@Autowired
+	public ContactPersonnePhysiqueConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		dt = new Expdestexterne();
+		listNbrPP = new ArrayList<Pp>();
+		list1 = new ListDataModel();
+		pp = new Pp();
+		listPPModel = new ListDataModel();
+		byPpPms = new ArrayList<ListPPByPM>();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			List<Pp> pps = new ArrayList<Pp>();
+			int refpm = vb.getPm().getPmid();
+			pps = appMgr.listPPByIDPM(refpm);
+			byPpPms = tableauPPs(pps, vb.getPm());
+			typeExpUser = "";
+			int id = vb.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurId();
+			typeExpUser = appMgr.getTypeUtilisateurById(id).get(0)
+						.getTypeUtilisateurLibelle();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listPPModel.setWrappedData(byPpPms);
+	}
+
+	public List<ListPPByPM> tableauPPs(List<Pp> list, Pm pm) {
+		byPpPms = new ArrayList<ListPPByPM>();
+		ListPPByPM byPpPm = new ListPPByPM();
+		for (Pp p : list) {
+			byPpPm.setPp(p);
+			byPpPm.setPm(pm);
+			byPpPm.setExpdestexterne(appMgr.getExpediteurById(
+					p.getExpdestexterne().getIdExpDestExterne()).get(0));
+			byPpPms.add(byPpPm);
+			byPpPm = new ListPPByPM();
+		}
+
+		return byPpPms;
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			pp = (Pp) list1.getRowData();
+			vb.setPp(pp);
+			System.out
+					.println("*******SelectionSucces ContactPersonnePhysiqueConsultationBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection ContactPersonnePhysiqueConsultationBean*******");
+		}
+	}
+	
+	public void getSelectionRow2(){
+		try {
+			ListPPByPM ppExp = new ListPPByPM();
+			ppExp = (ListPPByPM) listPPModel.getRowData();
+			Pp pp = new Pp();
+			pp = ppExp.getPp();
+			pp.setExpdestexterne(ppExp.getExpdestexterne());
+			vb.setPp(pp);
+		} catch (Exception e) {
+			
+		}
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			dt = pp.getExpdestexterne();
+			dt.setExpDestExterneSupprimer(false);
+			appMgr.update(dt);
+			Initialize();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+
+	public void deleteExp() {
+		try {
+
+			dt = pp.getExpdestexterne();
+			// //PP
+			dt.setExpDestExterneSupprimer(false);
+			appMgr.update(dt);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+
+	public void getDeleteSelectionRow() {
+
+		int i = -1;
+		try {
+			pp = (Pp) list1.getRowData();
+			vb.setPp(pp);
+			vb.setExpdestexterne(pp.getExpdestexterne());
+			System.out
+					.println("*******SelectionSucces CourrierConsultationBean*********");
+			i = 0;
+			if (i == 0) {
+				setN(1);
+			} else {
+				setN(0);
+			}
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+
+		}
+	}
+
+	public String retourPM() {
+		return "retourConsulterPM";
+	}
+
+	public String retourNbrPP() {
+		return "retourConsulterNbrPP";
+	}
+
+	/*****************************************************/
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public List<Pp> getListNbrPP() {
+		return listNbrPP;
+	}
+
+	public void setListNbrPP(List<Pp> listNbrPP) {
+		this.listNbrPP = listNbrPP;
+	}
+
+	public DataModel getList1() {
+		return list1;
+	}
+
+	public void setList1(DataModel list1) {
+		this.list1 = list1;
+	}
+
+	public int getNbr() {
+		return nbr;
+	}
+
+	public void setNbr(int nbr) {
+		this.nbr = nbr;
+	}
+
+	public Expdestexterne getDt() {
+		return dt;
+	}
+
+	public void setDt(Expdestexterne dt) {
+		this.dt = dt;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listPPModel == null && listPPModel.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<ListPPByPM>) listPPModel.getWrappedData()).size();
+		return records;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setN(int n) {
+		this.n = n;
+	}
+
+	public int getN() {
+		return n;
+	}
+
+	public void setListPPModel(DataModel listPPModel) {
+		this.listPPModel = listPPModel;
+	}
+
+	public DataModel getListPPModel() {
+		return listPPModel;
+	}
+
+	public List<ListPPByPM> getByPpPms() {
+		return byPpPms;
+	}
+
+	public void setByPpPms(List<ListPPByPM> byPpPms) {
+		this.byPpPms = byPpPms;
+	}
+
+	public void setTypeExpUser(String typeExpUser) {
+		this.typeExpUser = typeExpUser;
+	}
+
+	public String getTypeExpUser() {
+		return typeExpUser;
+	}
+
+}

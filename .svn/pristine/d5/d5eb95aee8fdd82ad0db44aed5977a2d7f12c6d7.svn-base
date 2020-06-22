@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+    xmlns:p="http://primefaces.org/ui">
+	<html>
+<head>
+<title>Recherche contact</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+				<rich:panel styleClass="rich-panel" style="height:45px;">
+						<h:form>
+
+							<a4j:keepAlive beanName="dossierGestionBean" />
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+								<a4j:commandLink id="btnAddContact"
+									onclick="document.location.href='contactAjout.jsf'">
+									<h:graphicImage id="imgBtnAddContact"
+										value="../framGraphique/images/icone-add.png"
+										onmouseover="this.src='../framGraphique/images/icone-addMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/icone-add.png'" />
+								</a4j:commandLink>
+								</div>
+								<div id="barreIconeDroite">
+								<h:commandLink id="pdf" 
+										action="#{rapportPersonneListBean.printPDFFR}">
+										<h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf" />
+									</h:commandLink>
+									<rich:toolTip for="pdf" value="#{msg.pdfExportContact}"
+										direction="top-right" />
+										<h:commandLink id="csv" 
+										action="#{rapportPersonneListBean.printCSV}">
+										<h:graphicImage value="../framGraphique/images/excel-petite.png"
+											onmouseover="this.src='../framGraphique/images/excel-petite.png'"
+											onmouseout="this.src='../framGraphique/images/excel-petite.png'"
+											alt="csv" />
+									</h:commandLink>
+									<rich:toolTip for="csv" value="#{msg.csvExportContact}"
+										direction="top-right" />
+									<a4j:commandLink id="helpButton"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+									
+								</div>
+							</div>
+						</h:form>
+						<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="Aide : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+									value="../framGraphique/images/AideEnLigne/GBO-Recherche-contact.jpg"
+									width="750" height="490" id="aidehidelink" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+										value="../framGraphique/images/AideEnLigne/Recherche-Contact-AR.png"
+										width="750" height="490" id="aidehidelinkAR" />
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+
+							</h:form>
+						</div>
+					</rich:modalPanel>
+					</rich:panel>
+				
+						<a4j:keepAlive beanName="contactConsultationBean" />
+
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.RechercherExpfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+								<h:form>
+							<rich:dataTable value="#{contactConsultationBean.list}" var="exp"
+								id="data" rows="10" styleClass="rich-datatable"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{exp.expdestexterne.expDestExterneNom}"
+									filterBy="#{exp.expdestexterne.expDestExterneNom}"
+									filterEvent="onkeyup" label="Nom">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpPrenomNomRaisonSociale}" />
+									</f:facet>
+									<h:outputText
+										value="#{exp.expdestexterne.expDestExterneNom} #{exp.expdestexterne.expDestExternePrenom}" />
+								</rich:column>
+								<rich:column sortBy="#{exp.type}" filterBy="#{exp.type}"
+									filterEvent="onkeyup" label="Adr" width="10%">
+									<f:facet name="header" id="yy">
+										<h:outputText value="#{msg.ExpType}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{exp.type}" />
+									</div>
+								</rich:column>
+								<rich:column sortBy="#{exp.expdestexterne.expDestExterneMail}"
+									filterBy="#{exp.expdestexterne.expDestExterneMail}"
+									filterEvent="onkeyup" label="mail">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpMail}" />
+									</f:facet>
+									<h:outputText value="#{exp.expdestexterne.expDestExterneMail}" />
+								</rich:column>
+								
+								<rich:column width="15%"
+									sortBy="#{exp.expdestexterne.expDestExterneTelephone}"
+									filterBy="#{exp.expdestexterne.expDestExterneTelephone}"
+									filterEvent="onkeyup" label="Adr">
+									<f:facet name="header" id="yy">
+										<h:outputText value="#{msg.ExpTéle}" />
+									</f:facet>
+									<rich:toolTip for="yy" value="#{msg.Consult}" />
+									<h:outputText
+										value="#{exp.expdestexterne.expDestExterneTelephone}" />
+
+								</rich:column>
+								
+								<rich:column sortBy="#{exp.expdestexterne.expDestExterneAdresse}" filterBy="#{exp.expdestexterne.expDestExterneAdresse}"
+									filterEvent="onkeyup" label="Adr">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ContactAdresse}" />
+									</f:facet>
+									<h:outputText value="#{exp.expdestexterne.expDestExterneAdresse} #{exp.expdestexterne.expDestExterneVille} #{exp.expdestexterne.expDestExterneGouvernerat}" />
+								</rich:column>
+
+							
+								
+								
+								
+								
+								
+								<rich:column>
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpOperation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="6" width="70px">
+											<a4j:commandLink id="consult"
+												action="#{contactConsultationBean.getSelectionRow2}">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="Consulter" />
+											</a4j:commandLink>
+											<rich:toolTip for="consult" value="#{msg.Consult}" />
+											<a4j:commandLink id="modif"
+												action="#{contactConsultationBean.getSelectionRow3}"
+												reRender="askUpdate">
+												<h:graphicImage value="../framGraphique/images/Edit.png"
+													alt="Update" />
+											</a4j:commandLink>
+											<rich:toolTip for="modif" value="#{msg.Modif}" />
+											<a4j:commandLink id="deletelink"
+												action="#{contactConsultationBean.getDeleteSelectionRow}"
+												oncomplete="if(#{contactConsultationBean.contactUtilise}==false) #{rich:component('askDeleteExp')}.show();
+												if(#{contactConsultationBean.contactUtilise}==true) #{rich:component('errDeleteExp')}.show();
+													if(#{contactConsultationBean.pmAvecPPAffecte}==true) #{rich:component('askDelete2')}.show();"
+													 reRender="askDelete2,askDeleteExp,errDeleteExp" >
+												<h:graphicImage value="../framGraphique/images/Delete.png"
+													alt="Delete" />
+											</a4j:commandLink>
+											<rich:toolTip for="deletelink" value="#{msg.Supprim}" />
+										</h:panelGrid>
+									</div>
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.NbrExp}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="records"
+									value="#{contactConsultationBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+							</h:form>
+							<rich:modalPanel id="askDeleteExp" autosized="true" height="100"
+							width="350">
+<a4j:keepAlive beanName="contactConsultationBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink" />
+									<rich:componentControl for="askDeleteExp" attachTo="hidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<a4j:keepAlive beanName="contactConsultationBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.confirmDelete}" />
+										</td>
+
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOui}" type="submit"
+										action="#{contactConsultationBean.deleteSelectedRow}"
+										oncomplete="document.location.href='contactRecherche.jsf'"
+										ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="5" />
+									<a4j:commandButton value="#{msg.buttonNon}"
+										onclick="Richfaces.hideModalPanel('askDeleteExp');"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+							
+
+						</rich:panel>
+
+
+					
+						
+						<rich:modalPanel id="askDelete2" autosized="true" height="110"
+							width="390">
+							<a4j:keepAlive beanName="contactConsultationBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkdel1" alt="Fermer" />
+									<rich:componentControl for="askDelete2" attachTo="hidelinkdel1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.pmAffectation}" />
+									</td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('askDelete2'); "
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<!-- FG -->
+						<rich:modalPanel id="errDeleteExp" autosized="true" height="110"
+							width="390">
+							<a4j:keepAlive beanName="contactConsultationBean" ajaxOnly="true" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkdel4" alt="Fermer" />
+									<rich:componentControl for="askDelete2" attachTo="hidelinkdel4"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.ppAffectation}" />
+									</td>
+								</tr>
+							</table>
+							<h:form>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('errDeleteExp'); "
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						
+						
+					
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

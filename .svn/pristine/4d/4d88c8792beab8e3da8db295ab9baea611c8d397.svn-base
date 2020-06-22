@@ -1,0 +1,545 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Nature;
+import xtensus.entity.Urgence;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class UrgenceGestionBean {
+
+	private Urgence urgence;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listUrgence;
+	private List<Urgence> listUrg;
+	private List<Urgence> copylistUrg;
+
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+
+	private Urgence urg;
+	private boolean urgenceLibelleShowFr;
+	private boolean urgenceDescriptionShowFr;
+	private boolean urgenceLibelleShowAr;
+	private boolean urgenceDescriptionShowAr;
+
+	@Autowired
+	public UrgenceGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		urgence = new Urgence();
+		setUrg(new Urgence());
+		setListUrgence(new ListDataModel());
+		listUrg = new ArrayList<Urgence>();
+		copylistUrg = new ArrayList<Urgence>();
+		System.out
+				.println("*************Bean UrgenceGestionBean Injecte***************");
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titleaccor = messageSource.getMessage("Ajoutdegrdurgence",new Object[] {}, lm.createLocal());
+		titre = "Ajouter nature";
+
+		listUrg = new ArrayList<Urgence>();
+		copylistUrg = new ArrayList<Urgence>();
+		System.out.println(vb.getLocale());
+		try {
+			listUrg = appMgr.getList(Urgence.class);
+		
+			if (vb.isInRestoration()) {
+				listUrg.remove(listUrg.size()-1);
+			}
+			System.out.println(listUrg.size());
+			
+			if (vb.getLocale().equals("ar")) {
+				
+				urgenceLibelleShowFr = false;
+				urgenceDescriptionShowFr = false;
+				urgenceLibelleShowAr = true;
+				urgenceDescriptionShowAr = true;
+				
+			} else {
+				
+				urgenceLibelleShowFr = true;
+				urgenceDescriptionShowFr = true;
+				urgenceLibelleShowAr = false;
+				urgenceDescriptionShowAr = false;
+			}
+			
+			for (int i = listUrg.size(); i > 0; i--) {
+				
+				urg = listUrg.get(i - 1);
+				copylistUrg.add(urg);
+				urg = new Urgence();
+			}	
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+			e.printStackTrace();
+		}
+		listUrgence.setWrappedData(copylistUrg);
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+
+		try {
+			appMgr.insert(urgence);
+
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"ajout",
+					"Evénement de log d'ajout du type urgence "
+							+ urgence.getUrgenceId() + "-"
+							+ urgence.getUrgenceLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+			Initialize();
+
+			System.out
+					.println("***************Succes UrgenceGestionBean***************");
+
+		} catch (Exception e) {
+			status3 = true;
+			System.out
+					.println("***************Erreur UrgenceGestionBean***************");
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			urgence = (Urgence) listUrgence.getRowData();
+			vb.setUrgence(urgence);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation du type urgence "
+							+ urgence.getUrgenceId() + "-"
+							+ urgence.getUrgenceLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+			System.out.println("*******Selection UrgenceGestionBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection UrgenceGestionBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier nature";
+		titleaccor = messageSource.getMessage("Consultationdegredurgence",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			urgence = vb.getUrgence();
+
+			appMgr.update(urgence);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification du type urgence "
+							+ vb.getUrgence().getUrgenceId() + "-"
+							+ vb.getUrgence().getUrgenceLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			listUrg = new ArrayList<Urgence>();
+
+			Initialize();
+			urgence = new Urgence();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter degré d'urgence";
+		titleaccor = messageSource.getMessage("Ajoutdegrdurgence",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+
+		try {
+			urgence = vb.getUrgence();
+			appMgr.delete(urgence);
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression du type urgence "
+							+ urgence.getUrgenceId() + "-"
+							+ urgence.getUrgenceLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+		} catch (Exception e) {
+
+		}
+		listUrgence = new ListDataModel();
+		listUrg = new ArrayList<Urgence>();
+		copylistUrg = new ArrayList<Urgence>();
+		Initialize();
+
+	}
+
+	public void annulModif() {
+		urg = new Urgence();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter degré d'urgence";
+
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		urgence = new Urgence();
+		msgerror = true;
+		titleaccor = messageSource.getMessage("Ajoutdegrdurgence",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listUrgence == null && listUrgence.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Urgence>) listUrgence.getWrappedData()).size();
+		return records;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setListUrgence(DataModel listUrgence) {
+		this.listUrgence = listUrgence;
+	}
+
+	public DataModel getListUrgence() {
+		return listUrgence;
+	}
+
+	public void setListUrg(List<Urgence> listUrg) {
+		this.listUrg = listUrg;
+	}
+
+	public List<Urgence> getListUrg() {
+		return listUrg;
+	}
+
+	public void setCopylistUrg(List<Urgence> copylistUrg) {
+		this.copylistUrg = copylistUrg;
+	}
+
+	public List<Urgence> getCopylistUrg() {
+		return copylistUrg;
+	}
+
+	public void setUrg(Urgence urg) {
+		this.urg = urg;
+	}
+
+	public Urgence getUrg() {
+		return urg;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setUrgenceLibelleShowFr(boolean urgenceLibelleShowFr) {
+		this.urgenceLibelleShowFr = urgenceLibelleShowFr;
+	}
+
+	public boolean isUrgenceLibelleShowFr() {
+		return urgenceLibelleShowFr;
+	}
+
+	public void setUrgenceDescriptionShowFr(boolean urgenceDescriptionShowFr) {
+		this.urgenceDescriptionShowFr = urgenceDescriptionShowFr;
+	}
+
+	public boolean isUrgenceDescriptionShowFr() {
+		return urgenceDescriptionShowFr;
+	}
+
+	public void setUrgenceLibelleShowAr(boolean urgenceLibelleShowAr) {
+		this.urgenceLibelleShowAr = urgenceLibelleShowAr;
+	}
+
+	public boolean isUrgenceLibelleShowAr() {
+		return urgenceLibelleShowAr;
+	}
+
+	public void setUrgenceDescriptionShowAr(boolean urgenceDescriptionShowAr) {
+		this.urgenceDescriptionShowAr = urgenceDescriptionShowAr;
+	}
+
+	public boolean isUrgenceDescriptionShowAr() {
+		return urgenceDescriptionShowAr;
+	}
+
+}

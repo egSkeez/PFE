@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourrierFiche_Documents" pageWidth="525" pageHeight="802" columnWidth="525" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="1afbbf62-b37a-49df-a705-3684275635af">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="documentCommentaire" class="java.lang.String">
+		<fieldDescription><![CDATA[documentCommentaire]]></fieldDescription>
+	</field>
+	<field name="documentCommentaireAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentCommentaireAR]]></fieldDescription>
+	</field>
+	<field name="documentDateInsertion" class="java.util.Date">
+		<fieldDescription><![CDATA[documentDateInsertion]]></fieldDescription>
+	</field>
+	<field name="documentDelegueId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentDelegueId]]></fieldDescription>
+	</field>
+	<field name="documentHierarchique" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentHierarchique]]></fieldDescription>
+	</field>
+	<field name="documentNom" class="java.lang.String">
+		<fieldDescription><![CDATA[documentNom]]></fieldDescription>
+	</field>
+	<field name="documentNomAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentNomAR]]></fieldDescription>
+	</field>
+	<field name="documentObjet" class="java.lang.String">
+		<fieldDescription><![CDATA[documentObjet]]></fieldDescription>
+	</field>
+	<field name="documentObjetAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentObjetAR]]></fieldDescription>
+	</field>
+	<field name="documentParent" class="xtensus.entity.Document">
+		<fieldDescription><![CDATA[documentParent]]></fieldDescription>
+	</field>
+	<field name="documentProprietaire" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentProprietaire]]></fieldDescription>
+	</field>
+	<field name="documentReference" class="java.lang.String">
+		<fieldDescription><![CDATA[documentReference]]></fieldDescription>
+	</field>
+	<field name="documentSupprime" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[documentSupprime]]></fieldDescription>
+	</field>
+	<field name="documentSupprimeDate" class="java.util.Date">
+		<fieldDescription><![CDATA[documentSupprimeDate]]></fieldDescription>
+	</field>
+	<field name="documentSupprimeDelegueId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[documentSupprimeDelegueId]]></fieldDescription>
+	</field>
+	<field name="documentType" class="java.lang.String">
+		<fieldDescription><![CDATA[documentType]]></fieldDescription>
+	</field>
+	<field name="documentTypeAR" class="java.lang.String">
+		<fieldDescription><![CDATA[documentTypeAR]]></fieldDescription>
+	</field>
+	<field name="documents" class="java.util.Set">
+		<fieldDescription><![CDATA[documents]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="idDocument" class="java.lang.Integer">
+		<fieldDescription><![CDATA[idDocument]]></fieldDescription>
+	</field>
+	<field name="naturedocument1s" class="java.util.Set">
+		<fieldDescription><![CDATA[naturedocument1s]]></fieldDescription>
+	</field>
+	<field name="naturedocument2s" class="java.util.Set">
+		<fieldDescription><![CDATA[naturedocument2s]]></fieldDescription>
+	</field>
+	<field name="naturedocument3s" class="java.util.Set">
+		<fieldDescription><![CDATA[naturedocument3s]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="c1d28ea8-6c05-45fa-882f-31aeb32a4037" x="338" y="21" width="187" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Commentaires]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1defc973-8880-4b1d-ba13-1e412d7e6799" x="148" y="21" width="190" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Objet ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d52caa31-89f5-4c4d-a581-94d75e19cc96" x="0" y="0" width="525" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Liste des Documents]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="10ad16ed-7c81-442e-ae3a-651671af9c87" x="46" y="21" width="102" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nom]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="25e05651-8f5e-42e9-b6fe-899eb5261262" x="0" y="21" width="46" height="15"/>
+				<box topPadding="2">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Réf.]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="15">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="9e9d844a-408e-43e4-93e5-c6aee1306a5e" stretchType="RelativeToBandHeight" x="0" y="0" width="46" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentReference}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="12471bbd-31eb-46ab-9353-89ae7d541c94" stretchType="RelativeToBandHeight" x="148" y="0" width="190" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentObjet}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="a069e7ed-ed72-43df-95a3-61196fb5ec47" stretchType="RelativeToBandHeight" x="46" y="0" width="102" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentNom}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="8a96a9b7-d984-47a4-9a66-e09adb8ad40d" stretchType="RelativeToBandHeight" x="338" y="0" width="187" height="15" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentCommentaire}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

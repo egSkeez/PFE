@@ -1,0 +1,125 @@
+package xtensus.cronjob;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.utils.NotificationListAddress;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Groupecontactmailing;
+import xtensus.entity.Sujetmailing;
+import xtensus.entity.Variables;
+
+public class CustomWriter  implements Tasklet{
+	
+	@Autowired
+	private SessionFactory sessionFactory;
+	private EmailUtil emailUtil = new EmailUtil();
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+		System.out.println("C'est fait : "+new Date()+" : ");
+		int nombreEnvoi;
+		Criteria criteriaVariable = sessionFactory.getCurrentSession().createCriteria(Variables.class);
+		criteriaVariable.add(Restrictions.eq("variablesLibelle","nombre_envoi_mailing_par_medium"));
+		nombreEnvoi = Integer.parseInt(((Variables) criteriaVariable.list().get(0)).getVaraiablesValeur());
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Groupecontactmailing.class);
+		criteria.add(Restrictions.isNull("dateEnvoi"));
+		List<Groupecontactmailing> listResult = new ArrayList<Groupecontactmailing>();
+		listResult = criteria.list();
+		System.out.println("     *"+listResult.size());
+		List<NotificationListAddress> listMailNomDestinataire ;
+		NotificationListAddress notificationNomDestinataire;
+		Expdestexterne expDest;
+		Sujetmailing sujetMailing;
+		int i = 0;
+		boolean indexOutOfBound;
+		do {
+			try {
+				indexOutOfBound = false;
+				listMailNomDestinataire = new ArrayList<NotificationListAddress>();
+				expDest = new Expdestexterne();
+				sujetMailing = new Sujetmailing();
+				Criteria criteria1 = sessionFactory.getCurrentSession().createCriteria(Expdestexterne.class);
+				criteria1.add(Restrictions.eq("idExpDestExterne", listResult.get(i).getId().getIdExpDestExterne()));
+				expDest = (Expdestexterne) criteria1.list().get(0);
+				Criteria criteria2 = sessionFactory.getCurrentSession().createCriteria(Sujetmailing.class);
+				criteria2.add(Restrictions.eq("idsujetmailing", listResult.get(i).getId().getIdsujetmailing()));
+				sujetMailing = (Sujetmailing) criteria2.list().get(0);
+				if (listResult.get(i).getModeEnvoi().equals("E-mail")) {
+					notificationNomDestinataire = new NotificationListAddress();
+					notificationNomDestinataire.setMailDestinataire(expDest.getExpDestExterneMail());
+					notificationNomDestinataire.setNomDestinataire(expDest.getExpDestExternePrenom()+" "+expDest.getExpDestExterneNom());
+					listMailNomDestinataire.add(notificationNomDestinataire);
+					if (listResult.get(i).getPathFile() != null) {
+						System.out.println("   *"+listResult.get(i).getPathFile());
+						emailUtil.sendEmailSSL(sujetMailing.getSujetmailingObjet(), sujetMailing.getSujetmailingDescription(), listResult.get(i).getPathFile(), listMailNomDestinataire, "Admin", "gbo.admin@xtensus.net");
+					} else {
+						System.out.println("   *null");
+						emailUtil.sendEmailSSL(sujetMailing.getSujetmailingObjet(), sujetMailing.getSujetmailingDescription(), listMailNomDestinataire, "Admin", "gbo.admin@xtensus.net");
+					}
+				} else if (listResult.get(i).getModeEnvoi().equals("Fax")) {
+					
+				}
+				listResult.get(i).setDateEnvoi(new Date());
+				sessionFactory.getCurrentSession().saveOrUpdate(listResult.get(i));
+				i++;
+				
+			} catch (IndexOutOfBoundsException e) {
+				e.printStackTrace();
+				indexOutOfBound = true;
+			}
+		} while (!indexOutOfBound && i<nombreEnvoi);
+//		for (Groupecontactmailing groupecontactmailing : listResult) {
+//			listMailNomDestinataire = new ArrayList<NotificationListAddress>();
+//			expDest = new Expdestexterne();
+//			sujetMailing = new Sujetmailing();
+//			Criteria criteria1 = sessionFactory.getCurrentSession().createCriteria(Expdestexterne.class);
+//			criteria1.add(Restrictions.eq("idExpDestExterne", groupecontactmailing.getId().getIdExpDestExterne()));
+//			expDest = (Expdestexterne) criteria1.list().get(0);
+//			Criteria criteria2 = sessionFactory.getCurrentSession().createCriteria(Sujetmailing.class);
+//			criteria2.add(Restrictions.eq("idsujetmailing", groupecontactmailing.getId().getIdsujetmailing()));
+//			sujetMailing = (Sujetmailing) criteria2.list().get(0);
+//			if (groupecontactmailing.getModeEnvoi().equals("E-mail")) {
+//				notificationNomDestinataire = new NotificationListAddress();
+//				notificationNomDestinataire.setMailDestinataire(expDest.getExpDestExterneMail());
+//				notificationNomDestinataire.setNomDestinataire(expDest.getExpDestExternePrenom()+" "+expDest.getExpDestExterneNom());
+//				listMailNomDestinataire.add(notificationNomDestinataire);
+//				emailUtil.sendEmailSSL(sujetMailing.getSujetmailingObjet(), sujetMailing.getSujetmailingDescription(), listMailNomDestinataire, "Admin", "gbo.admin@xtensus.net");
+//			} else if (groupecontactmailing.getModeEnvoi().equals("Fax")) {
+//				
+//			}
+//			groupecontactmailing.setDateEnvoi(new Date());
+//			sessionFactory.getCurrentSession().saveOrUpdate(groupecontactmailing);
+//		}
+		return null;
+	}
+	
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public void setEmailUtil(EmailUtil emailUtil) {
+		this.emailUtil = emailUtil;
+	}
+
+	public EmailUtil getEmailUtil() {
+		return emailUtil;
+	}
+
+}

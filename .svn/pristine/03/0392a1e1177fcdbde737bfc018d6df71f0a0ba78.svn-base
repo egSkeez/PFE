@@ -1,0 +1,433 @@
+package xtensus.beans.common.GBO;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.validator.ValidatorException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.aoConsultationModel;
+import xtensus.entity.AoConsultation;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+	public class AoConsultationBean {
+	private ApplicationManager appMgr;
+	private AoConsultation aoConsultation;
+	private aoConsultationModel aoConsultationModel;
+	private DataModel listAoConsultationDM;
+	private List<AoConsultation> listAoConsultation;
+	
+	private boolean succesAjout;
+	private boolean succesSelectDel;
+
+
+	@SuppressWarnings("unused")
+	
+	private long records = 0;
+	@Autowired
+	private VariableGlobale vb;
+	private boolean flagAjout;
+	private String redirectLink;
+	//[JS] : 2020-03-24
+	private boolean erreurSaisieDate1;
+	private boolean erreurSaisieDate2;
+	private boolean erreurSaisieDate3;
+	private boolean passeSaveAO= true;
+	private List<aoConsultationModel> listAoConsultationModel;
+	private SimpleDateFormat formaterDate;
+     //JS================
+	public AoConsultationBean(){
+		
+	}
+	@Autowired
+	public AoConsultationBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		aoConsultation = new AoConsultation();
+		aoConsultationModel = new aoConsultationModel();
+		listAoConsultationDM = new ListDataModel();
+		listAoConsultation = new ArrayList<AoConsultation>();
+		listAoConsultationModel=new ArrayList<aoConsultationModel>();
+		vb = new VariableGlobale();
+		formaterDate = new SimpleDateFormat("dd/MM/yyyy");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		System.out.println("Dans goToListAoConsultation vb.setFlagAjout ==  " +vb.isFlagAjout());
+		listAoConsultation = new ArrayList<AoConsultation>();
+		aoConsultation = new AoConsultation();
+		try {
+			flagAjout=vb.isFlagAjout();
+			formaterDate = new SimpleDateFormat("dd/MM/yyyy");
+			listAoConsultationModel=new ArrayList<aoConsultationModel>();
+			//listAoConsultation= appMgr.getList(AoConsultation.class);
+			listAoConsultation= appMgr.getListAoConsultationOrdonne();
+			for(AoConsultation aoc :listAoConsultation){
+				aoConsultationModel=new aoConsultationModel();
+				aoConsultationModel.setAoConsultationDateLimiteOffre(formaterDate.format(aoc.getAoConsultationDateLimiteOffre()));
+				aoConsultationModel.setAoConsultationDateSeanceCommission(formaterDate.format(aoc.getAoConsultationDateSeanceCommission()));
+				if(aoc.getAoConsultationDelaisProlongation() != null)
+				aoConsultationModel.setAoConsultationDelaisProlongation(formaterDate.format(aoc.getAoConsultationDelaisProlongation()));
+				aoConsultationModel.setAoConsultationId(aoc.getAoConsultationId());
+				aoConsultationModel.setAoConsultationNumero(aoc.getAoConsultationNumero());
+				aoConsultationModel.setAoConsultationObjet(aoc.getAoConsultationObjet());
+				aoConsultationModel.setAoConsultationType(aoc.getAoConsultationType());
+				aoConsultationModel.setAoConsultation(aoc);
+				if(aoc.getAoConsultationType() == 1){
+				aoConsultationModel.setAoConsultationTypeLib("Appel d'offre");
+				}else{
+				aoConsultationModel.setAoConsultationTypeLib("Consultation");	
+				}
+				listAoConsultationModel.add(aoConsultationModel);
+			}
+			vb.setAoConsultationList(listAoConsultation);
+			listAoConsultationDM.setWrappedData(listAoConsultationModel);
+		} catch (Exception e) {		
+			e.printStackTrace();
+		}
+	}
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean testOK;
+	
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public void validationNum() {
+		String numSaisi=aoConsultation.getAoConsultationNumero();
+		//String numSaisi = (String) object;
+		List<AoConsultation> listAo= appMgr.getListAoConsultationParNumero(numSaisi);
+	testOK=true;
+		if(listAo!=null && listAo.size()>0)
+			testOK=false;
+		
+		if (!testOK) {
+			
+			FacesContext.getCurrentInstance().addMessage(
+					"messages",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Existe un AO ou Consultation avec ce Numéro",
+							""));
+		}
+		else{
+			System.out.println("C'est OK");
+		}
+		//[JS] == 2020-03-24
+		validationDate();
+	}
+	
+	
+	//[JS] : ====================== 2020-03-24 ===================================================
+	public void validationDate(){
+		
+		 erreurSaisieDate1=false;
+		 erreurSaisieDate2=false;
+		 erreurSaisieDate3=false;
+		 passeSaveAO=true;
+		 System.out.println("validationDate=============> validationDate");
+		 if(aoConsultation.getAoConsultationDelaisProlongation()!= null ){
+				//Date prolongation inférieur date Limite offre || date limite offre inférieur date prolongation
+			 if(aoConsultation.getAoConsultationDateLimiteOffre()!=null){
+				if ( (aoConsultation.getAoConsultationDelaisProlongation().compareTo(aoConsultation.getAoConsultationDateLimiteOffre()) < 0))						
+				{
+					erreurSaisieDate1=true;
+					
+				}	
+			 }
+				if(aoConsultation.getAoConsultationDateSeanceCommission()!= null){
+				if( (aoConsultation.getAoConsultationDateSeanceCommission().compareTo(aoConsultation.getAoConsultationDelaisProlongation()) < 0)){
+					erreurSaisieDate2=true;
+				}
+			
+				}
+		
+		 }else{ 
+			 System.out.println("aoConsultation.getAoConsultationDateLimiteOffre()"+aoConsultation.getAoConsultationDateLimiteOffre());
+			 System.out.println("aoConsultation.getAoConsultationDateSeanceCommission() "+aoConsultation.getAoConsultationDateSeanceCommission());
+			 if(aoConsultation.getAoConsultationDateLimiteOffre() != null && aoConsultation.getAoConsultationDateSeanceCommission()!= null){
+				if( (aoConsultation.getAoConsultationDateSeanceCommission().compareTo(aoConsultation.getAoConsultationDateLimiteOffre()) < 0)){
+					erreurSaisieDate3=true;
+				}
+			 }
+
+		 }
+		 if(erreurSaisieDate1) {
+				FacesContext.getCurrentInstance().addMessage(
+						"messages",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Veuillez vérifier les dates,La date prolongation doit être supérieur ou égale à la date réception.",
+								""));
+				passeSaveAO=false;
+		 }
+		 if(erreurSaisieDate2) {
+				FacesContext.getCurrentInstance().addMessage(
+						"messages",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date prolongation.",
+								""));
+				passeSaveAO=false;
+		 }
+		 if(erreurSaisieDate3){
+			 FacesContext.getCurrentInstance().addMessage(
+						"messages",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date réception.",
+								""));
+			 passeSaveAO=false;
+		 }
+		 
+		
+	}
+	
+	//[JS] : ====================== 2020-03-24 ===================================================
+
+	public void save() {
+		succesAjout=false;
+		
+		if(testOK && passeSaveAO){
+			
+			
+		try {
+			//test surle num si existe déjà 
+		
+			if (flagAjout){
+				System.out.println("Dans save flagAjout  ==  " + flagAjout);
+				redirectLink = "courrierAjout.jsf";
+			}
+			appMgr.insert(aoConsultation);
+			vb.setAoConsultation(aoConsultation);
+			succesAjout=true;
+			Initialize();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+		}
+		else{
+			if(!testOK){
+			FacesContext.getCurrentInstance().addMessage(
+					"messages",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Existe un AO ou Consultation avec ce Numéro",
+							""));
+			}
+			 if(erreurSaisieDate1) {
+					FacesContext.getCurrentInstance().addMessage(
+							"messages",
+							new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Veuillez vérifier les dates,La date prolongation doit être supérieur ou égale à la date réception.",
+									""));
+				
+			 }
+			 if(erreurSaisieDate2) {
+					FacesContext.getCurrentInstance().addMessage(
+							"messages",
+							new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date prolongation.",
+									""));
+			
+			 }
+			 if(erreurSaisieDate3){
+				 FacesContext.getCurrentInstance().addMessage(
+							"messages",
+							new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date réception.",
+									""));
+				 
+			 }
+		}
+		
+	}
+		public void getSelectedRow(){
+			aoConsultation = new AoConsultation();
+			try {
+				
+				aoConsultationModel = (aoConsultationModel) listAoConsultationDM.getRowData();
+				aoConsultation=aoConsultationModel.getAoConsultation();
+				vb.setAoConsultation(aoConsultation);
+				
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public void getSelectionRow() {
+
+				this.getSelectedRow();
+				aoConsultation = new AoConsultation();
+				Initialize();
+		}
+		
+		
+		public void deleteSelectedRow() {
+
+			try {
+				appMgr.delete(aoConsultation);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			listAoConsultationDM = new ListDataModel();
+			listAoConsultation = new ArrayList<AoConsultation>();
+
+			Initialize();
+		}
+		
+		public void getDeleteSelectionRow() {
+			
+			
+			try {
+//				aoConsultation = (AoConsultation) listAoConsultationDM.getRowData();
+				aoConsultationModel = (aoConsultationModel) listAoConsultationDM.getRowData();
+				aoConsultation=aoConsultationModel.getAoConsultation();
+				appMgr.delete(aoConsultation);
+				succesSelectDel= true;
+				
+							} catch (Exception e)
+			
+			{
+				e.printStackTrace();
+				succesSelectDel= false;
+			}
+		}
+	
+	public void viderchamp() {
+		aoConsultation = new AoConsultation();
+		Initialize();
+
+	}
+
+	public void hidechamp() {
+
+		viderchamp();
+
+	}
+	public String retour(){
+	
+		System.out.println("##############isFlagAjout === " + vb.isFlagAjout());
+		System.out.println("##############vb.getPagePrecedente() === " + vb.getPagePrecedente());
+		System.out.println("##############vb.getPagePrecedente() === " + vb.getPagePrecedente());
+		if (vb.isFlagAjout()== true) {
+			return "true";
+		}else if (vb.getPagePrecedente() != null && vb.getPagePrecedente().equals("modif")){
+			return "modif";}
+		else{
+			return "false";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+
+		return (listAoConsultationDM != null && listAoConsultationDM.getWrappedData() != null) ? ((List<AoConsultation>) listAoConsultationDM
+				.getWrappedData()).size() : 0;
+	}
+	
+	
+	/**
+	 * Getter and Setter
+	 */
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public DataModel getListAoConsultationDM() {
+		return listAoConsultationDM;
+	}
+
+	public void setListAoConsultationDM(DataModel listAoConsultationDM) {
+		this.listAoConsultationDM = listAoConsultationDM;
+	}
+
+	public List<AoConsultation> getListAoConsultation() {
+		return listAoConsultation;
+	}
+
+	public void setListAoConsultation(List<AoConsultation> listAoConsultation) {
+		this.listAoConsultation = listAoConsultation;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+
+	public boolean isSuccesAjout() {
+		return succesAjout;
+	}
+
+	public void setSuccesAjout(boolean succesAjout) {
+		this.succesAjout = succesAjout;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	public boolean isSuccesSelectDel() {
+		return succesSelectDel;
+	}
+	public void setSuccesSelectDel(boolean succesSelectDel) {
+		this.succesSelectDel = succesSelectDel;
+	}
+	public boolean isFlagAjout() {
+		return flagAjout;
+	}
+	public void setFlagAjout(boolean flagAjout) {
+		this.flagAjout = flagAjout;
+	}
+	public String getRedirectLink() {
+		return redirectLink;
+	}
+	public void setRedirectLink(String redirectLink) {
+		this.redirectLink = redirectLink;
+	}
+	public void setErreurSaisieDate1(boolean erreurSaisieDate1) {
+		this.erreurSaisieDate1 = erreurSaisieDate1;
+	}
+	public boolean isErreurSaisieDate1() {
+		return erreurSaisieDate1;
+	}
+	public void setErreurSaisieDate2(boolean erreurSaisieDate2) {
+		this.erreurSaisieDate2 = erreurSaisieDate2;
+	}
+	public boolean isErreurSaisieDate2() {
+		return erreurSaisieDate2;
+	}
+	public void setErreurSaisieDate3(boolean erreurSaisieDate3) {
+		this.erreurSaisieDate3 = erreurSaisieDate3;
+	}
+	public boolean isErreurSaisieDate3() {
+		return erreurSaisieDate3;
+	}
+	public boolean isPasseSaveAO() {
+		return passeSaveAO;
+	}
+	public void setPasseSaveAO(boolean passeSaveAO) {
+		this.passeSaveAO = passeSaveAO;
+	}
+
+}

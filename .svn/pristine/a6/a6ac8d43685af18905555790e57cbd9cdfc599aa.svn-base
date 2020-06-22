@@ -1,0 +1,2900 @@
+package xtensus.beans.common.GBO;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.VariableGlobaleNotification;
+import xtensus.beans.utils.ComposantDynamique;
+import xtensus.beans.utils.Informations;
+import xtensus.entity.Annotation;
+import xtensus.entity.AoConsultation;
+import xtensus.entity.Cheque;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDonneeSupplementaire;
+import xtensus.entity.DonneeSupplementaireNature;
+import xtensus.entity.Dossier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Nature;
+import xtensus.entity.NatureCategorie;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionAnnotation;
+import xtensus.entity.TransactionAnnotationId;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.TransactionDestinationId;
+import xtensus.entity.TransactionDestinationReelle;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierModificationBean {
+	private String[] selectedAnnot;
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private Dossier dossier;
+	private Date date1;
+	private Date dateReelle;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+
+	private String selectedItemNature;
+	private String selectedItemCategorie;
+	private String selectedItemConf;
+	private String selectedItemUg;
+	private String selectedItemsTr;
+	private boolean affichagePassageBO;
+	private String passageParBO;
+	private Transaction transaction;
+	private Nature nature;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private List<String> selectedItemsAnnotation;
+	private List<Nature> listNat;
+	private boolean reponseBO;
+	//[JS]
+	private List<NatureCategorie> listNatCategorie;
+	private List<Confidentialite> listCf;
+	private List<Urgence> listUg;
+	private List<Annotation> listAt;
+	private List<Transmission> listTr;
+	private String reponse1;
+	private boolean select1 = false;
+	private LdapOperation ldapOperation;
+	private List<DonneeSupplementaireNature> listDSN;
+	private Properties msg;
+	private ComposantDynamique composantDynamique;
+	private List<ComposantDynamique> listCD;
+	private CourrierDonneeSupplementaire courrierDS;
+	private CourrierDonneeSupplementaire cds;
+	private String codeUniqueCourrier = "";
+	private List<Variables> var;
+	private String cupSRV;
+	private boolean afficheChampsSpecTansmission;
+	private String selectedItemsTrAncien;
+	private String selectedItemNatureAncien;
+
+	///
+
+	private String associatedUnit;
+	private String associatedLabel;
+	private String typeSender;
+	ArrayList<SelectItem> selectItemsNat = new ArrayList<SelectItem>();
+	private ArrayList<SelectItem> selectItemsNatCategorie = new ArrayList<SelectItem>();
+
+	ArrayList<SelectItem> selectItemsTr = new ArrayList<SelectItem>();
+	ArrayList<SelectItem> selectItemsConf = new ArrayList<SelectItem>();
+	ArrayList<SelectItem> selectItemsUg = new ArrayList<SelectItem>();
+	private String typeCourrier;
+	private boolean showFacetUser;
+	private boolean showFacetBoc;
+	private boolean status;
+	private boolean status1;
+
+	private Informations info1, info2, info3, info4;
+	private List<Informations> listInfo;
+	private String typeNotification;
+	private String chooseAnnotationType;
+	private String otherAnnotation;
+	@Autowired
+	private VariableGlobaleNotification vbn;
+	private boolean showTous;
+	private String displayOther;
+	private String displayPick;
+
+	
+	private List<ListeDestinatairesModel> destinataires;
+
+	public List<ListeDestinatairesModel> getDestinataires() {
+		destinataires = vb.getListeDestinataire();
+		if (destinataires != null)
+			System.out.println("Get ----- nbr destinataires = "
+					+ destinataires.size());
+		return destinataires;
+	}
+
+	public void setDestinataires(List<ListeDestinatairesModel> destinataires) {
+		this.destinataires = destinataires;
+	}
+// KHA 
+	private ListeDestinatairesModel listAnno;
+	private List<DonneeSupplementaireNature> listDSNTransmission;
+	private List<ComposantDynamique> listCDTransmission;
+	private boolean showPanelAOC;
+	
+	/////////////KBS//////////
+	private ListDataModel listCheques;
+	private boolean showPanelCheque;
+	private List<ChequeModel> listChequesTablo;
+	private ArrayList<ChequeModel> listExpositionsTab2;
+	private ArrayList<ChequeModel> listExpositionsTab3;
+	private String numeroAoConsultation;
+	private AoConsultation aoConsultation;
+	private String heure1;
+	private String heure3;
+	private String heure2;
+	private boolean passe;
+	
+	
+	
+	
+	public CourrierModificationBean() {
+	}
+
+	@Autowired
+	public CourrierModificationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		courrier = new Courrier();
+		dossier = new Dossier();
+		listAt = new ArrayList<Annotation>();
+		listNat = new ArrayList<Nature>();
+		listNatCategorie=new ArrayList<NatureCategorie>();
+		listTr = new ArrayList<Transmission>();
+		listCf = new ArrayList<Confidentialite>();
+		listUg = new ArrayList<Urgence>();
+		transaction = new Transaction();
+		nature = new Nature();
+		transmission = new Transmission();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		date1 = new Date();
+		dateReelle = new Date();
+		selectedItemsAnnotation = new ArrayList<String>();
+
+		listInfo = new ArrayList<Informations>();
+		info1 = new Informations();
+		info2 = new Informations();
+		info3 = new Informations();
+		//[JS]
+		listDSN=new ArrayList<DonneeSupplementaireNature>();
+		listCD=new ArrayList<ComposantDynamique>();
+		courrierDS=new CourrierDonneeSupplementaire();
+		cds=new CourrierDonneeSupplementaire();
+		///
+		listCheques = new ListDataModel();
+		listCDTransmission=new ArrayList<ComposantDynamique>();
+		System.out
+				.println("**************BeanInjecte CourrierModificationBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		
+		try {
+			if (vb.getCopyListSelectedUnit() != null)
+				System.out.println("AH : vb.getCopyListSelectedUnit() :  "+vb.getCopyListSelectedUnit().size());
+			if (vb.getCopyListSelectedPerson() != null)
+				System.out.println("AH : vb.getCopyListSelectedPerson() :  "+vb.getCopyListSelectedPerson().size());
+
+			if (vb.getCopyListPP() != null)
+				System.out.println("vb.getCopyListPP() :   "+vb.getCopyListPP().size());
+			if (vb.getCopyListPM() != null)
+				System.out.println("vb.getCopyListPM() :   "+vb.getCopyListPM().size());
+			
+			// *** Log && Notification ***//
+			vbn.setEvenementNomVariableNotif("event_modif_courrier_notif");
+			vbn.setNotificationNomVariablAdmin("modif_courrier_admin");
+			vbn.setNotificationNomVariableDestinataire("modif_courrier_dest");
+			vbn.setEvenementNomVariableLog("event_modif_courrier_log");
+			vbn.setNomExpediteur("Administrator");
+			vbn.setMailExpediteur("xtexte2@gmail.com");
+			// ***Fin Log & notification***//
+
+			ldapOperation = new LdapOperation();
+			transaction = vb.getTransaction();
+			System.out.println("AH : transaction = "
+					+ transaction.getTransactionId());
+			courrier = vb.getCourrier();
+  
+			date1 = courrier.getCourrierDateReception();
+			dateReelle = courrier.getCourrierDateReceptionReelle();
+			dossier = appMgr.getDossierByIdDossier(vb.getReferenceDossier())
+					.get(0);
+			nature = vb.getNature();
+			Integer natureID = nature.getNatureId();
+			// //[KBS] :Sowh Panel Chèque 2019-11-18 KBS
+			 if(natureID == 38 || natureID == 59 || natureID == 80){
+				 showPanelCheque=true;
+				 }else{
+					 showPanelCheque=false;
+				 }
+				 System.out.println("2019-11-18 out showPanelCheque == "+showPanelCheque);
+			//[JS]
+			System.out.println("Nature Sélectionné :"+nature);	
+			// ***********************************************************************
+			// --------------------------------------MM----------------------------------------------------------------------------------
+			// --------------------------------------------------------------------------------------------------------------------------
+			// Code Unique courrier
+			// cup :: Code Unique Parametrable
+
+			Expdest cupExpDest;
+			cupExpDest = new Expdest();
+			cupExpDest = appMgr.getListExpDestByIdExpDest(
+					transaction.getExpdest().getIdExpDest()).get(0);
+			// KHA
+
+
+			if (cupExpDest!=null && cupExpDest.getTypeExpDest().equals("Interne-Person")&& cupExpDest.getIdExpDestLdap() != null) {
+				System.out.println("++cupExpDest+++ : " + cupExpDest.getIdExpDestLdap().intValue());
+				int MonID;
+				int j = 0;
+				boolean findPerson = false;
+
+				do {
+					MonID = vb.getCopyLdapListUser().get(j).getId();
+					System.out.println("++MONID+++ : " + MonID);
+					if (MonID == cupExpDest.getIdExpDestLdap().intValue()) {
+						findPerson = true;
+						vb.setPersonCodeUnique(vb.getCopyLdapListUser().get(j));
+						// vbn.setPerson(vb.getCopyLdapListUser().get(j));
+					} else {
+						j++;
+					}
+				} while (!findPerson && j < vb.getCopyLdapListUser().size());
+				//
+				// cupSRV=MonID+"";
+//				System.out.println("vb.getPersonCodeUnique() : "
+//						+ vb.getPersonCodeUnique().getCn());
+				if (vb.getPersonCodeUnique()!= null && vb.getPersonCodeUnique().getAssociatedDirection() != null) {
+					cupSRV = vb.getPersonCodeUnique().getAssociatedDirection()
+							.getShortNameUnit();
+					System.out.println("1" + cupSRV);
+				}
+				if (vb.getPersonCodeUnique()!= null && vb.getPersonCodeUnique().getAssociatedBOC() != null) {
+					cupSRV = vb.getPersonCodeUnique().getAssociatedBOC()
+							.getNameBOC();
+					System.out.println("2" + cupSRV);
+				}
+				if (vb.getPersonCodeUnique()!= null && vb.getPersonCodeUnique().getAssociatedService() != null) {
+					cupSRV = vb.getPersonCodeUnique().getAssociatedService()
+							.getNameService();
+					System.out.println("3" + cupSRV);
+					cupSRV = vb.getPersonCodeUnique().getAssociatedService()
+							.getAssociatedDirection().getNameDirection();
+					System.out.println("4" + cupSRV);
+				}
+
+			} 
+			else if (cupExpDest!=null && cupExpDest.getTypeExpDest().equals("Interne-Unité")&& cupExpDest.getIdExpDestLdap() != null) {
+				System.out.println("++cupExpDest+++ : " + cupExpDest.getIdExpDestLdap().intValue());
+				int MonID;
+				int j = 0;
+				boolean findunite = false;
+
+				do {
+					MonID = vb.getCopyLdapListUnit().get(j).getIdUnit();
+					System.out.println("++MONID+++ : " + MonID);
+					if (MonID == cupExpDest.getIdExpDestLdap().intValue()) {
+						findunite = true;
+					//	vb.setPersonCodeUnique(vb.getCopyLdapListUser().get(j));
+						// vbn.setPerson(vb.getCopyLdapListUser().get(j));
+						cupSRV=vb.getCopyLdapListUnit().get(j).getShortNameUnit();
+						break;
+					} else {
+						j++;
+					}
+				} while (!findunite && j < vb.getCopyLdapListUnit().size());
+				
+			}
+			
+			
+			
+			else {
+				System.out.println("-----Dans ELSE----");
+				//XTRN==>EXT
+				cupSRV = "EXT";
+			}
+			// ***********************************************************************
+			// --------------------------------------MM----------------------------
+			// Test
+			 var=appMgr.getListVariableByLibelle();
+			var = appMgr
+					.listVariablesByLibelle("code_courrier_unique_personnalisable");
+
+			codeUniqueCourrier = var.get(0).getVaraiablesValeur();
+			codeUniqueCourrier = codeUniqueCourrier.replace("[ID]", vb
+					.getCourrier().getCourrierReferenceCorrespondant() + "");
+			
+			codeUniqueCourrier = codeUniqueCourrier.replace("[Annee]",
+					new Date().getYear() + 1900 + "");
+			codeUniqueCourrier = codeUniqueCourrier.replace("[Mois]",
+					new Date().getMonth() + 1 + "");
+			// XTE : Si le courrier est ajouté par un non Boc, il aura le type à
+			// NULL--------------------------------------------------
+			if (vb.getCourrier().getCourrierType() != null) {
+				codeUniqueCourrier = codeUniqueCourrier.replace("[Sens]", vb
+						.getCourrier().getCourrierType());
+			} else {
+				codeUniqueCourrier = codeUniqueCourrier.replace("[Sens]", "I");
+			}
+			System.out.println("courrier type = "
+					+ vb.getCourrier().getCourrierType());
+			codeUniqueCourrier = codeUniqueCourrier.replace("[SRV]", cupSRV);
+			// KHA====
+			 vb.setCourrierCodeUnique(codeUniqueCourrier);
+			// ====
+			// [ID][Annee][Mois]//[SRV]/[Sens]/
+			// ***********************************************************************
+			// --------------------------------------MM----------------------------
+			// Test
+			//Load fichier Properties
+			ExternalContext jsfContext = FacesContext.getCurrentInstance().getExternalContext();
+			ServletContext servletContext = (ServletContext) jsfContext.getContext();
+			System.out.println("Contenu de variable local :"+vb.getLocalFr());
+			String webContentRoot = servletContext.getRealPath("/");
+			String pathConfigFile = webContentRoot	
+			+ File.separator + "WEB-INF" +File.separator+ "classes"+File.separator+ "messages_"+vb.getLocalFr()+".properties";
+			msg= new Properties();
+			System.out.println("Path Fichier :"+pathConfigFile);
+			try {
+				msg.load(new FileInputStream(pathConfigFile));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}		
+			
+		//charger Champs Spécifiques  Nature	
+		chargerChampsSpecifiqueNat(courrier,nature);
+		//**** Test 
+			if (vb.getPerson().isBoc()) {
+
+				// if mode de transmission Porteur
+				if (selectedItemsTr != null) {
+					if (Integer.valueOf(selectedItemsTr) == 1) {
+						System.out
+								.println("typeCourrier======================> 1 "
+										+ typeCourrier);
+
+						if (typeCourrier.equals("arrive")) {
+							afficheChampsSpecTansmission = true;
+							chargerChampsSpecifiqueTr(courrier);
+							System.out
+									.println("===============> afficheChampsSpecTansmission1== true ");
+						} else
+							afficheChampsSpecTansmission = false;
+					} else {
+
+						afficheChampsSpecTansmission = true;
+						chargerChampsSpecifiqueTr(courrier);
+					}
+				}
+			} else {
+			  System.out.println("in not boc");
+//			  	listComposantDynamiqueTransmission = new ArrayList<ComposantDynamique>();	
+//				vb.setListComposantDynamiqueTransmission(listComposantDynamiqueTransmission);
+				afficheChampsSpecTansmission = false;
+			}
+
+			
+			//[JS]
+			confidentialite = vb.getConfidentialite();
+			urgence = vb.getUrgence();
+			transmission = vb.getTransmission();
+			listAt = appMgr.getList(Annotation.class);
+			System.out.println("ID Catégorie :"+nature.getNatureCategorie().getNatureCategorieId());
+			listNat = appMgr.listNaturesByCategorie(Integer
+					.valueOf(nature.getNatureCategorie().getNatureCategorieId()));
+			listNatCategorie=appMgr.getList(NatureCategorie.class);
+			//get Les natures selon catégorie de courrier
+		
+			listTr = appMgr.getList(Transmission.class);
+			listUg = appMgr.getList(Urgence.class);
+			listCf = appMgr.getList(Confidentialite.class);
+			// if (vb.getLocale().equals("ar")) {
+			// selectedItemNature = nature.getNatureLibelleAr();
+			// selectedItemConf = confidentialite
+			// .getConfidentialiteLibelleAr();
+			// selectedItemUg = urgence.getUrgenceLibelleAr();
+			// selectedItemsTr = transmission.getTransmissionLibelleAr();
+			// } else {
+			// selectedItemNature = nature.getNatureLibelle();
+			// selectedItemConf = confidentialite.getConfidentialiteLibelle();
+			// selectedItemUg = urgence.getUrgenceLibelle();
+			// selectedItemsTr = transmission.getTransmissionLibelle();
+			// }
+			selectedItemNature = nature.getNatureId().toString();
+			vb.setSelectedItemNature(selectedItemNature);
+			selectedItemCategorie=nature.getNatureCategorie().getNatureCategorieId().toString();
+			System.out.println("selectedItemCategorie :"+selectedItemCategorie);
+			selectedItemConf = confidentialite.getConfidentialiteId()
+					.toString();
+			selectedItemUg = urgence.getUrgenceId().toString();
+			selectedItemsTr = transmission.getTransmissionId().toString();
+			vb.setSelectedItemsTr(selectedItemsTr);
+			reponse1 = courrier.getCourrierNecessiteReponse();
+					if (reponse1.equals("Oui")) {
+				select1 = true;
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(courrier.getCourrierDateReponse());
+				courrier.setCourrierDateReponse(cal.getTime());
+			} else {
+				reponse1 = "Non";
+			}
+			//[JS] Passage Par BO
+			reponseBO=courrier.getCourrierNecessitePassageParBO();
+			System.out.println("reponseBO :"+reponseBO);			
+			// SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			// dateFormat.format(courrier.getCourrierDateReponse());
+
+			// Annotaions
+			 selectedItemsAnnotation = vb.getListSelectedAnnotations();
+			if (transaction.getTransactionCommentaireAnnotation() == null) {
+				chooseAnnotationType = "tous";
+				showTous = true;
+				displayOther = "none";
+				displayPick = "inline";
+
+				// AH : Initialistaion de la liste des Destinataires
+
+				// Récupération de la liste des Annotations
+				List<TransactionAnnotation> annotations = appMgr
+						.getAnnotationByIdTransaction(transaction
+								.getTransactionId());
+				for (TransactionAnnotation transactionAnnotation : annotations) {
+					selectedItemsAnnotation.add(String
+							.valueOf(transactionAnnotation.getId()
+									.getIdAnnotation()));
+				}
+			} else {
+				showTous = false;
+				displayOther = "inline";
+				displayPick = "none";
+				chooseAnnotationType = "autre";
+				otherAnnotation = transaction
+						.getTransactionCommentaireAnnotation();
+			}
+			// 2015-02-18
+			Expdest expdest = appMgr.getListExpDestByIdExpDest(
+					transaction.getExpdest().getIdExpDest()).get(0);
+			transaction.setExpdest(expdest);
+			// 2015-02-18
+			if (transaction.getExpdest().getTypeExpDest()
+					.equals("Interne-Person")) {
+				typeSender = "MoiMeme";
+			} else {
+				typeSender = "MonUnite";
+			}
+			if (vb.getPerson().getAssociatedDirection() != null) {
+				associatedUnit = vb.getPerson().getAssociatedDirection()
+						.getNameUnit();
+				associatedLabel = "Au nom de mon Unité";
+			} else {
+				associatedUnit = vb.getPerson().getAssociatedBOC().getNameBOC();
+				associatedLabel = "Au nom de mon BO";
+			}
+			showFacetUser = true;
+			showFacetBoc = false;
+			if (vb.getRedirect().equals("rediretFromCAExpDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCADestDepToListSender")) {
+				typeCourrier = "depart";
+			} else {
+				typeCourrier = "arrive";
+			}
+
+//			if (courrier.getCourrierType().equals("D")) {
+//				typeCourrier = "depart";
+//			} else {
+//				typeCourrier = "arrive";
+//			}
+			if (vb.getPerson().isBoc()) {
+				showFacetUser = false;
+				showFacetBoc = true;
+			}
+			listExpositionsTab2=new ArrayList<ChequeModel>();
+			List<Cheque> listeCheques = appMgr.getListeChequeByCourrier(courrier.getIdCourrier());
+			ChequeModel fdm = new ChequeModel();
+			int niveau=1;
+			for ( Cheque cheque : listeCheques){
+				fdm = new ChequeModel();
+				fdm.setBoutonPlus(true);
+				fdm.setBoutonSupprimer(true);
+				fdm.setChequeBanque(cheque.getChequeBanque());
+				fdm.setChequeBarre(cheque.getChequeBarre());
+				fdm.setChequeBeneficiaire(cheque.getChequeBeneficiaire());
+				fdm.setChequeDate(cheque.getChequeDate());
+				fdm.setChequeMontant(cheque.getChequeMontant());
+				fdm.setChequeNum(cheque.getChequeNum());
+				fdm.setOperation(niveau);
+				fdm.setChequeId(cheque.getChequeId());
+				niveau++;
+				listExpositionsTab2.add(fdm);
+				if (listExpositionsTab2.size() == 1 ){
+					listExpositionsTab2.get(0).setBoutonSupprimer(false);
+				}else {
+					listExpositionsTab2.get(0).setBoutonPlus(false);
+				}
+			}
+			listExpositionsTab3 = listExpositionsTab2;
+			listCheques.setWrappedData(listExpositionsTab2);
+			selectedItemNatureAncien=vb.getSelectedItemNature();
+			selectedItemNature=vb.getSelectedItemNature();
+			selectedItemsTrAncien=vb.getSelectedItemsTr();
+			selectedItemsTr=vb.getSelectedItemsTr();
+			System.out.println("#########22222 nature.getNatureId() == " + nature.getNatureId());
+			System.out.println("selectedItemNature == " + selectedItemNature);
+			System.out.println("####### vb.getAoconsultation() == " + vb.getAoConsultation().getAoConsultationId());
+			if(nature.getNatureId()== 44 || nature.getNatureId()== 46){
+			showPanelAOC = true;
+			int idaoconsultation = courrier.getAoConsultationId().getAoConsultationId();
+			if(vb.getAoConsultation()!=null){
+				idaoconsultation=vb.getAoConsultation().getAoConsultationId();
+			}
+			aoConsultation = appMgr.getListAoConsultation(idaoconsultation).get(0);
+			numeroAoConsultation = aoConsultation.getAoConsultationNumero();
+			heure1 =aoConsultation.getAoConsultationDateLimiteOffre().toString().substring(0,10) + " à "
+			+ aoConsultation.getAoConsultationDateLimiteOffre().toString().substring(11,16);
+			heure3 =aoConsultation.getAoConsultationDateSeanceCommission().toString().substring(0,10) + " à "
+			+ aoConsultation.getAoConsultationDateSeanceCommission().toString().substring(11,16);
+			heure2 =aoConsultation.getAoConsultationDelaisProlongation().toString().substring(0,10) + " à "
+			+ aoConsultation.getAoConsultationDelaisProlongation().toString().substring(11,16);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public void onBlur() {
+
+		List<AoConsultation> listeAoConsultation = new ArrayList<AoConsultation>();
+		if (numeroAoConsultation != null && numeroAoConsultation.length() > 0) {
+			listeAoConsultation = appMgr.getAOByRef(numeroAoConsultation);
+			if (listeAoConsultation != null && listeAoConsultation.size() > 0) {
+				aoConsultation = listeAoConsultation.get(0);
+			}
+		}
+	}
+	public void goToListAoConsultation() {
+		vb.setCourrier(courrier);
+		
+		passe = false;
+		vb.setFlagAjout(false);
+		try {
+
+			passe = true;
+			vb.setFlagAjout(false);
+			vb.setPagePrecedente("modif");
+			System.out
+					.println("Dans goToListAoConsultation vb.setFlagAjout ==  "
+							+ vb.isFlagAjout());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// *** Log && Notification ***//
+	public void chargementNotification() {
+
+		Date dateSystem = new Date();
+		SimpleDateFormat formaterDate = null;
+		formaterDate = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+
+		String infoCourrier = "La réference de ce courrier est : "
+
+		+ courrier.getCourrierReferenceCorrespondant();
+
+		vbn.setInfo(infoCourrier);
+		vbn.setNomClass(CourrierAjoutBean.class.getName());
+		vbn.setTypeLog("INFO");
+
+		// Chargement Hard Codé de les elements à remplir dans la classe
+		// informations
+		info1.setVar("#p");
+		info1.setContenu(vb.getPerson().getNom());
+		info2.setVar("#I");
+		info2.setContenu(infoCourrier);
+		info3.setVar("#d");
+		info3.setContenu(formaterDate.format(dateSystem));
+		listInfo.add(info1);
+		listInfo.add(info2);
+		listInfo.add(info3);
+		vbn.setListInformations(listInfo);
+		vbn.setTypeObject("TEST");
+		vbn.setCopyListSelectedPersonNotif(vb.getCopyListSelectedPersonNotif());
+		vbn.setCopyListSelectedUnitNotif(vb.getCopyListSelectedUnitNotif());
+		vbn.setCopyListPMNotif(vb.getCopyListPMNotif());
+		vbn.setCopyListPPNotif(vb.getCopyListPPNotif());
+		vbn.setPerson(vb.getPerson());
+	}
+
+	public void changeTypeAnnotation(ActionEvent evt) {
+		if (chooseAnnotationType.equals("tous")) {
+			showTous = true;
+		} else {
+			showTous = false;
+		}
+	}
+
+	public void update() {
+
+		System.out.println(" #### Méthode Update  ###");
+		boolean passe = true;
+		System.out.println("### selectedItemNature ###");
+		System.out.println("### selectedItemNature   == " + selectedItemNature);
+		if (selectedItemNature != null) {
+			System.out.println("### Dans selectedItemNature ###");
+			int natureID = Integer.valueOf(selectedItemNature);
+			System.out.println("vb.getFlagCheque() ==> "+vb.getFlagCheque());
+		
+				if (natureID == 38 || natureID == 59 || natureID == 80) {
+					// /parcourir la liste des cheques et vérifier s'il montant
+					// à 0
+					System.out.println("Dans boucle Chaque");
+					System.out.println("listCheques "+listCheques);
+					listChequesTablo = (List<ChequeModel>) listCheques
+							.getWrappedData();
+					if (listChequesTablo.size() > 0) {
+						for (ChequeModel chequeDateModel : listChequesTablo) {
+
+							if (chequeDateModel.getChequeMontant() != null
+									&& chequeDateModel.getChequeMontant()
+											.doubleValue() <= 0)
+								
+							{
+								passe = false;
+								break;
+							}
+						}
+
+					}
+					
+			}
+				if (natureID == 44 || natureID == 46) {
+					courrier.setAoConsultationId(vb.getAoConsultation());
+				}else{
+					courrier.setAoConsultationId(null);
+				}
+				
+		}
+		
+		
+		System.out.println("passe#####"+ passe);
+			if(passe){
+				System.out.println("Passer à la modification ");
+		status = false;
+		status1 = false;
+		TransactionDestinationReelle transactionDestinationReelle;
+		try {
+			// **
+			TransactionDestinationId id;
+			TransactionDestination trDest;
+			Expdest expdest;
+
+			// nature
+			// courrier.setNature(appMgr.getNatureByNom(selectedItemNature).get(0));
+			courrier.setNature(appMgr.getNatureById(
+					Integer.valueOf(selectedItemNature)).get(0));
+			// Mode Transmission
+			// courrier.setTransmission(appMgr.getTransmissionByNom(
+			// selectedItemsTr).get(0));
+			courrier.setTransmission(appMgr.getTransmissionById(
+					Integer.valueOf(selectedItemsTr)).get(0));
+			// Confidentialité
+			// courrier.setConfidentialite(appMgr.getConfByNom(selectedItemConf)
+			// .get(0));
+			courrier.setConfidentialite(appMgr.getConfidentialiteById(
+					Integer.valueOf(selectedItemConf)).get(0));
+			// Urgence
+			// courrier.setUrgence(appMgr.getUrgenceByNom(selectedItemUg).get(0));
+			courrier.setUrgence(appMgr.getUrgenceById(
+					Integer.valueOf(selectedItemUg)).get(0));
+			// Necessite Reponse
+			courrier.setCourrierNecessiteReponse(reponse1);
+			//Necessite Passage Par BO
+			courrier.setCourrierNecessitePassageParBO(reponseBO);
+			/**** Ajout Dossier *******/
+			dossier.setConfidentialite(courrier.getConfidentialite());
+			dossier.setUrgence(courrier.getUrgence());
+			dossier.setDossierDescription(courrier.getCourrierCommentaire());
+			dossier.setDossierIntitule("Courrier_"
+					+ courrier.getCourrierReferenceCorrespondant());
+			// date reception
+			courrier.setCourrierDateReception(date1);
+			courrier.setCourrierDateReceptionReelle(dateReelle);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date1);
+			courrier.setCourrierOldDateOper(calendar.get(Calendar.YEAR));
+			courrier.setCourrierDateReceptionMois(date1.getMonth() + 1);
+
+			appMgr.update(dossier);
+			appMgr.update(courrier);
+			updateCheque();
+			vb.setCourrier(courrier);
+			
+			// JS-------------------------------------------------------------------------------------------------------------
+			//Méthode de Réflexion 							
+			try {	
+				System.out.println("######## dans Méthode de Réflexion");
+			if(courrierDS == null) {	
+				courrierDS= new CourrierDonneeSupplementaire();
+			}
+			Class aClass=courrierDS.getClass();
+			Class[] paramTypes = new Class[1];
+			System.out.println("####### listCD size == " + listCD.size());
+			//System.out.println("####### listCD size == " + listCDTransmission.size());
+			for(int i=0;i<listCD.size();i++){
+			if(listCD.get(i).getType().equals("RADIO")){
+				paramTypes[0]=Boolean.class;
+				listCD.get(i).setColonne(new Boolean(listCD.get(i).getColonne()+""));
+			}else
+			paramTypes[0] = listCD.get(i).getColonne().getClass();				
+			int idchamp=listCD.get(i).getIdChamps();
+			String methodName = "setColonne"+idchamp; // fieldName String
+			Method m = null;			
+			  m = aClass.getMethod(methodName, paramTypes);
+			    String result = (String) m.invoke(courrierDS ,listCD.get(i).getColonne()); // field value
+			    System.out.println("######"+result);
+			} 
+			for(int i=0;i<listCDTransmission.size();i++){
+				if(listCDTransmission.get(i).getType().equals("RADIO")){
+					paramTypes[0]=Boolean.class;
+					listCDTransmission.get(i).setColonne(new Boolean(listCDTransmission.get(i).getColonne()+""));
+				}else
+				paramTypes[0] = listCDTransmission.get(i).getColonne().getClass();				
+				int idchamp=listCDTransmission.get(i).getIdChamps();
+				String methodName = "setColonne"+idchamp; // fieldName String
+				Method m = null;			
+				  m = aClass.getMethod(methodName, paramTypes);
+				    String result = (String) m.invoke(courrierDS ,listCDTransmission.get(i).getColonne()); // field value
+				    System.out.println("######"+result);
+				} 
+			}catch (IllegalAccessException iae) {
+			    iae.printStackTrace();
+			} catch (InvocationTargetException ite) {
+			    ite.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("######## courrierDS id == "+ courrierDS.getIdCourrierDonneeSupplementaire());
+			courrierDS.setIdCourrier(courrier);
+			appMgr.update(courrierDS);
+
+			System.out.println("Test Courrier :"+courrier.getIdCourrier());
+			System.out.println("Test Courrier :"+courrier);
+			
+			
+
+			// ajouter par MM
+
+			// For Teste
+//			List<TransactionDestination> transactionDestination = new ArrayList<TransactionDestination>();
+//			transactionDestination = appMgr
+//					.getDestinationByIdTransaction(transaction
+//							.getTransactionId());
+//			if (reponse1.equals("Oui")) {
+//				for (TransactionDestination transactionDestination2 : transactionDestination) {
+//					transactionDestination2
+//							.setTransactionDestDateReponse(courrier
+//									.getCourrierDateReponse());
+//					appMgr.update(transactionDestination2);
+//				}
+//			} else {
+//				for (TransactionDestination transactionDestination2 : transactionDestination) {
+//					transactionDestination2.setTransactionDestDateReponse(null);
+//					appMgr.update(transactionDestination2);
+//				}
+//			}
+
+			vb.setCopyExpReelNom(vb.getExpNom());
+
+			System.out.println("exp :: ::  ::" + vb.getExpNom());
+
+			expdest = new Expdest();
+
+//			expdest = transaction.getExpdest();
+			System.out
+					.println(" ******************************************************************************************************************* ");
+			System.out.println("dest avant update : LDP "
+					+ expdest.getIdExpDestLdap() + " id :" + expdest.getId()
+					+ " id exp dest :" + expdest.getIdExpDest());
+			System.out.println("valeur is BOC : " + vb.getPerson().isBoc());
+
+//			if (vb.getPerson().isBoc()) {
+//				try {
+//					System.out.println("vb.getCopyListSelectedObjectExp() == " + vb.getCopyListSelectedObjectExp().size());
+//					if (vb.getCopyListSelectedObjectExp().get(0) instanceof Person) {
+//						Person person = (Person) vb
+//								.getCopyListSelectedObjectExp().get(0);
+//						System.out.println("person ### 1===>"+person);
+//						Person personSearch=ldapOperation.getPersonalisedUserById(person.getId());
+//						System.out.println("person ###2====>"+personSearch);
+//						expdest.setTypeExpDest("Interne-Person");
+//						expdest.setIdExpDestLdap(person.getId());
+//						vb.setCopyExpNom(person.getCn());
+//						// a modifier
+//						if (person.isResponsable()) {
+//							transaction.setTransactionTypeIntervenant("sub_"
+//									+ String.valueOf(person.getId()));
+//							try {
+//								if (vb.getPerson().getAssociatedDirection()
+//										.getAssociatedUnit() != null) {
+//									transaction
+//											.setTransactionIdIntervenant(person
+//													.getAssociatedDirection()
+//													.getAssociatedUnit()
+//													.getResponsibleUnit()
+//													.getId());
+//								}
+//							} catch (NullPointerException e) {
+//							}
+//						} else if (person.isSecretary()) {
+//							transaction
+//									.setTransactionTypeIntervenant("secretary_"
+//											+ String.valueOf(person.getId()));
+//							transaction.setTransactionIdIntervenant(person
+//									.getAssociatedDirection()
+//									.getResponsibleUnit().getId());
+//						} else {
+//							transaction.setTransactionTypeIntervenant("agent_"
+//									+ String.valueOf(person.getId()));
+//							
+//							transaction.setTransactionIdIntervenant(personSearch.getAssociatedDirection().getResponsibleUnit().getId());
+//						}
+//					} else if (vb.getCopyListSelectedObjectExp().get(0) instanceof Unit) {
+//						Unit unit = (Unit) vb.getCopyListSelectedObjectExp()
+//								.get(0);
+//						expdest.setTypeExpDest("Interne-Unité");
+//						expdest.setIdExpDestLdap(unit.getIdUnit());
+//						vb.setCopyExpNom(unit.getNameUnit());
+//						// A modifier
+//						transaction.setTransactionTypeIntervenant("unit_"
+//								+ String.valueOf(unit.getIdUnit()));
+//						try {
+//							if (unit.getAssociatedUnit() != null) {
+//								transaction.setTransactionIdIntervenant(unit
+//										.getAssociatedUnit().getIdUnit());
+//							}
+//						} catch (NullPointerException e) {
+//							e.printStackTrace();
+//						}
+//					} else if (vb.getCopyListSelectedObjectExp().get(0) instanceof Pp) {
+//						Pp pp = (Pp) vb.getCopyListSelectedObjectExp().get(0);
+//						expdest.setTypeExpDest("Externe");
+//						expdest.setExpdestexterne(pp.getExpdestexterne());
+//						System.out.println("pp.getExpdestexterne(): "
+//								+ pp.getExpdestexterne());
+//						vb.setCopyExpNom(pp.getExpdestexterne()
+//								.getExpDestExterneNom()
+//								+ " "
+//								+ pp.getExpdestexterne()
+//										.getExpDestExternePrenom() + " (PP)");
+//					} else if (vb.getCopyListSelectedObjectExp().get(0) instanceof Pm) {
+//						Pm pm = (Pm) vb.getCopyListSelectedObjectExp().get(0);
+//						expdest.setTypeExpDest("Externe");
+//						expdest.setExpdestexterne(pm.getExpdestexterne());
+//						System.out.println("pm.getExpdestexterne(): "
+//								+ pm.getExpdestexterne());
+//						vb.setCopyExpNom(pm.getExpdestexterne()
+//								.getExpDestExterneNom() + " (PM)");
+//					}
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			if (chooseAnnotationType.equals("autre")) {
+//				transaction
+//						.setTransactionCommentaireAnnotation(otherAnnotation);
+//			} else {
+//				transaction.setTransactionCommentaireAnnotation(null);
+//			}
+			System.out.println("update 1 exp");
+//			appMgr.update(expdest);
+//			transaction.setDossier(dossier);
+//			appMgr.update(transaction);
+//			vb.setTransaction(transaction);
+			// Suppression Annotations
+//			System.out.println("delete 1 exp");
+//			System.out.println("transaction.getTransactionId()====>"+transaction
+//					.getTransactionId());
+			appMgr.deleteAnnotationsByIdTransaction(transaction
+					.getTransactionId());
+
+			// // Ajout Annotations
+			String result = "";
+			TransactionAnnotation cA = new TransactionAnnotation();
+			TransactionAnnotationId cI = new TransactionAnnotationId();
+			System.out.println("selectedItemsAnnotation===>"+selectedItemsAnnotation);
+//			 for (String string : selectedItemsAnnotation) {
+//				 System.out.println("string===>"+string);
+//			 int refAnnotation = appMgr.getAnnotationByIdAnotation(Integer.valueOf(string)).get(0).getAnnotationId();
+//			 cI.setIdAnnotation(refAnnotation);
+//			 cI.setIdTransaction(vb.getTransaction().getTransactionId());
+//			 cA.setId(cI);
+//			 appMgr.insert(cA);
+//			 result = result + string + " / ";
+//			 cA = new TransactionAnnotation();
+//			 cI = new TransactionAnnotationId();
+//			 }
+			if (chooseAnnotationType.equals("tous")) {
+				for (int j = 0; j < selectedItemsAnnotation.size(); j++) {
+					System.out.println("selectedItemsAnnotation==========>"+selectedItemsAnnotation.get(j));
+					 int refAnnotation = appMgr.getAnnotationByIdAnotation(Integer.valueOf(selectedItemsAnnotation.get(j))).get(0)
+					 .getAnnotationId();
+					 cI.setIdAnnotation(refAnnotation);
+					cI.setIdAnnotation(Integer.valueOf(selectedItemsAnnotation
+							.get(j)));
+					cI.setIdTransaction(vb.getTransaction().getTransactionId());
+					cA.setId(cI);
+					System.out.println("inserte 1 exp");
+					System.out.println("####=======>"+vb.getTransaction().getTransactionId());
+					appMgr.getAnnotationByIdTransaction(vb.getTransaction().getTransactionId());
+					appMgr.insert(cA);
+		
+					result = result + selectedItemsAnnotation.get(j) + " / ";
+					cA = new TransactionAnnotation();
+					cI = new TransactionAnnotationId();
+				}
+			} else {
+				 int refAnnotation = appMgr.getAnnotationByLibelle("Autre")
+				 .get(0).getAnnotationId();
+				 cI.setIdAnnotation(refAnnotation);
+				cI.setIdAnnotation(10);
+				cI.setIdTransaction(vb.getTransaction().getTransactionId());
+				cA.setId(cI);
+				System.out.println("inserte else 1 exp");
+				appMgr.insert(cA);
+
+				result = otherAnnotation + " / ";
+				cA = new TransactionAnnotation();
+				cI = new TransactionAnnotationId();
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+			vb.setCopyAnnotationResult(result);
+			result = "";
+			// Destinataires
+//			if (!vb.getCopyListPM().isEmpty() || !vb.getCopyListPP().isEmpty()
+//					|| !vb.getCopyListSelectedPerson().isEmpty()
+//					|| !vb.getCopyListSelectedBoc().isEmpty()
+//					|| !vb.getCopyListSelectedUnit().isEmpty()) {
+				// C*
+				// List<TransactionDestinationReelle> listTrDestReele =
+				// appMgr.listTransactionDestinationReelByDossierID(vb.getCourrier().getIdCourrier());
+				// for (TransactionDestinationReelle trDestReele :
+				// listTrDestReele) {
+				//
+				// for (Object object : vb.getCopyListSelectedObject()) {
+				//
+				// }
+				// }
+				// C*
+				// Suppression des destinataires
+//				System.out.println("delete 2 exp");
+////				appMgr.deleteDestinatairesByIdTransaction(transaction
+//						.getTransactionId());
+
+//				if (!vb.getCopyListSelectedPerson().isEmpty()
+//						|| !vb.getCopyListSelectedUnit().isEmpty()) {
+//					if (!vb.getCopyListSelectedPerson().isEmpty()) {
+//						for (int i = 0; i < vb.getCopyListSelectedPerson()
+//								.size(); i++) {
+//							result = result
+//									+ vb.getCopyListSelectedPerson().get(i)
+//											.getCn() + " / ";
+//							expdest = new Expdest();
+//							id = new TransactionDestinationId();
+//							trDest = new TransactionDestination();
+//							expdest.setTypeExpDest("Interne-Person");
+//							expdest.setIdExpDestLdap(vb
+//									.getCopyListSelectedPerson().get(i).getId());
+//							System.out.println("inserte 2 exp");
+//							appMgr.insert(expdest);
+//							id.setIdTransaction(vb.getTransaction()
+//									.getTransactionId());
+//							id.setIdExpDest(expdest.getIdExpDest());
+//							trDest.setId(id);
+//							// A modifier
+//							System.out.println("###1===>"+vb.getCopyListSelectedPerson().get(i).getNom() +" "+vb.getCopyListSelectedPerson().get(i).getPrenom());
+//							Person p=ldapOperation.getPersonalisedUserById(vb.getCopyListSelectedPerson().get(i).getId());
+//							System.out.println("###2===>"+p.getAssociatedDirection());
+//							System.out.println("###3===>"+p.getAssociatedDirection().getAssociatedUnit());
+//
+//							if (vb.getCopyListSelectedPerson().get(i)
+//									.isResponsable()) {
+//								trDest.setTransactionDestTypeIntervenant("sub_"
+//										+ String.valueOf(vb
+//												.getCopyListSelectedPerson()
+//												.get(i).getId()));
+//								if (vb.getCopyListSelectedPerson().get(i)
+//										.getAssociatedDirection()
+//										.getAssociatedUnit() != null) {
+//									trDest.setTransactionDestIdIntervenant(vb
+//											.getCopyListSelectedPerson().get(i)
+//											.getAssociatedDirection()
+//											.getAssociatedUnit()
+//											.getResponsibleUnit().getId());
+//								}
+//							} else if (vb.getCopyListSelectedPerson().get(i)
+//									.isSecretary()) {
+//								trDest.setTransactionDestTypeIntervenant("secretary_"
+//										+ String.valueOf(vb
+//												.getCopyListSelectedPerson()
+//												.get(i).getId()));
+//								trDest.setTransactionDestIdIntervenant(vb
+//										.getCopyListSelectedPerson().get(i)
+//										.getAssociatedDirection()
+//										.getResponsibleUnit().getId());
+//							} else {
+//								trDest.setTransactionDestTypeIntervenant("agent_"
+//										+ String.valueOf(vb
+//												.getCopyListSelectedPerson()
+//												.get(i).getId()));
+//								if (vb.getCopyListSelectedPerson().get(i)
+//										.getAssociatedDirection() != null) {
+//								trDest.setTransactionDestIdIntervenant(p
+//										.getAssociatedDirection()
+//										.getResponsibleUnit().getId());
+//								}
+//							}
+//							//
+//							if (reponse1.equals("Oui")) {
+//								trDest.setTransactionDestDateReponse(courrier
+//										.getCourrierDateReponse());
+//							}
+//							System.out.println("inserte 3 exp");
+//							appMgr.insert(trDest);
+//
+//							TransactionDestinationReelle trDestinationReelle = new TransactionDestinationReelle();
+//							trDestinationReelle
+//									.setTransactionDestinationReelleIdDestinataire(vb
+//											.getCopyListSelectedPerson().get(i)
+//											.getId());
+//							trDestinationReelle
+//									.setTransactionDestinationReelleTypeDestinataire("Interne-Person");
+//							appMgr.insert(trDestinationReelle);
+//							transaction
+//									.setTransactionDestinationReelle(trDestinationReelle);
+//							appMgr.update(transaction);
+//						}
+//					}
+
+//					if (!vb.getCopyListSelectedUnit().isEmpty()) {
+//						for (int i = 0; i < vb.getCopyListSelectedUnit().size(); i++) {
+//							result = result
+//									+ vb.getCopyListSelectedUnit().get(i)
+//											.getNameUnit() + " / ";
+//							if (!vb.getPerson().isBoc()) {
+//								if (vb.getPerson().getAssociatedDirection()
+//										.getIdUnit() != vb
+//										.getCopyListSelectedUnit().get(i)
+//										.getIdUnit()) {
+//									expdest = new Expdest();
+//									id = new TransactionDestinationId();
+//									trDest = new TransactionDestination();
+//									expdest.setTypeExpDest("Interne-Unité");
+//									expdest.setIdExpDestLdap(vb
+//											.getCopyListSelectedUnit().get(i)
+//											.getIdUnit());
+//									System.out.println("inserte 4 exp");
+//									appMgr.insert(expdest);
+//									id.setIdTransaction(vb.getTransaction()
+//											.getTransactionId());
+//									id.setIdExpDest(expdest.getIdExpDest());
+//									trDest.setId(id);
+//									// A modifier
+//									trDest.setTransactionDestTypeIntervenant("unit_"
+//											+ String.valueOf(vb
+//													.getCopyListSelectedUnit()
+//													.get(i).getIdUnit()));
+//									if (vb.getCopyListSelectedUnit().get(i)
+//											.getAssociatedUnit() != null) {
+//										trDest.setTransactionDestIdIntervenant(vb
+//												.getCopyListSelectedUnit()
+//												.get(i).getAssociatedUnit()
+//												.getResponsibleUnit().getId());
+//									}
+//									//
+//									if (reponse1.equals("Oui")) {
+//										trDest.setTransactionDestDateReponse(courrier
+//												.getCourrierDateReponse());
+//									}
+//									appMgr.insert(trDest);
+//								} else {
+//									expdest = new Expdest();
+//									id = new TransactionDestinationId();
+//									trDest = new TransactionDestination();
+//									expdest.setTypeExpDest("Interne-Unité");
+//									expdest.setIdExpDestLdap(vb.getPerson()
+//											.getAssociatedDirection()
+//											.getIdUnit());
+//									System.out.println("inserte 5 exp");
+//									appMgr.insert(expdest);
+//									id.setIdTransaction(vb.getTransaction()
+//											.getTransactionId());
+//									id.setIdExpDest(expdest.getIdExpDest());
+//									trDest.setId(id);
+//									// A modifier
+//									trDest.setTransactionDestTypeIntervenant("unit_"
+//											+ String.valueOf(vb
+//													.getCopyListSelectedUnit()
+//													.get(i).getIdUnit()));
+//									if (vb.getCopyListSelectedUnit().get(i)
+//											.getAssociatedUnit() != null) {
+//										trDest.setTransactionDestIdIntervenant(vb
+//												.getCopyListSelectedUnit()
+//												.get(i).getAssociatedUnit()
+//												.getResponsibleUnit().getId());
+//									}
+//									//
+//									if (reponse1.equals("Oui")) {
+//										trDest.setTransactionDestDateReponse(courrier
+//												.getCourrierDateReponse());
+//									}
+//									appMgr.insert(trDest);
+//								}
+//								// TransactionDestinationReelle
+//								// trDestinationReelle = new
+//								// TransactionDestinationReelle();
+//								// trDestinationReelle
+//								// .setTransactionDestinationReelleIdDestinataire(vb
+//								// .getCopyListSelectedUnit()
+//								// .get(i).getId());
+//								// trDestinationReelle
+//								// .setTransactionDestinationReelleTypeDestinataire("Interne-Unité");
+//								// appMgr.insert(trDestinationReelle);
+//								// transaction
+//								// .setTransactionDestinationReelle(trDestinationReelle);
+//								// appMgr.update(transaction);
+//							}
+//
+//							else {
+//								expdest = new Expdest();
+//								id = new TransactionDestinationId();
+//								trDest = new TransactionDestination();
+//								expdest.setTypeExpDest("Interne-Unité");
+//								expdest.setIdExpDestLdap(vb
+//										.getCopyListSelectedUnit().get(i)
+//										.getIdUnit());
+//								System.out.println("inserte 5else exp");
+//								appMgr.insert(expdest);
+//								id.setIdTransaction(vb.getTransaction()
+//										.getTransactionId());
+//								id.setIdExpDest(expdest.getIdExpDest());
+//								trDest.setId(id);
+//								// A modifier
+//								trDest.setTransactionDestTypeIntervenant("unit_"
+//										+ String.valueOf(vb
+//												.getCopyListSelectedUnit()
+//												.get(i).getIdUnit()));
+//								if (vb.getCopyListSelectedUnit().get(i)
+//										.getAssociatedUnit() != null) {
+//									trDest.setTransactionDestIdIntervenant(vb
+//											.getCopyListSelectedUnit().get(i)
+//											.getAssociatedUnit()
+//											.getResponsibleUnit().getId());
+//								}
+//								//
+//								if (reponse1.equals("Oui")) {
+//									trDest.setTransactionDestDateReponse(courrier
+//											.getCourrierDateReponse());
+//								}
+//								System.out.println("inserte 6 exp");
+//								// appMgr.insert(trDest);
+//								// TransactionDestinationReelle
+//								// trDestinationReelle = new
+//								// TransactionDestinationReelle();
+//								// trDestinationReelle
+//								// .setTransactionDestinationReelleIdDestinataire(vb
+//								// .getCopyListSelectedPerson()
+//								// .get(i).getId());
+//								// trDestinationReelle
+//								// .setTransactionDestinationReelleTypeDestinataire("Interne-Unité");
+//								// appMgr.insert(trDestinationReelle);
+//								// transaction
+//								// .setTransactionDestinationReelle(trDestinationReelle);
+//								// appMgr.update(transaction);
+//							}
+//							TransactionDestinationReelle trDestinationReelle = new TransactionDestinationReelle();
+//							trDestinationReelle
+//									.setTransactionDestinationReelleIdDestinataire(vb
+//											.getCopyListSelectedUnit().get(i)
+//											.getIdUnit());
+//							trDestinationReelle
+//									.setTransactionDestinationReelleTypeDestinataire("Interne-Unité");
+//							appMgr.insert(trDestinationReelle);
+//							transaction
+//									.setTransactionDestinationReelle(trDestinationReelle);
+//							appMgr.update(transaction);
+//						}
+//
+//					}
+//				}
+//				if (!vb.getCopyListPP().isEmpty()) {
+//					for (int i = 0; i < vb.getCopyListPP().size(); i++) {
+//						result = result
+//								+ vb.getCopyListPP().get(i).getExpdestexterne()
+//										.getExpDestExterneNom()
+//								+ " "
+//								+ vb.getCopyListPP().get(i).getExpdestexterne()
+//										.getExpDestExternePrenom() + " / ";
+//						if (!vb.getPerson().isBoc()) {
+//							transactionDestinationReelle = new TransactionDestinationReelle();
+//							transactionDestinationReelle = transaction
+//									.getTransactionDestinationReelle();
+//							transactionDestinationReelle
+//									.setTransactionDestinationReelleIdDestinataire(vb
+//											.getCopyListPP().get(i)
+//											.getExpdestexterne()
+//											.getIdExpDestExterne());
+//							transactionDestinationReelle
+//									.setTransactionDestinationReelleTypeDestinataire("Externe");
+//							System.out.println("update 7 exp");
+//							appMgr.update(transactionDestinationReelle);
+//						}
+//					}
+//				}
+//				if (!vb.getCopyListPM().isEmpty()) {
+//					for (int i = 0; i < vb.getCopyListPM().size(); i++) {
+//						result = result
+//								+ vb.getCopyListPM().get(i).getExpdestexterne()
+//										.getExpDestExterneNom() + " / ";
+//						if (!vb.getPerson().isBoc()) {
+//							transactionDestinationReelle = new TransactionDestinationReelle();
+//							transactionDestinationReelle = transaction
+//									.getTransactionDestinationReelle();
+//							transactionDestinationReelle
+//									.setTransactionDestinationReelleIdDestinataire(vb
+//											.getCopyListPM().get(i)
+//											.getExpdestexterne()
+//											.getIdExpDestExterne());
+//							transactionDestinationReelle
+//									.setTransactionDestinationReelleTypeDestinataire("Externe");
+//							System.out.println("update 8 exp");
+//							appMgr.update(transactionDestinationReelle);
+//						}
+//					}
+//				}
+//				if (!result.equals("")) {
+//					int lastIndex = result.lastIndexOf("/");
+//					result = result.substring(0, lastIndex);
+//				}
+//				vb.setCopyDestNom(result);
+//			}
+			try {
+				chargementNotification();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"modification",
+					"Evénement de log de modification du courrier "
+							+ courrier.getIdCourrier() + "-"
+							+ courrier.getCourrierReferenceCorrespondant(),
+					vb.getPerson(), "INFO", appMgr);
+
+			courrier = new Courrier();
+			vb.setDestinataireReel(vb.getCopyDestNom());
+			System.out
+					.println("***************Succes Modification Courrier***************");
+			System.out.println("dest aprés update : LDP "
+					+ expdest.getIdExpDestLdap() + " id :" + expdest.getId()
+					+ " id exp dest :" + expdest.getIdExpDest());
+			vb.setCopyListSelectedPerson(new ArrayList<Person>());
+			vb.setCopyListPP(new ArrayList<Pp>());
+			vb.setCopyListPM(new ArrayList<Pm>());
+			vb.setListSelectedItem(new ArrayList<ItemSelected>());
+			vb.setCopyListSelectedBoc(new ArrayList<BOC>());
+			vb.setCopyListSelectedUnit(new ArrayList<Unit>());
+			vb.setCopyDestNom(vb.getDestNom());
+			vb.setCopyListSelectedObject(new ArrayList<Object>());
+			vb.setCopyListSelectedObjectExp(new ArrayList<Object>());
+			vb.setDestNom(" ");
+			vb.setExpNom(" ");
+			status = true;
+		} catch (Exception e) {
+			status1 = true;
+			e.printStackTrace();
+		}
+}else{
+	System.out.println("Existent des valeurs à 0");
+	
+//	String erreurMontantZero=messageSource.getMessage("erreurMontantZero",
+//			new Object[] {}, lm.createLocal());
+	
+	setMessage(messageSource.getMessage("erreurMontantZero",
+			new Object[] {}, lm.createLocal()));
+	FacesContext.getCurrentInstance().addMessage(
+			"messages",
+			new FacesMessage(FacesMessage.SEVERITY_ERROR, message,
+					""));
+
+}
+	}
+
+	public String goToListSender() {
+		if (vb.getPerson().isBoc()) {
+			if (typeCourrier.equals("arrive")) {
+				vb.setRedirect("rediretFromCMDestArrToListSender");
+				return "rediretFromCMDestArrToListSender";
+			} else {
+				vb.setRedirect("rediretFromCMDestDepToListSender");
+				return "rediretFromCMDestDepToListSender";
+			}
+		} else {
+			vb.setRedirect("rediretFromCMToListSender");
+			return "rediretFromCMToListSender";
+		}
+	}
+
+	public String goToListSender1() {
+		if (typeCourrier.equals("arrive")) {
+			vb.setRedirect("rediretFromCMExpArrToListSender");
+			return "rediretFromCMExpArrToListSender";
+		} else {
+			vb.setRedirect("rediretFromCMExpDepToListSender");
+			return "rediretFromCMExpDepToListSender";
+		}
+	}
+
+	public void eventChooseTypeCourrier(ActionEvent evt) {
+		System.out.println(typeCourrier);
+	}
+
+	public void eventChooseTypeSender(ActionEvent evt) {
+		System.out.println(typeSender);
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+		if (reponse1.equals("Non")) {
+			select1 = false;
+			courrier.setCourrierDateReponse(null);
+		} else {
+			select1 = true;
+
+		}
+	}
+	// KHA ===================== modification Courrier======================
+	public void saveTempValue() {
+		 
+
+		try {
+			System.out.println("=======================CourrierModification----saveTempValue : begin==========================");
+			
+			// Type de transmission :Enveloppe
+			System.out.println("selectedItemsTr ===> " + selectedItemsTr);
+			System.out.println("!vb.getPerson().isBoc() "
+					+ !vb.getPerson().isBoc());
+			if (selectedItemsTr != null && !vb.getPerson().isBoc()) {
+				if (Integer.valueOf(selectedItemsTr) == 10) {
+					affichagePassageBO = false;
+					System.out.println("### affichagePassageBO = False ###");
+				} else {
+					affichagePassageBO = true;
+					System.out.println("### affichagePassageBO = True ###");
+
+				}
+			}
+
+			// Type de transmission : Vide = NA
+			if (selectedItemsTr != null && !vb.getPerson().isBoc()) {
+				if (Integer.valueOf(selectedItemsTr) == 11) {
+					affichagePassageBO = true;
+					passageParBO = "Oui";
+				} else {
+					passageParBO = "";
+				}
+			}
+
+			
+			
+
+			listCD=vb.getListComposantDynamiqueNature();
+			listChequesTablo=vb.getListChequesSave();
+			
+			if(selectedItemNature != null){
+				
+			//Afficher Panel Chèque 
+			 if(Integer.valueOf(selectedItemNature) == 38 || Integer.valueOf(selectedItemNature) == 59 || Integer.valueOf(selectedItemNature) == 80){
+				 showPanelCheque=true;
+			}else{
+				 showPanelCheque=false;
+			}
+			 System.out.println("########## 3333322222 selectedItemNature " + selectedItemNature);
+				if (Integer.valueOf(selectedItemNature) == 44 || Integer.valueOf(selectedItemNature) == 46) {
+					 System.out.println("########## Dans Modif");
+					showPanelAOC = true;
+					System.out.println("###2019-06-19 ; showPanelAOC"
+							+ showPanelAOC);
+				} else {
+					System.out.println("########## Dans else Modif");
+					showPanelAOC = false;
+					System.out.println("###2019-12-06 ; showPanelAOC"
+							+ showPanelAOC);
+				}
+			
+			System.out.println("2019-11-18 out showPanelCheque == "+showPanelCheque);
+				 System.out.println("selectedItemNatureAncien  ::  "+selectedItemNatureAncien);
+				 System.out.println("selectedItemNature  ::  "+selectedItemNature);
+			if(selectedItemNatureAncien!=null && selectedItemNatureAncien.equals(selectedItemNature)){
+				
+				System.out.println("########### PAS DE CHANGEMENT DANS NAT");
+				try {
+					Class aClass = courrierDS.getClass();
+					Class[] paramTypes = new Class[1];
+					
+					
+					
+					if (listCD.size() > 0) {
+						for (int i = 0; i < listCD
+								.size(); i++) {
+							if (listCD.get(i).getType()
+									.equals("RADIO")) {
+								paramTypes[0] = Boolean.class;
+								listCD
+										.get(i)
+										.setColonne(
+												new Boolean(
+														listCD
+																.get(i)
+																.getColonne()
+																+ ""));
+							} else
+								if ( listCD
+										.get(i).getColonne() != null) {
+								paramTypes[0] = listCD
+										.get(i).getColonne().getClass();
+							int idchamp = listCD.get(i)
+									.getIdChamps();
+							String methodName = "setColonne" + idchamp; // fieldName
+																		// String
+							Method m = null;
+							m = aClass
+									.getMethod(methodName, paramTypes);
+							String result = (String) m.invoke(courrierDS,
+									listCD.get(i)
+											.getColonne()); // field
+															// value
+							System.out.println(result);
+								}
+						}
+					}
+					listCheques.setWrappedData(vb.getListChequesSave());
+				} catch (IllegalAccessException iae) {
+					iae.printStackTrace();
+				}
+				
+			}else{
+				vb.setSelectedItemNature(selectedItemNature);
+				selectedItemNatureAncien=selectedItemNature;
+			// Charger les champs de façon dynamique selon le type de nature
+			// sélectionné
+			listDSN = appMgr
+					.getListDonneeSupplementaireNatureAffectes(Integer
+							.valueOf(selectedItemNature));
+			System.out.println("size :"
+					+ listDSN.size());
+			listCD = new ArrayList<ComposantDynamique>();
+			if (listDSN != null	&& listDSN.size() > 0) {
+				for (int i = 0; i < listDSN.size(); i++) {
+
+					composantDynamique = new ComposantDynamique();
+					String libelle = listDSN.get(i)
+							.getLibelleDonnee();
+					boolean champObligatoire=listDSN.get(i).isObligatoire();
+					System.out.println("champObligatoire ===========> "+champObligatoire);
+					
+					composantDynamique.setChampOblig(champObligatoire);
+					System.out.println("=============================");
+					System.out.println("Libelle Donnée :" + libelle);
+					System.out.println("Type Donnée :"
+							+ listDSN.get(i)
+									.getDonneeSupplementaire()
+									.getTypeDonneeSupplementaire());
+					System.out.println("ID Champ :"
+							+ listDSN.get(i)
+									.getDonneeSupplementaire().getIdDonneeSupplementaire());
+					System.out.println("=============================");
+
+					String s = msg
+							.getProperty(listDSN
+									.get(i).getLibelleDonnee());
+					System.out.println(" Champs est : "+s +" Obligatoire :"+champObligatoire);
+					// set
+				
+					composantDynamique.setName(s);
+					composantDynamique
+							.setType(listDSN.get(i)
+									.getDonneeSupplementaire()
+									.getTypeDonneeSupplementaire());
+					composantDynamique
+							.setIdChamps(listDSN
+									.get(i).getDonneeSupplementaire()
+									.getIdDonneeSupplementaire());
+
+					listCD.add(composantDynamique);
+					System.out.println("Liste Composant dynamique :"
+							+ listCD.size());
+					// composantDynamique.setName(name)
+				}
+
+			}
+			listChequesTablo=new ArrayList<ChequeModel>();
+			ChequeModel fdm = new ChequeModel();
+			fdm.setOperation(1);
+			System.out.println("######## Dans d1!=null");
+			fdm.setBoutonPlus(true);
+			fdm.setBoutonSupprimer(false);
+			listChequesTablo.add(fdm);
+			listCheques.setWrappedData(listChequesTablo);
+	
+			}
+			
+			
+			System.out.println("listComposantDynamique ===>"+listCD.size());
+			vb.setListComposantDynamiqueNature(listCD);
+//			System.out.println("listChequesTablo ===>"+listChequesTablo.size());
+			vb.setListChequesSave(listChequesTablo);
+//			System.out.println("listComposantDynamique ===>"+listCD.size());
+			
+			
+			
+			
+			}else{
+				//Dans le cas où la valeur de tr a passé d'une valeur != null à null  
+				System.out.println("DANS ELSSE NAT sélectionné est NULL");
+				vb.setSelectedItemNature(null);
+				listCD = new ArrayList<ComposantDynamique>();	
+				vb.setListComposantDynamiqueNature(listCD);
+				listChequesTablo=new ArrayList<ChequeModel>();
+				vb.setListChequesSave(listChequesTablo);
+				listCheques.setWrappedData(listChequesTablo);
+			}
+
+	// Charger les champs de façon dynamique selon le type de transmission
+	// sélectionné
+			
+		System.out.println("selectedItemsTr : "+selectedItemsTr);
+		
+		listCDTransmission=vb.getListComposantDynamiqueTransmission();
+		if (selectedItemsTr != null) {
+			
+			if(selectedItemsTrAncien!=null && selectedItemsTrAncien.equals(selectedItemsTr)){
+				
+				System.out.println("########### PAS DE CHANGEMENT DANS TR"); 
+				
+				try {
+					if (listCDTransmission != null
+							&& listCDTransmission
+									.size() > 0) {
+						Class aClass = courrierDS.getClass();
+						Class[] paramTypes = new Class[1];
+						System.out.println("");
+						System.out
+								.println("########### listComposantDynamiqueTransmission == "
+										+ listCDTransmission
+												.size());
+//						System.out.println("CONTENU ::  "+listComposantDynamiqueTransmission
+//																	.get(0)
+//																	.getColonne());
+						if (listCDTransmission.size() > 0) {
+							for (int i = 0; i < listCDTransmission
+									.size(); i++) {
+
+								if (listCDTransmission
+										.get(i).getType()
+										.equals("RADIO")) {
+									paramTypes[0] = Boolean.class;
+									listCDTransmission
+											.get(i)
+											.setColonne(
+													new Boolean(
+															listCDTransmission
+																	.get(i)
+																	.getColonne()
+																	+ ""));
+								} else
+
+								if (listCDTransmission
+										.get(i).getColonne() != null) {
+									paramTypes[0] = listCDTransmission
+											.get(i).getColonne()
+											.getClass();
+									int idchamp = listCDTransmission
+											.get(i).getIdChamps();
+									String methodName = "setColonne"
+											+ idchamp; // fieldName
+														// String
+									Method m = null;
+									m = aClass.getMethod(methodName,
+											paramTypes);
+									String result = (String) m.invoke(
+											courrierDS,
+											listCDTransmission
+													.get(i)
+													.getColonne()); // field
+									// value
+									System.out.println(">>>>>>>>RESULTAT "+result);
+								}
+							}
+						}
+					}
+				} catch (IllegalAccessException iae) {
+					iae.printStackTrace();
+				}
+
+				catch (InvocationTargetException ite) {
+					ite.printStackTrace();
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				}
+				
+				
+			}else{
+				
+				System.out.println("########### CREATION DE NOUVEAU");
+				vb.setSelectedItemsTr(selectedItemsTr);
+				selectedItemsTrAncien=selectedItemsTr;
+				
+				listDSNTransmission = appMgr.getListDonneeSupplementaireTransmissionAffectes(Integer.valueOf(selectedItemsTr));
+				listCDTransmission = new ArrayList<ComposantDynamique>();
+					if (listDSNTransmission != null
+							&& listDSNTransmission.size() > 0) {
+						for (int i = 0; i < listDSNTransmission.size(); i++) {
+							composantDynamique = new ComposantDynamique();
+							String libelle = listDSNTransmission.get(i)
+									.getLibelleDonnee();
+							System.out.println("=============================");
+							System.out.println("Libelle Donnée :" + libelle);
+							System.out.println("Type Donnée :"
+									+ listDSNTransmission.get(i)
+											.getDonneeSupplementaire()
+											.getTypeDonneeSupplementaire());
+							System.out.println("ID Champ :"
+									+ listDSNTransmission.get(i)
+											.getDonneeSupplementaire().getIdDonneeSupplementaire());
+							System.out.println("=============================");
+
+							String s = msg
+									.getProperty(listDSNTransmission
+											.get(i).getLibelleDonnee());
+
+							// set
+							composantDynamique.setName(s);
+							composantDynamique
+									.setType(listDSNTransmission.get(i)
+											.getDonneeSupplementaire()
+											.getTypeDonneeSupplementaire());
+							composantDynamique
+									.setIdChamps(listDSNTransmission
+											.get(i).getDonneeSupplementaire()
+											.getIdDonneeSupplementaire());
+
+							listCDTransmission.add(composantDynamique);
+							System.out.println("Liste Composant dynamique :"
+									+ listCDTransmission.size());
+							// composantDynamique.setName(name)
+						}
+						}
+				
+				
+			}
+			
+			vb.setListComposantDynamiqueTransmission(listCDTransmission);
+			if (vb.getPerson().isBoc()) {
+
+				// if mode de transmission Porteur
+				if (selectedItemsTr != null) {
+					if (Integer.valueOf(selectedItemsTr) == 1) {
+						System.out
+								.println("typeCourrier======================> 1 "
+										+ typeCourrier);
+
+						if (typeCourrier.equals("arrive")) {
+							afficheChampsSpecTansmission = true;
+							System.out
+									.println("===============> afficheChampsSpecTansmission1== true ");
+						} else
+							afficheChampsSpecTansmission = false;
+					} else {
+
+						afficheChampsSpecTansmission = true;
+					}
+				}
+			} else {
+			  System.out.println("in not boc");
+			  listCDTransmission = new ArrayList<ComposantDynamique>();	
+				vb.setListComposantDynamiqueTransmission(listCDTransmission);
+				afficheChampsSpecTansmission = false;
+			}
+			System.out.println("afficheChampsSpecTansmission::::  "+afficheChampsSpecTansmission);
+			
+			
+		}else{
+				//Dans le cas où la valeur de tr a passé d'une valeur != null à null  
+				System.out.println("DANS ELSSE TR sélectionné est NULL");
+				vb.setSelectedItemsTr(null);
+				listCDTransmission = new ArrayList<ComposantDynamique>();	
+				vb.setListComposantDynamiqueTransmission(listCDTransmission);
+				afficheChampsSpecTansmission=false;
+			
+			}
+		
+		
+		
+		
+
+			vb.setTypeSender(typeSender);
+			vb.setTypeCourrier(typeCourrier);
+			vb.setOtherAnnotation(otherAnnotation);
+			
+			System.out.println("#######"+chooseAnnotationType.toString());
+			vb.setChooseAnnotation(chooseAnnotationType);
+			
+			System.out.println("3 selectedItemsAnnotation = "+selectedItemsAnnotation);
+			System.out.println(selectedItemsAnnotation.toString());
+			vb.setSelectedAnnotationItems(selectedItemsAnnotation);
+			
+			// System.out.println("les annotations sélectionnées  "
+			// + selectedItemsAnnotation);
+if(listAnno!=null){
+			if (selectedItemsAnnotation != null && selectedItemsAnnotation.size()>0)
+			listAnno.setListeAnnotations(selectedItemsAnnotation);
+			System.out.println("#### chooseAnnotationType " + chooseAnnotationType);
+			System.out.println("#### listAnno " + listAnno);
+			if (listAnno != null)
+			listAnno.setChooseAnnotationType(chooseAnnotationType);
+			
+			if (otherAnnotation != null)
+			listAnno.setOtherAnnotation(otherAnnotation);
+			// System.out.println("listAnno  " + listAnno);
+			listAnno = new ListeDestinatairesModel();
+}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("=======================CourrierModification------saveTempValue : fin==========================");
+	}
+	// fonction de selection des annotations dans le listBox
+	public List<SelectItem> getSelectItems1() {
+		String libelle;
+		List<SelectItem> selectItems1 = new ArrayList<SelectItem>();
+		for (int j = 0; j <= listAt.size() - 1; j++) {
+			Integer idAt = listAt.get(j).getAnnotationId();
+			if (!idAt.equals(10)) {
+				if (vb.getLocale().equals("ar")) {
+					libelle = listAt.get(j).getAnnotationLibelleAr();
+				} else {
+					libelle = listAt.get(j).getAnnotationLibelle();
+				}
+				// selectItems1.add(new SelectItem(libelle));
+				selectItems1.add(new SelectItem(String.valueOf(idAt), libelle));
+			}
+		}
+		return selectItems1;
+	}
+
+
+
+	// fonction de selection des modes de transmission dans le listBox
+	public List<SelectItem> getSelectItemsTr() {
+		String libelle;
+		List<SelectItem> selectItemsTr = new ArrayList<SelectItem>();
+		selectItemsTr.add(new SelectItem(""));
+		for (int j = 0; j <= listTr.size() - 1; j++) {
+			Integer idTr = listTr.get(j).getTransmissionId();
+			if (vb.getLocale().equals("ar")) {
+				libelle = listTr.get(j).getTransmissionLibelleAr();
+			} else {
+				libelle = listTr.get(j).getTransmissionLibelle();
+			}
+			selectItemsTr.add(new SelectItem(String.valueOf(idTr), libelle));
+		}
+		return selectItemsTr;
+	}
+
+	// fonction de selection des degrés de confidentialité dans le listBox
+	public List<SelectItem> getSelectItemsConf() {
+		String libelle;
+		List<SelectItem> selectItemsConf = new ArrayList<SelectItem>();
+		selectItemsConf.add(new SelectItem(""));
+		for (int j = 0; j <= listCf.size() - 1; j++) {
+			Integer idCf = listCf.get(j).getConfidentialiteId();
+			if (vb.getLocale().equals("ar")) {
+				libelle = listCf.get(j).getConfidentialiteLibelleAr();
+			} else {
+				libelle = listCf.get(j).getConfidentialiteLibelle();
+			}
+			selectItemsConf.add(new SelectItem(String.valueOf(idCf), libelle));
+		}
+		return selectItemsConf;
+	}
+	
+	// fonction de selection des degrés d'urgences dans le listBox
+	public List<SelectItem> getSelectItemsUg() {
+		String libelle;
+		List<SelectItem> selectItemsUg = new ArrayList<SelectItem>();
+		selectItemsUg.add(new SelectItem(""));
+		for (int j = 0; j <= listUg.size() - 1; j++) {
+			Integer idUg = listUg.get(j).getUrgenceId();
+			if (vb.getLocale().equals("ar")) {
+				libelle = listUg.get(j).getUrgenceLibelleAr();
+			} else {
+				libelle = listUg.get(j).getUrgenceLibelle();
+			}
+			selectItemsUg.add(new SelectItem(String.valueOf(idUg), libelle));
+
+		}
+		return selectItemsUg;
+	}
+////////////////////KBS//////////////////////////
+//	public void addCheque()
+//	{					
+//		ChequeModel fdm = new ChequeModel();
+//		listExpositionsTab2.add(fdm);
+//		for (int i = 0; i < listExpositionsTab2.size(); i++) 
+//		{
+//			if (i==listExpositionsTab2.size()-1)
+//			{
+//				listExpositionsTab2.get(i).setBoutonPlus(true);
+//				listExpositionsTab2.get(i).setBoutonSupprimer(true);
+//			}
+//			else
+//			{
+//				listExpositionsTab2.get(i).setBoutonPlus(false);
+//				listExpositionsTab2.get(i).setBoutonSupprimer(true);
+//			}
+//		}
+//		listCheques.setWrappedData(listExpositionsTab2);
+//	}	
+	
+	//// Code AH + JS////////////
+	public void addCheque() {
+		System.out.println("######## Dans add cheque");
+		List<ChequeModel> listchequesTab1 = new ArrayList<ChequeModel>();
+		ChequeModel fdm = new ChequeModel();
+		System.out.println("######## fdm.getOperation() == "
+				+ fdm.getOperation());
+		fdm = (ChequeModel) listCheques.getRowData();
+		System.out.println("Date courante "+fdm);
+		System.out.println("######## fdm.getOperation()2 == "
+				+ fdm.getOperation());
+		listchequesTab1 = (List<ChequeModel>) listCheques.getWrappedData();
+		vb.setListChequeTableau(listchequesTab1);
+		listchequesTab1 = new ArrayList<ChequeModel>();
+		int niveau = fdm.getOperation();
+		System.out.println("######## niveau == " + niveau);
+		String d1 = "";
+		d1 = vb.getListChequeTableau().get(niveau - 1).getChequeNum();
+		if (niveau == 1) {
+			System.out.println("######## Dans niveau == 1");
+			if (d1 != null) {
+				System.out.println("######## Dans d1!=null");
+				fdm.setBoutonPlus(false);
+				fdm.setBoutonSupprimer(false);
+				listchequesTab1.add(fdm);
+				fdm = new ChequeModel();
+				fdm.setOperation(niveau + 1);
+				fdm.setBoutonPlus(true);
+				fdm.setBoutonSupprimer(true);
+				listchequesTab1.add(fdm);
+				listCheques.setWrappedData(listchequesTab1);
+			} else {
+				System.out.println("######## Dans else");
+				setMessage(messageSource.getMessage("messageDate",
+						new Object[] {}, lm.createLocal()));
+				FacesContext.getCurrentInstance().addMessage(
+						"messages",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, message,
+								""));
+			}
+		} else if (niveau > 1) {
+			System.out.println("######## Dans niveau > 1");
+			listchequesTab1 = vb.getListChequeTableau();
+			d1 = new String(listchequesTab1.get(niveau - 2).getChequeNum());
+			listchequesTab1.get(niveau - 1).setBoutonPlus(false);
+			listchequesTab1.get(niveau - 1).setBoutonSupprimer(false);
+			fdm = new ChequeModel();
+			fdm.setOperation(niveau + 1);
+			fdm.setBoutonPlus(true);
+			fdm.setBoutonSupprimer(true);
+			listchequesTab1.add(fdm);
+			listCheques.setWrappedData(listchequesTab1);
+			
+		}
+		System.out.println("########### listchequesTab1 size == "
+				+ listchequesTab1.size());
+		System.out.println("listchequesTab1"+listchequesTab1);
+		vb.setListChequesSave(listchequesTab1);
+	}
+	
+	
+	public void suppCheque()
+	{	
+		ChequeModel fdm = new ChequeModel();
+		fdm = (ChequeModel) listCheques.getRowData();
+		listExpositionsTab2.remove(fdm);
+		listExpositionsTab2.get(listExpositionsTab2.size()-1).setBoutonPlus(true);
+		if (listExpositionsTab2.size()==1)
+		{
+			listExpositionsTab2.get(0).setBoutonSupprimer(false);
+		}
+		int r=listExpositionsTab2.size();
+		System.out.println(r);
+	}
+	
+	public void reintialiser() {
+		System.out.println("######## listExpositionsTab3 size == " + listExpositionsTab3.size());
+		listCheques.setWrappedData(listExpositionsTab3);
+		if (listExpositionsTab3 != null && listExpositionsTab3.size() > 0){
+		listExpositionsTab3.get(0).setBoutonPlus(true);
+		listExpositionsTab3.get(0).setBoutonSupprimer(true);
+		}
+		if (listExpositionsTab3.size() == 1 ){
+			listExpositionsTab3.get(0).setBoutonSupprimer(false);
+		}
+		
+	}
+	@SuppressWarnings("unchecked")
+	public void updateCheque(){
+		System.out.println("########## Dans saveCheque ##########");
+		try {
+			List<Cheque> listeCheques = appMgr.getListeChequeByCourrier(courrier.getIdCourrier());
+			for (Cheque cheque : listeCheques){
+				appMgr.delete(cheque);
+			}
+		listChequesTablo = (List<ChequeModel>) listCheques.getWrappedData();
+		System.out.println("########## listChequesTablo size == " + listChequesTablo.size());
+		System.out.println("exposition.getExpositionType():"+vb.getCourrier().getIdCourrier());
+		
+		System.out.println("listExpositionsTablo "+listChequesTablo.size());
+		for (ChequeModel chequeDateModel : listChequesTablo) {
+			
+				Cheque cheque = new Cheque();
+				cheque.setChequeBordereauTransmission(vb.getCourrier());
+				cheque.setChequeBanque(chequeDateModel.getChequeBanque());
+				cheque.setChequeBarre(chequeDateModel.getChequeBarre());
+				cheque.setChequeBeneficiaire(chequeDateModel.getChequeBeneficiaire());
+				cheque.setChequeDate(chequeDateModel.getChequeDate());
+				cheque.setChequeNum(chequeDateModel.getChequeNum());
+				cheque.setChequeMontant(chequeDateModel.getChequeMontant());
+				appMgr.insert(cheque);
+				
+				
+			
+		}
+		} catch (Exception e) {
+			System.out.println("########## erreur ajout cheque############");
+			e.printStackTrace();
+		}
+	}
+	
+	//Méthode de Chargement des champs spécifiques Mode transmission
+	public void chargerChampsSpecifiqueTr(Courrier cr){
+		
+		Class aClass=cds.getClass();
+		
+		listDSNTransmission = appMgr.getListDonneeSupplementaireTransmissionAffectes(cr.getTransmission().getTransmissionId());
+		listCDTransmission=new ArrayList<ComposantDynamique>();
+		aClass=cds.getClass();
+		
+		System.out.println("Id Courrier :"+courrier.getIdCourrier());
+		courrierDS=appMgr.getDonneeSupplementaireCourrier(courrier.getIdCourrier());
+        
+		if(listDSNTransmission != null && listDSNTransmission.size()>0){
+			for(int i=0; i<listDSNTransmission.size();i++)
+			{
+				composantDynamique=new ComposantDynamique();
+				System.out.println("==================================");
+				String libelle=listDSNTransmission.get(i).getLibelleDonnee();
+				System.out.println("Libellé "+libelle);
+				String libelleNature= msg.getProperty(libelle);
+				System.out.println("Libellé :"+libelleNature);
+				System.out.println("==================================");
+				composantDynamique.setName(libelleNature);
+				composantDynamique.setType(listDSNTransmission.get(i).getDonneeSupplementaire().getTypeDonneeSupplementaire());
+				composantDynamique.setIdChamps(listDSNTransmission.get(i).getDonneeSupplementaire().getIdDonneeSupplementaire());							
+				
+				listCDTransmission.add(composantDynamique);
+				int idchamp=listCDTransmission.get(i).getIdChamps();
+				String typeChamp=listCDTransmission.get(i).getType();
+				
+				String methodName = "getColonne"+idchamp; 
+				Method m = null;	
+				try {
+					m = aClass.getMethod(methodName);
+					Object resultat=m.invoke(courrierDS, new Object[0]);  			
+					System.out.println("Resultat :" + resultat);
+				if(typeChamp.equals("RADIO")){
+					if(resultat.equals("true")){
+						resultat="true";
+					}else
+						resultat="false";
+				}
+				composantDynamique.setColonne(resultat);
+
+			}
+			catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			vb.setListComposantDynamiqueTransmission(listCDTransmission);
+			}
+		}
+		
+		
+	}
+	
+	public void chargerChampsSpecifiqueNat(Courrier cr,Nature nat){
+		
+		listDSN = appMgr.getListDonneeSupplementaireNatureAffectes(nat.getNatureId());
+		System.out.println("Liste DSN :"+listDSN.size());
+		listCD=new ArrayList<ComposantDynamique>();
+		Class aClass=cds.getClass();
+		System.out.println("Id Courrier :"+cr.getIdCourrier());
+		courrierDS=appMgr.getDonneeSupplementaireCourrier(cr.getIdCourrier());
+        
+		if(listDSN != null && listDSN.size()>0){
+			for(int i=0; i<listDSN.size();i++)
+			{
+				composantDynamique=new ComposantDynamique();
+				System.out.println("==================================");
+				String libelle=listDSN.get(i).getLibelleDonnee();
+				System.out.println("Libellé "+libelle);
+				String libelleNature= msg.getProperty(libelle);
+				System.out.println("Libellé :"+libelleNature);
+				System.out.println("==================================");
+				composantDynamique.setName(libelleNature);
+				composantDynamique.setType(listDSN.get(i).getDonneeSupplementaire().getTypeDonneeSupplementaire());
+				composantDynamique.setIdChamps(listDSN.get(i).getDonneeSupplementaire().getIdDonneeSupplementaire());							
+				
+				listCD.add(composantDynamique);
+				int idchamp=listCD.get(i).getIdChamps();
+				String typeChamp=listCD.get(i).getType();
+				
+				String methodName = "getColonne"+idchamp; 
+				Method m = null;	
+				try {
+					m = aClass.getMethod(methodName);				
+				System.out.format("Methode : %s%n", m.toGenericString());
+				Object resultat=m.invoke(courrierDS, new Object[0]);  
+				System.out.println("Resultat :" + resultat);
+				if(typeChamp.equals("RADIO")){
+					if(resultat.equals("true")){
+						resultat="true";
+					}else
+						resultat="false";
+				}
+				composantDynamique.setColonne(resultat);
+				
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				vb.setListComposantDynamiqueNature(listCD);
+				
+
+			}
+
+		}
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+
+	// Getters & Setters
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public Date getDate1() {
+		return date1;
+	}
+
+	public void setDate1(Date date1) {
+		this.date1 = date1;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getSelectedItemNature() {
+		return selectedItemNature;
+	}
+
+	public void setSelectedItemNature(String selectedItemNature) {
+		this.selectedItemNature = selectedItemNature;
+	}
+
+	public String getSelectedItemConf() {
+		return selectedItemConf;
+	}
+
+	public void setSelectedItemConf(String selectedItemConf) {
+		this.selectedItemConf = selectedItemConf;
+	}
+
+	public String getSelectedItemUg() {
+		return selectedItemUg;
+	}
+
+	public void setSelectedItemUg(String selectedItemUg) {
+		this.selectedItemUg = selectedItemUg;
+	}
+
+	public String getSelectedItemsTr() {
+		return selectedItemsTr;
+	}
+
+	public void setSelectedItemsTr(String selectedItemsTr) {
+		this.selectedItemsTr = selectedItemsTr;
+	}
+
+	public List<String> getSelectedItemsAnnotation() {
+		return selectedItemsAnnotation;
+	}
+
+	public void setSelectedItemsAnnotation(List<String> selectedItemsAnnotation) {
+		this.selectedItemsAnnotation = selectedItemsAnnotation;
+	}
+
+	public List<Nature> getListNat() {
+		return listNat;
+	}
+
+	public void setListNat(List<Nature> listNat) {
+		this.listNat = listNat;
+	}
+
+	public List<Confidentialite> getListCf() {
+		return listCf;
+	}
+
+	public void setListCf(List<Confidentialite> listCf) {
+		this.listCf = listCf;
+	}
+
+	public List<Urgence> getListUg() {
+		return listUg;
+	}
+
+	public void setListUg(List<Urgence> listUg) {
+		this.listUg = listUg;
+	}
+
+	public List<Annotation> getListAt() {
+		return listAt;
+	}
+
+	public void setListAt(List<Annotation> listAt) {
+		this.listAt = listAt;
+	}
+
+	public List<Transmission> getListTr() {
+		return listTr;
+	}
+
+	public void setListTr(List<Transmission> listTr) {
+		this.listTr = listTr;
+	}
+
+	public String getReponse1() {
+		return reponse1;
+	}
+
+	public void setReponse1(String reponse1) {
+		this.reponse1 = reponse1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public String getAssociatedUnit() {
+		return associatedUnit;
+	}
+
+	public void setAssociatedUnit(String associatedUnit) {
+		this.associatedUnit = associatedUnit;
+	}
+
+	public String getAssociatedLabel() {
+		return associatedLabel;
+	}
+
+	public void setAssociatedLabel(String associatedLabel) {
+		this.associatedLabel = associatedLabel;
+	}
+
+	public String getTypeSender() {
+		return typeSender;
+	}
+
+	public void setTypeSender(String typeSender) {
+		this.typeSender = typeSender;
+	}
+
+	public void setSelectItemsNat(ArrayList<SelectItem> selectItemsNat) {
+		this.selectItemsNat = selectItemsNat;
+	}
+
+	public void setSelectItemsTr(ArrayList<SelectItem> selectItemsTr) {
+		this.selectItemsTr = selectItemsTr;
+	}
+
+	public void setSelectItemsConf(ArrayList<SelectItem> selectItemsConf) {
+		this.selectItemsConf = selectItemsConf;
+	}
+
+	public void setSelectItemsUg(ArrayList<SelectItem> selectItemsUg) {
+		this.selectItemsUg = selectItemsUg;
+	}
+
+	public String getTypeCourrier() {
+		return typeCourrier;
+	}
+
+	public void setTypeCourrier(String typeCourrier) {
+		this.typeCourrier = typeCourrier;
+	}
+
+	public boolean isShowFacetUser() {
+		return showFacetUser;
+	}
+
+	public void setShowFacetUser(boolean showFacetUser) {
+		this.showFacetUser = showFacetUser;
+	}
+
+	public boolean isShowFacetBoc() {
+		return showFacetBoc;
+	}
+
+	public void setShowFacetBoc(boolean showFacetBoc) {
+		this.showFacetBoc = showFacetBoc;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public VariableGlobaleNotification getVbn() {
+		return vbn;
+	}
+
+	public void setVbn(VariableGlobaleNotification vbn) {
+		this.vbn = vbn;
+	}
+
+	public Informations getInfo1() {
+		return info1;
+	}
+
+	public void setInfo1(Informations info1) {
+		this.info1 = info1;
+	}
+
+	public Informations getInfo2() {
+		return info2;
+	}
+
+	public void setInfo2(Informations info2) {
+		this.info2 = info2;
+	}
+
+	public Informations getInfo3() {
+		return info3;
+	}
+
+	public void setInfo3(Informations info3) {
+		this.info3 = info3;
+	}
+
+	public Informations getInfo4() {
+		return info4;
+	}
+
+	public void setInfo4(Informations info4) {
+		this.info4 = info4;
+	}
+
+	public List<Informations> getListInfo() {
+		return listInfo;
+	}
+
+	public void setListInfo(List<Informations> listInfo) {
+		this.listInfo = listInfo;
+	}
+
+	public String getTypeNotification() {
+		return typeNotification;
+	}
+
+	public void setTypeNotification(String typeNotification) {
+		this.typeNotification = typeNotification;
+	}
+
+	public void setChooseAnnotationType(String chooseAnnotationType) {
+		this.chooseAnnotationType = chooseAnnotationType;
+	}
+
+	public String getChooseAnnotationType() {
+		return chooseAnnotationType;
+	}
+
+	public void setOtherAnnotation(String otherAnnotation) {
+		this.otherAnnotation = otherAnnotation;
+	}
+
+	public String getOtherAnnotation() {
+		return otherAnnotation;
+	}
+
+	public boolean isShowTous() {
+		return showTous;
+	}
+
+	public void setShowTous(boolean showTous) {
+		this.showTous = showTous;
+	}
+
+	public String[] getSelectedAnnot() {
+		return selectedAnnot;
+	}
+
+	public void setSelectedAnnot(String[] selectedAnnot) {
+		this.selectedAnnot = selectedAnnot;
+	}
+
+	public String getDisplayOther() {
+		return displayOther;
+	}
+
+	public void setDisplayOther(String displayOther) {
+		this.displayOther = displayOther;
+	}
+
+	public String getDisplayPick() {
+		return displayPick;
+	}
+
+	public void setDisplayPick(String displayPick) {
+		this.displayPick = displayPick;
+	}
+
+	public void setDateReelle(Date dateReelle) {
+		this.dateReelle = dateReelle;
+	}
+
+	public Date getDateReelle() {
+		return dateReelle;
+	}
+
+	public void setSelectedItemCategorie(String selectedItemCategorie) {
+		this.selectedItemCategorie = selectedItemCategorie;
+	}
+
+	public String getSelectedItemCategorie() {
+		return selectedItemCategorie;
+	}
+
+
+	public void setListNatCategorie(List<NatureCategorie> listNatCategorie) {
+		this.listNatCategorie = listNatCategorie;
+	}
+
+	public List<NatureCategorie> getListNatCategorie() {
+		return listNatCategorie;
+	}
+
+	public void setSelectItemsNatCategorie(ArrayList<SelectItem> selectItemsNatCategorie) {
+		this.selectItemsNatCategorie = selectItemsNatCategorie;
+	}
+
+	public ArrayList<SelectItem> getSelectItemsNatCategorie() {
+		String libelle;
+		 ArrayList<SelectItem> selectItemsNatCategorie=new ArrayList<SelectItem>();
+		selectItemsNatCategorie.add(new SelectItem(""));
+		for (int j = 0; j <= listNatCategorie.size() - 1; j++) {
+			Integer idNat = listNatCategorie.get(j).getNatureCategorieId();
+			if (vb.getLocale().equals("ar")) {
+				libelle = listNatCategorie.get(j).getCategorieLibelle_AR();
+			} else {
+				libelle = listNatCategorie.get(j).getCategorieLibelle();
+			}
+			selectItemsNatCategorie.add(new SelectItem(String.valueOf(idNat), libelle));
+		}
+		return selectItemsNatCategorie;
+	}
+	public void chargerNature(ActionEvent evt) {
+		System.out.println("Charger nature");
+		if (!selectedItemCategorie.equals("")) {
+			listNat = appMgr.listNaturesByCategorie(Integer
+					.valueOf(selectedItemCategorie));
+			
+		}
+		showPanelAOC=false;
+		showPanelCheque = false;
+		getSelectItemsNat();
+
+	}
+	
+	// fonction de selection des natures dans le listBox
+	public List<SelectItem> getSelectItemsNat() {	
+		
+		List<SelectItem> selectItemsNat = new ArrayList<SelectItem>();
+
+		String libelle;
+		selectItemsNat.add(new SelectItem(""));
+		for (int j = 0; j <= listNat.size() - 1; j++) {
+			Integer idNature = listNat.get(j).getNatureId();
+			libelle = listNat.get(j).getNatureLibelle();
+			selectItemsNat.add(new SelectItem(String.valueOf(idNature),
+					libelle));
+		}
+		return selectItemsNat;
+
+	}
+
+	public void setListDSN(List<DonneeSupplementaireNature> listDSN) {
+		this.listDSN = listDSN;
+	}
+
+	public List<DonneeSupplementaireNature> getListDSN() {
+		return listDSN;
+	}
+
+	public void setMsg(Properties msg) {
+		this.msg = msg;
+	}
+
+	public Properties getMsg() {
+		return msg;
+	}
+
+	public void setComposantDynamique(ComposantDynamique composantDynamique) {
+		this.composantDynamique = composantDynamique;
+	}
+
+	public ComposantDynamique getComposantDynamique() {
+		return composantDynamique;
+	}
+
+	public void setListCD(List<ComposantDynamique> listCD) {
+		this.listCD = listCD;
+	}
+
+	public List<ComposantDynamique> getListCD() {
+		return listCD;
+	}
+
+	public void setCourrierDS(CourrierDonneeSupplementaire courrierDS) {
+		this.courrierDS = courrierDS;
+	}
+
+	public CourrierDonneeSupplementaire getCourrierDS() {
+		return courrierDS;
+	}
+
+	public void setCds(CourrierDonneeSupplementaire cds) {
+		this.cds = cds;
+	}
+
+	public CourrierDonneeSupplementaire getCds() {
+		return cds;
+	}
+
+	public boolean isReponseBO() {
+		return reponseBO;
+	}
+
+	public void setReponseBO(boolean reponseBO) {
+		this.reponseBO = reponseBO;
+	}
+
+	public ListeDestinatairesModel getListAnno() {
+		return listAnno;
+	}
+
+	public void setListAnno(ListeDestinatairesModel listAnno) {
+		this.listAnno = listAnno;
+	}
+
+	public List<DonneeSupplementaireNature> getListDSNTransmission() {
+		return listDSNTransmission;
+	}
+
+	public void setListDSNTransmission(
+			List<DonneeSupplementaireNature> listDSNTransmission) {
+		this.listDSNTransmission = listDSNTransmission;
+	}
+
+
+	public List<ComposantDynamique> getListCDTransmission() {
+		return listCDTransmission;
+	}
+
+	public void setListCDTransmission(List<ComposantDynamique> listCDTransmission) {
+		this.listCDTransmission = listCDTransmission;
+	}
+
+	public String getCodeUniqueCourrier() {
+		return codeUniqueCourrier;
+	}
+
+	public void setCodeUniqueCourrier(String codeUniqueCourrier) {
+		this.codeUniqueCourrier = codeUniqueCourrier;
+	}
+
+	public List<Variables> getVar() {
+		return var;
+	}
+
+	public void setVar(List<Variables> var) {
+		this.var = var;
+	}
+
+	public String getCupSRV() {
+		return cupSRV;
+	}
+
+	public void setCupSRV(String cupSRV) {
+		this.cupSRV = cupSRV;
+	}
+
+	public boolean isShowPanelAOC() {
+		return showPanelAOC;
+	}
+
+	public void setShowPanelAOC(boolean showPanelAOC) {
+		this.showPanelAOC = showPanelAOC;
+	}
+
+	public ListDataModel getListCheques() {
+		return listCheques;
+	}
+
+	public void setListCheques(ListDataModel listCheques) {
+		this.listCheques = listCheques;
+	}
+
+	public boolean isShowPanelCheque() {
+		return showPanelCheque;
+	}
+
+	public void setShowPanelCheque(boolean showPanelCheque) {
+		this.showPanelCheque = showPanelCheque;
+	}
+
+	public void setAfficheChampsSpecTansmission(boolean afficheChampsSpecTansmission) {
+		this.afficheChampsSpecTansmission = afficheChampsSpecTansmission;
+	}
+
+	public boolean isAfficheChampsSpecTansmission() {
+		return afficheChampsSpecTansmission;
+	}
+
+	public void setSelectedItemsTrAncien(String selectedItemsTrAncien) {
+		this.selectedItemsTrAncien = selectedItemsTrAncien;
+	}
+
+	public String getSelectedItemsTrAncien() {
+		return selectedItemsTrAncien;
+	}
+
+	public void setSelectedItemNatureAncien(String selectedItemNatureAncien) {
+		this.selectedItemNatureAncien = selectedItemNatureAncien;
+	}
+
+	public String getSelectedItemNatureAncien() {
+		return selectedItemNatureAncien;
+	}
+
+	public boolean isAffichagePassageBO() {
+		return affichagePassageBO;
+	}
+
+	public void setAffichagePassageBO(boolean affichagePassageBO) {
+		this.affichagePassageBO = affichagePassageBO;
+	}
+
+	public String getPassageParBO() {
+		return passageParBO;
+	}
+
+	public void setPassageParBO(String passageParBO) {
+		this.passageParBO = passageParBO;
+	}
+
+	public List<ChequeModel> getListChequesTablo() {
+		return listChequesTablo;
+	}
+
+	public void setListChequesTablo(List<ChequeModel> listChequesTablo) {
+		this.listChequesTablo = listChequesTablo;
+	}
+
+	public ArrayList<ChequeModel> getListExpositionsTab2() {
+		return listExpositionsTab2;
+	}
+
+	public void setListExpositionsTab2(ArrayList<ChequeModel> listExpositionsTab2) {
+		this.listExpositionsTab2 = listExpositionsTab2;
+	}
+
+	public ArrayList<ChequeModel> getListExpositionsTab3() {
+		return listExpositionsTab3;
+	}
+
+	public void setListExpositionsTab3(ArrayList<ChequeModel> listExpositionsTab3) {
+		this.listExpositionsTab3 = listExpositionsTab3;
+	}
+
+	public String getNumeroAoConsultation() {
+		return numeroAoConsultation;
+	}
+
+	public void setNumeroAoConsultation(String numeroAoConsultation) {
+		this.numeroAoConsultation = numeroAoConsultation;
+	}
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public String getHeure1() {
+		return heure1;
+	}
+
+	public void setHeure1(String heure1) {
+		this.heure1 = heure1;
+	}
+
+	public String getHeure3() {
+		return heure3;
+	}
+
+	public void setHeure3(String heure3) {
+		this.heure3 = heure3;
+	}
+
+	public String getHeure2() {
+		return heure2;
+	}
+
+	public void setHeure2(String heure2) {
+		this.heure2 = heure2;
+	}
+
+	public boolean isPasse() {
+		return passe;
+	}
+
+	public void setPasse(boolean passe) {
+		this.passe = passe;
+	}
+
+}

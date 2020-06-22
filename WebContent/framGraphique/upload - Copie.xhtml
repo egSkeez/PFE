@@ -1,0 +1,204 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<script type="text/javascript" src="http://java.com/js/dtjava.js"></script>
+	<div>
+	<h:panelGrid columns="3" rendered="#{variableGlobale.affichePanelUpload}">
+			<h:column>
+				<h:outputText value="Changement Document "
+					styleClass="xteDetailLabel" />
+				<rich:spacer width="5" />
+				<h:outputText value="*" styleClass="error" />
+			</h:column>
+			<h:outputText value="#{documentDetailsBean.changementDoc}"></h:outputText>
+			<h:selectOneRadio id="changeDoc" styleClass="xteDetailLabelOutput"
+				value="#{documentDetailsBean.changementDoc}" required="true"
+				style="margin-left: -8px"
+				requiredMessage="* #{msg.avecReceptionPhysique} #{msg.champsobligatoire}"
+				layout="lineDirection">
+
+				<a4j:support event="onchange" reRender="panneauDoc,monPanneau"
+					ajaxSingle="true"
+					actionListener="#{documentDetailsBean.evenementChangementDoc}" />
+
+				<f:selectItem itemLabel="Non" itemValue="Non" />
+				<f:selectItem itemLabel="Oui" itemValue="Oui" />
+
+			</h:selectOneRadio>
+
+		</h:panelGrid>
+	<a4j:outputPanel id="monPanneau">
+		<h:panelGrid columns="2" id="panneauDoc" >
+			<h:column>
+				<h:outputText value="#{msg.joindreDocumentLabel}" 
+					styleClass="xteDetailLabel" />
+				<h:graphicImage value="../framGraphique/images/attach-icon.png"
+					width="18" height="20" />
+				<rich:spacer width="10" />
+				<h:outputText value="*" styleClass="error" />
+			</h:column>
+
+			<h:column>
+				<h:selectOneRadio value="#{variableGlobale.uploadType}"
+					layout="lineDirection"  required="true" styleClass="xteDetailLabel"
+					requiredMessage="* #{msg.joindreDocumentLabel} #{msg.champsobligatoire}">
+					<a4j:support ajaxSingle="true" event="onchange"
+						reRender="attachfile,appletPanel" />
+						
+					<f:selectItem itemValue="scanner" itemLabel="#{msg.ApartirduscannerLabel}" /> 				
+					<f:selectItem itemValue="local" itemLabel="#{msg.ApartirdudisquelocalLabel}" />
+			 	     <f:selectItem itemValue="non" itemLabel="#{msg.Nepasjoindrelabel}" />
+				</h:selectOneRadio>
+			</h:column>
+			<h:column>
+			</h:column>
+			<h:column>
+				<div style="width: 410px; height: 150px; background-color: #F5F5F5;">
+					<a4j:outputPanel id="attachfile">
+						<rich:panel
+							style="border:0;text-align:center; background-color:  #F5F5F5 ;"
+							rendered="#{variableGlobale.uploadType =='non' }">
+							<h:outputText
+								value="#{msg.MessageNeRpenJoindreLabel}" />
+						</rich:panel>
+						<rich:panel
+							style="border:0;align:center; background-color:  #F5F5F5 ;"
+							rendered="#{variableGlobale.uploadType == 'local' }">
+							<h:outputText
+								value="#{msg.MessageAjoutDocumentLabel}" />
+							<rich:fileUpload fileUploadListener="#{fileUploadBean.listener}"
+								maxFilesQuantity="#{fileUploadBean.uploadsAvailable}"
+								id="upload" immediateUpload="#{fileUploadBean.autoUpload}"
+								acceptedTypes="pdf, vsd, xls, xlsx, doc, docx, png, jpg" 
+								allowFlash="#{fileUploadBean.useFlash}" listHeight="59px">
+								<a4j:support event="onclear" reRender="upload" ajaxSingle="true" />
+							</rich:fileUpload>
+						</rich:panel>
+
+<button class="button" onClick="window.open('http://172.16.32.32:8080//GBO_v1.3/framGraphique/Scan.xhtml', window, 50, 50);"><span class="icon">Open</span></button>
+						<rich:panel id="scan"
+							style="border:0;text-align:center; background-color:  #F5F5F5 ; "
+							rendered="#{variableGlobale.uploadType =='scanner' }">
+							<h:outputText
+								value="#{msg.MessageAjoutScanLabel}" />
+							<rich:spacer width="10" />
+						</rich:panel>
+
+
+						<a4j:outputPanel id="appletPanel">
+
+							<rich:panel id="buttonScan"
+								style="border:0;text-align:center;background-color:  #F5F5F5 ;"
+								rendered="#{variableGlobale.uploadType =='scanner' }">
+
+								<a4j:commandLink id="scan3" value="SCAN" 
+										action="#{fileUploadBean.scanBox}" 
+										styleClass="xteDetailLabel">
+									</a4j:commandLink>
+							</rich:panel>
+
+
+						</a4j:outputPanel>
+
+
+					</a4j:outputPanel>
+
+
+
+				</div>
+			</h:column>
+		</h:panelGrid>
+
+		
+		
+		<h:panelGrid columns="2" id="panneauDoc2" rendered="#{variableGlobale.affichePanelUpload}==false">
+			<h:column>
+				<h:outputText value="#{msg.joindreDocumentLabel}" 
+					styleClass="xteDetailLabel" />
+				<h:graphicImage value="../framGraphique/images/attach-icon.png"
+					width="18" height="20" />
+				<rich:spacer width="10" />
+				<h:outputText value="*" styleClass="error" />
+			</h:column>
+
+			<h:column>
+				<h:selectOneRadio value="#{variableGlobale.uploadType}"
+					layout="lineDirection"  required="true" styleClass="xteDetailLabel"
+					requiredMessage="* #{msg.joindreDocumentLabel} #{msg.champsobligatoire}">
+					<a4j:support ajaxSingle="true" event="onchange"
+						reRender="attachfile,appletPanel" />
+						
+					<f:selectItem itemValue="scanner" itemLabel="#{msg.ApartirduscannerLabel}" /> 				
+					<f:selectItem itemValue="local" itemLabel="#{msg.ApartirdudisquelocalLabel}" />
+			 	     <f:selectItem itemValue="non" itemLabel="#{msg.Nepasjoindrelabel}" />
+				</h:selectOneRadio>
+			</h:column>
+			<h:column>
+			</h:column>
+			<h:column>
+				<div style="width: 410px; height: 150px; background-color: #F5F5F5;">
+					<a4j:outputPanel id="attachfile2">
+						<rich:panel
+							style="border:0;text-align:center; background-color:  #F5F5F5 ;"
+							rendered="#{variableGlobale.uploadType =='non' }">
+							<h:outputText
+								value="#{msg.MessageNeRpenJoindreLabel}" />
+						</rich:panel>
+						<rich:panel
+							style="border:0;align:center; background-color:  #F5F5F5 ;"
+							rendered="#{variableGlobale.uploadType == 'local' }">
+							<h:outputText
+								value="#{msg.MessageAjoutDocumentLabel}" />
+							<rich:fileUpload fileUploadListener="#{fileUploadBean.listener}"
+								maxFilesQuantity="#{fileUploadBean.uploadsAvailable}"
+								id="upload2" immediateUpload="#{fileUploadBean.autoUpload}"
+								acceptedTypes="pdf, vsd, xls, xlsx, doc, docx, png, jpg" 
+								allowFlash="#{fileUploadBean.useFlash}" listHeight="59px">
+								<a4j:support event="onclear" reRender="upload2" ajaxSingle="true" />
+							</rich:fileUpload>
+						</rich:panel>
+
+
+						<rich:panel id="scan2"
+							style="border:0;text-align:center; background-color:  #F5F5F5 ; "
+							rendered="#{variableGlobale.uploadType =='scanner' }">
+							<h:outputText
+								value="#{msg.MessageAjoutScanLabel}" />
+							<rich:spacer width="10" />
+						</rich:panel>
+
+
+						<a4j:outputPanel id="appletPanel2">
+
+							<rich:panel id="buttonScan2"
+								style="border:0;text-align:center;background-color:  #F5F5F5 ;"
+								rendered="#{variableGlobale.uploadType =='scanner' }">
+
+								<script type="text/javascript" src="../ScannerApplet/scanner.js">getButton();</script>
+								<div id='javafx-app-placeholder'></div>
+									 
+							</rich:panel>
+
+
+						</a4j:outputPanel>
+
+
+					</a4j:outputPanel>
+
+
+
+				</div>
+			</h:column>
+		</h:panelGrid>
+</a4j:outputPanel>
+	</div>
+</ui:composition>
+
+<!-- Upload -->
+
+
+
+

@@ -1,0 +1,74 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Societe;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+
+import xtensus.entity.Variables;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+@Component
+@Scope("request")
+public class RapportPersonneMoraleListeBean {
+	private ApplicationManager appMgr;
+	private Export export;
+
+
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	//@Autowired
+	//private DossierCourrierConsulterBean dossierCourrierConsulterBean;
+	
+	@Autowired
+	private DossierGestionBean dossierGestionBean;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist;
+	private RapportExpediteurDestinataire	rapportExpediteurDestinataire;
+	private Pp pp ;
+	private Pm pm;
+	
+	
+	@Autowired
+	public RapportPersonneMoraleListeBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		
+	}
+	
+	
+	
+	
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+	public Pm getPm() {
+		return pm;
+	}
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+	public Pp getPp() {
+		return pp;
+	}
+
+
+
+
+	
+}

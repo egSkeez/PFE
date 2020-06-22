@@ -1,0 +1,227 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Entite;
+import xtensus.entity.Nature;
+import xtensus.entity.NatureCategorie;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class AdministrationNatureBean {
+
+	private Nature nature;
+	//JS:Chèque
+	private List<Nature> listNature;
+	private DataModel listNatureDM;
+	private long recordsNature=0;
+	//Fin Chèque
+
+
+
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private boolean natureLibelleShowFr;
+	private boolean natureLibelleShowAr;
+	private boolean natureDescriptionShowFr;
+	private boolean natureDescriptionShowAr;
+
+
+	@Autowired
+	public AdministrationNatureBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		nature = new Nature();
+		listNature=new ArrayList<Nature>();
+		listNatureDM=new ListDataModel();
+		System.out
+				.println("*************Bean NatureGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		
+		//[JS]
+
+		try {
+			
+			//JS Chèque
+			listNature=appMgr.getList(Nature.class);
+			System.out.println("Taille List Nature :"+listNature.size());
+		
+		if (vb.getLocale().equals("ar")) {
+				
+				natureLibelleShowFr = false;
+				setNatureDescriptionShowFr(false);
+				natureLibelleShowAr = true;
+				setNatureDescriptionShowAr(true);
+				
+			} else {
+				natureLibelleShowFr = true;
+				setNatureDescriptionShowFr(true);
+				natureLibelleShowAr = false;
+				setNatureDescriptionShowAr(false);
+				
+			}			
+		} catch (Exception e) {
+		
+			e.printStackTrace();
+		}
+		listNatureDM.setWrappedData(listNature);
+	
+	}
+
+	
+	public void setListNature(List<Nature> listNature) {
+		this.listNature = listNature;
+	}
+
+	public List<Nature> getListNature() {
+		return listNature;
+	}
+
+	public void setListNatureDM(DataModel listNatureDM) {
+		this.listNatureDM = listNatureDM;
+	}
+
+	public DataModel getListNatureDM() {
+		return listNatureDM;
+	}
+
+	public void setRecordsNature(long recordsNature) {
+		this.recordsNature = recordsNature;
+	}
+
+	//JS: Chèque
+	@SuppressWarnings("unchecked")
+	public long getRecordsNature() {
+		if (listNatureDM != null && listNatureDM.getWrappedData() != null)
+			recordsNature = ((List<Nature>) listNatureDM.getWrappedData()).size();
+			
+		else
+			recordsNature = 0;
+
+		return recordsNature;
+	}
+
+	public void getSelectionRow2() {
+		try {
+			nature = (Nature) listNatureDM.getRowData();
+			vb.setNature(nature);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de la nature "
+							+ nature.getNatureId() + "-"
+							+ nature.getNatureLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+			System.out.println("*******SelectionNatureConsulterBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionNatureConsulterBean*******");
+		}
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public boolean isNatureLibelleShowFr() {
+		return natureLibelleShowFr;
+	}
+
+	public void setNatureLibelleShowFr(boolean natureLibelleShowFr) {
+		this.natureLibelleShowFr = natureLibelleShowFr;
+	}
+
+	public boolean isNatureLibelleShowAr() {
+		return natureLibelleShowAr;
+	}
+
+	public void setNatureLibelleShowAr(boolean natureLibelleShowAr) {
+		this.natureLibelleShowAr = natureLibelleShowAr;
+	}
+
+	public boolean isNatureDescriptionShowFr() {
+		return natureDescriptionShowFr;
+	}
+
+	public void setNatureDescriptionShowFr(boolean natureDescriptionShowFr) {
+		this.natureDescriptionShowFr = natureDescriptionShowFr;
+	}
+
+	public boolean isNatureDescriptionShowAr() {
+		return natureDescriptionShowAr;
+	}
+
+	public void setNatureDescriptionShowAr(boolean natureDescriptionShowAr) {
+		this.natureDescriptionShowAr = natureDescriptionShowAr;
+	}
+	
+	
+	
+	
+}

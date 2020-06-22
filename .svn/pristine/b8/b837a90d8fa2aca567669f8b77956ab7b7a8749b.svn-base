@@ -1,0 +1,245 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportMailBean;
+import xtensus.beans.utils.SuiviCourrierCourrier;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportCourrierRetard {
+	private ApplicationManager appMgr;
+	private Export export;	
+	@Autowired
+	private VariableGlobale vb;
+	private LdapOperation ldapOperation;
+	private String type;
+	
+	private List<SuiviCourrierCourrier> result=new ArrayList<SuiviCourrierCourrier>();
+	private long CONST_DURATION_OF_DAY = 1000l * 60 * 60 * 24;
+	@Autowired
+	public RapportCourrierRetard(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		ldapOperation = new LdapOperation();
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+	@PostConstruct
+	public void Initialize() {
+
+		ldapOperation = new LdapOperation();
+		if (vb.getPerson().isResponsable()) {
+			type = "sub_" + String.valueOf(vb.getPerson().getId());
+		} else if (vb.getPerson().isSecretary()) {
+			type = "secretary_" + String.valueOf(vb.getPerson().getId());
+		} else if (vb.getPerson().isAgent()) {
+			type = "agent_" + String.valueOf(vb.getPerson().getId());
+		} else if (vb.getPerson().isBoc()) {
+			type = "boc_" + String.valueOf(vb.getPerson().getId());
+		}
+	System.out.println("Le type est : "+type);
+	}
+	@SuppressWarnings("deprecation")
+	public void printPDF(){
+		try {
+			RapportRetardBean rapport=new RapportRetardBean();
+			List<RapportRetardBean> rapports =new ArrayList<RapportRetardBean>();
+			Calendar calendar = Calendar.getInstance();
+			Date date = calendar.getTime();
+			date.setHours(00);
+			date.setMinutes(00);
+			date.setSeconds(00);
+			List<TransactionDestination> transactionDestinations = new ArrayList<TransactionDestination>();
+			if (vb.getPerson().isBoc()) {
+				System.out.println("type "+type+"date "+date);
+				transactionDestinations = appMgr
+						.getTransactionDestinationForBoostOutOfDateBOC(type, date);
+				
+			} else {
+				transactionDestinations = appMgr
+						.getTransactionDestinationForBoostOutOfDateByType(type,
+								date);
+
+			}
+			
+			
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			System.out.println(nomProjet);
+			rapport.setNomProjet(nomProjet);
+			List<SuiviCourrierCourrier> suiviCourrier=new ArrayList<SuiviCourrierCourrier>();
+			suiviCourrier=loadData(transactionDestinations);
+				for (SuiviCourrierCourrier s : suiviCourrier) {
+					rapport.setRef(s.getCourrier().getCourrierReferenceCorrespondant());
+					rapport.setObj(s.getCourrier().getCourrierObjet());
+					rapport.setNature(s.getCourrier().getNature().getNatureLibelle());
+					rapport.setExpedeteur(s.getExpediteur());
+					rapport.setListDestinataire(s.getListDestinataire());
+					rapport.setDateRecep(s.getTransaction().getTransactionDateTransaction());
+					rapport.setDateRep(s.getTransactionDestination().getTransactionDestDateReponse());
+					rapport.setDelais(s.getToleranceRange());
+					rapports.add(rapport);
+					rapport=new RapportRetardBean();
+				}
+				export.exportToPDF(rapports, "report1",
+						"CourrierRetard");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	@SuppressWarnings("deprecation")
+	public List<SuiviCourrierCourrier> loadData(
+			List<TransactionDestination> transactionDestinations) {
+		try {
+			result = new ArrayList<SuiviCourrierCourrier>();
+			SuiviCourrierCourrier suiviCourrier;
+			Transaction transaction;
+			CourrierDossier courrierDossier;
+			Courrier courrier;
+			Expdest expDest;
+			String destinataire = "";
+			Date date;
+			Date dateJour = new Date();
+			for (TransactionDestination transactionDestination : transactionDestinations) {
+				destinataire = "";
+				courrierDossier = new CourrierDossier();
+				courrier = new Courrier();
+				suiviCourrier = new SuiviCourrierCourrier();
+				transaction = new Transaction();
+				transaction = appMgr.getListTransactionByIdTransaction(
+						transactionDestination.getId().getIdTransaction()).get(
+						0);
+				suiviCourrier.setTransaction(transaction);
+				suiviCourrier.setTransactionDestination(transactionDestination);
+				expDest = new Expdest();
+				if (transactionDestination.getTransactionDestTypeIntervenant() != null
+						&& transactionDestination
+								.getTransactionDestTypeIntervenant().equals(
+										type)) {
+					suiviCourrier.setMailSent(false);
+					suiviCourrier.setListDestinataire(vb.getPerson().getCn());
+					expDest = appMgr.getListExpDestByIdExpDest(
+							transaction.getExpdest().getIdExpDest()).get(0);
+				} else {
+					suiviCourrier.setMailSent(true);
+					suiviCourrier.setExpediteur(vb.getPerson().getCn());
+					expDest = appMgr.getListExpDestByIdExpDest(
+							transactionDestination.getId().getIdExpDest()).get(
+							0);
+				}
+				if (expDest.getTypeExpDest().equals("Interne-Person")) {
+					Person person = new Person();
+					person = ldapOperation.getUserById(expDest
+							.getIdExpDestLdap());
+					destinataire = person.getCn();
+				} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+					Unit unit = new Unit();
+					unit = ldapOperation
+							.getUnitById(expDest.getIdExpDestLdap());
+					destinataire = unit.getNameUnit();
+				} else if (expDest.getTypeExpDest().equals("Externe")) {
+					if (expDest.getExpdestexterne().getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						destinataire = expDest.getExpdestexterne()
+								.getExpDestExterneNom() + " (PP)";
+					} else {
+						destinataire = expDest.getExpdestexterne()
+								.getExpDestExterneNom() + " (PM)";
+					}
+				}
+				if (transactionDestination.getTransactionDestTypeIntervenant() != null
+						&& transactionDestination
+								.getTransactionDestTypeIntervenant().equals(
+										type)) {
+					suiviCourrier.setExpediteur(destinataire);
+				} else {
+					suiviCourrier.setListDestinataire(destinataire);
+				}
+				suiviCourrier.setDestinataireReelle(destinataire);
+				courrierDossier = appMgr.getCourrierDossierByIdDossier(
+						transaction.getDossier().getDossierId()).get(0);
+				courrier = appMgr.getCourrierByIdCourrier(
+						courrierDossier.getId().getIdCourrier()).get(0);
+				suiviCourrier.setCourrier(courrier);
+				date = transactionDestination.getTransactionDestDateReponse();
+				System.out.println("Courrier : "
+						+ courrier.getCourrierReferenceCorrespondant());
+				if (date.getDate() == dateJour.getDate()
+						&& date.getMonth() == dateJour.getMonth()
+						&& date.getYear() == dateJour.getYear()) {
+					suiviCourrier.setToleranceRange("0J");
+				} else if (date.after(dateJour)) {
+					suiviCourrier.setToleranceRange("+"
+							+ compareTwoDates(dateJour, date, 1) + "J");
+				} else if (date.before(dateJour)) {
+					suiviCourrier.setToleranceRange("-"
+							+ compareTwoDates(dateJour, date, 0) + "J");
+				}
+				result.add(suiviCourrier);
+			}
+			System.out.println("size result : " + result.size());
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	@SuppressWarnings("deprecation")
+	private long compareTwoDates(Date date1, Date date2, int range) {
+		long numberOfDay;
+		date1.setHours(0);
+		date1.setMinutes(0);
+		date1.setSeconds(0);
+		date2.setHours(0);
+		date2.setMinutes(0);
+		date2.setSeconds(0);
+		long diff = Math.abs(date1.getTime() - date2.getTime());
+		numberOfDay = (long) diff / CONST_DURATION_OF_DAY;
+		return numberOfDay + range;
+	}
+
+
+}

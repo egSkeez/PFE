@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="stampaetichetteprodotti" columnCount="3" printOrder="Horizontal" pageWidth="600" pageHeight="842" columnWidth="196" columnSpacing="5" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5e5a12c3-67ef-4693-95bc-73e6f8fbbefa">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.272292855117456"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="stileSconto" mode="Opaque" backcolor="#FFFFFF">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{sconto} >0]]></conditionExpression>
+			<style backcolor="#FFFF33"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="REPORTSOBJ" class="it.component.report.model.ReportObject" isForPrompting="false"/>
+	<parameter name="idListino" class="java.lang.Long" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="idMagazzino" class="java.lang.Long" isForPrompting="false"/>
+	<parameter name="idArticolo" class="java.lang.Long" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="annotationList" class="java.lang.String">
+		<fieldDescription><![CDATA[annotationList]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="impotance" class="java.lang.String">
+		<fieldDescription><![CDATA[impotance]]></fieldDescription>
+	</field>
+	<field name="listdocuments" class="java.lang.String">
+		<fieldDescription><![CDATA[listdocuments]]></fieldDescription>
+	</field>
+	<field name="urgen" class="java.lang.Integer">
+		<fieldDescription><![CDATA[urgen]]></fieldDescription>
+	</field>
+	<field name="rechercheMulticriterModelForSubreport" class="xtensus.beans.utils.RechercheMulticriterModelForSubreport">
+		<fieldDescription><![CDATA[rechercheMulticriterModelForSubreport]]></fieldDescription>
+	</field>
+	<field name="listRapportCourrierConfidentilaite" class="java.util.List">
+		<fieldDescription><![CDATA[listRapportCourrierConfidentilaite]]></fieldDescription>
+	</field>
+	<field name="transactions" class="java.util.List">
+		<fieldDescription><![CDATA[transactions]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="document" class="xtensus.entity.Document">
+		<fieldDescription><![CDATA[document]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="listRechercheMulticriterModelForSubreport" class="java.util.List">
+		<fieldDescription><![CDATA[listRechercheMulticriterModelForSubreport]]></fieldDescription>
+	</field>
+	<field name="numero" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numero]]></fieldDescription>
+	</field>
+	<field name="urgence" class="xtensus.entity.Urgence">
+		<fieldDescription><![CDATA[urgence]]></fieldDescription>
+	</field>
+	<field name="listeSuiviCourrier" class="java.util.List">
+		<fieldDescription><![CDATA[listeSuiviCourrier]]></fieldDescription>
+	</field>
+	<field name="rapportExpediteurDestinataire" class="java.util.List">
+		<fieldDescription><![CDATA[rapportExpediteurDestinataire]]></fieldDescription>
+	</field>
+	<field name="listTransactionSuiviCourrier" class="java.util.List">
+		<fieldDescription><![CDATA[listTransactionSuiviCourrier]]></fieldDescription>
+	</field>
+	<field name="expediteurNom" class="java.lang.String">
+		<fieldDescription><![CDATA[expediteurNom]]></fieldDescription>
+	</field>
+	<field name="criteresRecherche" class="xtensus.beans.utils.RechercheMulticritereModel">
+		<fieldDescription><![CDATA[criteresRecherche]]></fieldDescription>
+	</field>
+	<field name="destinataireNom" class="java.lang.String">
+		<fieldDescription><![CDATA[destinataireNom]]></fieldDescription>
+	</field>
+	<field name="expediteur" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expediteur]]></fieldDescription>
+	</field>
+	<field name="typeDateRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typeDateRecherche]]></fieldDescription>
+	</field>
+	<field name="confidentialites" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentialites]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="transmission" class="xtensus.entity.Transmission">
+		<fieldDescription><![CDATA[transmission]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="type" class="java.lang.String">
+		<fieldDescription><![CDATA[type]]></fieldDescription>
+	</field>
+	<field name="documents" class="java.util.List">
+		<fieldDescription><![CDATA[documents]]></fieldDescription>
+	</field>
+	<field name="destinataire" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[destinataire]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="nature" class="xtensus.entity.Nature">
+		<fieldDescription><![CDATA[nature]]></fieldDescription>
+	</field>
+	<field name="transaction" class="xtensus.entity.Transaction">
+		<fieldDescription><![CDATA[transaction]]></fieldDescription>
+	</field>
+	<field name="variable" class="xtensus.entity.Variables">
+		<fieldDescription><![CDATA[variable]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="total" class="java.lang.String">
+		<fieldDescription><![CDATA[total]]></fieldDescription>
+	</field>
+	<field name="listRapportCourrierUrgence" class="java.util.List">
+		<fieldDescription><![CDATA[listRapportCourrierUrgence]]></fieldDescription>
+	</field>
+	<field name="confidentialite" class="xtensus.entity.Confidentialite">
+		<fieldDescription><![CDATA[confidentialite]]></fieldDescription>
+	</field>
+	<field name="conf" class="java.lang.Integer">
+		<fieldDescription><![CDATA[conf]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="suivi" class="java.util.List">
+		<fieldDescription><![CDATA[suivi]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="typrRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typrRecherche]]></fieldDescription>
+	</field>
+	<field name="objet" class="java.lang.String"/>
+	<field name="reference" class="java.lang.String"/>
+	<variable name="Variable_1" class="java.lang.String"/>
+	<detail>
+		<band height="105">
+			<componentElement>
+				<reportElement uuid="6c2e3a71-9c95-4482-9fe9-ca398223d606" x="10" y="14" width="348" height="50" isPrintWhenDetailOverflows="true"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code39" drawText="false" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$F{courrier}.getIdCourrier()]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="ed908162-e472-4aae-90db-a57beb8d6382" x="10" y="77" width="177" height="28"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{objet}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2e99f66c-1c75-404d-be26-ecd8a8ed777e" x="10" y="64" width="177" height="13"/>
+				<textElement textAlignment="Center" rotation="None">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{reference}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

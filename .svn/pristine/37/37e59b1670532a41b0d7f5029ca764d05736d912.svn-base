@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<head>
+<title>GBO | Détails Fax</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+	</head>
+	<body>
+		<f:view locale="#{languageManager.locale}">
+			<link rel="STYLESHEET" type="text/css"
+				href="../framGraphique/#{languageManager.css}" title="css"></link>
+			<div id="page">
+				<div id="header">
+					<ui:include src="../framGraphique/header.xhtml"></ui:include>
+				</div>
+				<div id="menuPrincipale">
+					<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+				</div>
+				<div id="contenu">
+					<div id="corpsGauche">
+						<rich:panel styleClass="rich-panel">
+
+							<h:form>
+								<div id="barreIcone">
+									<div id="barreIconeGauche">
+										<a4j:commandLink id="retour" action="#{detailsFaxBean.retour}">
+											<h:graphicImage value="../framGraphique/images/retour.png"
+												alt="retour" />
+										</a4j:commandLink>
+									</div>
+									<div id="barreIconeDroite">
+										<h:commandLink id="pdf" target="_blank"
+											action="#{rapportFaxDetails.printFaxPDF}">
+											<h:graphicImage value="../framGraphique/images/PDF.png"
+												onmouseover="this.src='../framGraphique/images/PDF.png'"
+												onmouseout="this.src='../framGraphique/images/PDF.png'"
+												alt="pdf" />
+										</h:commandLink>
+									</div>
+									<rich:toolTip for="pdf" value="#{msg.pdfExport}"
+										direction="top-right" />
+
+								</div>
+
+							</h:form>
+
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.DetailsFaxLabel}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<table width="100%">
+
+								<tr>
+									<td><h:panelGrid columns="2">
+											<h:outputText value="#{msg.ReferenceFax} "
+												styleClass="xteDetailLabel" />
+											<h:outputText id="id"
+												value="#{consulterFaxBean.vb.faxMail.faxMailId}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.ColonneDateRecep} "
+												styleClass="xteDetailLabel" />
+											<h:outputText id="dateReception"
+												value="#{consulterFaxBean.vb.faxMail.faxMailReceivedDate}"
+												styleClass="xteDetailLabelOutput">
+												<f:convertDateTime pattern="d/M/yyyy à HH:m:s	" />
+											</h:outputText>
+
+											<h:outputText value="#{msg.expediteur} "
+												styleClass="xteDetailLabel" />
+											<h:outputText id="expediteur"
+												value="#{consulterFaxBean.vb.faxMail.faxMailFromName}  -  #{consulterFaxBean.vb.faxMail.faxMailFromAdress}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.organisation}"
+												styleClass="xteDetailLabel"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailFromOrganization !=  null }" />
+											<h:outputText id="organization"
+												value="#{consulterFaxBean.vb.faxMail.faxMailFromOrganization}"
+												styleClass="xteDetailLabelOutput"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailFromOrganization !=  null }" />
+
+											<h:outputText value="#{msg.ExpDestType2} "
+												styleClass="xteDetailLabel" />
+											<h:outputText id="destinataire"
+												value="#{consulterFaxBean.vb.faxMail.faxMailToAdress}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="Cc :" styleClass="xteDetailLabel"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailReplyTo !=  null }" />
+											<h:outputText id="cc"
+												value="#{consulterFaxBean.vb.faxMail.faxMailReplyTo}"
+												styleClass="xteDetailLabelOutput"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailReplyTo !=  null }" />
+
+											<h:outputText value="#{msg.ImportanceLabel}"
+												styleClass="xteDetailLabel"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailPriority !=  null }" />
+											<h:outputText id="importanceHigh" value="#{msg.HauteLabel}"
+												styleClass="xteDetailLabelOutput"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailPriority == 'High'}" />
+
+											<h:outputText id="importanceNormal"
+												value="#{msg.MoyenneLabel}"
+												styleClass="xteDetailLabelOutput"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailPriority == 'Normal'}" />
+
+											<h:outputText id="importanceLow" value="#{msg.FaibleLabel}"
+												styleClass="xteDetailLabelOutput"
+												rendered="#{consulterFaxBean.vb.faxMail.faxMailPriority == 'Low'}" />
+
+
+											<h:outputText value="#{msg.sujetCommentaire} "
+												styleClass="xteDetailLabel" />
+											<h:outputText id="sujet"
+												value="#{consulterFaxBean.vb.faxMail.faxMailSubject}"
+												styleClass="xteDetailLabelOutput" />
+
+
+										</h:panelGrid> <rich:spacer height="10" /> <rich:spacer height="10" /> <h:panelGrid
+											columns="1">
+
+											<h:outputText value="#{msg.message} "
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{consulterFaxBean.vb.faxMail.faxMailOriginalContent}"
+												styleClass="xteDetailLabelOutput" escape="false" />
+
+										</h:panelGrid>
+									</td>
+
+
+
+								</tr>
+
+							</table>
+
+
+						</rich:panel>
+					</div>
+
+					<!-- *********popup ajout********* -->
+					<rich:modalPanel id="msgPanal" autosized="true" height="90"
+						width="300">
+						<a4j:keepAlive beanName="detailsFaxBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.confirmInsert}" /></td>
+								</tr>
+							</table>
+
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.buttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href='consultationMailFax.xhtml.jsf'"
+											reRender="data,scroller,formulaireUtilisateur" /></td>
+
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+
+					<div id="corpsDroite">
+
+						<div class="monthenc">
+							<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+						</div>
+						<div class="datebx">
+							<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+							<div class="dateenc">
+								<a href="http://www.websiteadministrator.com.au/"><script
+										type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+							</div>
+						</div>
+						<div class="dayenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+						</div>
+						<div class="yearenc">
+							<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+						</div>
+					</div>
+				</div>
+
+
+
+				<div id="footer">
+					<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+				</div>
+
+			</div>
+		</f:view>
+	</body>
+</ui:composition>

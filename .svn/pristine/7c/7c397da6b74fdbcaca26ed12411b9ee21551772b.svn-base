@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Modifier Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:panelGrid columns="2">
+							<a4j:commandLink id="retour"
+								onclick="document.location.href='courrierConsulterDetails.jsf'">
+								<h:graphicImage value="../framGraphique/images/retour.png" />
+							</a4j:commandLink>
+							<rich:toolTip for="retour" value="#{msg.Retour}" />
+						</h:panelGrid>
+					</rich:panel>
+
+					<rich:simpleTogglePanel switchType="client"
+						label="#{msg.ConsultCourrierfacet} : Ref : #{courrierDetailsBean.vb.courrier.courrierReferenceCorrespondant}"
+						opened="false">
+						<table width="100%">
+							<tr>
+								<td width="50%" valign="top"><h:panelGrid columns="2">
+
+										<h:outputText value="#{msg.CourrierRef}"
+											styleClass="xteDetailLabel" />
+										<h:outputText
+											value="#{courrierDetailsBean.vb.courrier.courrierReferenceCorrespondant}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierDateRecep}"
+											styleClass="xteDetailLabel" />
+
+										<h:outputText
+											value="#{courrierDetailsBean.vb.courrier.courrierDateReception}"
+											styleClass="xteDetailLabelOutput">
+
+										</h:outputText>
+										<h:outputText value="#{msg.CourrierObjet}"
+											styleClass="xteDetailLabel" />
+										<h:outputText
+											value="#{courrierDetailsBean.vb.courrier.courrierObjet}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierNature}"
+											styleClass="xteDetailLabel" />
+
+										<h:outputText
+											value="#{courrierDetailsBean.nature.natureLibelle}"
+											styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+										<h:outputText value="#{msg.CourrierExpOr}"
+											styleClass="xteDetailLabel" style=" width :100px;" />
+										<h:outputText value="#{variableGlobale.copyExpReelNom}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierExp}"
+											styleClass="xteDetailLabel" style=" width :100px;" />
+										<h:outputText value="#{variableGlobale.copyExpNom}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierDest}"
+											styleClass="xteDetailLabel" style=" width :100px;" />
+										<h:outputText value="#{variableGlobale.copyDestNom}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.sentAlsoTO}"
+											styleClass="xteDetailLabel" style=" width :100px;" />
+										<h:outputText value="#{variableGlobale.copyOtherDest}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierAnnot}"
+											styleClass="xteDetailLabel" />
+										<h:outputText value="#{variableGlobale.copyAnnotationResult}"
+											styleClass="xteDetailLabelOutput" />
+									</h:panelGrid></td>
+								<td width="50%" valign="top"><h:panelGrid columns="2">
+										<h:outputText value="#{msg.CourrierDes}"
+											styleClass="xteDetailLabel" />
+										<h:outputLabel
+											value="#{courrierDetailsBean.vb.courrier.courrierCommentaire}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierKey}"
+											styleClass="xteDetailLabel" />
+										<h:outputLabel
+											value="#{courrierDetailsBean.vb.courrier.keywords}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierMode}"
+											styleClass="xteDetailLabel" />
+										<h:outputText
+											value="#{courrierDetailsBean.vb.transmission.transmissionLibelle}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierConfidentialite}"
+											styleClass="xteDetailLabel" />
+
+										<h:outputText
+											value="#{courrierDetailsBean.vb.confidentialite.confidentialiteLibelle}"
+											styleClass="xteDetailLabelOutput" />
+										<h:outputText value="#{msg.CourrierUrgence}"
+											styleClass="xteDetailLabel" />
+
+										<h:outputText
+											value="#{courrierDetailsBean.vb.urgence.urgenceLibelle}"
+											styleClass="xteDetailLabelOutput" />
+										<h:outputText value="#{msg.CourrierNecessite}"
+											styleClass="xteDetailLabel" />
+										<h:outputText
+											value="#{courrierDetailsBean.vb.courrier.courrierNecessiteReponse}"
+											styleClass="xteDetailLabelOutput" />
+
+										<h:outputText value="#{msg.CourrierDateRep}"
+											styleClass="xteDetailLabel" />
+										<h:outputText
+											value="#{courrierDetailsBean.vb.courrier.courrierDateReponse}"
+											styleClass="xteDetailLabelOutput">
+										</h:outputText>
+
+										<h:outputText value="#{msg.CourrierCircuit}"
+											styleClass="xteDetailLabel" />
+										<h:outputText
+											value="#{courrierDetailsBean.vb.courrier.courrierCircuit}"
+											styleClass="xteDetailLabelOutput" />
+										<h:outputText value="#{msg.CourrierLiens}" rendered="false"
+											styleClass="xteDetailLabel" />
+										<h:outputText value="" styleClass="xteDetailLabelOutput" />
+									</h:panelGrid></td>
+							</tr>
+						</table>
+					</rich:simpleTogglePanel>
+
+					<h:form>
+
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.ModifDocfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+
+							<a4j:keepAlive beanName="documentDetailsBean" />
+							<rich:messages ajaxRendered="true" errorClass="msgError"
+								styleClass="error" />
+							<h:panelGrid columns="2">
+
+								<h:column>
+									<h:outputText value="#{msg.DocumentRef}"
+										styleClass="xteDetailLabel" />
+									<rich:spacer width="10px" />
+									<h:outputText value="*" styleClass="error" />
+								</h:column>
+								<h:inputText
+									value="#{documentDetailsBean.document.documentReference}"
+									required="true"
+									requiredMessage="* #{msg.ColonneDocRef} #{msg.champsobligatoire}" />
+
+								<h:column>
+									<h:outputText value="#{msg.DocumentNom}"
+										styleClass="xteDetailLabel" />
+									<rich:spacer width="10px" />
+									<h:outputText value="*" styleClass="error" />
+								</h:column>
+								<h:inputText value="#{documentDetailsBean.document.documentNom}"
+									style=" width : 145px;" required="true"
+									requiredMessage="* #{msg.ColonneDocNom} #{msg.champsobligatoire}" />
+
+								<h:column>
+									<h:outputText value="#{msg.DocumentObjet}"
+										styleClass="xteDetailLabel" />
+									
+								</h:column>
+								<h:inputText
+									value="#{documentDetailsBean.document.documentObjet}"
+									style=" width : 145px;"  />
+								<h:column>
+									<h:outputText value="#{msg.documentNombreCopie} #{msg.deuxpointsLabel}"
+										styleClass="xteDetailLabel" />
+									<rich:spacer width="10px" />
+								</h:column>
+								<h:inputText id="nbrCopie"
+									value="#{documentDetailsBean.document.documentNombreCopie}"
+									converterMessage="* #{msg.documentNombreCopie} #{msg.champsentier}" 
+									/>	
+									
+								<h:outputText value="#{msg.DocumentCommentaire}"
+									styleClass="xteDetailLabel" />
+								<h:inputTextarea
+									value="#{documentDetailsBean.document.documentCommentaire}" />
+								<h:outputText value="#{msg.ficheMiseAJour}" rendered="#{not(documentDetailsBean.document.documentTypeUpload eq 'Physique')}"
+									styleClass="xteDetailLabel" />
+
+								<h:commandLink id="doc" value="#{documentDetailsBean.docName}" immediate="true"
+									rendered="#{not(documentDetailsBean.document.documentTypeUpload eq 'Physique')}"
+									action="#{documentDetailsBean.downloadDocument}" target="_blank"
+									styleClass="xteDetailLabelOutput" />
+								<rich:toolTip for="doc"
+									value="#{documentDetailsBean.versionDoc}" />
+							</h:panelGrid>
+							<br />
+							<div>
+								<ui:include src="../framGraphique/upload.xhtml"></ui:include>
+							</div>
+							<br />
+							<rich:spacer height="10" />
+							<div align="center">
+								<a4j:commandButton value="#{msg.bouttonValider}" type="submit"
+									action="#{documentDetailsBean.modifier}"
+									oncomplete="if(#{documentDetailsBean.status1}==true) #{rich:component('msgPanal')}.show();">
+								</a4j:commandButton>
+								<rich:spacer height="10px" />
+								<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+									onclick="document.location.href='courrierConsulterDetails.jsf'"
+									ajaxSingle="true">
+								</a4j:commandButton>
+							</div>
+							<rich:spacer height="10" />
+							<div align="left">
+								<h:outputText value="#{msg.infoChampObligatoir}" />
+							</div>
+
+						</rich:panel>
+					</h:form>
+					<div>
+						<ui:include src="../framGraphique/uploadPopup.xhtml"></ui:include>
+					</div>
+					<rich:modalPanel id="msgPanal" autosized="true" height="90"
+						width="300">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText" value="#{msg.ModifMsg}" />
+									</td>
+								</tr>
+							</table>
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href='courrierConsulterDetails.jsf'"
+											reRender="data,scroller,formulaireUtilisateur" />
+									</td>
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

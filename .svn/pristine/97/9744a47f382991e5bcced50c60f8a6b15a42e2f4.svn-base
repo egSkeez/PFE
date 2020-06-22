@@ -1,0 +1,79 @@
+package xtensus.beans.common.GBO;
+
+import javax.faces.event.ActionEvent;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Nature;
+import xtensus.services.ApplicationManager;
+
+
+
+@Component
+@Scope("session")
+public class TestAuctionDataModelBean {
+
+    private ApplicationManager appMgr;
+//    @Autowired
+//	private TestAuctionDataModel testAuction;
+    
+    
+    // tester <f:setActionPropertyListener to a Nauture Object
+	private Nature selectedNature;
+	public TestAuctionDataModelBean(){
+		
+	}
+	
+	
+	
+	@Autowired
+    public TestAuctionDataModelBean(@Qualifier("applicationManager") ApplicationManager appMgr){
+    	this.appMgr = appMgr;
+    }
+
+
+
+   public void getSelectionRow(ActionEvent evt){
+	   System.out.println("getSelectionRow()" + selectedNature.getNatureLibelle());
+	   System.out.println();
+//	   System.out.println("ID :" + selectedNature.getNatureId());
+//	   System.out.println("DESC :" + selectedNature.getNatureDescription());
+//	   Nature nat = testAuction.getRowData();
+//	   System.out.println("nat LIB :" + nat.getNatureLibelle());
+//	   System.out.println("nat DESC :" + nat.getNatureDescription());
+   }
+
+
+   public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+
+
+	public Nature getSelectedNature() {
+		return selectedNature;
+	}
+
+
+
+	public void setSelectedNature(Nature selectedNature) {
+		this.selectedNature = selectedNature;
+	}
+
+
+
+
+
+
+
+
+}

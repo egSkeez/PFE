@@ -1,0 +1,1282 @@
+package xtensus.faxmail.utils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.mail.BodyPart;
+import javax.mail.Folder;
+import javax.mail.Header;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Part;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.internet.MimeMessage.RecipientType;
+import javax.servlet.ServletContext;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPClientConfig;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import xtensus.entity.Unite;
+import xtensus.faxmail.beans.AttachmentFileBean;
+import xtensus.faxmail.beans.FaxBean;
+import xtensus.faxmail.beans.MailBean;
+
+/**
+ * Cette classe represente une connexion au GED
+ * 
+ * @author HB , Xtensus Tunisie
+ * 
+ */
+public class FaxConnection {
+
+	private FTPClient ftp;
+	private String host;
+	private int port;
+	private String user;
+	private String password;
+	private boolean connectionStatus;
+	private Properties prop;
+	private Store store;
+
+	public Properties getProp() {
+		return prop;
+	}
+
+	public void setProp(Properties prop) {
+		this.prop = prop;
+	}
+
+	/**
+	 * Constructeur de la classe
+	 * 
+	 * @param host
+	 * @param port
+	 * @param user
+	 * @param password
+	 */
+	public FaxConnection() {
+		prop = new Properties();
+		try {
+			Resource rsrc = new ClassPathResource(
+					".."+File.separator+"MailFax"+File.separator+"faxReception.properties");
+			String pathConfigFile = rsrc.getFile().getAbsolutePath();
+			prop.load(new FileInputStream(pathConfigFile));
+
+			// smtp properties
+			host = prop.getProperty("mail.pop3.host");
+			user = prop.getProperty("mail.pop3.user");
+			password = prop.getProperty("mail.pop3.pass");
+
+			// authentification
+			Session session = Session.getDefaultInstance(prop,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(user, password);
+						}
+					});
+			store = session.getStore(prop.getProperty("mail.store.protocol"));
+			store.connect(host, user, password);
+
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public FaxConnection(String host, final String user, final String password,
+			Unite unite) {
+		prop = new Properties();
+		try {
+			// Recupération des donnée à patir de la BD table Unite
+
+			// String pathConfigFile = "C://GBO//MailFax//mail.properties";
+			// prop.load(new FileInputStream(pathConfigFile));
+			//
+			String protocol = "pop3";
+			String port = "110";
+			prop.setProperty("mail.pop3.host", host);
+			prop.setProperty("mail.pop3.user", user);
+			prop.setProperty("mail.pop3.pass", password);
+			prop.setProperty("mail.store.protocol", protocol);
+			prop.setProperty("mail.pop3.port", port);
+
+			System.out.println("host  " + host);
+			System.out.println("user  " + user);
+			System.out.println("password  " + password);
+			System.out.println("protocol " + protocol);
+
+			// authentification
+			Session session = Session.getDefaultInstance(prop,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(user, password);
+						}
+					});
+			store = session.getStore(prop.getProperty("mail.store.protocol"));
+			store.connect(host, user, password);
+
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// public FaxConnection() {
+	//
+	// try {
+	// // get context path
+	// ExternalContext jsfContext = FacesContext.getCurrentInstance()
+	// .getExternalContext();
+	// ServletContext servletContext = (ServletContext) jsfContext
+	// .getContext();
+	// String webContentRoot = servletContext.getRealPath("/");
+	// // String res = webContentRoot.substring(0, 13) + "GBO_v1.k";
+	// // // System.out.println(res);
+	// // webContentRoot = res;
+	// // fichier xml
+	// String pathConfigFile = webContentRoot
+	// + "\\WEB-INF\\GEDConfig\\mailfax.properties";
+	// Properties prop = new Properties();
+	// prop.load(new FileInputStream(pathConfigFile));
+	// connectionStatus = false;
+	// this.host = prop.getProperty("faxhost");
+	// this.user = prop.getProperty("faxuser");
+	// this.password = prop.getProperty("faxpassword");
+	// this.port = Integer.parseInt(prop.getProperty("faxport"));
+	//
+	// ftp = new FTPClient();
+	// ftp.connect(host, port);
+	// ftp.login(user, password);
+	// ftp.setFileType(FTP.BINARY_FILE_TYPE);
+	// FTPClientConfig config = new FTPClientConfig();
+	// config.setLenientFutureDates(true);
+	// ftp.configure(config);
+	//
+	// } catch (SocketException e) {
+	// e.printStackTrace();
+	// connectionStatus = true;
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// connectionStatus = true;
+	// }
+	//
+	// }
+
+	public MailBean getLastMail() {
+
+		String toAddress = null;
+		String fromAddress = null;
+		String fromName = null;
+		String fromOrganization = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+
+		String subject = null;
+		Date receivedDate = null;
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap = new HashMap<String, String>();
+		Map<String, Integer> attachmentFileMap = new HashMap<String, Integer>();
+
+		try {
+			Folder inbox = store.getFolder("Inbox");
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+
+			int numberOfMessages = message.length;
+			Message lastMessage = message[numberOfMessages - 1];
+
+			Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+			while (headersEnumeration.hasMoreElements()) {
+				Header h = (Header) headersEnumeration.nextElement();
+				headerMap.put(h.getName(), h.getValue());
+			}
+
+			replyTo = headerMap.get("Cc");
+			priority = headerMap.get("Importance");
+			fromOrganization = headerMap.get("Organization");
+
+			from = lastMessage.getFrom()[0].toString();
+			toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+					.toString();
+			subject = lastMessage.getSubject().toString();
+			receivedDate = lastMessage.getReceivedDate();
+
+			for (int j = 0; j < from.length(); j++) {
+				if (from.charAt(j) == '<') {
+					fromAddress = from.substring(j + 1, from.length() - 1);
+				}
+			}
+
+			fromName = from.replaceAll("<" + fromName + ">", "").trim();
+
+			if (lastMessage.isMimeType("multipart/*")) {
+				Multipart multipart = (Multipart) lastMessage.getContent();
+				int count = multipart.getCount();
+				for (int i = 0; i < count; i++) {
+					InputStream inputStream = multipart.getBodyPart(i)
+							.getInputStream();
+					int c;
+					while ((c = inputStream.read()) != -1) {
+						originalContent += c;
+					}
+				}
+			} else {
+
+				originalContent = lastMessage.getContent().toString();
+			}
+
+			inbox.close(true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			content = Utils.extractText(originalContent);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return new MailBean(fromName, fromAddress, fromOrganization, toAddress,
+				subject, receivedDate, content, originalContent, replyTo,
+				priority, headerMap, attachmentFileMap, null);
+
+	}
+
+	public List<MailBean> getAllMails() {
+		List<MailBean> mailList = new ArrayList<MailBean>();
+
+		String toAddress = null;
+		String fromAddress = null;
+		String fromOrganization = null;
+		String fromName = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+
+		String subject = null;
+		Date receivedDate = null;
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap;
+
+		Map<String, Integer> attachmentFileMap;
+		List<AttachmentFileBean> attachmentFileList;
+
+		try {
+
+			Folder inbox = store.getFolder("Inbox");
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+
+			int numberOfMessages = message.length;
+			for (int i = 0; i < numberOfMessages; i++) {
+				headerMap = new HashMap<String, String>();
+				attachmentFileMap = new HashMap<String, Integer>();
+				attachmentFileList = new ArrayList<AttachmentFileBean>();
+
+				Message lastMessage = message[i];
+
+				Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+				while (headersEnumeration.hasMoreElements()) {
+					Header h = (Header) headersEnumeration.nextElement();
+					headerMap.put(h.getName(), h.getValue());
+				}
+
+				replyTo = headerMap.get("Cc");
+				priority = headerMap.get("Importance");
+				fromOrganization = headerMap.get("Organization");
+
+				from = lastMessage.getFrom()[0].toString();
+				fromAddress = null;
+				for (int j = 0; j < from.length(); j++) {
+					if (from.charAt(j) == '<') {
+						fromAddress = from.substring(j + 1, from.length() - 1);
+					}
+				}
+				if (fromAddress == null) {
+					fromAddress = from;
+					int index = from.lastIndexOf("@");
+					fromName = from.substring(0, index);
+				} else {
+					fromName = from.replaceAll("<" + fromAddress + ">", "")
+							.trim();
+				}
+
+				toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+						.toString();
+				subject = lastMessage.getSubject().toString();
+				// 12 Aug 2014 16:29:31
+				receivedDate = null;
+				String Received = headerMap.get("Date");
+				try {
+					SimpleDateFormat formatter = new SimpleDateFormat(
+							"EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+					receivedDate = formatter.parse(Received);
+
+				} catch (Exception e) {
+					System.out.println("#PARSE Exception");
+					SimpleDateFormat formatter = new SimpleDateFormat(
+							"d MMM yyyy H:m:s", Locale.ENGLISH);
+					receivedDate = formatter.parse(Received);
+
+				}
+				System.out
+						.println("-----------------------------------------------------------");
+				System.out.println("Message content-type : "
+						+ lastMessage.getContentType() + " ...");
+
+				if (lastMessage.isMimeType("multipart/*")) {
+					Multipart multipart = (Multipart) message[i].getContent();
+					System.out.println("Contenu mail : "
+							+ multipart.getBodyPart(0).getContent());
+					for (int x = 0; x < multipart.getCount(); x++) {
+
+						BodyPart bodyPart = multipart.getBodyPart(x);
+						String disposition = bodyPart.getDisposition();
+
+						// ** 2014-10-22
+						System.out.println("contentType"
+								+ bodyPart.getContentType());
+						if (bodyPart.isMimeType("multipart/mixed")
+								|| bodyPart.isMimeType("multipart/alternative")
+								|| bodyPart.isMimeType("multipart/related")) {
+							originalContent = getText(bodyPart);
+							Multipart multipart2 = (Multipart) bodyPart
+									.getContent();
+							for (int k = 0; k < multipart2.getCount(); k++) {
+								BodyPart bodyPart2 = multipart2.getBodyPart(k);
+								String disposition2 = bodyPart2
+										.getDisposition();
+								if (disposition2 != null
+										&& (disposition2
+												.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+												.equalsIgnoreCase(BodyPart.INLINE))) {
+									System.out.println("k : " + k);
+									DataHandler handler = bodyPart2
+											.getDataHandler();
+									attachmentFileMap.put(handler.getName(),
+											bodyPart.getSize());
+
+									attachmentFileList
+											.add(new AttachmentFileBean(
+													message[i]
+															.getHeader("Message-ID")[0],
+													handler.getName(),
+													IOUtils.toByteArray(handler
+															.getInputStream()),
+													receivedDate, fromAddress));
+
+								}
+							}
+						} else {
+							if (bodyPart.getContentType().startsWith(
+									"TEXT/PLAIN")
+									|| bodyPart.getContentType().startsWith(
+											"text/plain")) {
+								originalContent = multipart.getBodyPart(0)
+										.getContent().toString();
+							}
+						}
+						if (disposition != null
+								&& (disposition
+										.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+										.equalsIgnoreCase(BodyPart.INLINE))) {
+
+							DataHandler handler = bodyPart.getDataHandler();
+							attachmentFileMap.put(handler.getName(),
+									bodyPart.getSize());
+
+							attachmentFileList.add(new AttachmentFileBean(
+									message[i].getHeader("Message-ID")[0],
+									handler.getName(), IOUtils
+											.toByteArray(handler
+													.getInputStream()),
+									receivedDate, fromAddress));
+
+						}
+					}
+
+				}
+
+				else {
+
+					originalContent = lastMessage.getContent().toString();
+				}
+				if (originalContent != null) {
+					try {
+						content = Utils.extractText(originalContent);
+						originalContent = originalContent.replaceAll("\r\n",
+								"<br/>");
+						System.out.println("originalContent : "
+								+ originalContent);
+					} catch (Exception e) {
+						content = "le contenu de ce mail n'est pas charger";
+					}
+				} else {
+					content = "Mail sans Message";
+				}
+
+				mailList.add(new MailBean(fromName, fromAddress,
+						fromOrganization, toAddress, subject, receivedDate,
+						content, originalContent, replyTo, priority, headerMap,
+						attachmentFileMap, attachmentFileList));
+				content = null;
+				originalContent = null;
+
+			}
+			// for (int i = 0; i < numberOfMessages; i++) {
+			//
+			// headerMap = new HashMap<String, String>();
+			// attachmentFileMap = new HashMap<String, Integer>();
+			// attachmentFileList = new ArrayList<AttachmentFileBean>();
+			//
+			// Message lastMessage = message[i];
+			//
+			// Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+			// while (headersEnumeration.hasMoreElements()) {
+			// Header h = (Header) headersEnumeration.nextElement();
+			// headerMap.put(h.getName(), h.getValue());
+			// }
+			//
+			// replyTo = headerMap.get("Cc");
+			// priority = headerMap.get("Importance");
+			// fromOrganization = headerMap.get("Organization");
+			//
+			// from = lastMessage.getFrom()[0].toString();
+			// fromAddress = null;
+			// for (int j = 0; j < from.length(); j++) {
+			// if (from.charAt(j) == '<') {
+			// fromAddress = from.substring(j + 1, from.length() - 1);
+			// }
+			// }
+			// if(fromAddress == null){
+			// fromAddress = from;
+			// int index = from.lastIndexOf("@");
+			// fromName = from.substring(0, index);
+			// }else{
+			// fromName = from.replaceAll("<" + fromAddress + ">", "").trim();
+			// }
+			//
+			//
+			// toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+			// .toString();
+			// subject = lastMessage.getSubject().toString();
+			//
+			// // get Received Date
+			// String Received = headerMap.get("Date");
+			//
+			// try {
+			// SimpleDateFormat formatter = new
+			// SimpleDateFormat("EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+			// receivedDate = formatter.parse(Received);
+			//
+			// } catch (Exception e) {
+			// System.out.println("#PARSE Exception");
+			// SimpleDateFormat formatter = new
+			// SimpleDateFormat("d MMM yyyy H:m:s", Locale.ENGLISH);
+			// receivedDate = formatter.parse(Received);
+			//
+			// }
+			// //receivedDate = lastMessage.getReceivedDate();
+			// System.out
+			// .println("-----------------------------------------------------------");
+			// System.out.println("Message content-type : "
+			// + lastMessage.getContentType() + " ...");
+			//
+			// if (lastMessage.isMimeType("multipart/*")) {
+			//
+			// Multipart multipart = (Multipart) message[i].getContent();
+			// System.out.println("Contenu mail : "
+			// + multipart.getBodyPart(0).getContent());
+			// for (int x = 0; x < multipart.getCount(); x++) {
+			//
+			// BodyPart bodyPart = multipart.getBodyPart(x);
+			// String disposition = bodyPart.getDisposition();
+			//
+			// // ** 2014-10-22
+			// if (bodyPart.isMimeType("multipart/mixed") ||
+			// bodyPart.isMimeType("multipart/alternative") ||
+			// bodyPart.isMimeType("multipart/related")) {
+			// originalContent = getText(bodyPart);
+			// }
+			// // else {
+			// // System.out.println(" Part NOT alternative " + x +
+			// " content-type : "
+			// // + bodyPart.getContentType() + " ...");
+			// // if (bodyPart.isMimeType("multipart/*")) {
+			// // Multipart multipart2 = (Multipart) bodyPart
+			// // .getContent();
+			// // for (int k = 0; k < multipart2.getCount(); k++) {
+			// // BodyPart bodyPart2 = multipart2
+			// // .getBodyPart(k);
+			// // if (bodyPart2.getContentType().startsWith(
+			// // "TEXT/HTML")) {
+			// // originalContent = bodyPart2
+			// // .getContent().toString();
+			// // }
+			// // }
+			// // }
+			// // // Khaled saoudi
+			// // else {
+			// // if(x==0){
+			// // originalContent = bodyPart.getContent()
+			// // .toString();
+			// // }else {
+			// // if(bodyPart.getContentType().startsWith(
+			// // "TEXT/PLAIN")){
+			// // originalContent = bodyPart.getContent()
+			// // .toString();
+			// // }
+			// // }
+			// // }
+			// // }
+			// // ** 2014-10-22
+			//
+			// // if (disposition != null
+			// // && (disposition
+			// // .equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+			// // .equalsIgnoreCase(BodyPart.INLINE))) {
+			// // System.out.println("Mail have some attachment : ");
+			// //
+			// // DataHandler handler = bodyPart.getDataHandler();
+			// // System.out.println("file name : "
+			// // + handler.getName());
+			// //
+			// // attachmentFileMap.put(handler.getName(),
+			// // bodyPart.getSize());
+			// //
+			// // attachmentFileList.add(new AttachmentFileBean(
+			// // message[i].getHeader("Message-ID")[0],
+			// // handler.getName(), IOUtils
+			// // .toByteArray(handler
+			// // .getInputStream()),
+			// // receivedDate, fromAddress));
+			// //
+			// // }
+			// // else if (disposition != null
+			// // && (disposition
+			// // .equalsIgnoreCase(BodyPart.INLINE))) {
+			// //
+			// // DataHandler handler = bodyPart.getDataHandler();
+			// //
+			// // attachmentFileMap.put(handler.getName(),
+			// // bodyPart.getSize());
+			// //
+			// // attachmentFileList.add(new AttachmentFileBean(
+			// // message[i].getHeader("Message-ID")[0],
+			// // handler.getName(), IOUtils
+			// // .toByteArray(handler
+			// // .getInputStream()),
+			// // receivedDate, fromAddress));
+			// //
+			// // }
+			// }
+			//
+			// }
+			//
+			// else {
+			//
+			// originalContent = lastMessage.getContent().toString();
+			// }
+			// if (originalContent != null) {
+			// try {
+			// content = Utils.extractText(originalContent);
+			// originalContent = originalContent.replaceAll("\r\n", "<br/>");
+			// System.out.println("originalContent : " + originalContent);
+			// } catch (Exception e) {
+			// content = "le contenu de ce mail n'est pas charger";
+			// }
+			// } else {
+			// content = "Mail sans Message";
+			// }
+			//
+			//
+			//
+			//
+			// mailList.add(new MailBean(fromName, fromAddress,
+			// fromOrganization, toAddress, subject, receivedDate,
+			// content, originalContent, replyTo, priority, headerMap,
+			// attachmentFileMap, attachmentFileList));
+			//
+			// }
+
+			inbox.close(true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return mailList;
+	}
+
+	public List<MailBean> getMailsAfter(Date date) {
+		List<MailBean> mailList = new ArrayList<MailBean>();
+
+		String toAddress = null;
+		String fromAddress = null;
+		String fromName = null;
+		String fromOrganization = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+
+		String subject = null;
+		Date receivedDate = new Date();
+
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap;
+		Map<String, Integer> attachmentFileMap = new HashMap<String, Integer>();
+		List<AttachmentFileBean> attachmentFileList;
+
+		try {
+
+			Folder inbox = store.getFolder("Inbox");
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+
+			int numberOfMessages = message.length;
+			for (int i = 0; i < numberOfMessages; i++) {
+				headerMap = new HashMap<String, String>();
+				attachmentFileMap = new HashMap<String, Integer>();
+				attachmentFileList = new ArrayList<AttachmentFileBean>();
+
+				Message lastMessage = message[i];
+
+				Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+				while (headersEnumeration.hasMoreElements()) {
+					Header h = (Header) headersEnumeration.nextElement();
+					headerMap.put(h.getName(), h.getValue());
+				}
+
+				replyTo = headerMap.get("Cc");
+				priority = headerMap.get("Importance");
+				fromOrganization = headerMap.get("Organization");
+
+				from = lastMessage.getFrom()[0].toString();
+				fromAddress = null;
+				for (int j = 0; j < from.length(); j++) {
+					if (from.charAt(j) == '<') {
+						fromAddress = from.substring(j + 1, from.length() - 1);
+					}
+				}
+				if (fromAddress == null) {
+					fromAddress = from;
+					int index = from.lastIndexOf("@");
+					fromName = from.substring(0, index);
+				} else {
+					fromName = from.replaceAll("<" + fromAddress + ">", "")
+							.trim();
+				}
+
+				toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+						.toString();
+				subject = lastMessage.getSubject().toString();
+				receivedDate = null;
+				String Received = headerMap.get("Date");
+				try {
+					SimpleDateFormat formatter = new SimpleDateFormat(
+							"EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+					receivedDate = formatter.parse(Received);
+
+				} catch (Exception e) {
+					System.out.println("#PARSE Exception");
+					SimpleDateFormat formatter = new SimpleDateFormat(
+							"d MMM yyyy H:m:s", Locale.ENGLISH);
+					receivedDate = formatter.parse(Received);
+
+				}
+				// TODO
+				if (receivedDate.after(date)) {
+					if (lastMessage.isMimeType("multipart/*")) {
+						Multipart multipart = (Multipart) message[i]
+								.getContent();
+						System.out.println("Contenu mail : "
+								+ multipart.getBodyPart(0).getContent());
+						for (int x = 0; x < multipart.getCount(); x++) {
+
+							BodyPart bodyPart = multipart.getBodyPart(x);
+							String disposition = bodyPart.getDisposition();
+
+							// ** 2014-10-22
+							System.out.println("contentType"
+									+ bodyPart.getContentType());
+							if (bodyPart.isMimeType("multipart/mixed")
+									|| bodyPart
+											.isMimeType("multipart/alternative")
+									|| bodyPart.isMimeType("multipart/related")) {
+								originalContent = getText(bodyPart);
+								Multipart multipart2 = (Multipart) bodyPart
+										.getContent();
+								for (int k = 0; k < multipart2.getCount(); k++) {
+									BodyPart bodyPart2 = multipart2
+											.getBodyPart(k);
+									String disposition2 = bodyPart2
+											.getDisposition();
+									if (disposition2 != null
+											&& (disposition2
+													.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+													.equalsIgnoreCase(BodyPart.INLINE))) {
+										System.out.println("k : " + k);
+										DataHandler handler = bodyPart2
+												.getDataHandler();
+										attachmentFileMap.put(
+												handler.getName(),
+												bodyPart.getSize());
+
+										attachmentFileList
+												.add(new AttachmentFileBean(
+														message[i]
+																.getHeader("Message-ID")[0],
+														handler.getName(),
+														IOUtils.toByteArray(handler
+																.getInputStream()),
+														receivedDate,
+														fromAddress));
+
+									}
+								}
+							} else {
+								if (bodyPart.getContentType().startsWith(
+										"TEXT/PLAIN")
+										|| bodyPart.getContentType()
+												.startsWith("text/plain")) {
+									originalContent = multipart.getBodyPart(0)
+											.getContent().toString();
+								}
+							}
+							if (disposition != null
+									&& (disposition
+											.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+											.equalsIgnoreCase(BodyPart.INLINE))) {
+
+								DataHandler handler = bodyPart.getDataHandler();
+								attachmentFileMap.put(handler.getName(),
+										bodyPart.getSize());
+
+								attachmentFileList.add(new AttachmentFileBean(
+										message[i].getHeader("Message-ID")[0],
+										handler.getName(), IOUtils
+												.toByteArray(handler
+														.getInputStream()),
+										receivedDate, fromAddress));
+
+							}
+						}
+
+					}
+
+					else {
+
+						originalContent = lastMessage.getContent().toString();
+					}
+					if (originalContent != null) {
+						try {
+							content = Utils.extractText(originalContent);
+							originalContent = originalContent.replaceAll(
+									"\r\n", "<br/>");
+							System.out.println("originalContent : "
+									+ originalContent);
+						} catch (Exception e) {
+							content = "le contenu de ce mail n'est pas charger";
+						}
+					} else {
+						content = "Mail sans Message";
+					}
+
+					mailList.add(new MailBean(fromName, fromAddress,
+							fromOrganization, toAddress, subject, receivedDate,
+							content, originalContent, replyTo, priority,
+							headerMap, attachmentFileMap, attachmentFileList));
+					content = null;
+					originalContent = null;
+				}
+			}
+			// for (int i = 0; i < numberOfMessages; i++) {
+			// headerMap = new HashMap<String, String>();
+			// attachmentFileList = new ArrayList<AttachmentFileBean>();
+			// Message lastMessage = message[i];
+			//
+			// Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+			// while (headersEnumeration.hasMoreElements()) {
+			// Header h = (Header) headersEnumeration.nextElement();
+			// headerMap.put(h.getName(), h.getValue());
+			// }
+			//
+			// replyTo = headerMap.get("Cc");
+			// priority = headerMap.get("Importance");
+			// fromOrganization = headerMap.get("Organization");
+			//
+			// from = lastMessage.getFrom()[0].toString();
+			// // get Received Date
+			// String Received = headerMap.get("Date");
+			// receivedDate = null;
+			// try {
+			// SimpleDateFormat formatter = new
+			// SimpleDateFormat("EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+			// receivedDate = formatter.parse(Received);
+			//
+			// } catch (Exception e) {
+			// System.out.println("#PARSE Exception");
+			// SimpleDateFormat formatter = new
+			// SimpleDateFormat("d MMM yyyy H:m:s", Locale.ENGLISH);
+			// receivedDate = formatter.parse(Received);
+			//
+			// }
+			// //receivedDate = lastMessage.getReceivedDate();
+			//
+			// // java.sql.Date sqlDate = new java.sql.Date(
+			// // receivedDate.getTime());
+			//
+			// if (receivedDate.after(date)) {
+			// fromAddress = null;
+			// for (int j = 0; j < from.length(); j++) {
+			// if (from.charAt(j) == '<') {
+			// fromAddress = from.substring(j + 1,
+			// from.length() - 1);
+			// }
+			// }
+			//
+			// if(fromAddress == null){
+			// fromAddress = from;
+			// int index = from.lastIndexOf("@");
+			// fromName = from.substring(0, index);
+			// }else{
+			// fromName = from.replaceAll("<" + fromAddress + ">", "").trim();
+			// }
+			// toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+			// .toString();
+			// subject = lastMessage.getSubject().toString();
+			// // receivedDate = lastMessage.getReceivedDate();
+			// if (lastMessage.isMimeType("multipart/*")) {
+			//
+			// Multipart multipart = (Multipart) message[i].getContent();
+			// System.out.println("Contenu mail : "
+			// + multipart.getBodyPart(0).getContent());
+			// for (int x = 0; x < multipart.getCount(); x++) {
+			// BodyPart bodyPart = multipart.getBodyPart(x);
+			// String disposition = bodyPart.getDisposition();
+			//
+			// // ** 2014-10-22
+			// if (bodyPart.isMimeType("multipart/mixed") ||
+			// bodyPart.isMimeType("multipart/alternative") ||
+			// bodyPart.isMimeType("multipart/related")) {
+			// originalContent = getText(bodyPart);
+			// }
+			// // else {
+			// // System.out.println(" Part NOT alternative " + x +
+			// " content-type : "
+			// // + bodyPart.getContentType() + " ...");
+			// // if (bodyPart.isMimeType("multipart/*")) {
+			// // Multipart multipart2 = (Multipart) bodyPart
+			// // .getContent();
+			// // for (int k = 0; k < multipart2.getCount(); k++) {
+			// // BodyPart bodyPart2 = multipart2
+			// // .getBodyPart(k);
+			// // if (bodyPart2.getContentType().startsWith(
+			// // "TEXT/HTML")) {
+			// // originalContent = bodyPart2
+			// // .getContent().toString();
+			// // }
+			// // }
+			// // }
+			// // // Khaled saoudi
+			// // else {
+			// // if(x==0){
+			// // originalContent = bodyPart.getContent()
+			// // .toString();
+			// // }else {
+			// // if(bodyPart.getContentType().startsWith(
+			// // "TEXT/PLAIN")){
+			// // originalContent = bodyPart.getContent()
+			// // .toString();
+			// // }
+			// // }
+			// // }
+			// // }
+			// // ** 2014-10-22
+			// if (disposition != null
+			// && (disposition
+			// .equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+			// .equalsIgnoreCase(BodyPart.INLINE))) {
+			// DataHandler handler = bodyPart.getDataHandler();
+			// attachmentFileMap.put(handler.getName(),
+			// bodyPart.getSize());
+			// attachmentFileList.add(new AttachmentFileBean(
+			// message[i].getHeader("Message-ID")[0],
+			// handler.getName(), IOUtils
+			// .toByteArray(handler
+			// .getInputStream()),
+			// receivedDate, fromAddress));
+			//
+			// }
+			// // else if (disposition != null
+			// // && (disposition
+			// // .equalsIgnoreCase(BodyPart.INLINE))) {
+			// //
+			// // DataHandler handler = bodyPart.getDataHandler();
+			// //
+			// // attachmentFileMap.put(handler.getName(),
+			// // bodyPart.getSize());
+			// //
+			// // attachmentFileList.add(new AttachmentFileBean(
+			// // message[i].getHeader("Message-ID")[0],
+			// // handler.getName(), IOUtils
+			// // .toByteArray(handler
+			// // .getInputStream()),
+			// // receivedDate, fromAddress));
+			// //
+			// // }
+			// }
+			//
+			// }
+			//
+			// else {
+			//
+			// originalContent = lastMessage.getContent().toString();
+			// }
+			// if (originalContent != null) {
+			// content = Utils.extractText(originalContent);
+			// originalContent = originalContent.replaceAll("\r\n", "<br/>");
+			// System.out.println("originalContent : " + originalContent);
+			// } else {
+			// originalContent = "Mail sans Message";
+			// content = "Mail sans Message";
+			// }
+			// mailList.add(new MailBean(fromName, fromAddress,
+			// fromOrganization, toAddress, subject, receivedDate,
+			// content, originalContent, replyTo, priority,
+			// headerMap, attachmentFileMap, null));
+			// }
+			// }
+			inbox.close(true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return mailList;
+
+	}
+
+	// from Oracle
+	/**
+	 * Return the primary text content of the message.
+	 */
+	private String getText(Part p) throws MessagingException, IOException {
+		if (p.isMimeType("text/*")) {
+			String s = (String) p.getContent();
+			// textIsHtml = p.isMimeType("text/html");
+			return s;
+		}
+
+		if (p.isMimeType("multipart/alternative")) {
+			// prefer html text over plain text
+			Multipart mp = (Multipart) p.getContent();
+			String text = null;
+			for (int i = 0; i < mp.getCount(); i++) {
+				Part bp = mp.getBodyPart(i);
+				if (bp.isMimeType("text/plain")) {
+					if (text == null)
+						text = getText(bp);
+					// continue;
+					break;
+				} else if (bp.isMimeType("text/html")) {
+					String s = getText(bp);
+					if (s != null)
+						return s;
+				} else {
+					return getText(bp);
+				}
+			}
+			return text;
+		} else if (p.isMimeType("multipart/*")) {
+			Multipart mp = (Multipart) p.getContent();
+			for (int i = 0; i < mp.getCount(); i++) {
+				String s = getText(mp.getBodyPart(i));
+				if (s != null)
+					return s;
+			}
+		}
+
+		return null;
+	}
+
+	// /**
+	// * Methode permettant de recuperer le dernier fax recu.
+	// *
+	// * @return le dernier fax recu
+	// */
+	// public FaxBean getLastFax() {
+	// String senderNumber = null;
+	// Date receivedDate = null;
+	// byte[] data = null;
+	// ArrayList<String> temp = new ArrayList<String>();
+	// String lastFile = "";
+	// TifFile tifFile;
+	// int numberOfPages = 0;
+	//
+	// try {
+	// for (String file : ftp.listNames("/recvq")) {
+	// if (file.startsWith("fax"))
+	// temp.add(file);
+	// }
+	// Collections.sort(temp);
+	// lastFile = temp.get(temp.size() - 1);
+	// File file = new File(lastFile);
+	// OutputStream outputStream = new FileOutputStream(file);
+	// ftp.retrieveFile("/recvq/" + lastFile, outputStream);
+	// tifFile = new TifFile(file);
+	//
+	// senderNumber = tifFile.getMetadata().get("Image Description");
+	// numberOfPages = Integer.parseInt((tifFile.getMetadata()
+	// .get("Orientation")));
+	//
+	// receivedDate = Utils.getDateFromString(tifFile.getMetadata().get(
+	// "Modify Date"));
+	// data = Utils.getByteArrayFromFile(file);
+	//
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// return new FaxBean(senderNumber, receivedDate, data, lastFile,
+	// numberOfPages);
+	// }
+
+	// /**
+	// * Cette methode retourne tout les faxBeans.
+	// *
+	// * @return
+	// */
+	// public List<FaxBean> getAllFaxs() {
+	//
+	// ArrayList<FaxBean> faxBeanList = new ArrayList<FaxBean>();
+	// String senderNumber = null;
+	// Date receivedDate = null;
+	// byte[] data = null;
+	// ArrayList<String> temp = new ArrayList<String>();
+	// String lastFile = "";
+	// TifFile tifFile;
+	// int numberOfPages = 0;
+	// try {
+	// for (String file : ftp.listNames("/recvq")) {
+	// if (file.startsWith("fax"))
+	// temp.add(file);
+	// }
+	// Collections.sort(temp);
+	//
+	// for (String fileName : temp) {
+	//
+	// lastFile = fileName;
+	// File file = new File(lastFile);
+	// OutputStream outputStream = new FileOutputStream(file);
+	// ftp.retrieveFile("/recvq/" + lastFile, outputStream);
+	// tifFile = new TifFile(file);
+	//
+	// senderNumber = tifFile.getMetadata().get("Image Description");
+	// numberOfPages = Integer.parseInt((tifFile.getMetadata()
+	// .get("Orientation")));
+	// receivedDate = Utils.getDateFromString(tifFile.getMetadata()
+	// .get("Modify Date"));
+	// data = Utils.getByteArrayFromFile(file);
+	//
+	// }
+	// faxBeanList.add(new FaxBean(senderNumber, receivedDate, data,
+	// lastFile, numberOfPages));
+	//
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// return faxBeanList;
+	// }
+
+	/**
+	 * Cette methode permet de retourner la liste des fax recus apres la date
+	 * passe en parametre
+	 * 
+	 * @param date
+	 *            la date
+	 * @return liste des fax recus apres la date passe en parametre
+	 */
+	// public List<FaxBean> getFaxsAfterDate(Date date) {
+	//
+	// ArrayList<FaxBean> faxBeanList = new ArrayList<FaxBean>();
+	// String senderNumber = null;
+	// Date receivedDate = null;
+	// byte[] data = null;
+	// ArrayList<String> temp = new ArrayList<String>();
+	// String lastFile = "";
+	// TifFile tifFile;
+	// int numberOfPages = 0;
+	//
+	// try {
+	// for (String file : ftp.listNames("/recvq")) {
+	// if (file.startsWith("fax"))
+	// temp.add(file);
+	// }
+	// Collections.sort(temp);
+	//
+	// for (String fileName : temp) {
+	//
+	// lastFile = fileName;
+	// File file = new File(lastFile);
+	// OutputStream outputStream = new FileOutputStream(file);
+	// ftp.retrieveFile("/recvq/" + lastFile, outputStream);
+	// tifFile = new TifFile(file);
+	//
+	// senderNumber = tifFile.getMetadata().get("Image Description");
+	// numberOfPages = Integer.parseInt((tifFile.getMetadata()
+	// .get("Orientation")));
+	// receivedDate = Utils.getDateFromString(tifFile.getMetadata()
+	// .get("Modify Date"));
+	// data = Utils.getByteArrayFromFile(file);
+	//
+	// }
+	//
+	// if (receivedDate.after(date))
+	// faxBeanList.add(new FaxBean(senderNumber, receivedDate, data,
+	// lastFile, numberOfPages));
+	//
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// return faxBeanList;
+	// }
+
+	public FaxBean getFaxByName(String faxname) {
+		String senderNumber = null;
+		Date receivedDate = null;
+		byte[] data = null;
+		TifFile tifFile;
+		int numberOfPages = 0;
+
+		File file = new File(faxname);
+		OutputStream outputStream;
+		try {
+			outputStream = new FileOutputStream(file);
+			ftp.retrieveFile("/recvq/" + faxname, outputStream);
+			tifFile = new TifFile(file);
+			senderNumber = tifFile.getMetadata().get("Image Description");
+			receivedDate = Utils.getDateFromString(tifFile.getMetadata().get(
+					"Modify Date"));
+			data = Utils.getByteArrayFromFile(file);
+			numberOfPages = Integer.parseInt((tifFile.getMetadata()
+					.get("Orientation")));
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return new FaxBean(senderNumber, receivedDate, data, faxname,
+				numberOfPages);
+	}
+
+	/**
+	 * Cette methode permet de fermer la connexion avec le serveur fax
+	 */
+	public void close() {
+		try {
+			ftp.logout();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public FTPClient getFtp() {
+		return ftp;
+	}
+
+	public void setFtp(FTPClient ftp) {
+		this.ftp = ftp;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setConnectionStatus(boolean connectionStatus) {
+		this.connectionStatus = connectionStatus;
+	}
+
+	public boolean isConnectionStatus() {
+		return connectionStatus;
+	}
+
+}

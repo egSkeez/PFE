@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<title>Liste Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+
+<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+			    <div id="corpsGauche">
+					
+					<h:form>
+					<rich:extendedDataTable rows="10"
+									value="#{courrierAncienDataModel}" var="cr"
+									id="data" 
+									style=" margin-left:-10px; margin-right:-10px;direction:#{languageManager.direction};"
+									onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+									onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+									<f:facet name="header">
+										<h:outputText value="#{msg.listCourriersJour}" />
+									</f:facet>
+									<rich:column 
+										label="#{msg.Reference}" width="15%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.Reference}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierReference}" />
+									</rich:column>
+									<rich:column sortBy="#{cr.courrierObjet}"
+										filterBy="#{cr.courrierObjet}" filterEvent="onkeyup"
+										label="#{msg.ColonneObjet}" width="13%">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneObjet}" />
+										</f:facet>
+										<h:outputText value="#{cr.courrierObjet}" />
+									</rich:column>
+									
+									</rich:extendedDataTable>
+									<rich:datascroller for="data" id="scroller" />
+									<h:outputText value="#{msg.nbEnregistrement}"
+										styleClass="xteNombreEnregistrementLabelOutput" />
+									
+								</h:form>
+								
+								
+								
+					</div>
+					
+			</div>
+
+</div>
+</f:view>
+
+
+
+
+
+
+</body>
+</html>
+</ui:composition>

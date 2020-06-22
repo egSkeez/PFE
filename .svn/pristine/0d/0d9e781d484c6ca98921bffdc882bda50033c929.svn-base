@@ -1,0 +1,733 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion Unités</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<script> 
+function allerVersPanel() { 
+	window.location.href = "#accoruser1";
+} 
+    </script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel"
+						style="height:30px; padding-top:5px;">
+						<h:form>
+							<div>
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='GestionGBO0.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="synch" status="ajaxStatus" rendered="false"
+									action="#{uniteGestionBean.synchronisationTous}"
+									oncomplete="document.location.href='UniteGestion.jsf'">
+									<h:graphicImage value="../framGraphique/images/reload.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+
+							</div>
+							<a4j:keepAlive beanName="uniteGestionBean" />
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+							<rich:modalPanel id="waitPanel" style="text-align:center">
+								<h:outputText value="#{msg.messageAttente}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+						</h:form>
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1"
+							style="display:#{uniteGestionBean.hideAccor};">
+							<a4j:keepAlive beanName="uniteGestionBean" ajaxOnly="true" />
+							<rich:simpleTogglePanel id="accor1" styleClass="rich-panel"
+								switchType="client" label="#{msg.gestionUnite}">
+								<rich:messages ajaxRendered="true" errorClass="msgError"
+									styleClass="error" />
+								<table width="100%">
+									<tr>
+										<td  valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText
+														value="#{msg.codeStructure} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+
+												</h:column>
+												<h:column>
+													<h:outputText styleClass="xteDetailLabel"
+														value="#{uniteGestionBean.unite.uniteCodeSonede}" />
+
+												</h:column>
+											</h:panelGrid>
+										</td>
+										<td  valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText
+														value="#{msg.codeStructureParente} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+
+												</h:column>
+												<h:column>
+													<h:outputText styleClass="xteDetailLabel"
+														value="#{uniteGestionBean.unite.uniteParenteCodeSonede}#{uniteGestionBean.etatStructureParente}" />
+
+												</h:column>
+											</h:panelGrid>
+										</td>
+									</tr>
+									<tr>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.nomUnite} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="Nom" disabled="true"
+														value="#{uniteGestionBean.unite.uniteNom}" required="true"
+														requiredMessage="* #{msg.nomUnite} #{msg.champsobligatoire}"
+														maxlength="250" />
+
+												</h:column>
+												<h:column>
+													<h:outputText value="Accronyme #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="accro" disabled="true"
+														value="#{uniteGestionBean.unite.uniteAccronyme}"
+														required="true"
+														requiredMessage="* Accronyme #{msg.champsobligatoire}"
+														maxlength="250" />
+												</h:column>
+												<h:column></h:column>
+												<h:column></h:column>
+
+											</h:panelGrid>
+										</td>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.nomUniteAr} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="NomAr"
+														value="#{uniteGestionBean.unite.uniteNomAr}"
+														required="true"
+														requiredMessage="* #{msg.nomUniteAr} #{msg.champsobligatoire}"
+														maxlength="250" />
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="Avoir son propre BO de rattachement #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+
+												<h:column>
+													<h:selectOneMenu id="inputtAssocatedBoc2"
+														value="#{uniteGestionBean.selectedBocDirecte}"
+														styleClass="xteDetailLabelcombox"
+														style=" width : 141px; height : 20px;">
+														<a4j:support event="onchange"
+															reRender="inputtAssocatedUnite,inputtAssocatedBoc"
+															actionListener="#{uniteGestionBean.eventChangeBocUnite}" />
+														<f:selectItems
+															value="#{uniteGestionBean.selectItemsBOCsDirect}" />
+
+													</h:selectOneMenu>
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{msg.uniteRattachement}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:selectOneMenu id="inputtAssocatedUnite"
+														value="#{uniteGestionBean.selectedAssociatedUnit}"
+														styleClass="xteDetailLabelcombox"
+														style=" width : 141px; height : 20px;">
+														<a4j:support event="onchange"
+															reRender="inputtAssocatedBoc2,inputtAssocatedBoc"
+															actionListener="#{uniteGestionBean.eventChangeUnite}" />
+														<f:selectItems
+															value="#{uniteGestionBean.selectItemsUnits}" />
+													</h:selectOneMenu>
+													<h:outputText rendered="false" styleClass="xteDetailLabel"
+														value="#{uniteGestionBean.unite.uniteParenteCodeSonede} - #{uniteGestionBean.uniteParenteName}"></h:outputText>
+
+												</h:column>
+
+												<h:column>
+													<h:outputText 
+														value="#{msg.boRattachement} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<h:outputText value="*" styleClass="error"
+														rendered="#{uniteGestionBean.modification}" />
+												</h:column>
+
+												<h:column>
+													<h:selectOneMenu id="inputtAssocatedBoc" disabled="true"
+														
+														value="#{uniteGestionBean.selectedBoc}"
+														styleClass="xteDetailLabelcombox" required="true"
+														requiredMessage="* #{msg.boRattachement} #{msg.champsobligatoire}"
+														style=" width : 141px; height : 20px;">
+
+														<f:selectItems value="#{uniteGestionBean.selectItemsBOCs}" />
+													</h:selectOneMenu>
+												</h:column>
+												
+
+
+
+											</h:panelGrid></td>
+									</tr>
+									
+								</table>
+								<rich:spacer height="10" />
+								<div align="center">
+									<a4j:commandButton id="btnAjout" value="#{msg.buttonAjouter}"
+										rendered="#{uniteGestionBean.affectation}" status="ajaxStatus"
+										action="#{uniteGestionBean.affecterSelectedRow}"
+										oncomplete="if(#{uniteGestionBean.status1}==true) #{rich:component('askUpdate')}.show();"
+										reRender="accor1,accoruser1"></a4j:commandButton>
+									<a4j:commandButton id="btnModif" value="#{msg.btnSaveCode}"
+										status="ajaxStatus"
+										rendered="#{uniteGestionBean.modification}" type="submit"
+										action="#{uniteGestionBean.updateSelectedRow}"
+										oncomplete="if(#{uniteGestionBean.status1}==true) #{rich:component('askUpdate')}.show();
+										 if(#{uniteGestionBean.status2}==true) #{rich:component('msgPanalErreur')}.show();"
+										reRender="accor1,accoruser1,accor2,accoruser2"></a4j:commandButton>
+									<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+										onclick="document.location.href='UniteGestion.jsf'">
+									</a4j:commandButton>
+								</div>
+
+
+								<rich:spacer height="10" />
+								<div align="left">
+									<h:outputText value="#{msg.infoChampObligatoir}" />
+								</div>
+							</rich:simpleTogglePanel>
+						</h:form>
+						<!-- *******popup Info Validation d'ajout -->
+
+						<!-- ***************************popup Update ************************** -->
+
+						<rich:modalPanel id="askUpdate" autosized="true" height="90"
+							width="350">
+							<a4j:keepAlive beanName="uniteGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink3" alt="Fermer" />
+									<rich:componentControl for="askUpdate" attachTo="hidelink3"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.confirmUpdate}" />
+										</td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="document.location.href='UniteGestion.jsf'"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+								</div>
+								<rich:spacer width="10" />
+
+							</h:form>
+						</rich:modalPanel>
+						<!-- *****popup Erreur d'ajout remaining name****** -->
+						<rich:modalPanel id="msgPanalErrRemainName" autosized="true"
+							height="90" width="350">
+							<a4j:keepAlive beanName="uniteGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelError}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkErrRemainName" />
+									<rich:componentControl for="msgPanalErrRemainName"
+										attachTo="hidelinkErrRemainName" operation="hide"
+										event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/erreur.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{uniteGestionBean.message}" /></td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('msgPanalErrRemainName');"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<!-- ******************popup validation de modification*********************** -->
+						<rich:modalPanel id="msgPanal" autosized="true" height="90"
+							width="350">
+							<a4j:keepAlive beanName="uniteGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<a4j:commandLink id="upd2"
+									action="#{uniteGestionBean.viderchamp}"
+									reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Label,data,scroller,record">
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" />
+								</a4j:commandLink>
+							</f:facet>
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{uniteGestionBean.message}" /></td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										action="#{uniteGestionBean.viderchamp}"
+										oncomplete="Richfaces.hideModalPanel('msgPanal');"
+										type="submit" ajaxSingle="true" styleClass="submitButton"
+										reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Label,data,scroller,record" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<!-- *****popup Erreur de modification****** -->
+						<rich:modalPanel id="msgPanalErreur" autosized="true" height="90"
+							width="350">
+							<a4j:keepAlive beanName="uniteGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelError}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkErreur" />
+									<rich:componentControl for="msgPanalErreur"
+										attachTo="hidelinkErreur" operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/erreur.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.erreurUpdateUnite}" /></td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="Richfaces.hideModalPanel('msgPanalErreur');"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+					</div>
+
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listUnites} #{msg.actuelle}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="uniteGestionBean" />
+						<h:form>
+							<rich:dataTable value="#{uniteGestionBean.listUnitesLDAPDM}"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+								var="unite" id="data0" rows="10" styleClass="rich-panel">
+								<rich:column width="10%" sortBy="#{unite.uniteCodeSonede}"
+									filterBy="#{unite.uniteCodeSonede}" filterEvent="onkeyup"
+									label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{unite.uniteCodeSonede}" />
+									</div>
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{unite.uniteNom}"
+									filterBy="#{unite.uniteNom}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomUnite}" />
+									</f:facet>
+									<h:outputText value="#{unite.uniteNom}" />
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{unite.uniteNomAr}"
+									filterBy="#{unite.uniteNomAr}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomUniteAr}" />
+									</f:facet>
+									<h:outputText value="#{unite.uniteNomAr}" />
+
+								</rich:column>
+
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="uniteGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="ed1"
+												action="#{uniteGestionBean.getSelectionRow}"
+												oncomplete="allerVersPanel();"
+												reRender="accor1,accoruser1,accor2,accoruser2">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="editer" />
+											</a4j:commandLink>
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data0" id="scroller0" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record0"
+									value="#{uniteGestionBean.listUnitesLDAPNB}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+
+
+					</rich:panel>
+
+
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listUnites} #{msg.modifees}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="uniteGestionBean" />
+						<h:form>
+							<rich:dataTable value="#{uniteGestionBean.listUnitesModifieesDM}"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+								var="unite" id="data1" rows="10" styleClass="rich-panel">
+								<rich:column width="10%" sortBy="#{unite.uniteCodeSonede}"
+									filterBy="#{unite.uniteCodeSonede}" filterEvent="onkeyup"
+									label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{unite.uniteCodeSonede}" />
+									</div>
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{unite.uniteNom}"
+									filterBy="#{unite.uniteNom}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomUnite}" />
+									</f:facet>
+									<h:outputText value="#{unite.uniteNom}" />
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{unite.uniteNomAr}"
+									filterBy="#{unite.uniteNomAr}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomUniteAr}" />
+									</f:facet>
+									<h:outputText value="#{unite.uniteNomAr}" />
+
+								</rich:column>
+
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="uniteGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="synch"
+												action="#{uniteGestionBean.synchronisation}"
+												oncomplete="if(#{uniteGestionBean.status3}==true) #{rich:component('askSynchro')}.show();">
+												<h:graphicImage value="../framGraphique/images/reload.png" />
+											</a4j:commandLink>
+											<rich:toolTip for="synch" value="Synchroniser"
+												direction="top-right" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data1" id="scroller1" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record1"
+									value="#{uniteGestionBean.listUnitesModifieesNB}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+						<!-- ***************************popup Update ************************** -->
+
+						<rich:modalPanel id="askSynchro" autosized="true" height="90"
+							width="350">
+							<a4j:keepAlive beanName="uniteGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink322" alt="Fermer" />
+									<rich:componentControl for="askSynchro" attachTo="hidelink322"
+										operation="hide22" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="UnitéSynchronisée avec succès" />
+										</td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										onclick="document.location.href='UniteGestion.jsf'"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+								</div>
+								<rich:spacer width="10" />
+
+							</h:form>
+						</rich:modalPanel>
+
+					</rich:panel>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listUnites} #{msg.aAffecter}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="uniteGestionBean" />
+						<h:form>
+							<rich:dataTable value="#{uniteGestionBean.listNouvellesUnitesDM}"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+								var="unite" id="data" rows="10" styleClass="rich-panel">
+								<rich:column width="10%" sortBy="#{unite.uniteCodeSonede}"
+									filterBy="#{unite.uniteCodeSonede}" filterEvent="onkeyup"
+									label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{unite.uniteCodeSonede}" />
+									</div>
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{unite.uniteNom}"
+									filterBy="#{unite.uniteNom}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomUnite}" />
+									</f:facet>
+									<h:outputText value="#{unite.uniteNom}" />
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{unite.uniteNomAr}"
+									filterBy="#{unite.uniteNomAr}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomUniteAr}" />
+									</f:facet>
+									<h:outputText value="#{unite.uniteNomAr}" />
+
+								</rich:column>
+
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="uniteGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="ed"
+												action="#{uniteGestionBean.getSelectionRowAffectation}"
+												oncomplete="allerVersPanel();"
+												reRender="accor1,accoruser1,accor2,accoruser2">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="editer" />
+											</a4j:commandLink>
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{uniteGestionBean.listNouvellesUnitesNB}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+
+
+					</rich:panel>
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

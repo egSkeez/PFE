@@ -1,0 +1,57 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Nature;
+import xtensus.ldap.model.Unit;
+
+public class StatistiqueCourrierStructureByNature {
+	private Unit unite;
+	private Nature natureLibelle;
+	private Integer countCourrier;
+	private Integer pourcentage;
+
+	public StatistiqueCourrierStructureByNature() {
+
+	}
+
+	public Unit getUnite() {
+		return unite;
+	}
+
+	public void setUnite(Unit unite) {
+		this.unite = unite;
+	}
+
+	public Nature getNatureLibelle() {
+		return natureLibelle;
+	}
+
+	public void setNatureLibelle(Nature natureLibelle) {
+		this.natureLibelle = natureLibelle;
+	}
+
+	public Integer getCountCourrier() {
+		return countCourrier;
+	}
+
+	public void setCountCourrier(Integer countCourrier) {
+		this.countCourrier = countCourrier;
+	}
+
+	public void setPourcentage(Integer pourcentage) {
+		this.pourcentage = pourcentage;
+	}
+
+	public Integer getPourcentage() {
+		return pourcentage;
+	}
+
+	@Override
+	public String toString() {
+		return "StatistiqueCourrierStructureByNature [unite=" + unite
+				+ ", natureLibelle=" + natureLibelle + ", countCourrier="
+				+ countCourrier + ", pourcentage=" + pourcentage + "]";
+	}
+
+	
+	
+}

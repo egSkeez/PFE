@@ -1,0 +1,1707 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.entity.Annotation;
+import xtensus.entity.AoConsultation;
+import xtensus.entity.Courrier;
+import xtensus.entity.Etat;
+import xtensus.entity.Expdest;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Variables;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ValiseConsultationBean {
+
+	private ApplicationManager appMgr;
+	private AoConsultation aoConsultation;
+	private int nombreCourrier;
+	private DataModel listCourrierValiseDM;
+	private CourrierInformations valise;
+	private Courrier courrier; 
+	private List<CourrierInformations> listeCourriers;
+	private Integer typeTransmission;
+
+	private Transaction tr;
+	private int refEtat;
+
+	private long records = 0;
+	private long records1 = 0;
+	@Autowired
+	private VariableGlobale vb;
+	private Object etatTransaction;
+	private HashMap<String, Object> filterMap = new HashMap<String, Object>();
+	private boolean descending;
+	private String sortField;
+	private Date dateDebut;
+	private Date dateFin;
+	private List<Integer> listIdsSousUnit;
+	private List<Integer> listIdsSubordonne;
+	private String type;
+	private String type1;
+	private String typeSecretaire;
+	private String consultationCourrierSecretaire;
+	private String consultationCourrierSubordonne;
+	private String consultationCourrierSousUnite;
+	private Integer idUser;
+	private String libelleEtat;
+
+	private boolean affichageAffectation;
+	private boolean affichagePointage;
+	private boolean affichageReception;
+	private boolean affichageTransmission;
+	private Date courrierDateReponse;
+	private String affichagePanelRecption;
+	private boolean afficherDateReception;
+	private boolean afficherDateTransmission;
+	private boolean afficherDatePointage;
+	private List<Integer> listIdBocMembers;
+	private DataModel listeCourriersPointesValiseDM;
+	private List<CourrierInformations> listeCourriersPointesAValise;
+	private CourrierConsultationRecentBean courrierConsultationRecentBean;
+	private int etatValise;
+	private Transaction transaction;
+	private int nombreCourrierAffectes;
+	private int nombreCourrierPointes;
+	public ValiseConsultationBean() {
+
+	}
+
+	@Autowired
+	public ValiseConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		listCourrierValiseDM = new ListDataModel();
+		listeCourriers = new ArrayList<CourrierInformations>();
+		listIdsSubordonne = new ArrayList<Integer>();
+		listIdsSousUnit = new ArrayList<Integer>();
+		listeCourriersPointesValiseDM= new ListDataModel();
+		listeCourriersPointesAValise=new ArrayList<CourrierInformations>();
+		
+	}
+
+	public void allerReception() {
+		affichagePanelRecption = "block";
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		affichagePanelRecption = "none";
+		listCourrierValiseDM = new ListDataModel();
+		listeCourriers = new ArrayList<CourrierInformations>();
+		affichageAffectation = false;
+		affichagePointage = false;
+		affichageReception = false;
+		affichageTransmission = false;
+		afficherDateReception=false;
+		afficherDateTransmission = false;
+		courrierDateReponse = new Date();
+		listeCourriersPointesValiseDM= new ListDataModel();
+		listeCourriersPointesAValise=new ArrayList<CourrierInformations>();
+		
+		// **
+		// XTE : consultation courrier secretaire
+		consultationCourrierSecretaire = appMgr.listVariablesById(3).get(0)
+				.getVaraiablesValeur();
+		// XTE : consultation courier subordonne
+		consultationCourrierSubordonne = appMgr.listVariablesById(4).get(0)
+				.getVaraiablesValeur();
+		// XTE : consultation courier sous unitee
+		consultationCourrierSousUnite = appMgr.listVariablesById(5).get(0)
+				.getVaraiablesValeur();
+		// identify connected user
+		idUser = vb.getPerson().getId();
+		type = "";
+		type1 = "";
+		if (vb.getPerson().isBoc()) {
+			listIdBocMembers = new ArrayList<Integer>();
+			List<Person> listBocMembers = vb.getPerson().getAssociatedBOC()
+					.getMembersBOC();
+			for (Person person : listBocMembers) {
+				System.out.println("ID PErsonne :" + person.getId());
+				System.out.println("Nom Personne :" + person.getNom()
+						+ "   Prenom Personne :" + person);
+				listIdBocMembers.add(person.getId());
+			}
+			type = "boc_" + vb.getPerson().getAssociatedBOC().getIdBOC();
+			type1 = "";
+		} else if (vb.getPerson().isResponsable()) {
+			type = "unit_"
+					+ vb.getPerson().getAssociatedDirection().getIdUnit();
+			type1 = "sub_" + idUser;
+			// NEW
+
+			for (Unit unit : vb.getPerson().getAssociatedDirection()
+					.getListUnitsChildUnit()) {
+
+				listIdsSousUnit.add(unit.getIdUnit());
+
+				try {
+					listIdsSubordonne.add(unit.getResponsibleUnit().getId());
+
+				} catch (Exception e) {
+					System.out.println("#Sub-Unit without Responsible");
+				}
+
+			}
+			// FIn NEW
+			try {
+				typeSecretaire = "secretary_"
+						+ vb.getPerson().getAssociatedDirection()
+								.getSecretaryUnit().getId();
+
+			} catch (NullPointerException e) {
+				consultationCourrierSecretaire = "Non";
+			}
+
+		} else if (vb.getPerson().isSecretary()) {
+			type = "secretary_" + idUser;
+			type1 = "unit_"
+					+ vb.getPerson().getAssociatedDirection().getIdUnit();
+		} else if (vb.getPerson().isAgent()) {
+			type = "agent_" + idUser;
+			type1 = "";
+		}
+		// ********* Début *******************//
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		dateDebut = calendar.getTime();
+
+		// ********* Fin *********************//
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		dateFin = calendar.getTime();
+		try {
+			
+			valise = vb.getCourrierInformations();
+			courrier = new Courrier();
+			Courrier v = valise.getCourrier();
+			System.out.println("######## v id == "+ v.getIdCourrier());
+			courrier = (Courrier) appMgr.getCourrierByIdCourrier(v.getIdCourrier()).get(0);
+			System.out.println("########### courrier.getCourrierDateReponse() " +courrier.getCourrierDateReponse());
+			if (courrier.getCourrierDateReponse() != null){
+				afficherDateReception = true;
+			}
+			if (courrier.getCourrierDateArchivage() != null)
+			{
+				afficherDateTransmission = true;
+			}
+			if (courrier.getCourrierDatePointage() != null)
+			{
+				afficherDatePointage = true;
+			}
+			valise.setDateReponseDest(courrier.getCourrierDateReponse());
+			valise.setDateTransmission(courrier.getCourrierDateArchivage());
+			valise.setDatePointage(courrier.getCourrierDatePointage());
+			searchExpediteurDestinataire(valise);
+			System.out.println("################# Valise ID== " + valise.getCourrierID());
+			etatValise = valise.getEtatID().intValue();
+			System.out.println("################# etatValise == " + etatValise);
+			System.out.println("################# Expéditeur ==  " + valise.getCourrierExpediteur());
+			System.out.println("################# DestinataireReelle ==  " + valise.getCourrierDestinataireReelle());
+			Person personne = vb.getPerson();
+			System.out.println("################# personne connectée ==  " + personne.getNom().toString());
+			System.out.println("########################## vb.getPerson().isBoc() ==  " + vb.getPerson().isBoc());
+			System.out.println("##########################" +vb.getPerson().getAssociatedBOC().getNameBOC().equals(valise.getCourrierExpediteur()));
+			System.out.println("########## etatValise" +etatValise);
+			if (etatValise == 11 && vb.getPerson().getAssociatedBOC().getNameBOC().equals(valise.getCourrierExpediteur())) {
+				
+						affichageAffectation = true;
+						affichageTransmission = true;
+				}
+			System.out.println("################# DestinataireReelle ==  " + valise.getCourrierDestinataireReelle());
+			System.out.println("########################## ==  " + vb.getPerson().getAssociatedBOC().getNameBOC());
+			System.out.println("########################## ==  " + vb.getPerson().getAssociatedBOC().getNameBOC().equals(valise.getCourrierDestinataireReelle()));
+			if (etatValise == 12 && vb.getPerson().getAssociatedBOC().getNameBOC().equals(valise.getCourrierDestinataireReelle()) ){
+				affichageReception = true;
+			}
+			if (etatValise == 13 && vb.getPerson().getAssociatedBOC().getNameBOC().equals(valise.getCourrierDestinataireReelle())){
+				affichagePointage = true;
+			}
+			System.out.println("valise.getTransactionID()  "
+					+ valise.getTransactionID());
+			listeCourriers = appMgr.findCourrierEnvoyerBOCByCriteria(
+					filterMap, sortField, descending, 88, dateDebut,
+					dateFin, type, type1, listIdBocMembers,
+					"Tout les courriers", "tous",
+					0, 10, "T", false, vb.getDbType(),valise.getCourrier().getIdCourrier(),0,0);
+//			listeCourriers = appMgr.findCourrierEnvoyerBOCByCriteria(filterMap, sortField, descending, 8, dateDebut,
+//					dateFin, type, type1, listIdBocMembers,
+//					"Tout les courriers", "tous",
+//					0, 10, "T", false,
+//					vb.getDbType(),valise.getCourrier().getIdCourrier(),0, 0);
+			System.out.println("taille liste Courriers Affectes : "
+					+ listeCourriers.size());
+
+			for (CourrierInformations courrierInformations : listeCourriers) {
+				try {
+
+					searchExpediteurDestinataire(courrierInformations);
+					System.out.println("L : "
+							+ courrierInformations.getCourrierID()
+							+ " du  "
+							+ courrierInformations.getCourrierExpediteur()
+							+ " à "
+							+ courrierInformations
+									.getCourrierDestinataireReelle());
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("######CAUSED BY : "
+							+ courrierInformations.getCourrierReference());
+
+					continue;
+				}
+			}
+			nombreCourrierAffectes = listeCourriers.size();
+
+			listCourrierValiseDM.setWrappedData(listeCourriers);
+			
+			listeCourriersPointesAValise = appMgr.findCourrierEnvoyerBOCByCriteria(filterMap, sortField, descending, 10, dateDebut,
+					dateFin, type, type1, listIdBocMembers,
+					"Tout les courriers", "tous",
+					0, 10, "T", false, vb.getDbType(),valise.getCourrier().getIdCourrier(),0,0);
+			System.out.println("###################taille liste Courriers Non Affectées : "+listeCourriersPointesAValise.size());
+			for (CourrierInformations courrierInformations : listeCourriersPointesAValise) {
+				try {
+					searchExpediteurDestinataire(courrierInformations);
+					System.out.println("L : "
+							+ courrierInformations.getCourrierID()
+							+ " du  "
+							+ courrierInformations.getCourrierExpediteur()
+							+ " à "
+							+ courrierInformations
+									.getCourrierDestinataireReelle());
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("######CAUSED BY : "
+							+ courrierInformations.getCourrierReference());
+
+					continue;
+				}
+			}
+			nombreCourrierPointes= listeCourriersPointesAValise.size();
+			nombreCourrier = nombreCourrierPointes + nombreCourrierAffectes;
+			listeCourriersPointesValiseDM.setWrappedData(listeCourriersPointesAValise);
+			int refTransaction = valise.getTransactionID();
+			List<Transaction> transaction = appMgr
+					.getListTransactionByIdTransaction(refTransaction);
+			if (transaction != null) {
+				tr = transaction.get(0);
+
+			}
+			System.out.println("/////////////////transaction"
+					+ tr.getEtat().getEtatId());
+			refEtat = tr.getEtat().getEtatId();
+			libelleEtat = tr.getEtat().getEtatLibelle();
+			System.out.println("/////////////////libelleEtat" + libelleEtat);
+			vb.setCourrierInformations(valise);
+		}
+
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void transmissionValise() {
+		Courrier v = valise.getCourrier();
+		courrier = (Courrier) appMgr.getCourrierByIdCourrier(v.getIdCourrier()).get(0);
+		// Changer l'état de la valise à etat 2 id=12
+		System.out.println("l'id de la transaction "
+				+ valise.getTransactionID());
+
+		Etat etatTransmise = new Etat();
+		etatTransmise.setEtatId(12);
+		List<Transaction> transactions = appMgr.getListTransactionByIdTransaction(valise.getTransactionID());
+		if (transactions != null && transactions.size() > 0) {
+			 transaction = transactions.get(0);
+			transaction.setEtat(etatTransmise);
+			try {
+				courrier.setCourrierDateArchivage(new Date());
+				appMgr.update(courrier);
+				valise.setDateTransmission(courrier.getCourrierDateArchivage());
+				appMgr.update(transaction);
+				valise.setTransaction(transaction);
+				valise.setEtatID(etatTransmise.getEtatId());
+				vb.setCourrierInformations(valise);
+				etatValise=etatTransmise.getEtatId();
+				System.out.println("###### etatValise dans transmissionValise == " + etatValise);
+				affichageTransmission = false;
+				affichageAffectation=false;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void searchExpediteurDestinataire(
+			CourrierInformations courrierInformations) throws Exception {
+		System.out.println("AH : DANS searchExpediteurDestinataire ");
+		// kha =========
+		courrierInformations.setCourrier(appMgr.getCourrierByIdCourrier(
+				courrierInformations.getCourrierID()).get(0));
+		// ======
+		System.out.println(" courrier id = "
+				+ courrierInformations.getCourrier().getNature().getNatureId());
+		// AH :
+		ArrayList<ListeDestinatairesModel> destinatairesAvecAnnotations = new ArrayList<ListeDestinatairesModel>();
+		ArrayList<ItemSelected> listSelectedItem = new ArrayList<ItemSelected>();
+
+		List<Object> listSelectedObject = new ArrayList<Object>();
+		List<Person> listSelectedPerson = new ArrayList<Person>();
+		List<Pp> listSelectetdPP = new ArrayList<Pp>();
+		List<Pm> listSelectetdPM = new ArrayList<Pm>();
+		List<Unit> listSelectetdUnit = new ArrayList<Unit>();
+		List<BOC> listSelectetdBoc = new ArrayList<BOC>();
+		String etatLibelle = "";
+		System.out.println("########## courrierInformations ID ==  " +courrierInformations.getCourrierID());
+		System.out.println("########## courrierInformations.getEtatID() ==  " +courrierInformations.getEtatID());
+		Integer etatID = courrierInformations.getEtatID();
+		System.out.println("########## etatID ==  " +etatID);
+		List<Etat> etatTransaction = appMgr.listEtatByRef(etatID);
+		if (etatTransaction != null && etatTransaction.size() > 0)
+			etatLibelle = etatTransaction.get(0).getEtatLibelle();
+		courrierInformations.setEtatLibelle(etatLibelle);
+
+		String expType;
+		Integer expTypeUser;
+		Integer expLdap;
+		String expNom;
+		String expPrenom;
+		if (courrierInformations.getCourrierOldNum() == null) {
+			expType = courrierInformations.getExpType();
+			expTypeUser = courrierInformations.getExpTypeUser();
+			expLdap = courrierInformations.getExpLdap();
+			expNom = courrierInformations.getExpNom();
+			expPrenom = courrierInformations.getExpPrenom();
+		} else {
+			expType = courrierInformations.getExpTypeOld();
+			expTypeUser = courrierInformations.getExpTypeUserOld();
+			expLdap = courrierInformations.getExpLdapOld();
+			expNom = courrierInformations.getExpNomOld();
+			expPrenom = courrierInformations.getExpPrenomOld();
+		}
+		// expediteur reel
+		String expediteur = "";
+		if (vb.getPerson().isBoc()) {
+			if (vb.getPerson().isResponsableBO()) {
+				System.out.println(" is responsable BO");
+			} else if (vb.getPerson().isAgentBO()) {
+				System.out.println(" is AGENT BO");
+			}
+		}
+
+		Variables variableExecution = appMgr.listVariablesByLibelle(
+				"execution_courrier_par_tous_types_membre_bo").get(0);
+
+		System.out.println("Type Expiditeur:" + expType);
+		if (expType.equals("Interne-Person")) {
+			System.out.println(" DANS execute Interne-Person");
+			if (expLdap.equals(vb.getPerson().getId())) {
+				courrierInformations.setCourrierRecu(0);
+			}
+
+			// JS: Pas de Passage par DG
+
+			/***
+			 * test pour que boc execute un courrier
+			 */
+			System.out.println("courrierInformations.getTransactionOrdre :"
+					+ courrierInformations.getTransactionOrdre());
+			System.out.println("etat :" + etatID);
+
+			// KHA : Seulement le responsable BO peut exécuter
+			if (variableExecution.getVaraiablesValeur().equals("Non")) {
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& courrierInformations.getTransactionOrdre() == null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+				} else
+
+					System.out
+							.println(" //[JS]: test pour que boc execute un courrier de destination interne-Person avec ordre de transaction != null");
+
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& vb.getPerson().isResponsableBO()
+						&& courrierInformations.getTransactionOrdre() != null
+						&& etatID.equals(5)) {
+					System.out.println("JS-->courrier Interne à executer ");
+					System.out.println("hello I'm Here");
+					courrierInformations.setCourrierAValider(1);
+
+				}
+			}
+			// KHA : touls les Membres(Agent/Responsable) de BO peuvent exécuter
+			else {
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& courrierInformations.getTransactionOrdre() != null
+						&& etatID.equals(5)) {
+					System.out.println("JS-->courrier Interne à executer ");
+					courrierInformations.setCourrierAValider(1);
+
+				}
+
+			}
+			// }
+			Person person = vb.getHashMapAllUser().get(expLdap);
+			expediteur = person.getCn();
+		} else if (expType.equals("Interne-Unité")) {
+			System.out.println(" DANS execute Interne-Unité");
+			if (vb.getPerson().isResponsable() && !vb.getPerson().isBoc()
+					&& expLdap.equals(vb.getPerson().getAssociatedDirection()
+							.getIdUnit())) {
+				courrierInformations.setCourrierRecu(0);
+			}
+			// hidden par KHA //if
+			// (courrierAriverToDG.getVaraiablesValeur().equals("Non")) {
+			/***
+			 * test pour que boc execute un courrier
+			 */
+
+			if (variableExecution.getVaraiablesValeur().equals("Non")) {
+
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& courrierInformations.getTransactionOrdre() == null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+
+				} else
+					System.out
+							.println(" //[JS]: test pour que boc execute un courrier de destination interne-unité avec ordre de transaction != null");
+
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& vb.getPerson().isResponsableBO()
+						&& courrierInformations.getTransactionOrdre() != null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+				}
+
+			} else if (vb.getPerson().getAssociatedBOC() != null
+					&& courrierInformations.getTransactionOrdre() != null
+					&& etatID.equals(5)) {
+				courrierInformations.setCourrierAValider(1);
+
+			}
+			// }
+			Unit unit = vb.getHashMapUnit().get(expLdap);
+			expediteur = unit.getNameUnit();
+		} else if (expType.equals("Interne-Boc")) {
+			expediteur = vb.getCentralBoc().getNameBOC();
+			// if (courrierAriverToDG.getVaraiablesValeur().equals("Non")) {
+			/***
+			 * test pour que boc execute un courrier
+			 */
+
+			System.out.println(" DANS execute Interne-Boc");
+			if (variableExecution.getVaraiablesValeur().equals("Non")) {
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& courrierInformations.getTransactionOrdre() == null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+
+				} else if (vb.getPerson().getAssociatedBOC() != null
+						&& vb.getPerson().isResponsableBO()
+						&& courrierInformations.getTransactionOrdre() != null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+				}
+			} else if (vb.getPerson().getAssociatedBOC() != null
+					&& courrierInformations.getTransactionOrdre() != null
+					&& etatID.equals(5)) {
+				courrierInformations.setCourrierAValider(1);
+
+			}
+
+			// }
+		} else if (expType.equals("Externe")) {
+
+			System.out.println(" DANS execute Externe");
+
+			if (variableExecution.getVaraiablesValeur().equals("Non")) {
+				if (vb.getPerson().getAssociatedBOC() != null
+						&& courrierInformations.getTransactionOrdre() == null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+				} else if (vb.getPerson().getAssociatedBOC() != null
+						&& vb.getPerson().isResponsableBO()
+						&& courrierInformations.getTransactionOrdre() != null
+						&& etatID.equals(5)) {
+					courrierInformations.setCourrierAValider(1);
+				}
+			} else if (vb.getPerson().getAssociatedBOC() != null
+					&& courrierInformations.getTransactionOrdre() != null
+					&& etatID.equals(5)) {
+				courrierInformations.setCourrierAValider(1);
+
+			}
+			// }
+			// provisoire .. juste pour activer l'execution des courrier arrivé
+			// pour le BOCT
+			// C* pour que le bouton executer soit activé pour les courriers
+			// d'arrivé
+			if (expTypeUser == 1) {
+				expediteur = expNom + " " + expPrenom + " (PP)";
+			} else {
+				expediteur = expNom + " (PM)";
+			}
+		} else if (expType.equals("Interne-BO")) {
+		//	BOC bocCentrale = vb.getCentralBoc();
+			
+			
+			List<BOC> listBOC = vb.getListTousBos();
+			
+			
+			//Commenté par AH : 2019-10-04
+			//if (bocCentrale != null) {
+				for (int k = 0;listBOC != null
+						&& k < listBOC.size(); k++) {
+					if (listBOC.get(k).getIdBOC() == expLdap
+							.intValue()) {
+						expediteur = listBOC.get(k)
+								.getNameBOC();
+
+					}
+				}
+			//}
+
+		}
+		System.out.println("expediteur  " + expediteur);
+		courrierInformations.setCourrierExpediteur(expediteur);
+		// remplissage de l'objet TransactionDest pour l'execution du BOC ou la
+		// validation des responsable
+		List<TransactionDestination> listTransactionDestination = appMgr
+				.getListTransactionDestinationByIdTransaction(courrierInformations
+						.getTransactionID());// valeur ancien
+												// #firstTransaction.getTransactionId()#
+
+		if (!listTransactionDestination.isEmpty()) {
+			courrierInformations
+					.setTransactionDestination(listTransactionDestination
+							.get(listTransactionDestination.size() - 1));
+		}
+		if ((etatID != null && (etatID.equals(2) || etatID.equals(10)))
+				&& !vb.getPerson().isBoc()
+				&& !courrierInformations.getIdUtilisateur().equals(
+						vb.getPerson().getId())) {
+
+			courrierInformations.setCourrierAValider(1);
+		}
+		// pour activer l'execution des courrier qui suit un workflow pour le
+		// boct et juste la premiere execution
+		if (vb.getPerson().isBoc()
+				&& courrierInformations.getCourrierCircuit().equals("workflow")) {
+			if (etatID.equals(10)
+					&& courrierInformations.getTransactionOrdre().equals(1)) {
+				courrierInformations.setCourrierAValider(1);
+			}
+		}
+		// pour activer l'execution des courrier qui suit un workflow pour le
+		// boct et juste la premiere execution
+		if (!courrierInformations.getIdUtilisateur().equals(
+				vb.getPerson().getId())) {
+			courrierInformations.setCourrierRecu(1);
+		}
+		// detinataire reel *
+		StringBuilder destinataire = new StringBuilder("");
+		String unitName;
+		// AH
+		ListeDestinatairesModel destR;
+
+		List<Transaction> allTransactions = appMgr
+				.getTransactionByIdDossier(courrierInformations.getDossierID());
+		courrierInformations.setCourrierAllTransactions(allTransactions);
+		Transaction firstTransaction = allTransactions.get(allTransactions
+				.size() - 1);
+		Expdest expdestExpediteurREEL = appMgr.getListExpDestByIdExpDest(
+				firstTransaction.getExpdest().getIdExpDest()).get(0);
+		courrierInformations.setExpDest(expdestExpediteurREEL);
+		if (courrierInformations.getDestReelList() != null) {
+			// AH
+			destR = new ListeDestinatairesModel();
+			List<String> destReelList = new ArrayList<String>(
+					Arrays.asList(courrierInformations.getDestReelList().split(
+							"\\|", -1)));
+			System.out.println(destReelList);
+			System.out.println(" destReelList size  = " + destReelList.size());
+			for (int i = 0; i < destReelList.size(); i++) {
+				List<String> destReelElement = new ArrayList<String>(
+						Arrays.asList(destReelList.get(i).split(";", -1)));
+				System.out.println("liste dest Reel Element :"
+						+ destReelElement.toString());
+
+				Integer idExpDest = 0;
+				if (!destReelElement.get(1).equals("")) {
+					idExpDest = Integer.valueOf(destReelElement.get(1));
+				}
+				String type = destReelElement.get(2);
+				Integer ldap = 0;
+				if (!destReelElement.get(3).equals("")) {
+					ldap = Integer.valueOf(destReelElement.get(3));
+				}
+				String nom = destReelElement.get(4);
+				String prenom = destReelElement.get(5);
+				Integer typeUser = 0;
+				if (!destReelElement.get(6).equals("")) {
+					typeUser = Integer.valueOf(destReelElement.get(6));
+				}
+				Integer idDestReelLdap = 0;
+				System.out.println("#### :" + destReelElement.get(7));
+				if (!destReelElement.get(7).equals("")) {
+					idDestReelLdap = Integer.valueOf(destReelElement.get(7));
+					System.out.println("dans if :" + idDestReelLdap);
+				}
+				String destReelType = destReelElement.get(8);
+				System.out.println("### destReelType ###  :" + destReelType);
+				System.out.println("###  idDestReelLdap ###  :"
+						+ idDestReelLdap);
+				if (idDestReelLdap != 0) {
+					// JS : workflow
+					// ----------------------------------------------------------------------------------------------------
+
+					if (courrierInformations.getCourrierCircuit().equals(
+							"workflow")) {
+						try {
+							Unit unitDestinataireReel = vb.getHashMapUnit()
+									.get(idDestReelLdap);
+							unitName = unitDestinataireReel.getNameUnit();
+
+							System.out
+									.println("==============1===============");
+							ItemSelected itemSelected = new ItemSelected();
+							itemSelected.setItemSelectedId(idDestReelLdap);
+							itemSelected.setItemSelectedName(unitName);
+							itemSelected
+									.setSelectedObject(unitDestinataireReel);
+							listSelectedItem.add(itemSelected);
+							//
+							Object object = (Object) unitDestinataireReel;
+							listSelectedObject.add(object);
+							listSelectetdUnit.add(unitDestinataireReel);
+
+						} catch (Exception e) {
+							unitName = "Inconnue";
+							e.printStackTrace();
+						}
+						destinataire.append(" / ");
+						destinataire.append(unitName);
+
+						break;
+					} else {
+						if (destReelType.equals("Interne-Unité")) {
+							System.out
+									.println("### Type de destination Réel est Interne-Unité ###");
+							Unit unit = vb.getHashMapUnit().get(idDestReelLdap);
+							System.out.println("unité :"
+									+ unit.getShortNameUnit());
+							if (!destinataire.toString().contains(
+									unit.getNameUnit())) {
+								destinataire.append(" / ");
+
+								System.out
+										.println("Ajout Unité dans liste des destinataires");
+								destinataire.append(unit.getNameUnit());
+
+								destR = new ListeDestinatairesModel();
+								System.out.println("idDestReelLdap :"
+										+ idDestReelLdap);
+								destR.setDestinataireId(idDestReelLdap);
+								destR.setDestinataireName(unit.getNameUnit());
+								System.out.println("AH AJOUT "
+										+ unit.getNameUnit());
+								System.out
+										.println("============== affecter annotations unit 1 ===============");
+
+								// List<Annotation> l =
+								// appMgr.listeAnnotationParDestinataireEtTransaction(idDestReelLdap,courrierInformations.getDossierID());
+								List<Annotation> l = new ArrayList<Annotation>();
+								if (appMgr
+										.listeAnnotationParDestinataireEtTransactionReell(
+												idDestReelLdap,
+												courrierInformations
+														.getDossierID()) != null) {
+									System.out
+											.println(" KHA===> Destinataire reel enregistre dans table transactionDestinationRelle");
+									l = appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													idDestReelLdap,
+													courrierInformations
+															.getDossierID());
+								} else {
+
+									l = appMgr
+											.listeAnnotationParDestinataireEtTransactionExpDest(
+													idDestReelLdap,
+													courrierInformations
+															.getDossierID());
+									System.out
+											.println(" KHA===> Destinataire reel enregistre dans table expdest");
+								}
+								if (l != null) {
+									List<String> listAnnotationDest = new ArrayList<String>();
+									for (Annotation a : l) {
+
+										listAnnotationDest.add(String.valueOf(a
+												.getAnnotationId()));
+										System.out
+												.println("listAnnotationDest = "
+														+ listAnnotationDest);
+									}
+									destR.setListeAnnotations(listAnnotationDest);
+								}
+								System.out.println("destR.ListeAnnotations = "
+										+ destR.getListeAnnotations());
+
+								System.out
+										.println("============== Fin : affecter annotations  unit 1===============");
+
+								destinatairesAvecAnnotations.add(destR);
+
+								System.out
+										.println("==============2===============");
+								ItemSelected itemSelected = new ItemSelected();
+								itemSelected.setItemSelectedId(idDestReelLdap);
+								itemSelected.setItemSelectedName(unit
+										.getNameUnit());
+								listSelectedItem.add(itemSelected);
+
+								Object object = (Object) unit;
+								listSelectedObject.add(object);
+								listSelectetdUnit.add(unit);
+								System.out
+										.println("============== ===============");
+
+							}
+						} else if (destReelType.equals("Interne-Person")) {
+
+							Person person = vb.getHashMapAllUser().get(
+									idDestReelLdap);
+							System.out.println("Interne-Person");
+							System.out.println("JS : Person ### :"
+									+ person.getNom());
+							if (!destinataire.toString().contains(
+									person.getCn())) {
+								destinataire.append(" / ");
+
+								System.out
+										.println("Ajout Personne dans liste destinataires");
+								System.out.println("Cn Person :"
+										+ person.getCn());
+								destinataire.append(person.getCn());
+
+								System.out
+										.println("########## destR ##############");
+								destR = new ListeDestinatairesModel();
+								destR.setDestinataireId(idDestReelLdap);
+								destR.setDestinataireName(person.getCn());
+
+								List<Annotation> l = new ArrayList<Annotation>();
+								if (appMgr
+										.listeAnnotationParDestinataireEtTransactionReell(
+												idDestReelLdap,
+												courrierInformations
+														.getDossierID()) != null) {
+									System.out
+											.println(" KHA :Person Dans  listeAnnotationParDestinataireEtTransactionReell");
+									l = appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													idDestReelLdap,
+													courrierInformations
+															.getDossierID());
+								} else {
+									System.out
+											.println(" KHA :Person Dans  listeAnnotationParDestinataireEtTransactionExpDest");
+									l = appMgr
+											.listeAnnotationParDestinataireEtTransactionExpDest(
+													idDestReelLdap,
+													courrierInformations
+															.getDossierID());
+
+								}
+								if (l != null) {
+									List<String> listAnnotationDest = new ArrayList<String>();
+									for (Annotation a : l) {
+
+										listAnnotationDest.add(String.valueOf(a
+												.getAnnotationId()));
+										System.out
+												.println("listAnnotationDest = "
+														+ listAnnotationDest);
+									}
+									destR.setListeAnnotations(listAnnotationDest);
+								}
+								System.out.println("destR.ListeAnnotations = "
+										+ destR.getListeAnnotations());
+
+								System.out
+										.println("============== Fin : affecter annotations Person===============");
+								System.out
+										.println("AH AJOUT " + person.getCn());
+								destinatairesAvecAnnotations.add(destR);
+								System.out
+										.println("==============3===============");
+								ItemSelected itemSelected = new ItemSelected();
+								itemSelected.setItemSelectedId(idDestReelLdap);
+								itemSelected
+										.setItemSelectedName(person.getCn());
+								listSelectedItem.add(itemSelected);
+								Object object = (Object) person;
+								listSelectedObject.add(object);
+								listSelectedPerson.add(person);
+
+								System.out
+										.println("============== ===============");
+							}
+						} else if (destReelType.equals("Externe")) {
+							System.out.println("### Externe");
+
+							if (vb.getPerson().isBoc() && etatID.equals(5)) {
+								System.out
+										.println("KHA : avalider si vb.getPerson().isBoc() && etatID.equals(5)");
+
+								if (variableExecution.getVaraiablesValeur()
+										.equals("Non")) {
+									if (vb.getPerson().isResponsableBO()) {
+
+										courrierInformations
+												.setCourrierAValider(1);
+									}
+								} else {
+									System.out.println(" ");
+									courrierInformations.setCourrierAValider(1);
+								}
+							}
+							System.out.println("idDestReelLdap :"
+									+ idDestReelLdap);
+							Expdestexterne destReelExterne = appMgr
+									.getExpediteurById(idDestReelLdap).get(0);
+							if (destReelExterne.getTypeutilisateur()
+									.getTypeUtilisateurId().equals(1)) {
+								String dest = destReelExterne
+										.getExpDestExternePrenom()
+										+ " "
+										+ destReelExterne
+												.getExpDestExterneNom();
+								System.out.println("dest :" + dest);
+								if (!destinataire.toString().contains(dest)) {
+									destinataire.append(" / ");
+									destinataire.append(dest);
+									destR = new ListeDestinatairesModel();
+									destR.setDestinataireId(idDestReelLdap);
+									destR.setDestinataireName(dest);
+									System.out
+											.println("type1 AH AJOUT " + dest);
+									System.out
+											.println("============== affecter annotations Externe ===============");
+
+									List<Annotation> l = appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													idDestReelLdap,
+													courrierInformations
+															.getDossierID());
+
+									if (l != null) {
+										List<String> listAnnotationDest = new ArrayList<String>();
+										for (Annotation a : l) {
+
+											listAnnotationDest
+													.add(String.valueOf(a
+															.getAnnotationId()));
+											System.out
+													.println("listAnnotationDest = "
+															+ listAnnotationDest);
+										}
+										destR.setListeAnnotations(listAnnotationDest);
+									}
+									System.out
+											.println("destR.ListeAnnotations = "
+													+ destR.getListeAnnotations());
+
+									System.out
+											.println("============== Fin : affecter annotations Externe===============");
+									destinatairesAvecAnnotations.add(destR);
+
+									System.out
+											.println("==============4===============");
+									ItemSelected itemSelected = new ItemSelected();
+									itemSelected
+											.setItemSelectedId(idDestReelLdap);
+									itemSelected.setItemSelectedName(dest);
+									listSelectedItem.add(itemSelected);
+
+									System.out
+											.println("============== ===============");
+								}
+							} else if (destReelExterne.getTypeutilisateur()
+									.getTypeUtilisateurId().equals(2)) {
+								String dest = destReelExterne
+										.getExpDestExterneNom();
+								if (!destinataire.toString().contains(dest)) {
+									destinataire.append(" / ");
+									destinataire.append(destReelExterne
+											.getExpDestExterneNom());
+									// KHA ajouté 08-02-2019
+									destR = new ListeDestinatairesModel();
+									destR.setDestinataireId(idDestReelLdap);
+									destR.setDestinataireName(dest);
+									System.out
+											.println("type2 AH AJOUT " + dest);
+
+									System.out
+											.println("============== affecter annotations destReelExterne ===============");
+									System.out.println("idDestReelLdap= "
+											+ idDestReelLdap);
+									System.out.println("Dossier id ="
+											+ courrierInformations
+													.getDossierID());
+									List<Annotation> l = appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													idDestReelLdap,
+													courrierInformations
+															.getDossierID());
+									System.out.println("KHA===> l size =  "
+											+ l.size());
+									if (l != null) {
+										List<String> listAnnotationDest = new ArrayList<String>();
+										for (Annotation a : l) {
+
+											listAnnotationDest
+													.add(String.valueOf(a
+															.getAnnotationId()));
+											System.out
+													.println("listAnnotationDest = "
+															+ listAnnotationDest);
+										}
+										destR.setListeAnnotations(listAnnotationDest);
+									}
+									System.out
+											.println("destR.ListeAnnotations = "
+													+ destR.getListeAnnotations());
+
+									System.out
+											.println("============== Fin : affecter annotations destReelExterne===============");
+
+									destinatairesAvecAnnotations.add(destR);
+
+									System.out
+											.println("==============5===============");
+									ItemSelected itemSelected = new ItemSelected();
+									itemSelected
+											.setItemSelectedId(idDestReelLdap);
+									itemSelected.setItemSelectedName(dest);
+									listSelectedItem.add(itemSelected);
+									System.out
+											.println("============== ===============");
+								}
+							}
+						}
+
+						else if (destReelType.equals("BO")) {
+							destinataire.append(" / ");
+							System.out.println("==============Dans destinataire ===============" + destinataire);
+							List<BOC> listBOC = vb.getListTousBos();
+							
+							
+							//Commenté par AH : 2019-10-04
+							//if (bocCentrale != null) {
+								for (int k = 0;listBOC != null
+										&& k < listBOC.size(); k++) {
+									if (listBOC.get(k).getIdBOC() == idDestReelLdap
+											.intValue()) {
+										destinataire.append(listBOC.get(k)
+												.getNameBOC());
+break;
+									}
+								}
+							//}
+					
+							
+
+						} else {
+
+							destinataire.append("--------");
+						}
+					}
+				} else {
+					// courrier qui n'a pas des étaps de validation
+					System.out.println("JS-->size listTransactionDestination"
+							+ listTransactionDestination.size());
+					if (!listTransactionDestination.isEmpty()) {
+						for (TransactionDestination transactionDestination : listTransactionDestination) {
+							System.out.println("JS-->idExpDest" + idExpDest);
+							System.out
+									.println("JS-->TransactionDestination.getID.getIDExpdest :"
+											+ transactionDestination.getId()
+													.getIdExpDest());
+
+							if (type.equals("Interne-Person")) {
+								System.out
+										.println("JS==> Courrier qui n'as pas des téapes de validation (Interne-Person)");
+								System.out.println("LDAP :" + ldap);
+								if (ldap.equals(vb.getPerson().getId())) {
+									courrierInformations.setCourrierRecu(1);
+								}
+								courrierInformations
+										.setTransactionDestination(transactionDestination);
+								// destinataire = new StringBuilder(" / ");
+
+								Person person = vb.getHashMapAllUser()
+										.get(ldap);
+								System.out.println(" person.getCn() = "
+										+ person.getCn());
+								if (!destinataire.toString().contains(
+										person.getCn())) {
+									destinataire.append(" / ");
+									destinataire.append(person.getCn());
+									// KHA - ajouté 08-02-2019
+									destR = new ListeDestinatairesModel();
+									destR.setDestinataireId(ldap);
+									destR.setDestinataireName(person.getCn());
+									System.out
+											.println("============== affecter annotations Person 2===============");
+
+									// List<Annotation> l =
+									// appMgr.listeAnnotationParDestinataireEtTransaction(ldap,courrierInformations.getDossierID());
+									List<Annotation> l = new ArrayList<Annotation>();
+									if (appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													ldap, courrierInformations
+															.getDossierID()) != null) {
+										System.out
+												.println(" KHA :Person2 Dans  listeAnnotationParDestinataireEtTransactionReell");
+										l = appMgr
+												.listeAnnotationParDestinataireEtTransactionReell(
+														idDestReelLdap,
+														courrierInformations
+																.getDossierID());
+									} else {
+
+										l = appMgr
+												.listeAnnotationParDestinataireEtTransactionExpDest(
+														ldap,
+														courrierInformations
+																.getDossierID());
+										System.out
+												.println(" KHA :Person2 Dans  listeAnnotationParDestinataireEtTransactionExpDest");
+									}
+									if (l != null) {
+										List<String> listAnnotationDest = new ArrayList<String>();
+										for (Annotation a : l) {
+
+											listAnnotationDest
+													.add(String.valueOf(a
+															.getAnnotationId()));
+											System.out
+													.println("listAnnotationDest = "
+															+ listAnnotationDest);
+										}
+										destR.setListeAnnotations(listAnnotationDest);
+									}
+									System.out
+											.println("destR.ListeAnnotations = "
+													+ destR.getListeAnnotations());
+
+									System.out
+											.println("============== Fin : affecter annotations Person 2===============");
+
+									destinatairesAvecAnnotations.add(destR);
+
+									System.out
+											.println("==============6===============");
+									ItemSelected itemSelected = new ItemSelected();
+									itemSelected.setItemSelectedId(ldap);
+									itemSelected.setItemSelectedName(person
+											.getCn());
+									listSelectedItem.add(itemSelected);
+									Object object = (Object) person;
+									listSelectedObject.add(object);
+									listSelectedPerson.add(person);
+									System.out
+											.println("============== ===============");
+
+								}
+							} else if (type.equals("Interne-Unité")) {
+								if (vb.getPerson().isResponsable()
+										&& ldap.equals(vb.getPerson()
+												.getAssociatedDirection()
+												.getIdUnit())) {
+									courrierInformations.setCourrierRecu(1);
+								}
+								courrierInformations
+										.setTransactionDestination(transactionDestination);
+								// destinataire = new StringBuilder(" / ");
+								Unit unit = vb.getHashMapUnit().get(ldap);
+								if (!destinataire.toString().contains(
+										unit.getNameUnit())) {
+									destinataire.append(" / ");
+									destinataire.append(unit.getNameUnit());
+									// KHA - ajouté 08-02-2019
+									destR = new ListeDestinatairesModel();
+									destR.setDestinataireId(ldap);
+									destR.setDestinataireName(unit
+											.getNameUnit());
+									System.out
+											.println("============== affecter annotations  unit 2===============");
+
+									// List<Annotation> l =
+									// appMgr.listeAnnotationParDestinataireEtTransaction(ldap,courrierInformations.getDossierID());
+									List<Annotation> l = new ArrayList<Annotation>();
+									if (appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													ldap, courrierInformations
+															.getDossierID()) != null) {
+										System.out
+												.println(" KHA :unit2 Dans  listeAnnotationParDestinataireEtTransactionReell");
+
+										System.out
+												.println(" 2 KHA===> Destinataire reel enregistre dans table transactionDestinationRelle");
+										l = appMgr
+												.listeAnnotationParDestinataireEtTransactionReell(
+														idDestReelLdap,
+														courrierInformations
+																.getDossierID());
+									} else {
+										System.out
+												.println(" KHA :unit2 Dans  listeAnnotationParDestinataireEtTransactionExpDest");
+
+										l = appMgr
+												.listeAnnotationParDestinataireEtTransactionExpDest(
+														ldap,
+														courrierInformations
+																.getDossierID());
+										System.out
+												.println(" 2 KHA===> Destinataire reel enregistre dans table expdest");
+									}
+									if (l != null) {
+										List<String> listAnnotationDest = new ArrayList<String>();
+										for (Annotation a : l) {
+
+											listAnnotationDest
+													.add(String.valueOf(a
+															.getAnnotationId()));
+											System.out
+													.println("listAnnotationDest = "
+															+ listAnnotationDest);
+										}
+										destR.setListeAnnotations(listAnnotationDest);
+									}
+									System.out
+											.println("destR.ListeAnnotations = "
+													+ destR.getListeAnnotations());
+
+									System.out
+											.println("============== Fin : affecter annotations unit 2===============");
+
+									destinatairesAvecAnnotations.add(destR);
+
+									System.out
+											.println("==============7===============");
+									ItemSelected itemSelected = new ItemSelected();
+
+									itemSelected.setItemSelectedId(ldap);
+									itemSelected.setItemSelectedName(unit
+											.getNameUnit());
+									listSelectedItem.add(itemSelected);
+									Object object = (Object) unit;
+									listSelectedObject.add(object);
+									listSelectetdUnit.add(unit);
+									System.out
+											.println("============== ===============");
+
+									// break;
+								}
+
+							} else if (type.equals("Interne-Boc")) {
+								if (vb.getPerson().isBoc()) {
+									courrierInformations.setCourrierRecu(1);
+									courrierInformations
+											.setTransactionDestination(transactionDestination);
+								}
+								// KHA - modifié 08-02-2019
+								if (!destinataire.toString().contains(
+										vb.getCentralBoc().getNameBOC())) {
+									destinataire.append(" / ");
+									destinataire.append(vb.getCentralBoc()
+											.getNameBOC());
+									destR = new ListeDestinatairesModel();
+									destR.setDestinataireId(ldap);
+									destR.setDestinataireName(vb
+											.getCentralBoc().getNameBOC());
+									System.out
+											.println("============== affecter annotations  intern boc===============");
+
+									// List<Annotation> l =
+									// appMgr.listeAnnotationParDestinataireEtTransaction(ldap,courrierInformations.getDossierID());
+									List<Annotation> l = new ArrayList<Annotation>();
+									if (appMgr
+											.listeAnnotationParDestinataireEtTransactionReell(
+													ldap, courrierInformations
+															.getDossierID()) != null) {
+										System.out
+												.println(" 2 KHA===> Destinataire reel enregistre dans table transactionDestinationRelle");
+										l = appMgr
+												.listeAnnotationParDestinataireEtTransactionReell(
+														idDestReelLdap,
+														courrierInformations
+																.getDossierID());
+									} else {
+
+										l = appMgr
+												.listeAnnotationParDestinataireEtTransactionExpDest(
+														ldap,
+														courrierInformations
+																.getDossierID());
+										System.out
+												.println(" 2 KHA===> Destinataire reel enregistre dans table expdest");
+									}
+									if (l != null) {
+										List<String> listAnnotationDest = new ArrayList<String>();
+										for (Annotation a : l) {
+
+											listAnnotationDest
+													.add(String.valueOf(a
+															.getAnnotationId()));
+											System.out
+													.println("listAnnotationDest = "
+															+ listAnnotationDest);
+										}
+										destR.setListeAnnotations(listAnnotationDest);
+									}
+
+									destinatairesAvecAnnotations.add(destR);
+
+									System.out
+											.println("==============8===============");
+									ItemSelected itemSelected = new ItemSelected();
+									itemSelected.setItemSelectedId(ldap);
+									itemSelected.setItemSelectedName(vb
+											.getCentralBoc().getNameBOC());
+									listSelectedItem.add(itemSelected);
+
+									System.out
+											.println("============== ===============");
+								}
+
+							} else if (type.equals("Externe")) {
+								if (typeUser.equals(1)) {
+									if (!destinataire.toString().contains(
+											nom + " " + prenom + " (PP)")) {
+										destinataire.append(" / ");
+										destinataire.append(nom + " " + prenom
+												+ " (PP)");
+										// KHA - ajouté 08-02-2019
+										destR = new ListeDestinatairesModel();
+										destR.setDestinataireId(ldap);
+										destR.setDestinataireName(nom + " "
+												+ prenom + " (PP)");
+										System.out
+												.println("============== affecter annotations  externe PP===============");
+
+										List<Annotation> l = appMgr
+												.listeAnnotationParDestinataireEtTransactionReell(
+														ldap,
+														courrierInformations
+																.getDossierID());
+
+										if (l != null) {
+											List<String> listAnnotationDest = new ArrayList<String>();
+											for (Annotation a : l) {
+
+												listAnnotationDest
+														.add(String.valueOf(a
+																.getAnnotationId()));
+												System.out
+														.println("listAnnotationDest = "
+																+ listAnnotationDest);
+											}
+											destR.setListeAnnotations(listAnnotationDest);
+										}
+
+										destinatairesAvecAnnotations.add(destR);
+
+										System.out
+												.println("==============9===============");
+										ItemSelected itemSelected = new ItemSelected();
+										itemSelected.setItemSelectedId(ldap);
+										itemSelected.setItemSelectedName(nom
+												+ " " + prenom);
+										listSelectedItem.add(itemSelected);
+										Pp pp = (Pp) appMgr
+												.getPPByReferenceExpediteur(
+														ldap).get(0);
+										Object object = (Object) pp;
+										listSelectedObject.add(object);
+										listSelectetdPP.add(pp);
+
+										System.out
+												.println("============== ===============");
+
+									}
+								} else {
+									if (!destinataire.toString().contains(
+											nom + " (PM)")) {
+
+										destinataire.append(" / ");
+										destinataire.append(nom + " (PM)");
+										// KHA - ajouté 08-02-2019
+										destR = new ListeDestinatairesModel();
+										destR.setDestinataireId(ldap);
+										destR.setDestinataireName(nom + " (PM)");
+										System.out
+												.println("============== affecter annotations  externe PM===============");
+
+										List<Annotation> l = appMgr
+												.listeAnnotationParDestinataireEtTransactionReell(
+														ldap,
+														courrierInformations
+																.getDossierID());
+
+										if (l != null) {
+											List<String> listAnnotationDest = new ArrayList<String>();
+											for (Annotation a : l) {
+
+												listAnnotationDest
+														.add(String.valueOf(a
+																.getAnnotationId()));
+												System.out
+														.println("listAnnotationDest = "
+																+ listAnnotationDest);
+											}
+											destR.setListeAnnotations(listAnnotationDest);
+										}
+										System.out
+												.println("destR.ListeAnnotations = "
+														+ destR.getListeAnnotations());
+
+										System.out
+												.println("============== Fin : affecter annotations externe PM===============");
+
+										destinatairesAvecAnnotations.add(destR);
+										System.out
+												.println("==============10===============");
+										ItemSelected itemSelected = new ItemSelected();
+										itemSelected.setItemSelectedId(ldap);
+										itemSelected.setItemSelectedName(nom
+												+ " " + prenom);
+										listSelectedItem.add(itemSelected);
+										Pm pm = (Pm) appMgr
+												.getPMByReferenceExpediteur(
+														ldap).get(0);
+										Object object = (Object) pm;
+										listSelectedObject.add(object);
+										listSelectetdPM.add(pm);
+										System.out
+												.println("============== ===============");
+
+									}
+								}
+							}
+
+						}
+					}
+					if (courrierInformations.getCourrierRecu() == 1
+							&& (etatID.equals(10) || etatID.equals(2))) {
+
+						courrierInformations.setCourrierAValider(1);
+					}
+					//
+					if (vb.getPerson().getAssociatedBOC() != null
+							&& courrierInformations.getCourrierRecu() == 1
+							&& etatID.equals(5) && etatID.equals(2)) {
+						courrierInformations.setCourrierAValider(1);
+					}
+				}
+				// KHA =========
+				courrierInformations.setListSelectedItemDest(listSelectedItem);
+				courrierInformations.setListSelectedObject(listSelectedObject);
+
+				courrierInformations.setListSelectedPerson(listSelectedPerson);
+				courrierInformations.setListSelectetdUnit(listSelectetdUnit);
+				courrierInformations.setListSelectetdBoc(listSelectetdBoc);
+				// ========
+				// ========
+			}
+
+		}
+
+		destinataire.delete(0, 3);
+		System.out.println("###############Destinataiiiiire :" + destinataire.toString());
+		
+		courrierInformations.setCourrierDestinataireReelle(destinataire
+				.toString());
+
+		courrierInformations
+				.setListeDestinatairesAvecAnnotations(destinatairesAvecAnnotations);
+
+	}
+
+	public void receptionnerValise() {
+		courrier = new Courrier();
+		Courrier v = valise.getCourrier();
+		System.out.println("######## v id == "+ v.getIdCourrier());
+		courrier = (Courrier) appMgr.getCourrierByIdCourrier(
+				v.getIdCourrier()).get(0);
+		courrier.setCourrierDateReponse(courrierDateReponse);
+		System.out.println("########### courrier.getCourrierDateReponse() " +courrier.getCourrierDateReponse());
+		valise.setDateReponseDest(courrier.getCourrierDateReponse());
+		try {
+			appMgr.update(courrier);
+
+			// mettre à jour l'état
+			Etat etatTransmise = new Etat();
+			etatTransmise.setEtatId(13);
+			List<Transaction> transactions = appMgr
+					.getListTransactionByIdTransaction(valise
+							.getTransactionID());
+			if (transactions != null && transactions.size() > 0) {
+				Transaction transaction = transactions.get(0);
+				transaction.setEtat(etatTransmise);
+				valise.setEtatID(etatTransmise.getEtatId());
+				appMgr.update(transaction);
+				valise.setTransaction(transaction);
+				vb.setCourrierInformations(valise);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+
+		return (listCourrierValiseDM != null && listCourrierValiseDM
+				.getWrappedData() != null) ? ((List<CourrierInformations>) listCourrierValiseDM
+				.getWrappedData()).size() : 0;
+	}
+	@SuppressWarnings("unchecked")
+	public long getRecords1() {
+		return (listeCourriersPointesValiseDM != null && listeCourriersPointesValiseDM
+				.getWrappedData() != null) ? ((List<CourrierInformations>) listeCourriersPointesValiseDM
+				.getWrappedData()).size() : 0;
+	}
+	
+	/**
+	 * Getter and Setter
+	 */
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public long getNombreCourrier() {
+		return nombreCourrier;
+	}
+
+	public void setNombreCourrier(int nombreCourrier) {
+		this.nombreCourrier = nombreCourrier;
+	}
+
+	public DataModel getListCourrierValiseDM() {
+		return listCourrierValiseDM;
+	}
+
+	public void setListCourrierValiseDM(DataModel listCourrierValiseDM) {
+		this.listCourrierValiseDM = listCourrierValiseDM;
+	}
+
+	public List<CourrierInformations> getListeCourriers() {
+		return listeCourriers;
+	}
+
+	public void setListeCourriers(List<CourrierInformations> listeCourriers) {
+		this.listeCourriers = listeCourriers;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public CourrierInformations getValise() {
+		return valise;
+	}
+
+	public void setValise(CourrierInformations valise) {
+		this.valise = valise;
+	}
+
+	public Transaction getTr() {
+		return tr;
+	}
+
+	public void setTr(Transaction tr) {
+		this.tr = tr;
+	}
+
+	public Object getEtatTransaction() {
+		return etatTransaction;
+	}
+
+	public void setEtatTransaction(Object etatTransaction) {
+		this.etatTransaction = etatTransaction;
+	}
+
+	public int getRefEtat() {
+		return refEtat;
+	}
+
+	public void setRefEtat(int refEtat) {
+		this.refEtat = refEtat;
+	}
+
+	public String getLibelleEtat() {
+		return libelleEtat;
+	}
+
+	public void setLibelleEtat(String libelleEtat) {
+		this.libelleEtat = libelleEtat;
+	}
+
+	public boolean isAffichageAffectation() {
+		return affichageAffectation;
+	}
+
+	public void setAffichageAffectation(boolean affichageAffectation) {
+		this.affichageAffectation = affichageAffectation;
+	}
+
+	public boolean isAffichagePointage() {
+		return affichagePointage;
+	}
+
+	public void setAffichagePointage(boolean affichagePointage) {
+		this.affichagePointage = affichagePointage;
+	}
+
+	public boolean isAffichageReception() {
+		return affichageReception;
+	}
+
+	public void setAffichageReception(boolean affichageReception) {
+		this.affichageReception = affichageReception;
+	}
+
+	public boolean isAffichageTransmission() {
+		return affichageTransmission;
+	}
+
+	public void setAffichageTransmission(boolean affichageTransmission) {
+		this.affichageTransmission = affichageTransmission;
+	}
+
+	public Date getCourrierDateReponse() {
+		return courrierDateReponse;
+	}
+
+	public void setCourrierDateReponse(Date courrierDateReponse) {
+		this.courrierDateReponse = courrierDateReponse;
+	}
+
+	public String getAffichagePanelRecption() {
+		return affichagePanelRecption;
+	}
+
+	public void setAffichagePanelRecption(String affichagePanelRecption) {
+		this.affichagePanelRecption = affichagePanelRecption;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public boolean isAfficherDateReception() {
+		return afficherDateReception;
+	}
+
+	public void setAfficherDateReception(boolean afficherDateReception) {
+		this.afficherDateReception = afficherDateReception;
+	}
+
+	public boolean isAfficherDateTransmission() {
+		return afficherDateTransmission;
+	}
+
+	public void setAfficherDateTransmission(boolean afficherDateTransmission) {
+		this.afficherDateTransmission = afficherDateTransmission;
+	}
+
+	public boolean isAfficherDatePointage() {
+		return afficherDatePointage;
+	}
+
+	public void setAfficherDatePointage(boolean afficherDatePointage) {
+		this.afficherDatePointage = afficherDatePointage;
+	}
+
+	public DataModel getListeCourriersPointesValiseDM() {
+		return listeCourriersPointesValiseDM;
+	}
+
+	public void setListeCourriersPointesValiseDM(
+			DataModel listeCourriersPointesValiseDM) {
+		this.listeCourriersPointesValiseDM = listeCourriersPointesValiseDM;
+	}
+
+	public List<CourrierInformations> getListeCourriersPointesAValise() {
+		return listeCourriersPointesAValise;
+	}
+
+	public void setListeCourriersPointesAValise(
+			List<CourrierInformations> listeCourriersPointesAValise) {
+		this.listeCourriersPointesAValise = listeCourriersPointesAValise;
+	}
+
+	public void setRecords1(long records1) {
+		this.records1 = records1;
+	}
+
+}

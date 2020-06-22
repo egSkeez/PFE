@@ -1,0 +1,605 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ClasseGenerale;
+import xtensus.entity.Courrier;
+import xtensus.entity.Expdestexterne;
+
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class CourrierChoixExpediteurBean {
+
+	private ApplicationManager appMgr;
+	private DataModel list;
+	private DataModel list1;
+	private Expdestexterne listExp;
+	private List<Expdestexterne> listExpDest;
+	private List<Expdestexterne> listED;
+	private List<Expdestexterne> listED1;
+	private List<String> res;
+	private Expdestexterne dt;
+	private Expdestexterne dt1;
+	private List<Transaction> listTr;
+	private Courrier cr;
+	public String type = "Expéditeur";
+	private List<String> selectedItems;
+	private Expdestexterne selectedItem;
+	private Expdestexterne selectedDest;
+	private Set<Integer> rowsToUpdate = new HashSet<Integer>();
+	int a;
+	int k = 0;
+	private int var;
+	public boolean statusModif;
+	public boolean status1;
+	public boolean status2;
+	public boolean status3;
+	private String type1;
+	private String statusExpDest;
+	private ClasseGenerale cg;
+	private List<ClasseGenerale> listG;
+	private Pp pp;
+	private Pp pp1;
+	private Pm pm;
+	private List<Pm> listPM;
+	private List<Pp> listPP;
+	private List<Pp> listPP1;
+	private List<Pp> listNbrPP;
+	private int nbr;
+	private Expdestexterne contactNom;
+	private Expdestexterne contact;
+	private Expdestexterne expDest;
+	private Expdestexterne expDest1;
+	private List<Expdestexterne> listContactNom;
+	private boolean select1;
+	private boolean select2;
+	private String nomExp = "";
+
+	private int n, n1;
+	ArrayList<SelectItem> selectItems = new ArrayList<SelectItem>();
+
+	@Autowired
+	private VariableGlobale vb;
+
+	private long records = 0;
+
+	@Autowired
+	public CourrierChoixExpediteurBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		dt = new Expdestexterne();
+		dt1 = new Expdestexterne();
+		list = new ListDataModel();
+		list1 = new ListDataModel();
+		cg = new ClasseGenerale();
+		listG = new ArrayList<ClasseGenerale>();
+		listPM = new ArrayList<Pm>();
+		listPP = new ArrayList<Pp>();
+		listPP1 = new ArrayList<Pp>();
+		// selected=new Boolean(selected);
+		setRes(new ArrayList<String>());
+		listExpDest = new ArrayList<Expdestexterne>();
+		pp = new Pp();
+		pp1 = new Pp();
+		pm = new Pm();
+		contactNom = new Expdestexterne();
+		contact = new Expdestexterne();
+		expDest = new Expdestexterne();
+		expDest1 = new Expdestexterne();
+		listContactNom = new ArrayList<Expdestexterne>();
+		type1 = new String();
+		listED = new ArrayList<Expdestexterne>();
+		listED1 = new ArrayList<Expdestexterne>();
+		statusExpDest = new String();
+		listTr = new ArrayList<Transaction>();
+		listNbrPP = new ArrayList<Pp>();
+		System.out
+				.println("**************BeanInjecte ContactConsultationBean*********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			statusExpDest = "active";
+			listTr = appMgr.getList(Transaction.class);
+			//listExpDest = appMgr.getList(Expdestexterne.class);
+			listExpDest = appMgr.getListAllAxpDestExternJustPpAndPm();// permet d'avoir la liste des expdestExterne qui ne comporte pas la liste des utilisateurs interne 
+			listPM = appMgr.getList(Pm.class);
+			type1 = "PP";
+			list.setWrappedData(listExpDest);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			dt = (Expdestexterne) list.getRowData();
+			vb.setExpdestexterne(dt);
+			System.out
+					.println("*******SelectionSucces ContactConsultationBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection ContactConsultationBean*******");
+		}
+	}
+
+	public String getSelectionRow2() {
+		String res = "";
+		try {
+			dt = (Expdestexterne) list.getRowData();
+			vb.setExpdestexterne(dt);
+			if (vb.getExpdestexterne().getTypeutilisateur()
+					.getTypeUtilisateurId() == 1) {
+				var = 1;
+				res = "PP";
+			} else if (vb.getExpdestexterne().getTypeutilisateur()
+					.getTypeUtilisateurId() == 2) {
+				var = 0;
+				res = "PM";
+			}
+
+			System.out
+					.println("*******SelectionSucces ContactConsultationBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection ContactConsultationBean*******");
+		}
+		return res;
+
+	}
+
+	// fonction de selection d'un contact dans le tableau (checkBox)
+	public void submitSelections(ActionEvent event) {
+
+		status1 = false;
+		status2 = false;
+		status3 = false;
+		@SuppressWarnings("unchecked")
+		List<Expdestexterne> items = (List<Expdestexterne>) list
+				.getWrappedData();
+		List<Expdestexterne> selectedItems = new ArrayList<Expdestexterne>();
+		for (Expdestexterne item : items) {
+
+			if (item.isSelected()) {
+				selectedItems.add(item);
+			}
+		}
+
+		if (selectedItems.size() > 1) {
+			status2 = true;
+			status3 = false;
+		} else {
+			status2 = false;
+			status3 = true;
+		}
+
+		setNomExp("");
+		for (int i = 0; i < selectedItems.size(); i++) {
+			nomExp = nomExp + selectedItems.get(i).getExpDestExterneNom()
+					+ "; ";
+
+		}
+
+	}
+
+	public String Exp() {
+
+		return "exp";
+
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+
+		if (vb.getExpdestexterne().getTypeutilisateur().getTypeUtilisateurId() == 2) {
+			setSelect1(false);
+			setSelect2(true);
+
+		} else {
+			setSelect1(true);
+			setSelect2(false);
+
+		}
+	}
+
+	// ************Getter & Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (list == null && list.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Expdestexterne>) list.getWrappedData()).size();
+		return records;
+	}
+
+	public void setList(DataModel list) {
+		this.list = list;
+	}
+
+	public DataModel getList() {
+		return list;
+	}
+
+	public Expdestexterne getDt() {
+		return dt;
+	}
+
+	public void setDt(Expdestexterne dt) {
+		this.dt = dt;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setListExp(Expdestexterne listExp) {
+		this.listExp = listExp;
+	}
+
+	public Expdestexterne getListExp() {
+		return listExp;
+	}
+
+	public int getN() {
+		return n;
+	}
+
+	public void setN(int n) {
+		this.n = n;
+	}
+
+	public void setSelectItems(ArrayList<SelectItem> selectItems) {
+		this.selectItems = selectItems;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public void setDt1(Expdestexterne dt1) {
+		this.dt1 = dt1;
+	}
+
+	public Expdestexterne getDt1() {
+		return dt1;
+	}
+
+	public void setList1(DataModel list1) {
+		this.list1 = list1;
+	}
+
+	public DataModel getList1() {
+		return list1;
+	}
+
+	public void setCr(Courrier cr) {
+		this.cr = cr;
+	}
+
+	public Courrier getCr() {
+		return cr;
+	}
+
+	public void setN1(int n1) {
+		this.n1 = n1;
+	}
+
+	public int getN1() {
+		return n1;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setSelectedItems(List<String> selectedItems) {
+		this.selectedItems = selectedItems;
+	}
+
+	public List<String> getSelectedItems() {
+		return selectedItems;
+	}
+
+	public void setListExpDest(List<Expdestexterne> listExpDest) {
+		this.listExpDest = listExpDest;
+	}
+
+	public List<Expdestexterne> getListExpDest() {
+		return listExpDest;
+	}
+
+	public void setRes(List<String> res) {
+		this.res = res;
+	}
+
+	public List<String> getRes() {
+		return res;
+	}
+
+	public Expdestexterne getSelectedItem() {
+		return selectedItem;
+	}
+
+	public void setSelectedItem(Expdestexterne selectedItem) {
+		this.selectedItem = selectedItem;
+	}
+
+	public void setSelectedDest(Expdestexterne selectedDest) {
+		this.selectedDest = selectedDest;
+	}
+
+	public Expdestexterne getSelectedDest() {
+		return selectedDest;
+	}
+
+	public void setRowsToUpdate(Set<Integer> rowsToUpdate) {
+		this.rowsToUpdate = rowsToUpdate;
+	}
+
+	public Set<Integer> getRowsToUpdate() {
+		return rowsToUpdate;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setCg(ClasseGenerale cg) {
+		this.cg = cg;
+	}
+
+	public ClasseGenerale getCg() {
+		return cg;
+	}
+
+	public List<ClasseGenerale> getListG() {
+		return listG;
+	}
+
+	public void setListG(List<ClasseGenerale> listG) {
+		this.listG = listG;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setListPM(List<Pm> listPM) {
+		this.listPM = listPM;
+	}
+
+	public List<Pm> getListPM() {
+		return listPM;
+	}
+
+	public void setListPP(List<Pp> listPP) {
+		this.listPP = listPP;
+	}
+
+	public List<Pp> getListPP() {
+		return listPP;
+	}
+
+	public void setContactNom(Expdestexterne contactNom) {
+		this.contactNom = contactNom;
+	}
+
+	public Expdestexterne getContactNom() {
+		return contactNom;
+	}
+
+	public void setExpDest(Expdestexterne expDest) {
+		this.expDest = expDest;
+	}
+
+	public Expdestexterne getExpDest() {
+		return expDest;
+	}
+
+	public void setType1(String type1) {
+		this.type1 = type1;
+	}
+
+	public String getType1() {
+		return type1;
+	}
+
+	public void setListED(List<Expdestexterne> listED) {
+		this.listED = listED;
+	}
+
+	public List<Expdestexterne> getListED() {
+		return listED;
+	}
+
+	public void setListPP1(List<Pp> listPP1) {
+		this.listPP1 = listPP1;
+	}
+
+	public List<Pp> getListPP1() {
+		return listPP1;
+	}
+
+	public Pp getPp1() {
+		return pp1;
+	}
+
+	public void setPp1(Pp pp1) {
+		this.pp1 = pp1;
+	}
+
+	public void setExpDest1(Expdestexterne expDest1) {
+		this.expDest1 = expDest1;
+	}
+
+	public Expdestexterne getExpDest1() {
+		return expDest1;
+	}
+
+	public void setListED1(List<Expdestexterne> listED1) {
+		this.listED1 = listED1;
+	}
+
+	public List<Expdestexterne> getListED1() {
+		return listED1;
+	}
+
+	public void setContact(Expdestexterne contact) {
+		this.contact = contact;
+	}
+
+	public Expdestexterne getContact() {
+		return contact;
+	}
+
+	public void setStatusExpDest(String statusExpDest) {
+		this.statusExpDest = statusExpDest;
+	}
+
+	public String getStatusExpDest() {
+		return statusExpDest;
+	}
+
+	public void setListTr(List<Transaction> listTr) {
+		this.listTr = listTr;
+	}
+
+	public List<Transaction> getListTr() {
+		return listTr;
+	}
+
+	public void setVar(int var) {
+		this.var = var;
+	}
+
+	public int getVar() {
+		return var;
+	}
+
+	public void setSelect2(boolean select2) {
+		this.select2 = select2;
+	}
+
+	public boolean isSelect2() {
+		return select2;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public boolean isStatusModif() {
+		return statusModif;
+	}
+
+	public void setStatusModif(boolean statusModif) {
+		this.statusModif = statusModif;
+	}
+
+	public void setListNbrPP(List<Pp> listNbrPP) {
+		this.listNbrPP = listNbrPP;
+	}
+
+	public List<Pp> getListNbrPP() {
+		return listNbrPP;
+	}
+
+	public void setNbr(int nbr) {
+		this.nbr = nbr;
+	}
+
+	public int getNbr() {
+		return nbr;
+	}
+
+	public List<Expdestexterne> getListContactNom() {
+		return listContactNom;
+	}
+
+	public void setListContactNom(List<Expdestexterne> listContactNom) {
+		this.listContactNom = listContactNom;
+	}
+
+	public void setNomExp(String nomExp) {
+		this.nomExp = nomExp;
+	}
+
+	public String getNomExp() {
+		return nomExp;
+	}
+
+}

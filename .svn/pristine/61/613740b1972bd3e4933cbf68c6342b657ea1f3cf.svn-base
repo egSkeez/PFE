@@ -1,0 +1,531 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Annotation;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class AnnotationGestionBean {
+
+	private Annotation annotation;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listAnnotation;
+	private List<Annotation> listAnno;
+	private List<Annotation> copylistAnno;
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private Annotation Anno;
+	
+	private boolean annotationLibelleShowFr;
+	private boolean annotationDescriptionShowFr;
+	private boolean annotationLibelleShowAr;
+	private boolean annotationDescriptionShowAr;
+
+	@Autowired
+	public AnnotationGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		annotation = new Annotation();
+		Anno = new Annotation();
+		listAnnotation = new ListDataModel();
+		listAnno = new ArrayList<Annotation>();
+		copylistAnno = new ArrayList<Annotation>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out
+				.println("*************Bean AnnotationGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajouter annotation";
+		titleaccor =messageSource.getMessage("Ajoutannotation",new Object[] {}, lm.createLocal());
+		listAnno = new ArrayList<Annotation>();
+		copylistAnno = new ArrayList<Annotation>();
+		try {
+			listAnno = appMgr.getList(Annotation.class);
+			
+			if (vb.getLocale().equals("ar")) {
+				
+				setAnnotationLibelleShowFr(false);
+				setAnnotationDescriptionShowFr(false);
+				setAnnotationLibelleShowAr(true);
+				setAnnotationDescriptionShowAr(true);
+				
+			} else {
+				
+				setAnnotationLibelleShowFr(true);
+				setAnnotationDescriptionShowFr(true);
+				setAnnotationLibelleShowAr(false);
+				setAnnotationDescriptionShowAr(false);
+			}
+			
+			for (int i = listAnno.size(); i >= 0; i--) {
+				Anno = listAnno.get(i - 1);
+				copylistAnno.add(Anno);
+				Anno = new Annotation();
+			}
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+			e.printStackTrace();
+		}
+		listAnnotation.setWrappedData(copylistAnno);
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+
+			appMgr.insert(annotation);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"ajout",
+					"Evénement de log d'ajout de l'annotation "
+							+ annotation.getAnnotationId() + "-"
+							+ annotation.getAnnotationLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+			System.out
+					.println("***************Succes AnnotationGestionBean***************");
+
+		} catch (Exception e) {
+			status3 = true;
+			System.out
+					.println("***************Erreur AnnotationGestionBean***************");
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			annotation = (Annotation) listAnnotation.getRowData();
+			vb.setAnnotation(annotation);
+
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de l'annotation "
+							+ annotation.getAnnotationId() + "-"
+							+ annotation.getAnnotationLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			System.out
+					.println("*******Selection AnnotationGestionBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection AnnotationGestionBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier annotation";
+		titleaccor =messageSource.getMessage("Consultationannotation",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			annotation = vb.getAnnotation();
+			appMgr.update(annotation);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de l'annotation "
+							+ vb.getAnnotation().getAnnotationId() + "-"
+							+ vb.getAnnotation().getAnnotationLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			listAnno = new ArrayList<Annotation>();
+			Initialize();
+			annotation = new Annotation();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter annotation";
+		titleaccor =messageSource.getMessage("Ajoutannotation",new Object[] {}, lm.createLocal());;
+
+	}
+
+	public void deleteSelectedRow() {
+
+		try {
+			annotation = vb.getAnnotation();
+			appMgr.delete(annotation);
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression de l'annotation "
+							+ annotation.getAnnotationId() + "-"
+							+ annotation.getAnnotationLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+		} catch (Exception e) {
+
+		}
+		listAnnotation = new ListDataModel();
+		listAnno = new ArrayList<Annotation>();
+		copylistAnno = new ArrayList<Annotation>();
+		Initialize();
+		// annotation = new annotation();
+	}
+
+	public void annulModif() {
+		annotation = new Annotation();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter annotation";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		annotation = new Annotation();
+		msgerror = true;
+		titleaccor = messageSource.getMessage("Ajoutannotation",new Object[] {}, lm.createLocal());;
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listAnnotation == null && listAnnotation.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Annotation>) listAnnotation.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setAnnotation(Annotation annotation) {
+		this.annotation = annotation;
+	}
+
+	public Annotation getAnnotation() {
+		return annotation;
+	}
+
+	public void setListAnnotation(DataModel listAnnotation) {
+		this.listAnnotation = listAnnotation;
+	}
+
+	public DataModel getListAnnotation() {
+		return listAnnotation;
+	}
+
+	public void setListAnno(List<Annotation> listAnno) {
+		this.listAnno = listAnno;
+	}
+
+	public List<Annotation> getListAnno() {
+		return listAnno;
+	}
+
+	public void setCopylistAnno(List<Annotation> copylistAnno) {
+		this.copylistAnno = copylistAnno;
+	}
+
+	public List<Annotation> getCopylistAnno() {
+		return copylistAnno;
+	}
+
+	public void setAnno(Annotation anno) {
+		Anno = anno;
+	}
+
+	public Annotation getAnno() {
+		return Anno;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setAnnotationLibelleShowFr(boolean annotationLibelleShowFr) {
+		this.annotationLibelleShowFr = annotationLibelleShowFr;
+	}
+
+	public boolean isAnnotationLibelleShowFr() {
+		return annotationLibelleShowFr;
+	}
+
+	public void setAnnotationDescriptionShowFr(boolean annotationDescriptionShowFr) {
+		this.annotationDescriptionShowFr = annotationDescriptionShowFr;
+	}
+
+	public boolean isAnnotationDescriptionShowFr() {
+		return annotationDescriptionShowFr;
+	}
+
+	public void setAnnotationLibelleShowAr(boolean annotationLibelleShowAr) {
+		this.annotationLibelleShowAr = annotationLibelleShowAr;
+	}
+
+	public boolean isAnnotationLibelleShowAr() {
+		return annotationLibelleShowAr;
+	}
+
+	public void setAnnotationDescriptionShowAr(boolean annotationDescriptionShowAr) {
+		this.annotationDescriptionShowAr = annotationDescriptionShowAr;
+	}
+
+	public boolean isAnnotationDescriptionShowAr() {
+		return annotationDescriptionShowAr;
+	}
+
+}

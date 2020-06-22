@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourriersListes_subreportRechercheMulticritere" pageWidth="168" pageHeight="802" columnWidth="168" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="6e2089bd-4c9d-4eab-8f3e-7330bc3824d1">
+	<property name="ireport.zoom" value="2.853116706110003"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="selectItemsAnnotation" class="java.util.List">
+		<fieldDescription><![CDATA[selectItemsAnnotation]]></fieldDescription>
+	</field>
+	<field name="evenementChoixTypeDate" class="java.lang.String">
+		<fieldDescription><![CDATA[evenementChoixTypeDate]]></fieldDescription>
+	</field>
+	<field name="criteresRecherche" class="xtensus.beans.utils.RechercheMulticritereModel">
+		<fieldDescription><![CDATA[criteresRecherche]]></fieldDescription>
+	</field>
+	<field name="typrRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typrRecherche]]></fieldDescription>
+	</field>
+	<field name="typeDateRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typeDateRecherche]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getCourrierObjet().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement uuid="f0a4aeeb-c7f5-4ebb-9061-08ad3df45f11" x="0" y="0" width="39" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Objet :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="cfb97a8b-5528-4018-b882-7a65ac021f31" x="39" y="0" width="129" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getCourrierObjet()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{typrRecherche}.isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement uuid="77c07e6b-ef6a-440e-826a-2df4e6121ff9" x="0" y="0" width="36" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Courrier :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="1d2c6ad5-ae2e-4a95-a4a1-6e4c509dfb30" x="36" y="0" width="132" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{typrRecherche}.equals("tous")? "Arrivé & Départ " :$F{typrRecherche}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getAnnees().isEmpty()]]></printWhenExpression>
+			<staticText>
+				<reportElement uuid="df8e137d-762b-44f0-a4f4-d9eb544e7959" x="0" y="0" width="41" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Par année:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="f9c0c158-3dee-4de0-a3b5-b59282e3edd5" x="41" y="0" width="127" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getAnnees()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="12">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getDateRecep().equals(null) &&$F{criteresRecherche}.getDateRecepFin().equals(null)]]></printWhenExpression>
+			<staticText>
+				<reportElement uuid="af9335d6-6ae5-44c8-8eb6-d07db1d7a7a6" x="0" y="0" width="41" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Par Date :]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="7cf16699-d97c-4102-b510-101a06bc0d2f" x="41" y="0" width="127" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getDateRecep()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="24">
+			<printWhenExpression><![CDATA[!$F{criteresRecherche}.getDateRecepFin().equals(null)]]></printWhenExpression>
+			<staticText>
+				<reportElement uuid="b5bbdd29-0009-4de5-ad52-b204f0dcb01a" x="0" y="0" width="64" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Periode:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="4b8346f4-7d83-48a2-b449-0aed3ce920b7" x="74" y="12" width="72" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getDateRecepFin()]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="7cf16699-d97c-4102-b510-101a06bc0d2f" x="18" y="12" width="46" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getDateRecep()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="67388f5a-8238-4e97-97c6-bcd493c16337" x="6" y="12" width="10" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[du]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="67388f5a-8238-4e97-97c6-bcd493c16337" x="64" y="12" width="10" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[au]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

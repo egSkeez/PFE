@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FicheListDossiers_subreport1" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="8de9a664-a593-40cb-bf0c-e9739301a78d">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="3" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="31" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="1fb89e27-01cd-4168-9da2-26e355fa921f" x="14" y="4" width="506" height="27"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Liste des courriers attachés]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="127" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="05b29087-c5d8-4bec-bdd5-965229f25a58" x="14" y="21" width="57" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Référence ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="dbe2ab80-a5ca-4f96-af4f-5c96793cdb71" x="71" y="21" width="149" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierReferenceCorrespondant()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689" x="14" y="36" width="117" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Mode  transmission ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="8adfe983-9fdd-4aef-b908-9a8848f1df49" x="131" y="36" width="122" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement verticalAlignment="Bottom" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getTransmission()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689" x="14" y="51" width="95" height="15"/>
+				<box topPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date reception ]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="64d0f1ed-5a30-4ea7-bc33-1812c9fd6564" x="125" y="51" width="95" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReception()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689" x="220" y="21" width="40" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nature ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="dbe2ab80-a5ca-4f96-af4f-5c96793cdb71" x="260" y="21" width="149" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getNature()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+</jasperReport>

@@ -1,0 +1,344 @@
+package xtensus.beans.common.GNL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.services.ApplicationManager;
+import xtensus.gnl.entity.Evenement;
+import xtensus.gnl.entity.Notification;
+
+@Component()
+@Scope("request")
+public class GestionDetailEvenementBean {
+
+	private Evenement evenement;
+	private DataModel listevenement;
+	private List<Evenement> listN;
+	private List<Evenement> copylistN;
+	private Notification notification;
+	private DataModel listNotificationDM;
+	private List<Notification> listNotification;
+	private String typeEvenement;
+
+	private int compteur;
+
+	private long records = 0;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public GestionDetailEvenementBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		evenement = new Evenement();
+		notification = new Notification();
+		listevenement = new ListDataModel();
+
+		listNotification = new ArrayList<Notification>();
+		listNotificationDM = new ListDataModel();
+
+		listN = new ArrayList<Evenement>();
+		copylistN = new ArrayList<Evenement>();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		evenement = vb.getEvenement();
+		int refEvenement = evenement.getEvenementId();
+		listNotification = appMgr.listNotificationByEvenement(refEvenement);
+		listNotificationDM.setWrappedData(listNotification);
+		typeEvenement = evenement.getTypeEvenement().getTypeEvenementLibelle();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void rechargeDM(ActionEvent event) {
+		List<Notification> items = (List<Notification>) listNotificationDM
+				.getWrappedData();
+		vb.setListNotification(items);
+	}
+
+	// Get Selection Rows
+	public void getSelectedRowForUpdate() {
+
+		try {
+			notification = (Notification) listNotificationDM.getRowData();
+			vb.setNotification(notification);
+
+			System.out
+					.println("*******SelectionVariableConsulterBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionVariableConsulterBean*******");
+		}
+
+	}
+
+	public void getSelectedRowForDelete() {
+		try {
+			notification = (Notification) listNotificationDM.getRowData();
+			vb.setNotification(notification);
+
+			System.out
+					.println("*******SelectionEvenementConsulterBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionEvenementConsulterBean*******");
+		}
+	}
+
+	public void getSelectedRowForDetails() {
+		try {
+			notification = (Notification) listNotificationDM.getRowData();
+			vb.setNotification(notification);
+			System.out
+					.println("*******SelectionEvenementConsulterBean*********");
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionEvenementConsulterBean*******");
+		}
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+
+		try {
+			// evenement = vb.getEvenement();
+			appMgr.update(evenement);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			listN = new ArrayList<Evenement>();
+			Initialize();
+			evenement = new Evenement();
+		} catch (Exception e) {
+
+		}
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			// evenement = vb.getEvenement();
+			appMgr.delete(evenement);
+			System.out.println("DeleteTerminee");
+
+		} catch (Exception e) {
+
+		}
+		listevenement = new ListDataModel();
+		listN = new ArrayList<Evenement>();
+		copylistN = new ArrayList<Evenement>();
+		Initialize();
+		// evenement = new Evenement();
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	@SuppressWarnings("unchecked")
+	public void validate(ActionEvent event) {
+		status = false;
+		listNotification = (List<Notification>) listNotificationDM
+				.getWrappedData();
+		for (Notification item : listNotification) {
+			try {
+				appMgr.update(item);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		status = true;
+		// **
+		if (!listNotification.isEmpty()) {
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"affectation",
+					"Evénement de log d'activation de notification pour l'evenement "
+							+ evenement.getEvenementId() + "-"
+							+ evenement.getEvenementLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+		}
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listevenement == null && listevenement.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Evenement>) listevenement.getWrappedData()).size();
+		return records;
+	}
+
+	public Evenement getEvenement() {
+		return evenement;
+	}
+
+	public void setEvenement(Evenement evenement) {
+		this.evenement = evenement;
+	}
+
+	public DataModel getListevenement() {
+		return listevenement;
+	}
+
+	public void setListevenement(DataModel listevenement) {
+		this.listevenement = listevenement;
+	}
+
+	public List<Evenement> getListN() {
+		return listN;
+	}
+
+	public void setListN(List<Evenement> listN) {
+		this.listN = listN;
+	}
+
+	public List<Evenement> getCopylistN() {
+		return copylistN;
+	}
+
+	public void setCopylistN(List<Evenement> copylistN) {
+		this.copylistN = copylistN;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setListNotificationDM(DataModel listNotificationDM) {
+		this.listNotificationDM = listNotificationDM;
+	}
+
+	public DataModel getListNotificationDM() {
+		return listNotificationDM;
+	}
+
+	public void setListNotification(List<Notification> listNotification) {
+		this.listNotification = listNotification;
+	}
+
+	public List<Notification> getListNotification() {
+		return listNotification;
+	}
+
+	public void setNotification(Notification notification) {
+		this.notification = notification;
+	}
+
+	public Notification getNotification() {
+		return notification;
+	}
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	@SuppressWarnings("unchecked")
+	public int getCompteur() {
+		try {
+			compteur = ((List<Notification>) listNotificationDM
+					.getWrappedData()).size();
+			return compteur;
+		} catch (NullPointerException n) {
+			compteur = 0;
+			return compteur;
+		}
+	}
+
+	public void setTypeEvenement(String typeEvenement) {
+		this.typeEvenement = typeEvenement;
+	}
+
+	public String getTypeEvenement() {
+		return typeEvenement;
+	}
+
+}

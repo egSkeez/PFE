@@ -1,0 +1,98 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<link rel="STYLESHEET" type="text/css" href="test-css.css" title="css"></link>
+	<div align="center">
+		<h:form>
+			<div align="center">
+				<rich:toolBar styleClass="rich-toolbar-item">
+
+					<h:graphicImage value="../framGraphique/images/accueil.png"
+						onclick="document.location.href='../GBO/accueil.jsf'">
+					</h:graphicImage>
+					<rich:dropDownMenu>
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.GestionCourrier}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem
+							onclick="document.location.href='../GBO/courrierAjout.jsf'">
+							<h:outputLink value="courrierAjout.jsf">
+								<h:outputText value="#{msg.AjouterCourrier}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+						<rich:menuItem
+							onclick="document.location.href='../GBO/courrierRecherche.jsf'">
+							<h:outputLink value="courrierRecherche.jsf">
+								<h:outputText value="#{msg.RechercherCourrier}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+					</rich:dropDownMenu>
+
+					<rich:dropDownMenu>
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.GestionContact}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem
+							onclick="document.location.href='../GBO/contactAjout.jsf'">
+							<h:outputLink value="contactAjout.jsf">
+								<h:outputText value="#{msg.AjouterContact}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+
+						<rich:menuItem
+							onclick="document.location.href='../GBO/contactRecherche.jsf'">
+							<h:outputLink value="contactRecherche.jsf">
+								<h:outputText value="#{msg.RechercherContact}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+
+					</rich:dropDownMenu>
+
+					<rich:dropDownMenu>
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.GestionUtili}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem
+							onclick="document.location.href='../gbo/UtilisateurAjout.jsf'">
+							<h:outputLink value="UtilisateurAjout.jsf">
+								<h:outputText value="#{msg.AjouterUtili}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+
+						<rich:menuItem
+							onclick="document.location.href='../gbo/UtilisateurRecherche.jsf'">
+							<h:outputLink value="UtilisateurRecherche.jsf">
+								<h:outputText value="#{msg.RechercherUtili}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+					</rich:dropDownMenu>
+
+					<rich:dropDownMenu>
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.RapportStat}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem onclick="document.location.href='Rapports.jsf'">
+							<h:outputLink value="Rapports.jsf">
+								<h:outputText value="#{msg.RapportStat}"></h:outputText>
+							</h:outputLink>
+						</rich:menuItem>
+					</rich:dropDownMenu>
+					<h:outputText value="Paramétrages"
+						onclick="document.location.href='../GBO0/GestionGBO0.jsf'"></h:outputText>
+				</rich:toolBar>
+			</div>
+
+		</h:form>
+	</div>
+</ui:composition>

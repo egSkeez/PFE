@@ -1,0 +1,21 @@
+package xtensus.beans.utils;
+
+public class RapportCourrierConfidentilaite {
+
+	private long nombre;
+	private String confidentilaiteLibelle;
+	public void setNombre(long nombre) {
+		this.nombre = nombre;
+	}
+	public long getNombre() {
+		return nombre;
+	}
+	public String getConfidentilaiteLibelle() {
+		return confidentilaiteLibelle;
+	}
+	public void setConfidentilaiteLibelle(String confidentilaiteLibelle) {
+		this.confidentilaiteLibelle = confidentilaiteLibelle;
+	}
+	
+	
+}

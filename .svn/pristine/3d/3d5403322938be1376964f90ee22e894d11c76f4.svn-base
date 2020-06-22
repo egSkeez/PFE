@@ -1,0 +1,263 @@
+package xtensus.beans.utils;
+
+import java.util.List;
+
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Entite;
+import xtensus.entity.Urgence;
+
+public class StatistiqueQualificationCourrier extends Entite {
+	/***** Courrier ********/
+	private int courrierArrivee;
+	private int courrierDepart;
+	private float pourcentageCourrierArrivee;
+	private float pourcentageCourrierDepart;
+	private int courrierTotal;
+	private int courrierNouveaux;
+	private int courrierAValider;
+	private String courrierArriveeLibelle;
+	private String courrierDepartLibelle;
+	private String pourcentageCourrierArriveeLibelle;
+	private String pourcentageCourrierDepartLibelle;
+	private String courrierTotalLibelle;
+	private String courrierNouveauxLibelle;
+	private String courrierAValiderLibelle;
+
+	private Urgence urgence;
+	private Confidentialite confidentialite;
+	private StatistiqueUrgence statistiqueUrgence;
+	private StatistiqueConfidentialite statistiqueConfidentialite;
+	private List<StatistiqueUrgence> statistiqueUrgences;
+	private List<StatistiqueConfidentialite> statistiqueConfidentialites;
+	
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private String pathJasper;
+	private String user;
+	/*************************************************/
+
+	public String getSocieteNom() {
+		return societeNom;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public StatistiqueUrgence getStatistiqueUrgence() {
+		return statistiqueUrgence;
+	}
+
+	public void setStatistiqueUrgence(StatistiqueUrgence statistiqueUrgence) {
+		this.statistiqueUrgence = statistiqueUrgence;
+	}
+
+	public StatistiqueConfidentialite getStatistiqueConfidentialite() {
+		return statistiqueConfidentialite;
+	}
+
+	public void setStatistiqueConfidentialite(
+			StatistiqueConfidentialite statistiqueConfidentialite) {
+		this.statistiqueConfidentialite = statistiqueConfidentialite;
+	}
+
+	public List<StatistiqueUrgence> getStatistiqueUrgences() {
+		return statistiqueUrgences;
+	}
+
+	public void setStatistiqueUrgences(
+			List<StatistiqueUrgence> statistiqueUrgences) {
+		this.statistiqueUrgences = statistiqueUrgences;
+	}
+
+	public List<StatistiqueConfidentialite> getStatistiqueConfidentialites() {
+		return statistiqueConfidentialites;
+	}
+
+	public void setStatistiqueConfidentialites(
+			List<StatistiqueConfidentialite> statistiqueConfidentialites) {
+		this.statistiqueConfidentialites = statistiqueConfidentialites;
+	}
+
+	public String getCourrierArriveeLibelle() {
+		return courrierArriveeLibelle;
+	}
+
+	public void setCourrierArriveeLibelle(String courrierArriveeLibelle) {
+		this.courrierArriveeLibelle = courrierArriveeLibelle;
+	}
+
+	public String getCourrierDepartLibelle() {
+		return courrierDepartLibelle;
+	}
+
+	public void setCourrierDepartLibelle(String courrierDepartLibelle) {
+		this.courrierDepartLibelle = courrierDepartLibelle;
+	}
+
+	public String getPourcentageCourrierArriveeLibelle() {
+		return pourcentageCourrierArriveeLibelle;
+	}
+
+	public void setPourcentageCourrierArriveeLibelle(
+			String pourcentageCourrierArriveeLibelle) {
+		this.pourcentageCourrierArriveeLibelle = pourcentageCourrierArriveeLibelle;
+	}
+
+	public String getPourcentageCourrierDepartLibelle() {
+		return pourcentageCourrierDepartLibelle;
+	}
+
+	public void setPourcentageCourrierDepartLibelle(
+			String pourcentageCourrierDepartLibelle) {
+		this.pourcentageCourrierDepartLibelle = pourcentageCourrierDepartLibelle;
+	}
+
+	public String getCourrierTotalLibelle() {
+		return courrierTotalLibelle;
+	}
+
+	public void setCourrierTotalLibelle(String courrierTotalLibelle) {
+		this.courrierTotalLibelle = courrierTotalLibelle;
+	}
+
+	public String getCourrierNouveauxLibelle() {
+		return courrierNouveauxLibelle;
+	}
+
+	public void setCourrierNouveauxLibelle(String courrierNouveauxLibelle) {
+		this.courrierNouveauxLibelle = courrierNouveauxLibelle;
+	}
+
+	public String getCourrierAValiderLibelle() {
+		return courrierAValiderLibelle;
+	}
+
+	public void setCourrierAValiderLibelle(String courrierAValiderLibelle) {
+		this.courrierAValiderLibelle = courrierAValiderLibelle;
+	}
+
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+
+	public String getSocieteVille() {
+		return societeVille;
+	}
+
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public String getPathJasper() {
+		return pathJasper;
+	}
+
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+
+	public int getCourrierArrivee() {
+		return courrierArrivee;
+	}
+
+	public void setCourrierArrivee(int courrierArrivee) {
+		this.courrierArrivee = courrierArrivee;
+	}
+
+	public int getCourrierDepart() {
+		return courrierDepart;
+	}
+
+	public void setCourrierDepart(int courrierDepart) {
+		this.courrierDepart = courrierDepart;
+	}
+
+	public float getPourcentageCourrierArrivee() {
+		return pourcentageCourrierArrivee;
+	}
+
+	public void setPourcentageCourrierArrivee(float pourcentageCourrierArrivee) {
+		this.pourcentageCourrierArrivee = pourcentageCourrierArrivee;
+	}
+
+	public float getPourcentageCourrierDepart() {
+		return pourcentageCourrierDepart;
+	}
+
+	public void setPourcentageCourrierDepart(float pourcentageCourrierDepart) {
+		this.pourcentageCourrierDepart = pourcentageCourrierDepart;
+	}
+
+	public int getCourrierTotal() {
+		return courrierTotal;
+	}
+
+	public void setCourrierTotal(int courrierTotal) {
+		this.courrierTotal = courrierTotal;
+	}
+
+	public int getCourrierNouveaux() {
+		return courrierNouveaux;
+	}
+
+	public void setCourrierNouveaux(int courrierNouveaux) {
+		this.courrierNouveaux = courrierNouveaux;
+	}
+
+	public int getCourrierAValider() {
+		return courrierAValider;
+	}
+
+	public void setCourrierAValider(int courrierAValider) {
+		this.courrierAValider = courrierAValider;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+}

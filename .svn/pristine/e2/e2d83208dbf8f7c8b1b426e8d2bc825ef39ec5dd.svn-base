@@ -1,0 +1,751 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.el.MethodExpression;
+import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlCommandButton;
+import javax.faces.component.html.HtmlSelectBooleanCheckbox;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.richfaces.component.UIPanelMenu;
+import org.richfaces.component.UIPanelMenuGroup;
+import org.richfaces.component.UIPanelMenuItem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.entity.Commentaire;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Document;
+import xtensus.entity.Dossier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Urgence;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierDetailsPartageBean {
+	private ApplicationManager appMgr;
+	private Export export;
+	private DataModel listDDM;
+	private UIPanelMenu panelMenu1 = null;
+	private UIPanelMenu panelMenu2 = null;
+	private Dossier dossier;
+	private CourrierDossierListe cr;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private Transaction transaction;
+	private List<DetailsIntervenants> listInvites;
+	private DetailsIntervenants expediteur;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String value;
+	private String typeChoix;
+	private long records;
+	private long records2;
+	private List<ItemCommentaire> listCommentaire;
+	private DataModel commentaireDataModel;
+	private Commentaire commentaire;
+
+	@Autowired
+	public CourrierDetailsPartageBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		dossier = new Dossier();
+		cr = new CourrierDossierListe();
+		transaction = new Transaction();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		commentaire = new Commentaire();
+		listInvites = new ArrayList<CourrierDetailsPartageBean.DetailsIntervenants>();
+		expediteur = new DetailsIntervenants();
+		listCommentaire = new ArrayList<CourrierDetailsPartageBean.ItemCommentaire>();
+		listDDM = new ListDataModel();
+		listDDM.setWrappedData(new ArrayList<Document>());
+		commentaireDataModel = new ListDataModel();
+		commentaireDataModel.setWrappedData(listCommentaire);
+		System.out.println("**************BeanInjecte DossierDetailsPartageBean *********");
+		
+	}
+	
+	public class DetailsIntervenants{
+		private int idIntervenant;
+		private String nomIntervenant;
+		private String typeIntervenat;
+		private String categorieIntervenant;
+		private String iconIntervenant;
+		
+		public DetailsIntervenants(){
+			
+		}
+		
+		public void setIdIntervenant(int idIntervenant) {
+			this.idIntervenant = idIntervenant;
+		}
+
+		public int getIdIntervenant() {
+			return idIntervenant;
+		}
+
+		public void setNomIntervenant(String nomIntervenant) {
+			this.nomIntervenant = nomIntervenant;
+		}
+
+		public String getNomIntervenant() {
+			return nomIntervenant;
+		}
+		
+		public void setTypeIntervenat(String typeIntervenat) {
+			this.typeIntervenat = typeIntervenat;
+		}
+		public String getTypeIntervenat() {
+			return typeIntervenat;
+		}
+
+		public void setCategorieIntervenant(String categorieIntervenant) {
+			this.categorieIntervenant = categorieIntervenant;
+		}
+
+		public String getCategorieIntervenant() {
+			return categorieIntervenant;
+		}
+
+		public void setIconIntervenant(String iconIntervenant) {
+			this.iconIntervenant = iconIntervenant;
+		}
+
+		public String getIconIntervenant() {
+			return iconIntervenant;
+		}
+	}
+
+	public class Commentaires{
+		private String nomExpediteur;
+		private String typeCommentaire;
+		private Commentaire commentaire;
+		private boolean enableOutput;
+		private boolean enableInput;
+
+		public Commentaires(){
+			this.enableInput = false;
+			this.enableOutput = false;
+		}
+		
+		public void setNomExpediteur(String nomExpediteur) {
+			this.nomExpediteur = nomExpediteur;
+		}
+		public String getNomExpediteur() {
+			return nomExpediteur;
+		}
+		public void setCommentaire(Commentaire commentaire) {
+			this.commentaire = commentaire;
+		}
+		public Commentaire getCommentaire() {
+			return commentaire;
+		}
+
+		public void setTypeCommentaire(String typeCommentaire) {
+			this.typeCommentaire = typeCommentaire;
+		}
+
+		public String getTypeCommentaire() {
+			return typeCommentaire;
+		}
+
+		public void setEnableOutput(boolean enableOutput) {
+			this.enableOutput = enableOutput;
+		}
+
+		public boolean isEnableOutput() {
+			return enableOutput;
+		}
+
+		public void setEnableInput(boolean enableInput) {
+			this.enableInput = enableInput;
+		}
+
+		public boolean isEnableInput() {
+			return enableInput;
+		}
+		
+	}
+	
+	public class ItemCommentaire{
+		private String typeCommentaire;
+		private List<Commentaires> commentaires;
+
+		public ItemCommentaire(){
+			this.commentaires = new ArrayList<CourrierDetailsPartageBean.Commentaires>();
+		}
+		
+		public void setTypeCommentaire(String typeCommentaire) {
+			this.typeCommentaire = typeCommentaire;
+		}
+
+		public String getTypeCommentaire() {
+			return typeCommentaire;
+		}
+
+		public void setCommentaires(List<Commentaires> commentaires) {
+			this.commentaires = commentaires;
+		}
+
+		public List<Commentaires> getCommentaires() {
+			return commentaires;
+		}
+
+		
+	}
+	
+	@PostConstruct
+	public void Initialize() {
+		transaction = vb.getTransaction();	
+		dossier = vb.getDossier();
+		cr = vb.getCourrierDossierListe();
+		confidentialite = appMgr.getConfidentialiteById(dossier.getConfidentialite().getConfidentialiteId()).get(0);
+		urgence = appMgr.getUrgenceById(dossier.getUrgence().getUrgenceId()).get(0);
+		listInvites = loadListInvited(transaction);
+		listDDM.setWrappedData(appMgr.getDocumentByIdCourrier(cr.getCourrier().getIdCourrier()));
+		listCommentaire = getListAllComment(appMgr.getListCommentaireByIdCourrier(transaction.getTransactionId(),cr.getCourrier().getIdCourrier()));
+		commentaireDataModel.setWrappedData(listCommentaire);
+//		if (vb.getPerson().getId() != expediteur.getIdIntervenant() || !expediteur.getTypeIntervenat().equals("Interne-Person")) {
+//			int i = 0;
+//			boolean findPerson = false;
+//			do {
+//				if (vb.getPerson().getId() == listInvites.get(i).getIdIntervenant() && listInvites.get(i).getTypeIntervenat().equals("Interne-Person")) {
+//					listInvites.add(0, expediteur);
+//					expediteur = new DetailsIntervenants();
+//					expediteur = listInvites.get(i);
+//					listInvites.remove(i);
+//					findPerson = true;
+//				} else {
+//					i++;
+//				}
+//			} while (!findPerson && i<vb.getCopyLdapListUser().size());
+//		}
+		System.out.println("Dans initialize");
+		 panelMenu2 = (UIPanelMenu)FacesContext.getCurrentInstance().getApplication().createComponent("org.richfaces.PanelMenu");
+	        UIPanelMenuGroup group =(UIPanelMenuGroup)FacesContext.getCurrentInstance().getApplication().createComponent("org.richfaces.PanelMenuGroup");
+	        group.setLabel("List des intervenants du partage");
+	        group.setId("gr2");
+	        UIPanelMenuItem item = (UIPanelMenuItem)FacesContext.getCurrentInstance().getApplication().createComponent("org.richfaces.PanelMenuItem");
+     	item.setLabel("Tous les intervenants");
+	        item.setId("tous");
+	        item.setIcon("../framGraphique/images/memberIcon.png");
+	        item.setStyle("float:left;");
+//	        MethodExpression methodExpression =  
+//	        FacesContext.getCurrentInstance().getApplication().getExpressionFactory().
+//	        createMethodExpression(FacesContext.getCurrentInstance().getELContext(), "#{dossierDetailsPartageBean.test}", null,
+//	        new Class<?>[0]);
+//	        item.setActionExpression(methodExpression);
+	        HtmlSelectBooleanCheckbox select = new HtmlSelectBooleanCheckbox();
+	        select.setStyle("float:right;");
+	        select.setSelected(false);
+	        item.getChildren().add(select);
+	        group.getChildren().add(item);
+	        String style = "float:left;";
+	        for (DetailsIntervenants detailsIntervenant : listInvites) {
+	        	if (detailsIntervenant.getIdIntervenant() == vb.getPerson().getId()) {
+					style = "float:left; color: #FF0000;";
+				}else{
+					style = "float:left;";
+				}
+	        	item = (UIPanelMenuItem)FacesContext.getCurrentInstance().getApplication().createComponent("org.richfaces.PanelMenuItem");
+	        	item.setLabel(detailsIntervenant.getNomIntervenant());
+	        	item.setIcon(detailsIntervenant.getIconIntervenant());
+	        	System.out.println("\""+detailsIntervenant.getTypeIntervenat()+"\"");
+	        	System.out.println("\""+detailsIntervenant.getIdIntervenant()+"\"");
+	        	System.out.println(detailsIntervenant.getTypeIntervenat()+"_"+detailsIntervenant.getIdIntervenant());
+		        item.setId(detailsIntervenant.getTypeIntervenat()+"_"+detailsIntervenant.getIdIntervenant());
+		        item.setStyle(style);
+//		        methodExpression = FacesContext.getCurrentInstance().getApplication().getExpressionFactory().
+//		        createMethodExpression(FacesContext.getCurrentInstance().getELContext(), "#{dossierDetailsPartageBean.test}", null,
+//		        new Class<?>[0]);
+//		        item.setActionExpression(methodExpression);
+		        select = new HtmlSelectBooleanCheckbox();
+		        select.setStyle("float:right;");
+		        select.setSelected(false);
+		        item.getChildren().add(select);
+		        group.getChildren().add(item);
+			}
+	        item = (UIPanelMenuItem)FacesContext.getCurrentInstance().getApplication().createComponent("org.richfaces.PanelMenuItem");
+        	item.setLabel(" ");
+	        item.setId("operation");
+	        item.setStyle("float:left;");
+	        item.setIcon("none");
+	        HtmlCommandButton button = new HtmlCommandButton();
+	        button.setId("button");
+	        button.setLabel("Ok");
+	        button.setValue("Ok");
+	        button.setStyle("float:right;");
+	        MethodExpression methodExpression = FacesContext.getCurrentInstance().getApplication().getExpressionFactory().
+	        createMethodExpression(FacesContext.getCurrentInstance().getELContext(), "#{dossierDetailsPartageBean.getListCommentByIdChosenUser}", null,
+	        new Class<?>[0]);
+	        button.setActionExpression(methodExpression);
+	        item.getChildren().add(button);
+	        group.getChildren().add(item);
+	        panelMenu2.getChildren().add(group);
+	        
+	}
+	
+	public void getListCommentByIdChosenUser(){
+		System.out.println("*****Dans getListCommentByIdChosenUser");
+		UIPanelMenu panelMenu = null;
+		panelMenu = (UIPanelMenu) findComponent("panelMenuId");
+		System.out.println("verif : " + panelMenu);
+		UIPanelMenuGroup group = null;
+		group = (UIPanelMenuGroup) panelMenu.getChildren().get(0);
+		List<UIComponent> listItems = group.getChildren();
+		System.out.println("size list : " + listItems.size());
+		UIPanelMenuItem menuItem = null;
+		HtmlSelectBooleanCheckbox checkBox = new HtmlSelectBooleanCheckbox();
+		List<Commentaire> listAllComment = new ArrayList<Commentaire>();
+		String [] args ;
+		List<Commentaire> listComment ;
+		for (UIComponent component : listItems) {
+			menuItem = (UIPanelMenuItem) component;
+			System.out.println("verif Id : " + menuItem.getId());
+			if (menuItem.getChildren().get(0) instanceof HtmlSelectBooleanCheckbox) {
+				checkBox = (HtmlSelectBooleanCheckbox) menuItem.getChildren().get(0);
+				if (checkBox.isSelected()) {
+					args = new String [2];
+					listComment = new ArrayList<Commentaire>();
+					System.out.println("---" + menuItem.getId() + " selected");
+					args = menuItem.getId().split("_");
+					listComment = appMgr.getListCommentaireByIdUser(Integer.valueOf(args[1]),transaction.getTransactionId(),cr.getCourrier().getIdCourrier(),args[0]);
+					listAllComment.addAll(listComment);
+				}
+			}
+		}
+		commentaireDataModel.setWrappedData(getListAllComment(listAllComment));
+	}
+	
+	public UIComponent findComponent(String id) {
+		UIComponent result = null;
+		UIComponent root = FacesContext.getCurrentInstance().getViewRoot();
+		if (root != null) {
+			result = findComponent(root, id);
+		}
+		return result;
+
+	}
+
+	private UIComponent findComponent(UIComponent root, String id) {
+		UIComponent result = null;
+		if (root.getId().equals(id))
+			return root;
+
+		for (UIComponent child : root.getChildren()) {
+			if (child.getId().equals(id)) {
+				result = child;
+				break;
+			}
+			result = findComponent(child, id);
+			if (result != null)
+				break;
+		}
+		return result;
+	
+	}
+	
+	public void eventChoose(ActionEvent evt){
+		if (typeChoix.equals("Tous")) {
+			System.out.println("selectionné");
+		}else{
+			System.out.println("non selectionné");
+		}
+	}
+	
+	public List<DetailsIntervenants> loadListInvited(Transaction transaction){
+		List<DetailsIntervenants> result = new ArrayList<CourrierDetailsPartageBean.DetailsIntervenants>();
+		DetailsIntervenants detailsIntervenant;
+		List<TransactionDestination> listTransactionDestination = new ArrayList<TransactionDestination>();
+		listTransactionDestination = appMgr.getDestinationByIdTransaction(transaction.getTransactionId());
+		Expdest expDest;
+		expDest = new Expdest();
+		expDest = appMgr.getListExpDestByIdExpDest(transaction.getExpdest().getIdExpDest()).get(0);
+		int i = 0;
+		boolean findPerson = false;
+		expediteur.setIdIntervenant(expDest.getIdExpDestLdap());
+		expediteur.setCategorieIntervenant("Expéditeur");
+		expediteur.setIconIntervenant("../framGraphique/images/boss.png");
+		if (expDest.getTypeExpDest().equals("Interne-Person")) {
+			do {
+				if (vb.getCopyLdapListUser().get(i).getId() == expDest.getIdExpDestLdap()) {
+					expediteur.setTypeIntervenat("Interne-Person");
+					expediteur.setNomIntervenant(vb.getCopyLdapListUser().get(i).getCn());
+					findPerson = true;
+				} else {
+					i++;
+				}
+			} while (!findPerson && i<vb.getCopyLdapListUser().size());
+		}else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+			i = 0;
+			findPerson = false;
+			do {
+				if (vb.getCopyLdapListUnit().get(i).getIdUnit() == expDest.getIdExpDestLdap()) {
+					expediteur.setTypeIntervenat("Interne-Unit");
+					expediteur.setNomIntervenant(vb.getCopyLdapListUnit().get(i).getNameUnit());
+					findPerson = true;
+				} else {
+					i++;
+				}
+			} while (!findPerson && i<vb.getCopyLdapListUnit().size());
+		}
+		System.out.println("verif size transactionDestination : "+listTransactionDestination.size());
+		for (TransactionDestination transactionDestination : listTransactionDestination) {
+			expDest = new Expdest();
+			detailsIntervenant = new DetailsIntervenants();
+			expDest = appMgr.getListExpDestByIdExpDest(transactionDestination.getId().getIdExpDest()).get(0);
+			detailsIntervenant.setIdIntervenant(expDest.getIdExpDestLdap());
+			detailsIntervenant.setCategorieIntervenant("Invité");
+			detailsIntervenant.setIconIntervenant("../framGraphique/images/invite.png");
+			i = 0;
+			findPerson = false;
+			if (expDest.getTypeExpDest().equals("Interne-Person")) {
+				do {
+					if (vb.getCopyLdapListUser().get(i).getId() == expDest.getIdExpDestLdap()) {
+						detailsIntervenant.setTypeIntervenat("Interne-Person");
+						detailsIntervenant.setNomIntervenant(vb.getCopyLdapListUser().get(i).getCn());
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i<vb.getCopyLdapListUser().size());
+			} else if (expDest.getTypeExpDest().equals("Interne-Unité")){
+				do {
+					if (vb.getCopyLdapListUnit().get(i).getIdUnit() == expDest.getIdExpDestLdap()) {
+						detailsIntervenant.setTypeIntervenat("Interne-Unit");
+						detailsIntervenant.setNomIntervenant(vb.getCopyLdapListUnit().get(i).getNameUnit());
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i<vb.getCopyLdapListUnit().size());
+			}
+			System.out.println("++"+detailsIntervenant.getNomIntervenant()+""+detailsIntervenant.getTypeIntervenat());
+			result.add(detailsIntervenant);
+		}
+		result.add(0, expediteur);
+		return result;
+	}
+	
+	public List<ItemCommentaire> getListAllComment(List<Commentaire> listComment){
+		List<ItemCommentaire> listItemComment = new ArrayList<CourrierDetailsPartageBean.ItemCommentaire>();
+		ItemCommentaire itemCommentaire;
+		Commentaires commentaires;
+		itemCommentaire = new ItemCommentaire();
+		itemCommentaire.setTypeCommentaire("Les commentaire du courrier : "+cr.getCourrier().getCourrierReferenceCorrespondant());
+		int i;
+		boolean findPerson;
+		for (Commentaire commentaire : listComment) {
+			commentaires = new Commentaires();
+			commentaires.setCommentaire(commentaire);
+			commentaires.setTypeCommentaire("Les commentaire du courrier : "+cr.getCourrier().getCourrierReferenceCorrespondant());
+			commentaires.setEnableOutput(true);
+			i = 0;
+			findPerson = false;
+			if (commentaire.getCommentaireTypeExpediteur().equals("Interne-Person")) {
+				do {
+					if (vb.getCopyLdapListUser().get(i).getId() == commentaire.getCommentaireIdExpediteur()) {
+						commentaires.setNomExpediteur(vb.getCopyLdapListUser().get(i).getCn());
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i<vb.getCopyLdapListUser().size());
+			} else if (commentaire.getCommentaireTypeExpediteur().equals("Interne-Unité")){
+				do {
+					if (vb.getCopyLdapListUnit().get(i).getIdUnit() == commentaire.getCommentaireIdExpediteur()) {
+						commentaires.setNomExpediteur(vb.getCopyLdapListUnit().get(i).getNameUnit());
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i<vb.getCopyLdapListUnit().size());
+			}
+			itemCommentaire.getCommentaires().add(commentaires);
+			
+		}
+		listItemComment.add(itemCommentaire);
+		return listItemComment;
+	}
+	
+	public void addComment(){
+		ItemCommentaire itemCommentaire;
+		Commentaires commentaires;
+		Commentaire commentaire;
+			commentaires = new Commentaires();
+			commentaire = new Commentaire();
+			commentaire.setCommentaireDateCommentaire(new Date());
+			commentaire.setCommentaireIdExpediteur(vb.getPerson().getId());
+			commentaire.setCommentaireTypeExpediteur("Interne-Person");
+			commentaires.setCommentaire(commentaire);
+			commentaires.setTypeCommentaire("Les commentaire du courrier : "+cr.getCourrier().getCourrierReferenceCorrespondant());
+			commentaires.setNomExpediteur(vb.getPerson().getCn());
+			commentaires.setEnableInput(true);
+			itemCommentaire = listCommentaire.get(0);
+			itemCommentaire.getCommentaires().add(0, commentaires);
+			
+		listCommentaire.set(0, itemCommentaire);
+		commentaireDataModel.setWrappedData(listCommentaire);
+	}
+	
+	public void cancelAddComment(){
+		ItemCommentaire itemCommentaire;
+		itemCommentaire = listCommentaire.get(0);
+		itemCommentaire.getCommentaires().remove(0);
+		listCommentaire.set(0, itemCommentaire);
+		commentaireDataModel.setWrappedData(listCommentaire);
+	}
+	
+	public void validateAddComment(){
+		try {
+			commentaire.setCommentaireDateCommentaire(new Date());
+			commentaire.setCommentaireIdExpediteur(vb.getPerson().getId());
+			commentaire.setCommentaireTypeExpediteur("Interne-Person");
+			commentaire.setCourrier(cr.getCourrier());
+			commentaire.setTransaction(transaction);
+			appMgr.insert(commentaire);
+			ItemCommentaire itemCommentaire = new ItemCommentaire();
+			Commentaires commentaires = new Commentaires();
+			itemCommentaire = listCommentaire.get(0);
+			commentaires = itemCommentaire.getCommentaires().get(0);
+			commentaires.setCommentaire(commentaire);
+			commentaires.setEnableInput(false);
+			commentaires.setEnableOutput(true);
+			itemCommentaire.getCommentaires().set(0, commentaires);
+			listCommentaire.set(0, itemCommentaire);
+			commentaireDataModel.setWrappedData(listCommentaire);
+			commentaire = new Commentaire();
+			System.out.println("well inserted");
+		} catch (Exception e) {
+			System.out.println("not inserted");
+			e.printStackTrace();
+		}
+	}
+	
+	public void getSelectedRow(){
+//		CourrierDossierListe cr = (CourrierDossierListe) listCourrierAffecteDM.getRowData();
+//		vb.setCourrierDossierListe(cr);
+	}
+	
+	public void test(){
+		System.out.println("Done with success");
+		System.out.println("verif value : "+value);
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listDDM == null && listDDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Document>) listDDM.getWrappedData()).size();
+		return records;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (commentaireDataModel == null && commentaireDataModel.getWrappedData() == null){
+			records2 = 0;
+		} else {
+			records2 = 0;
+			for (int i = 0; i < ((List<ItemCommentaire>) commentaireDataModel.getWrappedData()).size(); i++) {
+					records2 = records2 + ((List<ItemCommentaire>) commentaireDataModel.getWrappedData()).get(i).getCommentaires().size();
+			}
+		}
+		return records2;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setPanelMenu1(UIPanelMenu panelMenu1) {
+		this.panelMenu1 = panelMenu1;
+	}
+
+	public UIPanelMenu getPanelMenu1() {
+		return panelMenu1;
+	}
+
+	public void setPanelMenu2(UIPanelMenu panelMenu2) {
+		this.panelMenu2 = panelMenu2;
+	}
+
+	public UIPanelMenu getPanelMenu2() {
+		return panelMenu2;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setListInvites(List<DetailsIntervenants> listInvites) {
+		this.listInvites = listInvites;
+	}
+
+	public List<DetailsIntervenants> getListInvites() {
+		return listInvites;
+	}
+
+	public void setExpediteur(DetailsIntervenants expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public DetailsIntervenants getExpediteur() {
+		return expediteur;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setTypeChoix(String typeChoix) {
+		this.typeChoix = typeChoix;
+	}
+
+	public String getTypeChoix() {
+		return typeChoix;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+	
+	public void setListCommentaire(List<ItemCommentaire> listCommentaire) {
+		this.listCommentaire = listCommentaire;
+	}
+
+	public List<ItemCommentaire> getListCommentaire() {
+		return listCommentaire;
+	}
+
+	public void setCommentaireDataModel(DataModel commentaireDataModel) {
+		this.commentaireDataModel = commentaireDataModel;
+	}
+
+	public DataModel getCommentaireDataModel() {
+		return commentaireDataModel;
+	}
+
+	public void setCommentaire(Commentaire commentaire) {
+		this.commentaire = commentaire;
+	}
+
+	public Commentaire getCommentaire() {
+		return commentaire;
+	}
+
+	public void setCr(CourrierDossierListe cr) {
+		this.cr = cr;
+	}
+
+	public CourrierDossierListe getCr() {
+		return cr;
+	}
+
+	public void setListDDM(DataModel listDDM) {
+		this.listDDM = listDDM;
+	}
+
+	public DataModel getListDDM() {
+		return listDDM;
+	}
+
+}

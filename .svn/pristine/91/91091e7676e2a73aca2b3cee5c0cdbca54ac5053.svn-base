@@ -1,0 +1,1110 @@
+package xtensus.beans.utils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.beans.common.GBO.ChequeModel;
+import xtensus.beans.common.GBO.RapportAnnotationsCourrier;
+import xtensus.beans.common.GBO.RapportChequeMontantTotal;
+import xtensus.beans.common.GBO.RapportCourrierArriveeInterne;
+import xtensus.beans.common.GBO.RapportCourrierCheque;
+import xtensus.beans.common.GBO.RapportRetardBean;
+import xtensus.beans.common.GBO.RapportSuiviCourrierParAOC;
+ 
+import xtensus.beans.common.GBO.RapportSuiviReclamation;
+import xtensus.beans.common.GBO.RappotRapidePosteLettreRecommande;
+
+ 
+import xtensus.beans.common.GBO.RpportCourrierArriveeExterne;
+import xtensus.entity.Annotation;
+import xtensus.entity.AoConsultation;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.Entite;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.Transaction;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.ldap.model.Unit;
+
+public class RapportCourrier extends Entite {
+	private RechercheMulticriterModelForSubreport RechercheMulticriterModelForSubreport;
+	private List<RechercheMulticriterModelForSubreport> listRechercheMulticriterModelForSubreport=new ArrayList<RechercheMulticriterModelForSubreport>();
+	private String typrRecherche;
+	private String typeDateRecherche;
+	private RechercheMulticritereModel criteresRecherche;
+	private Courrier courrier;
+	private List<Document> documents;
+	private Document document;
+	private Transmission transmission;
+	private Nature nature;
+	private Urgence urgence;
+	private Confidentialite confidentialite;
+	private Expdestexterne destinataire;
+	private Expdestexterne expediteur;
+	private Variables variable;
+	private List<Transaction> transactions;
+	private Transaction transaction;
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private String listdocuments;
+	private String impotance;
+	private String confidentialites;
+	private int numero;
+	private int nombreTotalCourriers;
+	private String string ;
+
+	private int conf;
+	private int urgen;
+	private String total;
+	private String pathJasper;
+	private String type;
+	private String objet;
+	private String reference;
+	private String codeUnique;
+    private String uniteConnecte;
+	private List<RapportCourrierConfidentilaite> listRapportCourrierConfidentilaite;
+	private List<RapportCourrierUrgence> listRapportCourrierUrgence;
+	
+	private List<RapportSociete> listeSociete;
+	private List<RapportPiedDePage>piedDePage;
+	private String adresse;
+	
+	private String destinataireNom;
+	private String expediteurNom;
+	private String annotationList;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinataire;
+	
+	private List<RapportSuiviCourrier> listeSuiviCourrier;
+	// ** 
+	private List<SuiviCourrierCourrier> listTransactionSuiviCourrier;
+	//**
+	private List<RapportRetardBean> suivi =new ArrayList<RapportRetardBean>();
+	private List<CourrierDossierListe> listCourrierAffecte;
+	private List<RapportEnteteDePage> enteteDePage;
+
+	private Annotation annotation;
+	 
+    // KHA :Rapport Note de Transmission
+	private List<RapportAnnotationsCourrier> listAnnotationss;
+	//==============
+	private String referencePostale;
+	//======
+	// KHA :Rapport Bordereau de courrier arrivee
+	private Unit selectedUnit;
+	private Date dateReception;
+	private int num;
+	private int numeroOrdre;
+	private String listeDestinataire;
+	private Date dateRecep;
+	private String Commentaire;
+	private List<RapportCourrierArriveeInterne> listeCourrierInterne;
+	private List<RpportCourrierArriveeExterne>listeCourrierExterne;
+	//==============
+	private List<RapportCourrierCheque> listeCourriersCheque;
+	private List<RapportCourrierCheque> listeCourriersChequeImpayes;
+	private List<RapportCourrierCheque> listeCourriersChequeAgent;
+	private List<RapportChequeMontantTotal> listeMontantTotal;
+	private boolean hideTableau;
+	//===== kj
+	private List<RappotRapidePosteLettreRecommande> listeRapidePosteLettreRecommande;
+	// KHA : etat reclamation
+	private List<RapportSuiviReclamation> listeReclamation;
+	//===========
+    private String periodeChoisie;
+     //=========== Attribut pour AO_C
+    private List<RapportSuiviCourrierParAOC> listeCourrierAOC;
+    private List<RapportSuiviCourrierParAOC> listeCourrierAOC2;
+	private String aoConsultationObjet;
+	private String aoConsultationNumero;
+	private String date;
+	private String date1;
+	private String dateLimiteToString;
+	private String heureLimiteToString;
+	private String dateProlongationToString;
+	private String dateSeanceCommissionToString;
+	private String time;
+	private String time2;
+	private AoConsultation aoConsultation;
+	private String nomDirecteur;
+/////////////////////////////////////KBS Champs Spécifiques Rapport//////////////////////////////////////
+	
+	private boolean showLabelTransmission;
+	private boolean showLabelNature;
+	private List<ListeDetailsDynamique> listeDetailsDynamiques;
+	private List<ListeDetailsDynamique> listeDetailsDynamiquesTransmission;
+	private String libelleChamp;
+	private String contenuChamp;
+	private ChequeModel cheque;
+	private String chequeNum;
+	private Date chequeDate;
+	private String chequeBeneficiaire;
+	private String chequeBanque;
+	private Double chequeMontant;
+	private Boolean chequeBarre;
+	private List<ChequeModel> listChequeTableau;
+	private List<ChequeModel> listeCheque;
+	private String chequeStringBarre;
+	private String documentNom;
+	private String documentObjet;
+	private String documentCommentaire;
+	private String documentReference;
+	private List<Document> listeDocuments;
+	private boolean showLabelCheque;
+	private boolean showChampNecessiteReponse;
+	/////////////////////////////////////////////////////////////////////////////
+	private boolean showHide;
+	////////////KBS 2019-12-12
+	private String datePeriodeAnneeAR;
+	private String datePeriodeAnneeFR;
+	private Date transactionDestDateReceptionPhysique;
+	private String nombrePages;
+	private List<AnnotationModel> listAnnotations;
+
+	public String getDatePeriodeAnneeAR() {
+		return datePeriodeAnneeAR;
+	}
+
+	public void setDatePeriodeAnneeAR(String datePeriodeAnneeAR) {
+		this.datePeriodeAnneeAR = datePeriodeAnneeAR;
+	}
+
+	public String getDatePeriodeAnneeFR() {
+		return datePeriodeAnneeFR;
+	}
+
+	public void setDatePeriodeAnneeFR(String datePeriodeAnneeFR) {
+		this.datePeriodeAnneeFR = datePeriodeAnneeFR;
+	}
+
+	/////////////////////////////////
+	public boolean isShowLabelTransmission() {
+		return showLabelTransmission;
+	}
+
+	public void setShowLabelTransmission(boolean showLabelTransmission) {
+		this.showLabelTransmission = showLabelTransmission;
+	}
+
+	public boolean isShowLabelNature() {
+		return showLabelNature;
+	}
+
+	public void setShowLabelNature(boolean showLabelNature) {
+		this.showLabelNature = showLabelNature;
+	}
+
+	public List<ListeDetailsDynamique> getListeDetailsDynamiques() {
+		return listeDetailsDynamiques;
+	}
+
+	public void setListeDetailsDynamiques(
+			List<ListeDetailsDynamique> listeDetailsDynamiques) {
+		this.listeDetailsDynamiques = listeDetailsDynamiques;
+	}
+
+	public List<ListeDetailsDynamique> getListeDetailsDynamiquesTransmission() {
+		return listeDetailsDynamiquesTransmission;
+	}
+
+	public void setListeDetailsDynamiquesTransmission(
+			List<ListeDetailsDynamique> listeDetailsDynamiquesTransmission) {
+		this.listeDetailsDynamiquesTransmission = listeDetailsDynamiquesTransmission;
+	}
+
+	public String getLibelleChamp() {
+		return libelleChamp;
+	}
+
+	public void setLibelleChamp(String libelleChamp) {
+		this.libelleChamp = libelleChamp;
+	}
+
+	public String getContenuChamp() {
+		return contenuChamp;
+	}
+
+	public void setContenuChamp(String contenuChamp) {
+		this.contenuChamp = contenuChamp;
+	}
+
+	public String getCommentaire() {
+		return Commentaire;
+	}
+
+	public void setCommentaire(String commentaire) {
+		Commentaire = commentaire;
+	}
+
+	// GETTERS AND SETTERS 
+	public List<SuiviCourrierCourrier> getListTransactionSuiviCourrier() {
+		return listTransactionSuiviCourrier;
+	}
+
+	public void setListTransactionSuiviCourrier(
+			List<SuiviCourrierCourrier> listTransactionSuiviCourrier) {
+		this.listTransactionSuiviCourrier = listTransactionSuiviCourrier;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Expdestexterne getDestinataire() {
+		return destinataire;
+	}
+
+	public void setDestinataire(Expdestexterne destinataire) {
+		this.destinataire = destinataire;
+	}
+
+	public Expdestexterne getExpediteur() {
+		return expediteur;
+	}
+
+	public void setExpediteur(Expdestexterne expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public Variables getVariable() {
+		return variable;
+	}
+
+	public void setVariable(Variables variable) {
+		this.variable = variable;
+	}
+
+	public List<Transaction> getTransactions() {
+		return transactions;
+	}
+
+	public void setTransactions(List<Transaction> transactions) {
+		this.transactions = transactions;
+	}
+
+	public List<Document> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(List<Document> documents) {
+		this.documents = documents;
+	}
+
+	public Document getDocument() {
+		return document;
+	}
+
+	public void setDocument(Document document) {
+		this.document = document;
+	}
+
+	public String getSocieteNom() {
+		return societeNom;
+	}
+
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+
+	public String getSocieteVille() {
+		return societeVille;
+	}
+
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNumero(int numero) {
+		this.numero = numero;
+	}
+
+	public int getNumero() {
+		return numero;
+	}
+
+	public void setListdocuments(String listdocuments) {
+		this.listdocuments = listdocuments;
+	}
+
+	public String getListdocuments() {
+		return listdocuments;
+	}
+
+	public void setConf(int conf) {
+		this.conf = conf;
+	}
+
+	public int getConf() {
+		return conf;
+	}
+
+	public void setUrgen(int urgen) {
+		this.urgen = urgen;
+	}
+
+	public int getUrgen() {
+		return urgen;
+	}
+
+	public void setTotal(String total) {
+		this.total = total;
+	}
+
+	public String getTotal() {
+		return total;
+	}
+
+	public void setListRapportCourrierConfidentilaite(
+			List<RapportCourrierConfidentilaite> listRapportCourrierConfidentilaite) {
+		this.listRapportCourrierConfidentilaite = listRapportCourrierConfidentilaite;
+	}
+
+	public List<RapportCourrierConfidentilaite> getListRapportCourrierConfidentilaite() {
+		return listRapportCourrierConfidentilaite;
+	}
+
+	public void setListRapportCourrierUrgence(
+			List<RapportCourrierUrgence> listRapportCourrierUrgence) {
+		this.listRapportCourrierUrgence = listRapportCourrierUrgence;
+	}
+
+	public List<RapportCourrierUrgence> getListRapportCourrierUrgence() {
+		return listRapportCourrierUrgence;
+	}
+
+	public void setConfidentialites(String confidentialites) {
+		this.confidentialites = confidentialites;
+	}
+
+	public String getConfidentialites() {
+		return confidentialites;
+	}
+
+	public void setImpotance(String impotance) {
+		this.impotance = impotance;
+	}
+
+	public String getImpotance() {
+		return impotance;
+	}
+
+	public void setDestinataireNom(String destinataireNom) {
+		this.destinataireNom = destinataireNom;
+	}
+
+	public String getDestinataireNom() {
+		return destinataireNom;
+	}
+
+	public void setExpediteurNom(String expediteurNom) {
+		this.expediteurNom = expediteurNom;
+	}
+
+	public String getExpediteurNom() {
+		return expediteurNom;
+	}
+
+	public void setAnnotationList(String annotationList) {
+		this.annotationList = annotationList;
+	}
+
+	public String getAnnotationList() {
+		return annotationList;
+	}
+
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+
+	public String getPathJasper() {
+		return pathJasper;
+	}
+
+	public void setRapportExpediteurDestinataire(
+			List<RapportExpediteurDestinataire> rapportExpediteurDestinataire) {
+		this.rapportExpediteurDestinataire = rapportExpediteurDestinataire;
+	}
+
+	public List<RapportExpediteurDestinataire> getRapportExpediteurDestinataire() {
+		return rapportExpediteurDestinataire;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setListeSuiviCourrier(List<RapportSuiviCourrier> listeSuiviCourrier) {
+		this.listeSuiviCourrier = listeSuiviCourrier;
+	}
+
+	public List<RapportSuiviCourrier> getListeSuiviCourrier() {
+		return listeSuiviCourrier;
+	}
+
+	public String getTyprRecherche() {
+		return typrRecherche;
+	}
+
+	public void setTyprRecherche(String typrRecherche) {
+		this.typrRecherche = typrRecherche;
+	}
+
+	public String getTypeDateRecherche() {
+		return typeDateRecherche;
+	}
+
+	public void setTypeDateRecherche(String typeDateRecherche) {
+		this.typeDateRecherche = typeDateRecherche;
+	}
+
+	public RechercheMulticritereModel getCriteresRecherche() {
+		return criteresRecherche;
+	}
+
+	public void setCriteresRecherche(RechercheMulticritereModel criteresRecherche) {
+		this.criteresRecherche = criteresRecherche;
+	}
+
+	public RechercheMulticriterModelForSubreport getRechercheMulticriterModelForSubreport() {
+		return RechercheMulticriterModelForSubreport;
+	}
+
+	public void setRechercheMulticriterModelForSubreport(
+			RechercheMulticriterModelForSubreport rechercheMulticriterModelForSubreport) {
+		RechercheMulticriterModelForSubreport = rechercheMulticriterModelForSubreport;
+	}
+
+	public List<RechercheMulticriterModelForSubreport> getListRechercheMulticriterModelForSubreport() {
+		return listRechercheMulticriterModelForSubreport;
+	}
+
+	public void setListRechercheMulticriterModelForSubreport(
+			List<RechercheMulticriterModelForSubreport> listRechercheMulticriterModelForSubreport) {
+		this.listRechercheMulticriterModelForSubreport = listRechercheMulticriterModelForSubreport;
+	}
+
+	public List<RapportRetardBean> getSuivi() {
+		return suivi;
+	}
+
+	public void setSuivi(List<RapportRetardBean> suivi) {
+		this.suivi = suivi;
+	}
+
+	public List<CourrierDossierListe> getListCourrierAffecte() {
+		return listCourrierAffecte;
+	}
+
+	public void setListCourrierAffecte(List<CourrierDossierListe> listCourrierAffecte) {
+		this.listCourrierAffecte = listCourrierAffecte;
+	}
+
+	public String getObjet() {
+		return objet;
+	}
+
+	public void setObjet(String objet) {
+		this.objet = objet;
+	}
+
+	public String getReference() {
+		return reference;
+	}
+
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+
+	public String getCodeUnique() {
+		return codeUnique;
+	}
+
+	public void setCodeUnique(String codeUnique) {
+		this.codeUnique = codeUnique;
+	}
+
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+
+	public void setPiedDePage(List<RapportPiedDePage> piedDePage) {
+		this.piedDePage = piedDePage;
+	}
+
+	public List<RapportPiedDePage> getPiedDePage() {
+		return piedDePage;
+	}
+
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+
+	public String getAdresse() {
+		return adresse;
+	}
+
+
+	public List<RapportEnteteDePage> getEnteteDePage() {
+		return enteteDePage;
+	}
+
+	public void setEnteteDePage(List<RapportEnteteDePage> enteteDePage) {
+		this.enteteDePage = enteteDePage;
+	}
+
+		public String getUniteConnecte() {
+		return uniteConnecte;
+	}
+
+	public void setUniteConnecte(String uniteConnecte) {
+		this.uniteConnecte = uniteConnecte;
+	}
+
+		public List<RappotRapidePosteLettreRecommande> getListeRapidePosteLettreRecommande() {
+		return listeRapidePosteLettreRecommande;
+	}
+
+	public void setListeRapidePosteLettreRecommande(
+			List<RappotRapidePosteLettreRecommande> listeRapidePosteLettreRecommande) {
+		this.listeRapidePosteLettreRecommande = listeRapidePosteLettreRecommande;
+	}
+
+
+	public Annotation getAnnotation() {
+		return annotation;
+	}
+
+	public void setAnnotation(Annotation annotation) {
+		this.annotation = annotation;
+	}
+
+ 
+
+	public List<RapportAnnotationsCourrier> getListAnnotationss() {
+		return listAnnotationss;
+	}
+
+	public void setListAnnotationss(
+			List<RapportAnnotationsCourrier> listAnnotationss) {
+		this.listAnnotationss = listAnnotationss;
+	}
+
+	public String getReferencePostale() {
+		return referencePostale;
+	}
+
+	public void setReferencePostale(String referencePostale) {
+		this.referencePostale = referencePostale;
+	}
+
+	public Unit getSelectedUnit() {
+		return selectedUnit;
+	}
+
+	public void setSelectedUnit(Unit selectedUnit) {
+		this.selectedUnit = selectedUnit;
+	}
+
+	public Date getDateReception() {
+		return dateReception;
+	}
+
+	public void setDateReception(Date dateReception) {
+		this.dateReception = dateReception;
+	}
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+
+	public int getNumeroOrdre() {
+		return numeroOrdre;
+	}
+
+	public void setNumeroOrdre(int numeroOrdre) {
+		this.numeroOrdre = numeroOrdre;
+	}
+
+	public String getListeDestinataire() {
+		return listeDestinataire;
+	}
+
+	public void setListeDestinataire(String listeDestinataire) {
+		this.listeDestinataire = listeDestinataire;
+	}
+
+	public Date getDateRecep() {
+		return dateRecep;
+	}
+
+	public void setDateRecep(Date dateRecep) {
+		this.dateRecep = dateRecep;
+	}
+
+	public List<RapportCourrierArriveeInterne> getListeCourrierInterne() {
+		return listeCourrierInterne;
+	}
+
+	public void setListeCourrierInterne(
+			List<RapportCourrierArriveeInterne> listeCourrierInterne) {
+		this.listeCourrierInterne = listeCourrierInterne;
+	}
+
+	public List<RapportCourrierCheque> getListeCourriersCheque() {
+		return listeCourriersCheque;
+	}
+
+	public void setListeCourriersCheque(
+			List<RapportCourrierCheque> listeCourriersCheque) {
+		this.listeCourriersCheque = listeCourriersCheque;
+	}
+
+	public List<RapportChequeMontantTotal> getListeMontantTotal() {
+		return listeMontantTotal;
+	}
+
+	public void setListeMontantTotal(
+			List<RapportChequeMontantTotal> listeMontantTotal) {
+		this.listeMontantTotal = listeMontantTotal;
+	}
+
+	public List<RpportCourrierArriveeExterne> getListeCourrierExterne() {
+		return listeCourrierExterne;
+	}
+
+	public void setListeCourrierExterne(
+			List<RpportCourrierArriveeExterne> listeCourrierExterne) {
+		this.listeCourrierExterne = listeCourrierExterne;
+	}
+	public int getNombreTotalCourriers() {
+		return nombreTotalCourriers;
+	}
+
+	public void setNombreTotalCourriers(int nombreTotalCourriers) {
+		this.nombreTotalCourriers = nombreTotalCourriers;
+	}
+	public List<RapportSuiviReclamation> getListeReclamation() {
+		return listeReclamation;
+	}
+ 
+
+ 
+
+	public void setListeReclamation(List<RapportSuiviReclamation> listeReclamation) {
+		this.listeReclamation = listeReclamation;
+	}
+
+	public String getPeriodeChoisie() {
+		return periodeChoisie;
+	}
+
+	public void setPeriodeChoisie(String periodeChoisie) {
+		this.periodeChoisie = periodeChoisie;
+	}
+
+	public List<RapportSuiviCourrierParAOC> getListeCourrierAOC() {
+		return listeCourrierAOC;
+	}
+
+	public void setListeCourrierAOC(
+			List<RapportSuiviCourrierParAOC> listeCourrierAOC) {
+		this.listeCourrierAOC = listeCourrierAOC;
+	}
+
+	public String getAoConsultationObjet() {
+		return aoConsultationObjet;
+	}
+
+	public void setAoConsultationObjet(String aoConsultationObjet) {
+		this.aoConsultationObjet = aoConsultationObjet;
+	}
+
+	public String getAoConsultationNumero() {
+		return aoConsultationNumero;
+	}
+
+	public void setAoConsultationNumero(String aoConsultationNumero) {
+		this.aoConsultationNumero = aoConsultationNumero;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getDate1() {
+		return date1;
+	}
+
+	public void setDate1(String date1) {
+		this.date1 = date1;
+	}
+
+	public String getDateLimiteToString() {
+		return dateLimiteToString;
+	}
+
+	public void setDateLimiteToString(String dateLimiteToString) {
+		this.dateLimiteToString = dateLimiteToString;
+	}
+
+	public String getHeureLimiteToString() {
+		return heureLimiteToString;
+	}
+
+	public void setHeureLimiteToString(String heureLimiteToString) {
+		this.heureLimiteToString = heureLimiteToString;
+	}
+
+	public String getDateProlongationToString() {
+		return dateProlongationToString;
+	}
+
+	public void setDateProlongationToString(String dateProlongationToString) {
+		this.dateProlongationToString = dateProlongationToString;
+	}
+
+	public String getDateSeanceCommissionToString() {
+		return dateSeanceCommissionToString;
+	}
+
+	public void setDateSeanceCommissionToString(String dateSeanceCommissionToString) {
+		this.dateSeanceCommissionToString = dateSeanceCommissionToString;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	public String getTime2() {
+		return time2;
+	}
+
+	public void setTime2(String time2) {
+		this.time2 = time2;
+	}
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public List<RapportSuiviCourrierParAOC> getListeCourrierAOC2() {
+		return listeCourrierAOC2;
+	}
+
+	public void setListeCourrierAOC2(
+			List<RapportSuiviCourrierParAOC> listeCourrierAOC2) {
+		this.listeCourrierAOC2 = listeCourrierAOC2;
+	}
+
+	public boolean isShowHide() {
+		return showHide;
+	}
+
+	public void setShowHide(boolean showHide) {
+		this.showHide = showHide;
+	}
+
+	public String getString() {
+		return string;
+	}
+
+	public void setString(String string) {
+		this.string = string;
+	}
+	
+	public ChequeModel getCheque() {
+		return cheque;
+	}
+
+	public void setCheque(ChequeModel cheque) {
+		this.cheque = cheque;
+	}
+
+	public String getChequeNum() {
+		return chequeNum;
+	}
+
+	public void setChequeNum(String chequeNum) {
+		this.chequeNum = chequeNum;
+	}
+
+	public Date getChequeDate() {
+		return chequeDate;
+	}
+
+	public void setChequeDate(Date chequeDate) {
+		this.chequeDate = chequeDate;
+	}
+
+	public String getChequeBeneficiaire() {
+		return chequeBeneficiaire;
+	}
+
+	public void setChequeBeneficiaire(String chequeBeneficiaire) {
+		this.chequeBeneficiaire = chequeBeneficiaire;
+	}
+
+	public String getChequeBanque() {
+		return chequeBanque;
+	}
+
+	public void setChequeBanque(String chequeBanque) {
+		this.chequeBanque = chequeBanque;
+	}
+
+	public Double getChequeMontant() {
+		return chequeMontant;
+	}
+
+	public void setChequeMontant(Double chequeMontant) {
+		this.chequeMontant = chequeMontant;
+	}
+
+	public Boolean getChequeBarre() {
+		return chequeBarre;
+	}
+
+	public void setChequeBarre(Boolean chequeBarre) {
+		this.chequeBarre = chequeBarre;
+	}
+
+	public List<ChequeModel> getListChequeTableau() {
+		return listChequeTableau;
+	}
+
+	public void setListChequeTableau(List<ChequeModel> listChequeTableau) {
+		this.listChequeTableau = listChequeTableau;
+	}
+
+	public List<ChequeModel> getListeCheque() {
+		return listeCheque;
+	}
+
+	public void setListeCheque(List<ChequeModel> listeCheque) {
+		this.listeCheque = listeCheque;
+	}
+
+	public String getChequeStringBarre() {
+		return chequeStringBarre;
+	}
+
+	public void setChequeStringBarre(String chequeStringBarre) {
+		this.chequeStringBarre = chequeStringBarre;
+	}
+
+	public List<RapportCourrierCheque> getListeCourriersChequeImpayes() {
+		return listeCourriersChequeImpayes;
+	}
+
+	public void setListeCourriersChequeImpayes(
+			List<RapportCourrierCheque> listeCourriersChequeImpayes) {
+		this.listeCourriersChequeImpayes = listeCourriersChequeImpayes;
+	}
+
+	public List<RapportCourrierCheque> getListeCourriersChequeAgent() {
+		return listeCourriersChequeAgent;
+	}
+
+	public void setListeCourriersChequeAgent(
+			List<RapportCourrierCheque> listeCourriersChequeAgent) {
+		this.listeCourriersChequeAgent = listeCourriersChequeAgent;
+	}
+
+	public boolean isHideTableau() {
+		return hideTableau;
+	}
+
+	public void setHideTableau(boolean hideTableau) {
+		this.hideTableau = hideTableau;
+	}
+
+	public String getDocumentNom() {
+		return documentNom;
+	}
+
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
+	}
+
+	public String getDocumentObjet() {
+		return documentObjet;
+	}
+
+	public void setDocumentObjet(String documentObjet) {
+		this.documentObjet = documentObjet;
+	}
+
+	public String getDocumentCommentaire() {
+		return documentCommentaire;
+	}
+
+	public void setDocumentCommentaire(String documentCommentaire) {
+		this.documentCommentaire = documentCommentaire;
+	}
+
+	public String getDocumentReference() {
+		return documentReference;
+	}
+
+	public void setDocumentReference(String documentReference) {
+		this.documentReference = documentReference;
+	}
+
+	public List<Document> getListeDocuments() {
+		return listeDocuments;
+	}
+
+	public void setListeDocuments(List<Document> listeDocuments) {
+		this.listeDocuments = listeDocuments;
+	}
+
+	public boolean isShowLabelCheque() {
+		return showLabelCheque;
+	}
+
+	public void setShowLabelCheque(boolean showLabelCheque) {
+		this.showLabelCheque = showLabelCheque;
+	}
+
+	public boolean isShowChampNecessiteReponse() {
+		return showChampNecessiteReponse;
+	}
+
+	public void setShowChampNecessiteReponse(boolean showChampNecessiteReponse) {
+		this.showChampNecessiteReponse = showChampNecessiteReponse;
+	}
+
+	public String getNomDirecteur() {
+		return nomDirecteur;
+	}
+
+	public void setNomDirecteur(String nomDirecteur) {
+		this.nomDirecteur = nomDirecteur;
+	}
+
+	public Date getTransactionDestDateReceptionPhysique() {
+		return transactionDestDateReceptionPhysique;
+	}
+
+	public void setTransactionDestDateReceptionPhysique(
+			Date transactionDestDateReceptionPhysique) {
+		this.transactionDestDateReceptionPhysique = transactionDestDateReceptionPhysique;
+	}
+
+	public String getNombrePages() {
+		return nombrePages;
+	}
+
+	public void setNombrePages(String nombrePages) {
+		this.nombrePages = nombrePages;
+	}
+
+	public List<AnnotationModel> getListAnnotations() {
+		return listAnnotations;
+	}
+
+	public void setListAnnotations(List<AnnotationModel> listAnnotations) {
+		this.listAnnotations = listAnnotations;
+	}
+
+}

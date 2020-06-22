@@ -1,0 +1,15 @@
+package xtensus.beans.utils;
+
+public class RapportEnteteDePage {
+	//----kha----
+	private String sousTitreRapportCourrier;
+	 
+
+	public String getSousTitreRapportCourrier() {
+		return sousTitreRapportCourrier;
+	}
+
+	public void setSousTitreRapportCourrier(String sousTitreRapportCourrier) {
+		this.sousTitreRapportCourrier = sousTitreRapportCourrier;
+	}
+}

@@ -1,0 +1,818 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.entity.Dossier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionAnnotation;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.TransactionDestinationReelle;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class DossierAncienConsultationBean {
+
+	// General
+	private ApplicationManager appMgr;
+	@Autowired
+	private VariableGlobale vb;
+	private LdapOperation ldapOperation;
+	private List<CourrierInformations> listDossier;
+	private Integer idUser;
+	private String type;
+	private String type1;
+	private String typeSecretaire;
+	private Date dateDebut;
+	private Date dateFin;
+
+	private Variables variableConsultationCourrierSecretaire;
+	private Variables variableConsultationCourrierSubordonne;
+	private Variables variableConsultationCourrierSousUnite;
+	private String consultationCourrierSecretaire;
+	private String consultationCourrierSubordonne;
+	private String consultationCourrierSousUnite;
+	private List<Integer> listIdsSousUnit;
+	private List<Integer> listIdsSubordonne;
+	private Long countDossier;
+	private Long countDossierRecu;
+	private Long countDossierEnvoyer;
+
+	
+
+	private List<CourrierInformations> lstDossierEnvoyerAncien;
+	private List<CourrierInformations> lstDossierRecuAncien;
+	private CourrierInformations selectedDossier;
+	private Dossier dossier;
+
+	public DossierAncienConsultationBean() {
+
+	}
+
+	@Autowired
+	public DossierAncienConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+//		ldapOperation = new LdapOperation();
+		listDossier = new ArrayList<CourrierInformations>();
+		listIdsSousUnit = new ArrayList<Integer>();
+		listIdsSubordonne = new ArrayList<Integer>();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			ldapOperation = vb.getLdapOperation();
+			countDossier = 0L;
+			variableConsultationCourrierSecretaire = appMgr
+					.listVariablesById(3).get(0);
+			variableConsultationCourrierSubordonne = appMgr
+					.listVariablesById(4).get(0);
+			variableConsultationCourrierSousUnite = appMgr.listVariablesById(5)
+					.get(0);
+			consultationCourrierSecretaire = variableConsultationCourrierSecretaire
+					.getVaraiablesValeur();
+			consultationCourrierSubordonne = variableConsultationCourrierSubordonne
+					.getVaraiablesValeur();
+			consultationCourrierSousUnite = variableConsultationCourrierSousUnite
+					.getVaraiablesValeur();
+			// identify connected user
+			idUser = vb.getPerson().getId();
+			type = "";
+			type1 = "";
+			if (vb.getPerson().isResponsable()) {
+				type = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+				type1 = "sub_" + idUser;
+				// NEW
+				if (vb.getPerson().getAssociatedDirection()
+						.getListUnitsChildUnit().isEmpty()) {
+					consultationCourrierSousUnite = "Non";
+					consultationCourrierSubordonne = "Non";
+				} else {
+					for (Unit unit : vb.getPerson().getAssociatedDirection()
+							.getListUnitsChildUnit()) {
+						listIdsSousUnit.add(unit.getIdUnit());
+						try {
+							listIdsSubordonne.add(unit.getResponsibleUnit()
+									.getId());
+						} catch (Exception e) {
+							System.out.println("#Sub-Unit without Responsible");
+						}
+					}
+				}
+				// FIn NEW
+				try {
+					typeSecretaire = "secretary_"
+							+ vb.getPerson().getAssociatedDirection()
+									.getSecretaryUnit().getId();
+				} catch (NullPointerException e) {
+					consultationCourrierSecretaire = "Non";
+				}
+
+			} else if (vb.getPerson().isSecretary()) {
+				type = "secretary_" + idUser;
+				type1 = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+			} else if (vb.getPerson().isAgent()) {
+				type = "agent_" + idUser;
+				type1 = "";
+			}
+			// fin identify connected user
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			dateDebut = calendar.getTime();
+
+			Calendar calendar1 = Calendar.getInstance();
+			calendar1.add(Calendar.DATE, 1);
+			calendar1.set(Calendar.HOUR_OF_DAY, 23);
+			calendar1.set(Calendar.MINUTE, 59);
+			calendar1.set(Calendar.SECOND, 59);
+			calendar1.set(Calendar.MILLISECOND, 999);
+			dateFin = calendar1.getTime();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<CourrierInformations> searchListDossier(
+			HashMap<String, Object> filterMap, String sortField,
+			boolean descending, String typeDossier, Integer firstIndex,
+			Integer maxResult, String dossierRubrique) {
+		long startTime = System.currentTimeMillis();
+		try {
+			int countRecu = 0;
+			int countEnvoi = 0;
+			try {
+				countRecu = getCountDossierRecu().intValue();
+				countEnvoi = getCountDossierEnvoyer().intValue();
+			} catch (NullPointerException e) {
+				return new ArrayList<CourrierInformations>();
+			}
+			int max = maxResult / 2;
+			int firstRecu = firstIndex;
+			int firstEnvoi = firstIndex;
+			int numberOfRowsRecu = maxResult;
+			int numberOfRowsEnvoyer = maxResult;
+			if (typeDossier.equals("Tous")
+					&& (countRecu > max || countEnvoi > max)) {
+				if ((countRecu > max && countEnvoi > max)) {
+					if (firstIndex != 0) {
+						firstRecu = firstIndex / 2;
+						firstEnvoi = firstIndex / 2;
+					}
+					numberOfRowsRecu = max;
+					numberOfRowsEnvoyer = max;
+				} else if (countRecu > max && countEnvoi <= max) {
+					if (firstIndex != 0) {
+						firstRecu = (firstIndex / 2) + 2;
+						firstEnvoi = 0;
+						numberOfRowsEnvoyer = 0;
+						numberOfRowsRecu = maxResult;
+					} else {
+						firstEnvoi = 0;
+						numberOfRowsEnvoyer = countEnvoi;
+						numberOfRowsRecu = maxResult - numberOfRowsEnvoyer;
+					}
+
+				} else if (countEnvoi > max && countRecu <= max) {
+					if (firstIndex != 0) {
+						firstEnvoi = (firstIndex / 2) + 2;
+						firstRecu = 0;
+						numberOfRowsRecu = 0;
+						numberOfRowsEnvoyer = maxResult;
+					} else {
+						firstRecu = 0;
+						numberOfRowsRecu = countRecu;
+						numberOfRowsEnvoyer = maxResult - numberOfRowsRecu;
+					}
+				}
+			}
+			Integer dossierRubriqueId = Integer.valueOf(dossierRubrique);
+			lstDossierEnvoyerAncien = new ArrayList<CourrierInformations>();
+			lstDossierRecuAncien = new ArrayList<CourrierInformations>();
+			if (typeDossier.equals("Tous") || typeDossier.equals("Envoyes")) {
+				lstDossierEnvoyerAncien = appMgr.findDossierEnvoyerByCriteria(
+						vb.getPerson().isResponsable(), listIdsSousUnit,
+						listIdsSubordonne, filterMap, sortField, descending,
+						consultationCourrierSecretaire,
+						consultationCourrierSubordonne,
+						consultationCourrierSousUnite, 2, dateDebut, dateFin,
+						type, type1, typeSecretaire, idUser, typeDossier,
+						firstEnvoi, numberOfRowsEnvoyer, dossierRubriqueId);
+				for (CourrierInformations courrierInformations : lstDossierEnvoyerAncien) {
+					searchExpediteurDestinataire(courrierInformations, true);
+				}
+
+			}
+			if (typeDossier.equals("Tous") || typeDossier.equals("Recu")) {
+				lstDossierRecuAncien = appMgr.findDossierRecuByCriteria(vb
+						.getPerson().isResponsable(), listIdsSousUnit,
+						listIdsSubordonne, filterMap, sortField, descending,
+						consultationCourrierSecretaire,
+						consultationCourrierSubordonne,
+						consultationCourrierSousUnite, 2, dateDebut, dateFin,
+						type, type1, typeSecretaire, idUser, typeDossier,
+						firstRecu, numberOfRowsRecu, dossierRubriqueId);
+				for (CourrierInformations courrierInformations : lstDossierRecuAncien) {
+					searchExpediteurDestinataire(courrierInformations, false);
+				}
+			}
+			listDossier.clear();
+			if (typeDossier.equals("Tous")) {
+				listDossier.addAll(lstDossierEnvoyerAncien);
+				listDossier.addAll(lstDossierRecuAncien);
+			} else if (typeDossier.equals("Recu")) {
+				listDossier.addAll(lstDossierRecuAncien);
+			} else {
+				listDossier.addAll(lstDossierEnvoyerAncien);
+			}
+			System.out.println("list dossier ancien dure : " + (System.currentTimeMillis() - startTime));
+			return listDossier;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public void searchExpediteurDestinataire(
+			CourrierInformations courrierInformations, boolean isEnvoyer)
+			throws Exception {
+		// courrierInformations.setCourrierRecu(0);
+		// courrierInformations.setCourrierAValider(0);
+
+		// Courrier courrier = appMgr.listCourrierByIdTransaction(
+		// courrierInformations.getTransactionID()).get(0);
+		// courrierInformations.setCourrier(courrier);
+
+		Transaction transaction = appMgr.getListTransactionByIdTransaction(
+				courrierInformations.getTransactionID()).get(0);
+		courrierInformations.setTransaction(transaction);
+		Dossier dossier = appMgr.getDossierByIdDossier(transaction.getDossier().getDossierId()).get(0);
+		courrierInformations.setDossier(dossier);
+		courrierInformations.setTypeCourrier(getCategorieCourrier(transaction, false, isEnvoyer));
+		// expediteur
+		StringBuilder expediteur = new StringBuilder("");
+		if (courrierInformations.getExpDest().getTypeExpDest()
+				.equals("Interne-Person")) {
+			expediteur.append(ldapOperation.getCnById(
+					ldapOperation.CONTEXT_USER, "uid", courrierInformations
+							.getExpDest().getIdExpDestLdap()));
+
+		} else if (courrierInformations.getExpDest().getTypeExpDest()
+				.equals("Interne-Unité")) {
+			expediteur.append(ldapOperation.getCnById(
+					ldapOperation.CONTEXT_UNIT, "departmentNumber",
+					courrierInformations.getExpDest().getIdExpDestLdap()));
+		} else if (courrierInformations.getExpDest().getTypeExpDest()
+				.equals("Interne-Boc")) {
+			expediteur.append(ldapOperation.getCnById(
+					ldapOperation.CONTEXT_BOC, "departmentNumber",
+					courrierInformations.getExpDest().getIdExpDestLdap()));
+		} else if (courrierInformations.getExpDest().getTypeExpDest()
+				.equals("Externe")) {
+			if (courrierInformations.getExpDest().getExpdestexterne()
+					.getTypeutilisateur().getTypeUtilisateurLibelle()
+					.equals("PP")) {
+				expediteur
+						.append(courrierInformations.getExpDest()
+								.getExpdestexterne().getExpDestExterneNom())
+						.append(" ")
+						.append(courrierInformations.getExpDest()
+								.getExpdestexterne().getExpDestExternePrenom())
+						.append(" (PP)");
+
+			} else {
+				expediteur.append(
+						courrierInformations.getExpDest().getExpdestexterne()
+								.getExpDestExterneNom()).append(" (PM)");
+			}
+		}
+		courrierInformations.setCourrierExpediteur(expediteur.toString());
+		// destinataire
+		StringBuilder destinataire = new StringBuilder("");
+		List<TransactionDestination> listTransactionDestination = appMgr
+				.getListTransactionDestinationByIdTransaction(courrierInformations
+						.getTransactionID());
+		if (!listTransactionDestination.isEmpty()) {
+			TransactionDestination transactionDestination = listTransactionDestination
+					.get(0);
+			courrierInformations
+					.setTransactionDestination(transactionDestination);
+			Expdest expDest = appMgr.getListExpDestByIdExpDest(
+					transactionDestination.getId().getIdExpDest()).get(0);
+			if (expDest.getTypeExpDest().equals("Interne-Person")) {
+				destinataire.append(ldapOperation.getCnById(
+						ldapOperation.CONTEXT_USER, "uid",
+						expDest.getIdExpDestLdap()));
+			} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+				destinataire.append(ldapOperation.getCnById(
+						ldapOperation.CONTEXT_UNIT, "departmentNumber",
+						expDest.getIdExpDestLdap()));
+
+			} else if (expDest.getTypeExpDest().equals("Interne-Boc")) {
+				destinataire.append(ldapOperation.getCnById(
+						ldapOperation.CONTEXT_BOC, "departmentNumber",
+						expDest.getIdExpDestLdap()));
+			} else if (expDest.getTypeExpDest().equals("Externe")) {
+				if (expDest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					destinataire
+							.append(expDest.getExpdestexterne()
+									.getExpDestExterneNom())
+							.append(" ")
+							.append(expDest.getExpdestexterne()
+									.getExpDestExternePrenom()).append(" (PP)");
+				} else {
+					destinataire.append(
+							expDest.getExpdestexterne().getExpDestExterneNom())
+							.append(" (PM)");
+				}
+			}
+			courrierInformations.setCourrierDestinataireReelle(destinataire
+					.toString());
+		}
+	}
+
+	private String getCategorieCourrier(Transaction transaction,
+			boolean isMail, boolean isEnvoyer) {
+		String result = "";
+		String[] type = new String[2];
+		if (isEnvoyer) {
+			if (vb.getPerson().isResponsable()) {
+				if (transaction.getTransactionTypeIntervenant().contains("sub")) {
+					type = transaction.getTransactionTypeIntervenant().split(
+							"_");
+					if (Integer.parseInt(type[1]) == vb.getPerson().getId()) {
+						if (isMail) {
+							result = "A. Mes Propres Courriers Envoyés";
+						} else {
+							result = "A. Mes Propres Dossiers Envoyés";
+						}
+					} else {
+
+						if (isMail) {
+							result = "C. Les Courriers Envoyés de Mes Subordonnées";
+						} else {
+							result = "C. Les Dossiers Envoyés de Mes Subordonnées";
+						}
+
+					}
+				} else if (transaction.getTransactionTypeIntervenant()
+						.contains("unit")) {
+					type = transaction.getTransactionTypeIntervenant().split(
+							"_");
+					if (Integer.parseInt(type[1]) == vb.getPerson()
+							.getAssociatedDirection().getIdUnit()) {
+						if (isMail) {
+							result = "E. Les Courriers Envoyés de Mon Unité";
+						} else {
+							result = "E. Les Dossiers Envoyés de Mon Unité";
+						}
+					} else {
+
+						if (isMail) {
+							result = "G. Les Courriers Envoyés de Mes Sous-Unités";
+						} else {
+							result = "G. Les Dossiers Envoyés de Mes Sous-Unités";
+						}
+
+					}
+				} else if (transaction.getTransactionTypeIntervenant()
+						.contains("secretary")) {
+					if (isMail) {
+						result = "I. Les Courriers Envoyés de Ma Secrétaire";
+					} else {
+						result = "I. Les Dossiers Envoyés de Ma Secrétaire";
+					}
+				}
+			} else if (vb.getPerson().isSecretary()) {
+				if (transaction.getTransactionTypeIntervenant().contains(
+						"secretary")) {
+					if (isMail) {
+						result = "A. Mes Propres Courriers Envoyés";
+					} else {
+						result = "A. Mes Propres Dossiers Envoyés";
+					}
+				} else {
+					if (isMail) {
+						result = "E. Les Courriers Envoyés de Mon Unité";
+					} else {
+						result = "E. Les Dossiers Envoyés de Mon Unité";
+					}
+				}
+			} else if (vb.getPerson().isAgent()) {
+				if (transaction.getTransactionTypeIntervenant().contains(
+						"agent")) {
+					if (isMail) {
+						result = "A. Mes Propres Courriers Envoyés";
+					} else {
+						result = "A. Mes Propres Dossiers Envoyés";
+					}
+				} else {
+					if (isMail) {
+						result = "E. Les Courriers Envoyés de Mon Unité";
+					} else {
+						result = "E. Les Courriers Envoyés de Mon Unité";
+					}
+				}
+			} else {
+				result = "A. Les Courriers Envoyés du Bureau d'Ordre";
+			}
+		} else {
+			TransactionDestination transactionDestination = appMgr
+					.getListTransactionDestinationByIdTransaction(
+							transaction.getTransactionId()).get(0);
+			if (vb.getPerson().isResponsable()) {
+				if (transactionDestination.getTransactionDestTypeIntervenant()
+						.contains("sub")) {
+					type = transactionDestination
+							.getTransactionDestTypeIntervenant().split("_");
+					if (Integer.parseInt(type[1]) == vb.getPerson().getId()) {
+						if (isMail) {
+							result = "B. Mes Propres Courriers Reéus";
+						} else {
+							result = "B. Mes Propres Dossiers Reéus";
+						}
+					} else {
+						if (isMail) {
+							result = "D. Les Courriers Reéus de Mes Subordonnées";
+						} else {
+							result = "D. Les Dossiers Reéus de Mes Subordonnées";
+						}
+					}
+				}
+
+			} else if (transactionDestination
+					.getTransactionDestTypeIntervenant().contains("unit")) {
+				type = transactionDestination
+						.getTransactionDestTypeIntervenant().split("_");
+				if (Integer.parseInt(type[1]) == vb.getPerson()
+						.getAssociatedDirection().getIdUnit()) {
+					if (isMail) {
+						result = "F. Les Courriers Reéus de Mon Unité";
+					} else {
+						result = "F. Les Dossiers Reéus de Mon Unité";
+					}
+				} else {
+					if (isMail) {
+						result = "H. Les Courriers Reéus de Mes Sous-Unités";
+					} else {
+						result = "H. Les Dossiers Reéus de Mes Sous-Unités";
+					}
+				}
+			} else if (transactionDestination
+					.getTransactionDestTypeIntervenant().contains("secretary")) {
+				if (isMail) {
+					result = "J. Les Courriers Reéus de Ma Secrétaire";
+				} else {
+					result = "J. Les Dossiers Reéus de Ma Secrétaire";
+				}
+			}// else if (transactionDestination
+				// .getTransactionDestTypeIntervenant().contains("agent")) {
+			//
+			// if (isMail) {
+			// result = "D. Les Courriers Reéus de Mes Agents";
+			// } else {
+			// result = "D. Les Dossiers Reéus de Mes Agents";
+			// }
+			// }
+			else if (vb.getPerson().isSecretary()) {
+				if (transactionDestination.getTransactionDestTypeIntervenant()
+						.contains("secretary")) {
+					if (isMail) {
+						result = "B. Mes Propres Courriers Reéus";
+					} else {
+						result = "B. Mes Propres Dossiers Reéus";
+					}
+				} else {
+					if (isMail) {
+						result = "F. Les Courriers Reéus de Mon Unité";
+					} else {
+						result = "F. Les Dossiers Reéus de Mon Unité";
+					}
+				}
+			} else if (vb.getPerson().isAgent()) {
+				if (transactionDestination.getTransactionDestTypeIntervenant()
+						.contains("agent")) {
+					if (isMail) {
+						result = "B. Mes Propres Courriers Reéus";
+					} else {
+						result = "B. Mes Propres Dossiers Reéus";
+					}
+				} else {
+					if (isMail) {
+						result = "F. Les Courriers Reéus de Mon Unité";
+					} else {
+						result = "F. Les Dossiers Reéus de Mon Unité";
+					}
+				}
+			} else {
+				result = "A. Les Courriers Reéus du Bureau d'Ordre";
+			}
+		}
+		return result;
+	}
+
+	public void getSelectionRowDossier() {
+		try {
+			vb.setRedirect("fromListCourrierEtDossier");
+			CourrierInformations consulterInformations = selectedDossier;
+			// vb.setCourDossConsulterInformations(consulterInformations); //
+			dossier = consulterInformations.getDossier();
+			vb.setDossier(dossier);
+			vb.setCopyDestNom(consulterInformations
+					.getCourrierDestinataireReelle());
+			vb.setCopyExpNom(consulterInformations.getCourrierExpediteur());
+			vb.setCopyOtherDest(consulterInformations
+					.getCourrierAutreDestinataires());
+			vb.setTransaction(consulterInformations.getTransaction());
+			if (consulterInformations.getTransaction()
+					.getTransactionDestinationReelle() != null) {
+				TransactionDestinationReelle transactionDestinationReelle = new TransactionDestinationReelle();
+				transactionDestinationReelle = consulterInformations
+						.getTransaction().getTransactionDestinationReelle();
+				Expdest expDest = new Expdest();
+				Transaction transaction = new Transaction();
+				transaction = appMgr
+						.getTransactionByIdTransactionAndFirstOrder(
+								transactionDestinationReelle
+										.getTransactionDestinationReelleId(),
+								1).get(0);
+				expDest = transaction.getExpdest();
+				if (expDest.getTypeExpDest().equals("Interne-Person")) {
+					vb.setCopyExpReelNom(ldapOperation.getCnById(
+							ldapOperation.CONTEXT_USER, "uid",
+							expDest.getIdExpDestLdap()));
+				} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+					vb.setCopyExpReelNom(ldapOperation.getCnById(
+							ldapOperation.CONTEXT_UNIT, "departmentNumber",
+							expDest.getIdExpDestLdap()));
+				}
+			} else {
+				vb.setCopyExpReelNom(vb.getCopyExpNom());
+			}
+			List<TransactionAnnotation> annotations = new ArrayList<TransactionAnnotation>();
+			annotations = appMgr
+					.getAnnotationByIdTransaction(consulterInformations
+							.getTransaction().getTransactionId());
+			String annotationLibelle;
+			int lastIndex;
+			int refAnnotation;
+			String result = "";
+			for (TransactionAnnotation ta : annotations) {
+				refAnnotation = ta.getId().getIdAnnotation();
+				annotationLibelle = appMgr
+						.getAnnotationByIdAnotation(refAnnotation).get(0)
+						.getAnnotationLibelle();
+				result = result + annotationLibelle + " / ";
+			}
+			if (!result.equals("")) {
+				lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+			vb.setCopyAnnotationResult(result);
+			vb.setRedirect("acceuil");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void getSelectionRowDossierForShared() {
+		CourrierInformations consulterInformations = selectedDossier;
+		// vb.setCourDossConsulterInformations(consulterInformations); //
+		dossier = consulterInformations.getDossier();
+		vb.setDossier(dossier);
+	}
+
+	public void getSelectionRowDossierForDetailsShared() {
+		CourrierInformations consulterInformations = selectedDossier;
+		// vb.setCourDossConsulterInformations(consulterInformations); //
+		dossier = consulterInformations.getDossier();
+		vb.setDossier(dossier);
+		vb.setTransaction(consulterInformations.getTransaction());
+	}
+
+	public void getSelectionRowDossierForResponse() {
+		try {
+			CourrierInformations consulterInformations = selectedDossier;
+			// vb.setCourDossConsulterInformations(consulterInformations); //
+			dossier = consulterInformations.getDossier();
+			vb.setDossier(dossier);
+			if (consulterInformations.getCourrierExpediteurObjet() instanceof Person) {
+				Person person = new Person();
+				person = (Person) consulterInformations
+						.getCourrierExpediteurObjet();
+				vb.setCopyListSelectedPerson(new ArrayList<Person>());
+				vb.getCopyListSelectedPerson().add(person);
+				vb.setDestNom(person.getCn());
+			} else if (consulterInformations.getCourrierExpediteurObjet() instanceof Unit) {
+				Unit unit = new Unit();
+				unit = (Unit) consulterInformations
+						.getCourrierExpediteurObjet();
+				vb.setCopyListSelectedUnit(new ArrayList<Unit>());
+				vb.getCopyListSelectedUnit().add(unit);
+				vb.setDestNom(unit.getNameUnit());
+			}
+			vb.setCopyDestNom(consulterInformations
+					.getCourrierDestinataireReelle());
+			vb.setCopyExpNom(consulterInformations.getCourrierExpediteur());
+			vb.setCopyCourrierCommentaire(consulterInformations
+					.getCourrierCommentaire());
+			vb.setToReplay(true);
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation du dossier "
+							+ dossier.getDossierId() + "-"
+							+ dossier.getDossierReference(), vb.getPerson(),
+					"INFO", appMgr);
+
+			System.out
+					.println("*******SelectionSucces courrierConslterBeanJour*********");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out
+					.println("*******ErreurDeSelection courrierConslterBeanJour*******");
+		}
+	}
+
+	public Long getCountDossier(HashMap<String, Object> filterMap,
+			String typeDossier, String dossierRubrique, boolean forTotal) {
+		return CountDossier(filterMap, 2, dateDebut, dateFin, type, type1,
+				idUser, typeDossier, dossierRubrique, forTotal);
+	}
+
+	public Long CountDossier(HashMap<String, Object> filterMap,
+			int jourOrAutre, Date dateDebut, Date dateFin, String type,
+			String type1, Integer idUser, String typeDossier,
+			String dossierRubrique, boolean forTotal) {
+		Long countDossier = 0L;
+		Integer dossierRubriqueId = Integer.valueOf(dossierRubrique);
+		countDossierEnvoyer = appMgr.countAllDossierEnvoyer(vb.getPerson()
+				.isResponsable(), listIdsSousUnit, listIdsSubordonne,
+				filterMap, consultationCourrierSecretaire,
+				consultationCourrierSubordonne, consultationCourrierSousUnite,
+				2, dateDebut, dateFin, type, type1, typeSecretaire, idUser,
+				typeDossier, dossierRubriqueId, forTotal);
+		countDossierRecu = appMgr.countAllDossierRecu(vb.getPerson()
+				.isResponsable(), listIdsSousUnit, listIdsSubordonne,
+				filterMap, consultationCourrierSecretaire,
+				consultationCourrierSubordonne, consultationCourrierSousUnite,
+				2, dateDebut, dateFin, type, type1, typeSecretaire, idUser,
+				typeDossier, dossierRubriqueId, forTotal);
+		if (typeDossier.equals("Recu")) {
+			return countDossierRecu;
+		} else if (typeDossier.equals("Envoyes")) {
+			return countDossierEnvoyer;
+		} else {
+			countDossier = countDossierEnvoyer + countDossierRecu;
+			return countDossier;
+		}
+	}
+
+	public List<CourrierInformations> getListDossier() {
+		return listDossier;
+	}
+
+	public void setListDossier(List<CourrierInformations> listDossier) {
+		this.listDossier = listDossier;
+	}
+
+	public Integer getIdUser() {
+		return idUser;
+	}
+
+	public void setIdUser(Integer idUser) {
+		this.idUser = idUser;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getType1() {
+		return type1;
+	}
+
+	public void setType1(String type1) {
+		this.type1 = type1;
+	}
+
+	public String getTypeSecretaire() {
+		return typeSecretaire;
+	}
+
+	public void setTypeSecretaire(String typeSecretaire) {
+		this.typeSecretaire = typeSecretaire;
+	}
+
+	public Date getDateDebut() {
+		return dateDebut;
+	}
+
+	public void setDateDebut(Date dateDebut) {
+		this.dateDebut = dateDebut;
+	}
+
+	public Date getDateFin() {
+		return dateFin;
+	}
+
+	public void setDateFin(Date dateFin) {
+		this.dateFin = dateFin;
+	}
+
+	public Long getCountDossier() {
+		return countDossier;
+	}
+
+	public void setCountDossier(Long countDossier) {
+		this.countDossier = countDossier;
+	}
+
+	public CourrierInformations getSelectedDossier() {
+		return selectedDossier;
+	}
+
+	public void setSelectedDossier(CourrierInformations selectedDossier) {
+		this.selectedDossier = selectedDossier;
+	}
+
+	public String getConsultationCourrierSecretaire() {
+		return consultationCourrierSecretaire;
+	}
+
+	public void setConsultationCourrierSecretaire(
+			String consultationCourrierSecretaire) {
+		this.consultationCourrierSecretaire = consultationCourrierSecretaire;
+	}
+
+	public String getConsultationCourrierSubordonne() {
+		return consultationCourrierSubordonne;
+	}
+
+	public void setConsultationCourrierSubordonne(
+			String consultationCourrierSubordonne) {
+		this.consultationCourrierSubordonne = consultationCourrierSubordonne;
+	}
+
+	public String getConsultationCourrierSousUnite() {
+		return consultationCourrierSousUnite;
+	}
+
+	public void setConsultationCourrierSousUnite(
+			String consultationCourrierSousUnite) {
+		this.consultationCourrierSousUnite = consultationCourrierSousUnite;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	public Long getCountDossierRecu() {
+		return countDossierRecu;
+	}
+
+	public void setCountDossierRecu(Long countDossierRecu) {
+		this.countDossierRecu = countDossierRecu;
+	}
+
+	public Long getCountDossierEnvoyer() {
+		return countDossierEnvoyer;
+	}
+
+	public void setCountDossierEnvoyer(Long countDossierEnvoyer) {
+		this.countDossierEnvoyer = countDossierEnvoyer;
+	}
+}

@@ -1,0 +1,84 @@
+package xtensus.faxmail.beans;
+
+import java.util.Date;
+
+public class AttachmentFileBean {
+
+	private String name;
+	private Integer size;
+	private String mailId;
+	private byte[] byteArray;
+	private Date date;
+	private String expediteur;
+
+	
+	public AttachmentFileBean(){
+		
+	}
+	
+	public AttachmentFileBean(String name, Integer size) {
+		super();
+		this.name = name;
+		this.size = size;
+	}
+
+	public AttachmentFileBean(String mailId, String name, byte[] byteArray,
+			Date date, String expediteur) {
+		super();
+		this.mailId = mailId;
+		this.setByteArray(byteArray);
+		this.name = name;
+		this.size = byteArray.length;
+		this.date = date;
+		this.expediteur = expediteur;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public String getMailId() {
+		return mailId;
+	}
+
+	public void setMailId(String mailId) {
+		this.mailId = mailId;
+	}
+
+	public byte[] getByteArray() {
+		return byteArray;
+	}
+
+	public void setByteArray(byte[] byteArray) {
+		this.byteArray = byteArray;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public String getExpediteur() {
+		return expediteur;
+	}
+
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+
+}

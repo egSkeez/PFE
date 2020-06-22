@@ -1,0 +1,14 @@
+package xtensus.beans.common.GBO;
+
+import org.ajax4jsf.model.ExtendedDataModel;
+import org.richfaces.model.ModifiableModel;
+
+public class TestModifiableAuctionDataModel extends ModifiableModel {
+
+	public TestModifiableAuctionDataModel(ExtendedDataModel originalModel,
+			String var) {
+		super(originalModel, var);
+		// TODO Auto-generated constructor stub
+	}
+
+}

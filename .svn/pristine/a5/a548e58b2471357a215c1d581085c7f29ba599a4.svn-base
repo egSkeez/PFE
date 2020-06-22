@@ -1,0 +1,397 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RoleModel;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Group;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class GroupeConsultationBean {
+
+	private ApplicationManager appMgr;
+	private String groupName;
+	private String groupDescription;
+	//private String nomGroupe;
+	//private String descriptionGroupe;
+	private List<Person> listCurrentsUsers;
+	private DataModel currentsUsersDataModel;
+	private List<RoleModel> listAffectedRole;
+	private DataModel affectedRolesDataModel;
+	private LdapOperation ldapOperation;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private long records;
+	private long records2;
+	public boolean status1;
+	public boolean status2;
+	public boolean status3;
+	public boolean status4;
+	public boolean status5;
+	public boolean status6;
+	public boolean status7;
+	@Autowired
+	public GroupeConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		listCurrentsUsers = new ArrayList<Person>();
+		currentsUsersDataModel = new ListDataModel();
+		currentsUsersDataModel.setWrappedData(listCurrentsUsers);
+		listAffectedRole = new ArrayList<RoleModel>();
+		affectedRolesDataModel = new ListDataModel();
+		affectedRolesDataModel.setWrappedData(listAffectedRole);
+		System.out
+				.println("**************BeanInjecte GroupeConsultationBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			groupName = vb.getGroup().getCn();
+			groupDescription = vb.getGroup().getDescription();
+			String pathGroup = "cn="+groupName+","+ldapOperation.CONTEXT_GROUP;
+			System.out.println(pathGroup);
+			listCurrentsUsers = ldapOperation.getGroupMembers("member",pathGroup);
+			currentsUsersDataModel.setWrappedData(listCurrentsUsers);
+			listAffectedRole = ldapOperation.getListRoleByPathGroup(pathGroup);
+			affectedRolesDataModel.setWrappedData(listAffectedRole);
+			System.out
+					.println("*******ChargementAvecSucces GroupeConsultationBean******");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement GroupeConsultationBean*******");
+			e.printStackTrace();
+		}
+
+	}
+//********************************************FG*******************************
+	public void updategroup() {
+		DirContext dirContext;
+		String newPath;
+		String pathGroup;
+		Group group;
+		status1 = false;
+		status4 = false;
+		group = new Group();
+		if (groupDescription.equals("")) {
+			groupDescription = " ";
+		}
+		try {
+			dirContext = ldapOperation.getDirContext();
+			pathGroup = "cn=" + vb.getGroup().getCn() + ","
+					+ ldapOperation.CONTEXT_GROUP;
+			System.out.println(pathGroup);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute newname = new BasicAttribute("cn");
+			newname.add(groupName);
+			group.setCn(groupName);
+			group.setId(vb.getGroup().getId());
+			Attribute newdescription = new BasicAttribute("description");
+			newdescription.add(groupDescription);
+			group.setDescription(groupDescription);
+
+			attributes.put(newname);
+			attributes.put(newdescription);
+			if (vb.getGroup().getCn().equals(groupName)) {
+				System.out.println(pathGroup);
+				dirContext.modifyAttributes(pathGroup,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+				status1 = true;
+				setMessage(messageSource.getMessage("confirmUpdate",
+						new Object[] {}, lm.createLocal()));
+				System.out.println("sucees de modif");
+			} else {
+				newPath = "cn=" + groupName + "," + ldapOperation.CONTEXT_GROUP;
+				System.out.println(newPath);
+				dirContext.rename(pathGroup, newPath);
+				dirContext.modifyAttributes(newPath,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+				status1 = true;
+				setMessage(messageSource.getMessage("confirmUpdate",
+						new Object[] {}, lm.createLocal()));
+				System.out.println("sucees de modif");
+			}
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification du groupe "
+							+ vb.getGroup().getId() + "-"
+							+ vb.getGroup().getCn(), vb.getPerson(), "INFO",
+					appMgr);
+			vb.setGroup(group);
+		} catch (NamingException e) {
+			status4 = true;
+			groupName = "";
+			setMessage(messageSource.getMessage("erreurUpdateRole",
+					new Object[] {}, lm.createLocal()));
+			System.err.println("Erreur lors de l'acces au serveur LDAP" + e);
+			e.printStackTrace();
+		}
+	}
+
+	public void initializeupdate() {
+		status1 = false;
+		
+	}
+
+	public void deletegroup() {
+		DirContext dirContext;
+		String pathGroup;
+		try {
+			pathGroup = "cn=" + vb.getGroup().getCn() + ","
+					+ ldapOperation.CONTEXT_GROUP;
+			dirContext = ldapOperation.getDirContext();
+			dirContext.unbind(pathGroup);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression du groupe "
+							+ vb.getGroup().getId() + "-"
+							+ vb.getGroup().getCn(), vb.getPerson(), "INFO",
+					appMgr);
+			System.out.println("*******Suppression terminée******");
+		} catch (NamingException e) {
+			System.out.println("Erreur lors de l'accés au serveur LDAPé" + e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public void getdeletegroup() {
+		status2 = true;
+		setMessage(messageSource.getMessage("confirmDeleteUsers",
+				new Object[] {}, lm.createLocal()));
+		if (listCurrentsUsers.isEmpty()) {
+			status2 = false;
+			setMessage(messageSource.getMessage("confirmDeletegroup",
+					new Object[] {}, lm.createLocal()));
+		}
+
+	}
+	//*****************************************************************************
+	public void getSelectedRowUser() {
+		Person person = new Person();
+		person = (Person) currentsUsersDataModel.getRowData();
+		vb.setIdUser(person.getId());
+		vb.setRedirectUser("redirectFromGCToDetailsUser");
+	}
+
+	public void getSelectedRowRole() {
+		RoleModel roleModel = new RoleModel();
+		roleModel = (RoleModel) affectedRolesDataModel.getRowData();
+		vb.setRoleModel(roleModel);
+		vb.setRedirect("redirectFromGCToDetailsRole");
+	}
+
+	// ************Getter & Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (currentsUsersDataModel == null
+				&& currentsUsersDataModel.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Person>) currentsUsersDataModel.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (affectedRolesDataModel == null
+				&& affectedRolesDataModel.getWrappedData() == null)
+			records2 = 0;
+		else
+			records2 = ((List<RoleModel>) affectedRolesDataModel
+					.getWrappedData()).size();
+		return records2;
+	}
+
+	public void setRecords2(long records2) {
+		this.records2 = records2;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setCurrentsUsersDataModel(DataModel currentsUsersDataModel) {
+		this.currentsUsersDataModel = currentsUsersDataModel;
+	}
+
+	public DataModel getCurrentsUsersDataModel() {
+		return currentsUsersDataModel;
+	}
+
+	public void setListCurrentsUsers(List<Person> listCurrentsUsers) {
+		this.listCurrentsUsers = listCurrentsUsers;
+	}
+
+	public List<Person> getListCurrentsUsers() {
+		return listCurrentsUsers;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setListAffectedRole(List<RoleModel> listAffectedRole) {
+		this.listAffectedRole = listAffectedRole;
+	}
+
+	public List<RoleModel> getListAffectedRole() {
+		return listAffectedRole;
+	}
+
+	public void setAffectedRolesDataModel(DataModel affectedRolesDataModel) {
+		this.affectedRolesDataModel = affectedRolesDataModel;
+	}
+
+	public DataModel getAffectedRolesDataModel() {
+		return affectedRolesDataModel;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus4() {
+		return status4;
+	}
+
+	public void setStatus4(boolean status4) {
+		this.status4 = status4;
+	}
+
+	public boolean isStatus5() {
+		return status5;
+	}
+
+	public void setStatus5(boolean status5) {
+		this.status5 = status5;
+	}
+
+	public boolean isStatus6() {
+		return status6;
+	}
+
+	public void setStatus6(boolean status6) {
+		this.status6 = status6;
+	}
+
+	public boolean isStatus7() {
+		return status7;
+	}
+
+	public void setStatus7(boolean status7) {
+		this.status7 = status7;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public String getGroupDescription() {
+		return groupDescription;
+	}
+
+	public void setGroupDescription(String groupDescription) {
+		this.groupDescription = groupDescription;
+	}
+
+}

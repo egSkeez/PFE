@@ -1,0 +1,564 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion armoire</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/calander.js" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style="height:30px; padding-top:5px;">
+						<h:form>
+							<div>
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='../GBO/acceuilGBO.jsf'">
+									<h:graphicImage
+										value="../framGraphique/images/retour.png"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="upd1"
+									action="#{armoireGestionBean.viderchamp}"
+									reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle">
+									<h:graphicImage id="ajouter1"
+										value="../framGraphique/images/icone-add.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="upd1" direction="top-right"
+									value="#{msg.labelAjoutArmoire}" />
+							</div>
+							<a4j:keepAlive beanName="armoireGestionBean" />
+						</h:form>
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1"
+							style="display:#{armoireGestionBean.hideAccor};">
+							<a4j:keepAlive beanName="armoireGestionBean" />
+							<rich:simpleTogglePanel id="accor1" styleClass="rich-panel"
+								switchType="client" label="#{armoireGestionBean.titleaccor}"
+								opened="#{armoireGestionBean.openaccor1}">
+								<rich:messages ajaxRendered="true" errorClass="msgError"
+									styleClass="error" />
+								<table width="100%">
+									<tr>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.armoireLibelle} :"
+											styleClass="xteDetailLabel" />
+										<rich:spacer width="10" />
+										<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:inputText id="Libelle"
+										value="#{armoireGestionBean.armoire.armoireLibelle}"
+										required="true"
+										requiredMessage="* #{msg.armoireLibelle} #{msg.champsobligatoire}" />
+													<h:column>
+													<h:outputText value="#{msg.armoireDescription} :"
+											styleClass="xteDetailLabel" />
+										<rich:spacer width="10" />
+										
+												</h:column>
+										
+												<h:inputTextarea id="Raccourci"
+										value="#{armoireGestionBean.armoire.armoireDescription}"
+										style=" width : 200px;" />
+											</h:panelGrid></td>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.armoireLibelleAr} :"
+											styleClass="xteDetailLabel" />
+										<rich:spacer width="10" />
+										<h:outputText value="*" styleClass="error" />
+									</h:column>
+												<h:inputText id="LibelleAr"
+										value="#{armoireGestionBean.armoire.armoireLibelleAr}"
+										required="true"
+										requiredMessage="* #{msg.armoireLibelleAr} #{msg.champsobligatoire}" 
+													maxlength="30" />
+												<h:column>
+													<h:outputText value="#{msg.descriptionAr}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+											
+												<h:inputTextarea id="RaccourciAr"
+										value="#{armoireGestionBean.armoire.armoireDescriptionAr}"
+										styleClass="xteDetailLabelTextArea" rows="2"
+													style=" width : 200px;" />
+											</h:panelGrid></td>
+									</tr>
+								</table>								<rich:spacer height="10" />
+								<div align="center">
+									<div id="buttonValidateUser"
+										style="display:#{armoireGestionBean.hidebuttonValidateUser};">
+										<a4j:commandButton value="#{msg.buttonValidate}"
+											action="#{armoireGestionBean.save}"
+											oncomplete="if(#{armoireGestionBean.status}==true) #{rich:component('msgPanalCA')}.show(); if(#{armoireGestionBean.status3}==true) #{rich:component('msgPanalErrRemainName')}.show(); "
+											reRender="msgPanalCA,msgPanalErrRemainName"></a4j:commandButton>
+										<a4j:commandButton type="submit" id="btnAnnul"
+											action="#{armoireGestionBean.viderchamp}" immediate="true"
+											reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle"
+											value="#{msg.buttonCancel}" />
+									</div>
+									<div id="buttonDelUpUser"
+										style="display:#{armoireGestionBean.hidebuttonDelUpUser};">
+										<a4j:commandButton value="#{msg.btnSaveCode}" type="submit"
+											action="#{armoireGestionBean.updateSelectedRow}"
+											oncomplete="if(#{armoireGestionBean.status1}==true) #{rich:component('msgPanal')}.show(); if(#{armoireGestionBean.status2}==true) #{rich:component('msgPanalErreur')}.show();"
+											reRender="msgPanal,msgPanalErreur"></a4j:commandButton>
+										<a4j:commandButton type="submit" id="btnAnnull"
+											action="#{armoireGestionBean.viderchamp}"
+											reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle"
+											value="#{msg.buttonCancel}" />
+									</div>
+								</div>
+								<rich:spacer height="10" />
+								<div align="left">
+									<h:outputText value="#{msg.infoChampObligatoir}" />
+								</div>
+							</rich:simpleTogglePanel>
+						</h:form>
+								<!-- *******popup Info Validation d'ajout -->
+								<rich:modalPanel id="msgPanalCA" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="armoireGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<a4j:commandLink id="upd11"
+											action="#{armoireGestionBean.viderchamp}"
+											oncomplete="Richfaces.hideModalPanel('msgPanalCA');"
+											reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,data,scroller,record">
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" />
+										</a4j:commandLink>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmAjout}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCA');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{armoireGestionBean.viderchamp}"
+												reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,data,scroller,record" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur d'ajout remaining name****** -->
+								<rich:modalPanel id="msgPanalErrRemainName" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="armoireGestionBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErrRemainName" />
+											<rich:componentControl for="msgPanalErrRemainName"
+												attachTo="hidelinkErrRemainName" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{armoireGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrRemainName');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******************popup validation de modification*********************** -->
+								<rich:modalPanel id="msgPanal" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="armoireGestionBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<a4j:commandLink id="upd2"
+											action="#{armoireGestionBean.viderchamp}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,data,scroller,record">
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" />
+										</a4j:commandLink>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{armoireGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												action="#{armoireGestionBean.viderchamp}"
+												oncomplete="Richfaces.hideModalPanel('msgPanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,data,scroller,record" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur de modification****** -->
+								<rich:modalPanel id="msgPanalErreur" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="armoireGestionBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErreur" />
+											<rich:componentControl for="msgPanalErreur"
+												attachTo="hidelinkErreur" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{armoireGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErreur');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+					</div>
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listArmoirefacet}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="armoireGestionBean" />
+						<h:form>
+							<rich:dataTable value="#{armoireGestionBean.listType}" var="type"
+								id="data" rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{type.idarmoire}"
+									filterBy="#{type.idarmoire}" filterEvent="onkeyup"
+									label="#{msg.Reference}" width="5%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<h:outputText value="#{type.idarmoire}" />
+								</rich:column>
+								<rich:column sortBy="#{type.armoireLibelle}"
+									filterBy="#{type.armoireLibelle}" filterEvent="onkeyup"
+									label="#{msg.nom}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.armoireLibelle}" />
+									</f:facet>
+									<h:outputText value="#{type.armoireLibelle}" />
+								</rich:column>
+								<rich:column sortBy="#{type.armoireLibelleAr}"
+									filterBy="#{type.armoireLibelleAr}" filterEvent="onkeyup"
+									label="#{msg.nom}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.armoireLibelleAr}" />
+									</f:facet>
+									<h:outputText value="#{type.armoireLibelleAr}" />
+								</rich:column>
+								<rich:column sortBy="#{type.armoireDescription}"
+									filterBy="#{type.armoireDescription}" filterEvent="onkeyup"
+									label="#{msg.armoireDescription}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.armoireDescription}" />
+									</f:facet>
+									<h:outputText value="#{type.armoireDescription}" />
+								</rich:column>
+								<rich:column sortBy="#{type.armoireDescriptionAr}"
+									filterBy="#{type.armoireDescriptionAr}" filterEvent="onkeyup"
+									label="#{msg.armoireDescription}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.armoireDescriptionAr}" />
+									</f:facet>
+									<h:outputText value="#{type.armoireDescriptionAr}" />
+								</rich:column>
+								<rich:column sortBy="#{type.armoireNombreEtage}"
+									filterBy="#{type.armoireNombreEtage}" filterEvent="onkeyup"
+									label="#{msg.armoireNombreEtage}" width="8%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.armoireNombreEtage}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{type.armoireNombreEtage}" />
+									</div>
+								</rich:column>
+								
+								<rich:column width="3%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="armoireGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="ed"
+												action="#{armoireGestionBean.getSelectionRow}"
+												reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,Raccourci,devise">
+												<h:graphicImage
+													value="../framGraphique/images/Edit.png"
+													alt="editer" />
+											</a4j:commandLink>
+
+											<rich:toolTip for="ed" value="#{msg.labelEdit}"
+												direction="top-right" />
+											<a4j:commandLink id="del"
+												action="#{armoireGestionBean.testDeleteSelectedRow}"
+												reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,askDelete2,devise"
+												oncomplete="if(#{armoireGestionBean.statusDelete}==true)
+									#{rich:component('askDelete')}.show();
+									if(#{armoireGestionBean.statusDelete1}==true)
+									#{rich:component('alert')}.show();">
+												<h:graphicImage value="../framGraphique/images/Delete.png"
+													alt="Delete" />
+											</a4j:commandLink>
+											<rich:toolTip for="del" value="#{msg.labelDelete}"
+												direction="top-right" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record" value="#{armoireGestionBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+						<!-- *********ask alert*********** -->
+						<rich:modalPanel id="alert" autosized="true" height="90"
+							width="350">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelAlerte}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelinkalert" alt="Fermer" />
+									<rich:componentControl for="alert" attachTo="hidelinkalert"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<a4j:keepAlive beanName="armoireGestionBean" />
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/avertissement.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.confirmDeleteEtgages}" />
+										</td>
+									</tr>
+								</table>
+								<div align="center">
+
+									<rich:spacer width="10" />
+									<a4j:commandButton value="#{msg.buttonOk}"
+										styleClass="submitButton"
+										onclick="Richfaces.hideModalPanel('alert');" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<!-- *********ask Delete*********** -->
+						<rich:modalPanel id="askDelete" autosized="true" height="90"
+							width="350">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<h:outputText value="#{msg.labelConfirm}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink2" alt="Fermer" />
+									<rich:componentControl for="askDelete" attachTo="hidelink2"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<a4j:keepAlive beanName="armoireGestionBean" />
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.confirmDelete}" /></td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOui}"
+										action="#{armoireGestionBean.deleteSelectedRow}"
+										oncomplete="Richfaces.hideModalPanel('askDelete'); #{rich:component('msgPanalCD')}.show();"
+										type="submit" ajaxSingle="true" styleClass="submitButton" />
+									<rich:spacer width="10" />
+									<a4j:commandButton value="#{msg.buttonNon}"
+										styleClass="submitButton"
+										onclick="Richfaces.hideModalPanel('askDelete');" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+						<!-- *****popup Info validation de suppression******* -->
+						<rich:modalPanel id="msgPanalCD" autosized="true" height="90"
+							width="350">
+							<a4j:keepAlive beanName="armoireGestionBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<a4j:commandLink id="upd3"
+									action="#{armoireGestionBean.viderchamp}"
+									oncomplete="Richfaces.hideModalPanel('msgPanalCD');"
+									reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,data,scroller,record">
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" />
+								</a4j:commandLink>
+							</f:facet>
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.confirmSuppression}" /></td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOk}"
+										oncomplete="Richfaces.hideModalPanel('msgPanalCD');"
+										type="submit" ajaxSingle="true" styleClass="submitButton"
+										action="#{armoireGestionBean.viderchamp}"
+										reRender="accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,Libelle,data,scroller,record" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+					</rich:panel>
+				</div>
+				<div id="inter" />
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

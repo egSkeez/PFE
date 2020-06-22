@@ -1,0 +1,1454 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierConsulterInformations;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Etat;
+import xtensus.entity.Expdest;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.TransactionDestinationId;
+import xtensus.entity.TransactionDestinationReelle;
+import xtensus.entity.Transmission;
+import xtensus.entity.Typedossier;
+import xtensus.entity.Typetransaction;
+import xtensus.entity.Urgence;
+import xtensus.entity.Utilisateur;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class DossierPartageBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private Dossier dossier;
+	private Transaction transaction;
+	private TransactionDestination transactionDestination;
+	public boolean status;
+	public boolean status1;
+	public boolean status2;
+	public boolean status3;
+	private Date date;
+	private Date date1;
+	private Nature nature;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private Expdestexterne expdestexterne;
+	private List<Expdestexterne> listDestExpdestexternes;
+	private Utilisateur utilisateur;
+	private List<CourrierConsulterInformations> courrierConsulterInformations;
+	private List<CourrierConsulterInformations> listCourriersRecusJour;
+	private List<CourrierConsulterInformations> listCourriersEnvoyesJour;
+	private Date dateReception;
+	private Date dateReponse;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+
+	private String selectedItemConf;
+	private String selectedItemUg;
+	private String commentaireTransaction;
+
+	private List<Confidentialite> listCf;
+	private List<Urgence> listUg;
+	private String reponse1;
+	private boolean select1 = false;
+	private int nombreCourrier;
+
+	public DossierPartageBean() {
+
+	}
+
+	@Autowired
+	public DossierPartageBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		courrier = new Courrier();
+		dossier = new Dossier();
+		transaction = new Transaction();
+		transactionDestination = new TransactionDestination();
+		nature = new Nature();
+		transmission = new Transmission();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		expdestexterne = new Expdestexterne();
+		listDestExpdestexternes = new ArrayList<Expdestexterne>();
+		utilisateur = new Utilisateur();
+		courrierConsulterInformations = new ArrayList<CourrierConsulterInformations>();
+		listCourriersRecusJour = new ArrayList<CourrierConsulterInformations>();
+		listCourriersEnvoyesJour = new ArrayList<CourrierConsulterInformations>();
+		listCf = new ArrayList<Confidentialite>();
+		listUg = new ArrayList<Urgence>();
+		date = new Date();
+		date1 = new Date();
+		System.out
+				.println("**************BeanInjecte CourrierTransfereBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			nombreCourrier = 0;
+			listUg = appMgr.getList(Urgence.class);
+			listCf = appMgr.getList(Confidentialite.class);
+			List<CourrierDossier> listCourrierDossier = new ArrayList<CourrierDossier>();
+			dossier = vb.getDossier();
+			listCourrierDossier = appMgr.getCourrierDossierByIdDossier(dossier
+					.getDossierId());
+			nombreCourrier = listCourrierDossier.size();
+			System.out
+					.println("*******ChargementAvecSucces   CourrierTransfereBean******");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement CourrierTransfereBean*******");
+		}
+
+	}
+
+	// fonction de selection des degrés de confidentialité dans le listBox
+	public List<SelectItem> getSelectItemsConf() {
+
+		List<SelectItem> selectItemsConf = new ArrayList<SelectItem>();
+		selectItemsConf.add(new SelectItem(""));
+		for (int j = 0; j <= listCf.size() - 1; j++) {
+			selectItemsConf.add(new SelectItem(listCf.get(j)
+					.getConfidentialiteLibelle()));
+
+		}
+		return selectItemsConf;
+	}
+
+	// fonction de selection des degrés d'urgences dans le listBox
+	public List<SelectItem> getSelectItemsUg() {
+
+		List<SelectItem> selectItemsUg = new ArrayList<SelectItem>();
+		selectItemsUg.add(new SelectItem(""));
+		for (int j = 0; j <= listUg.size() - 1; j++) {
+			selectItemsUg
+					.add(new SelectItem(listUg.get(j).getUrgenceLibelle()));
+
+		}
+		return selectItemsUg;
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+		if (reponse1.equals("Non")) {
+			setSelect1(false);
+		} else {
+			setSelect1(true);
+		}
+	}
+
+	public String goToListSender() {
+		vb.setRedirect("rediretFromDPToListSender");
+		return "rediretFromDPToListSender";
+	}
+
+	public void transferer() {
+		status = false;
+		status1 = false;
+		Transaction nouvelleTransaction = new Transaction();
+		Etat etat = new Etat();
+		TransactionDestinationId id;
+		TransactionDestination trDest;
+		Expdest expdest;
+		Typetransaction typetransaction;
+		Transaction copyNouvelleTransaction;
+		TransactionDestinationReelle transactionDestinationReelle;
+		String result;
+		try {
+			// Confidentialité
+			confidentialite.setConfidentialiteLibelle(selectedItemConf);
+			confidentialite.setConfidentialiteId(appMgr
+					.getConfByNom(selectedItemConf).get(0)
+					.getConfidentialiteId());
+			dossier.setConfidentialite(confidentialite);
+			// Urgence
+			urgence.setUrgenceLibelle(selectedItemUg);
+			urgence.setUrgenceId(appMgr.getUrgenceByNom(selectedItemUg).get(0)
+					.getUrgenceId());
+			dossier.setUrgence(urgence);
+			Typedossier typedossier = appMgr.getTypeDossierByLibelle(
+					"Personnalise").get(0);
+			dossier.setTypedossier(typedossier);
+			appMgr.update(dossier);
+			vb.setDossier(dossier);
+
+			/****************** Ajout Transaction ************************/
+			// Expediteur
+			System.out.println("Dans Expéditeur");
+			expdest = new Expdest();
+			expdest.setTypeExpDest("Interne-Person");
+			expdest.setIdExpDestLdap(vb.getPerson().getId());
+			vb.setCopyExpNom(vb.getPerson().getCn());
+			if (vb.getPerson().isResponsable()) {
+				nouvelleTransaction.setTransactionTypeIntervenant("sub_"
+						+ String.valueOf(vb.getPerson().getId()));
+				if (vb.getPerson().getAssociatedDirection().getAssociatedUnit() != null) {
+					nouvelleTransaction.setTransactionIdIntervenant(vb
+							.getPerson().getAssociatedDirection()
+							.getAssociatedUnit().getResponsibleUnit().getId());
+				}
+			} else if (vb.getPerson().isSecretary()) {
+				nouvelleTransaction.setTransactionTypeIntervenant("secretary_"
+						+ String.valueOf(vb.getPerson().getId()));
+				nouvelleTransaction.setTransactionIdIntervenant(vb.getPerson()
+						.getAssociatedDirection().getResponsibleUnit().getId());
+			} else {
+				nouvelleTransaction.setTransactionTypeIntervenant("agent_"
+						+ String.valueOf(vb.getPerson().getId()));
+				nouvelleTransaction.setTransactionIdIntervenant(vb.getPerson()
+						.getAssociatedDirection().getResponsibleUnit().getId());
+			}
+			appMgr.insert(expdest);
+			nouvelleTransaction.setExpdest(expdest);
+			nouvelleTransaction.setIdUtilisateur(vb.getPerson().getId());
+			nouvelleTransaction.setDossier(dossier);
+			nouvelleTransaction.setTransactionDateTransaction(new Date());
+			nouvelleTransaction
+					.setTransactionCommentaire(commentaireTransaction);
+			nouvelleTransaction.setTransactionSupprimer(true);
+			result = "";
+			// Destinataires
+			System.out.println("Dans Destinataire");
+			if (!vb.getCopyListSelectedPerson().isEmpty()
+					|| !vb.getCopyListSelectedUnit().isEmpty()) {
+				copyNouvelleTransaction = new Transaction();
+				copyNouvelleTransaction.setExpdest(nouvelleTransaction
+						.getExpdest());
+				copyNouvelleTransaction.setIdUtilisateur(nouvelleTransaction
+						.getIdUtilisateur());
+				copyNouvelleTransaction.setDossier(nouvelleTransaction
+						.getDossier());
+				copyNouvelleTransaction
+						.setTransactionDateTransaction(nouvelleTransaction
+								.getTransactionDateTransaction());
+				copyNouvelleTransaction
+						.setTransactionDateReponse(nouvelleTransaction
+								.getTransactionDateReponse());
+				copyNouvelleTransaction
+						.setTransactionCommentaire(nouvelleTransaction
+								.getTransactionCommentaire());
+				copyNouvelleTransaction
+						.setTransactionSupprimer(nouvelleTransaction
+								.getTransactionSupprimer());
+				copyNouvelleTransaction
+						.setTransactionIdIntervenant(nouvelleTransaction
+								.getTransactionIdIntervenant());
+				copyNouvelleTransaction
+						.setTransactionTypeIntervenant(nouvelleTransaction
+								.getTransactionTypeIntervenant());
+
+				if (vb.isToReplay()) {
+					typetransaction = appMgr.getTypeTransactionByLibelle(
+							"Réponse").get(0);
+					copyNouvelleTransaction.setTypetransaction(typetransaction);
+					vb.setToReplay(false);
+				} else {
+					typetransaction = appMgr.getTypeTransactionByLibelle(
+							"Envoi").get(0);
+					copyNouvelleTransaction.setTypetransaction(typetransaction);
+				}
+				etat = appMgr.listEtatByLibelle("Simple").get(0);
+				copyNouvelleTransaction.setEtat(etat);
+				appMgr.insert(copyNouvelleTransaction);
+				copyNouvelleTransaction.setTransactionFirst(copyNouvelleTransaction.getTransactionId());
+				appMgr.update(copyNouvelleTransaction);
+				vb.setTransaction(copyNouvelleTransaction);
+				// result = "";
+				if (!vb.getCopyListSelectedPerson().isEmpty()) {
+					for (int i = 0; i < vb.getCopyListSelectedPerson().size(); i++) {
+						result = result
+								+ vb.getCopyListSelectedPerson().get(i).getCn()
+								+ " / ";
+						expdest = new Expdest();
+						id = new TransactionDestinationId();
+						trDest = new TransactionDestination();
+						expdest.setTypeExpDest("Interne-Person");
+						expdest.setIdExpDestLdap(vb.getCopyListSelectedPerson()
+								.get(i).getId());
+						appMgr.insert(expdest);
+						id.setIdTransaction(vb.getTransaction()
+								.getTransactionId());
+						id.setIdExpDest(expdest.getIdExpDest());
+						trDest.setId(id);
+						if (vb.getCopyListSelectedPerson().get(i)
+								.isResponsable()) {
+							trDest.setTransactionDestTypeIntervenant("sub_"
+									+ String.valueOf(vb
+											.getCopyListSelectedPerson().get(i)
+											.getId()));
+							if (vb.getCopyListSelectedPerson().get(i)
+									.getAssociatedDirection()
+									.getAssociatedUnit() != null) {
+								trDest.setTransactionDestIdIntervenant(vb
+										.getCopyListSelectedPerson().get(i)
+										.getAssociatedDirection()
+										.getAssociatedUnit()
+										.getResponsibleUnit().getId());
+							}
+						} else if (vb.getCopyListSelectedPerson().get(i)
+								.isSecretary()) {
+							trDest.setTransactionDestTypeIntervenant("secretary_"
+									+ String.valueOf(vb
+											.getCopyListSelectedPerson().get(i)
+											.getId()));
+							trDest.setTransactionDestIdIntervenant(vb
+									.getCopyListSelectedPerson().get(i)
+									.getAssociatedDirection()
+									.getResponsibleUnit().getId());
+						} else {
+							trDest.setTransactionDestTypeIntervenant("agent_"
+									+ String.valueOf(vb
+											.getCopyListSelectedPerson().get(i)
+											.getId()));
+							trDest.setTransactionDestIdIntervenant(vb
+									.getCopyListSelectedPerson().get(i)
+									.getAssociatedDirection()
+									.getResponsibleUnit().getId());
+						}
+						appMgr.insert(trDest);
+					}
+				}
+
+				if (!vb.getCopyListSelectedUnit().isEmpty()) {
+					typetransaction = new Typetransaction();
+					etat = new Etat();
+					for (int i = 0; i < vb.getCopyListSelectedUnit().size(); i++) {
+						result = result
+								+ vb.getCopyListSelectedUnit().get(i)
+										.getNameUnit() + " / ";
+						if (vb.getPerson().getAssociatedDirection().getIdUnit() != vb
+								.getCopyListSelectedUnit().get(i).getIdUnit()) {
+							try {
+								if (vb.getPerson().getAssociatedDirection()
+										.getAssociatedUnit().getIdUnit() == vb
+										.getCopyListSelectedUnit().get(i)
+										.getIdUnit()) {
+									Transaction transaction = new Transaction();
+									transaction = vb.getTransaction();
+									etat = appMgr
+											.listEtatByLibelle("A valider")
+											.get(0);
+									transaction.setEtat(etat);
+									appMgr.update(transaction);
+									vb.setTransaction(transaction);
+								}
+							} catch (NullPointerException e) {
+								etat = appMgr.listEtatByLibelle("Simple")
+										.get(0);
+								copyNouvelleTransaction.setEtat(etat);
+							}
+							expdest = new Expdest();
+							id = new TransactionDestinationId();
+							trDest = new TransactionDestination();
+							expdest.setTypeExpDest("Interne-Unité");
+							expdest.setIdExpDestLdap(vb
+									.getCopyListSelectedUnit().get(i)
+									.getIdUnit());
+							appMgr.insert(expdest);
+							id.setIdTransaction(vb.getTransaction()
+									.getTransactionId());
+							id.setIdExpDest(expdest.getIdExpDest());
+							trDest.setId(id);
+							trDest.setTransactionDestTypeIntervenant("unit_"
+									+ String.valueOf(vb
+											.getCopyListSelectedUnit().get(i)
+											.getIdUnit()));
+							if (vb.getCopyListSelectedUnit().get(i)
+									.getAssociatedUnit() != null) {
+								trDest.setTransactionDestIdIntervenant(vb
+										.getCopyListSelectedUnit().get(i)
+										.getAssociatedUnit()
+										.getResponsibleUnit().getId());
+							}
+							appMgr.insert(trDest);
+						} else {
+							expdest = new Expdest();
+							id = new TransactionDestinationId();
+							trDest = new TransactionDestination();
+							expdest.setTypeExpDest("Interne-Unité");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection().getIdUnit());
+							appMgr.insert(expdest);
+							id.setIdTransaction(vb.getTransaction()
+									.getTransactionId());
+							id.setIdExpDest(expdest.getIdExpDest());
+							trDest.setId(id);
+							trDest.setTransactionDestTypeIntervenant("unit_"
+									+ String.valueOf(vb
+											.getCopyListSelectedUnit().get(i)
+											.getIdUnit()));
+							if (vb.getCopyListSelectedUnit().get(i)
+									.getAssociatedUnit() != null) {
+								trDest.setTransactionDestIdIntervenant(vb
+										.getCopyListSelectedUnit().get(i)
+										.getAssociatedUnit()
+										.getResponsibleUnit().getId());
+							}
+							appMgr.insert(trDest);
+						}
+					}
+				}
+			}
+			if (!vb.getCopyListPP().isEmpty()) {
+				typetransaction = new Typetransaction();
+				etat = new Etat();
+				// result = "";
+				for (int i = 0; i < vb.getCopyListPP().size(); i++) {
+					result = result
+							+ vb.getCopyListPP().get(i).getExpdestexterne()
+									.getExpDestExterneNom() + " / ";
+					copyNouvelleTransaction = new Transaction();
+					copyNouvelleTransaction.setExpdest(nouvelleTransaction
+							.getExpdest());
+					copyNouvelleTransaction
+							.setIdUtilisateur(nouvelleTransaction
+									.getIdUtilisateur());
+					copyNouvelleTransaction.setDossier(nouvelleTransaction
+							.getDossier());
+					copyNouvelleTransaction
+							.setTransactionDateTransaction(nouvelleTransaction
+									.getTransactionDateTransaction());
+					copyNouvelleTransaction
+							.setTransactionDateReponse(nouvelleTransaction
+									.getTransactionDateReponse());
+					copyNouvelleTransaction
+							.setTransactionCommentaire(nouvelleTransaction
+									.getTransactionCommentaire());
+					copyNouvelleTransaction
+							.setTransactionSupprimer(nouvelleTransaction
+									.getTransactionSupprimer());
+					copyNouvelleTransaction
+							.setTransactionIdIntervenant(nouvelleTransaction
+									.getTransactionIdIntervenant());
+					copyNouvelleTransaction
+							.setTransactionTypeIntervenant(nouvelleTransaction
+									.getTransactionTypeIntervenant());
+
+					typetransaction = appMgr.getTypeTransactionByLibelle(
+							"Envoi").get(0);
+					copyNouvelleTransaction.setTypetransaction(typetransaction);
+					etat = appMgr.listEtatByLibelle("A valider").get(0);
+					copyNouvelleTransaction.setEtat(etat);
+					copyNouvelleTransaction.setTransactionOrdre(1);
+					transactionDestinationReelle = new TransactionDestinationReelle();
+					transactionDestinationReelle
+							.setTransactionDestinationReelleIdDestinataire(vb
+									.getCopyListPP().get(i).getExpdestexterne()
+									.getIdExpDestExterne());
+					transactionDestinationReelle
+							.setTransactionDestinationReelleTypeDestinataire("Externe");
+					appMgr.insert(transactionDestinationReelle);
+					copyNouvelleTransaction
+							.setTransactionDestinationReelle(transactionDestinationReelle);
+					appMgr.insert(copyNouvelleTransaction);
+					copyNouvelleTransaction.setTransactionFirst(copyNouvelleTransaction.getTransactionId());
+					appMgr.update(copyNouvelleTransaction);
+					vb.setTransaction(copyNouvelleTransaction);
+					expdest = new Expdest();
+					id = new TransactionDestinationId();
+					trDest = new TransactionDestination();
+					if (vb.getPerson().isAgent()) {
+						if (vb.getPerson().getAssociatedDirection() != null) {
+							expdest.setTypeExpDest("Interne-Person");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection()
+									.getResponsibleUnit().getId());
+							appMgr.insert(expdest);
+						} else {
+							expdest.setTypeExpDest("Externe");
+							expdest.setExpdestexterne(vb.getCopyListPP().get(i)
+									.getExpdestexterne());
+							appMgr.insert(expdest);
+						}
+					} else if (vb.getPerson().isSecretary()) {
+						expdest.setTypeExpDest("Interne-Person");
+						expdest.setIdExpDestLdap(vb.getPerson()
+								.getAssociatedDirection().getResponsibleUnit()
+								.getId());
+						appMgr.insert(expdest);
+					} else {
+						if (vb.getPerson().getAssociatedDirection()
+								.getAssociatedUnit() != null) {
+							expdest.setTypeExpDest("Interne-Person");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection()
+									.getAssociatedUnit().getResponsibleUnit()
+									.getId());
+							appMgr.insert(expdest);
+						} else {
+							expdest.setTypeExpDest("Interne-Boc");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection()
+									.getAssociatedBOC().getIdBOC());
+							appMgr.insert(expdest);
+							etat = appMgr.listEtatByLibelle("Non traité")
+									.get(0);
+							copyNouvelleTransaction.setEtat(etat);
+							appMgr.update(copyNouvelleTransaction);
+							vb.setTransaction(copyNouvelleTransaction);
+						}
+					}
+					id.setIdTransaction(vb.getTransaction().getTransactionId());
+					id.setIdExpDest(expdest.getIdExpDest());
+					trDest.setId(id);
+					trDest.setTransactionDestTypeIntervenant("unit_"
+							+ String.valueOf(expdest.getIdExpDestLdap()));
+					appMgr.insert(trDest);
+				}
+			}
+			if (!vb.getCopyListPM().isEmpty()) {
+				typetransaction = new Typetransaction();
+				etat = new Etat();
+				// result = "";
+				for (int i = 0; i < vb.getCopyListPM().size(); i++) {
+					result = result
+							+ vb.getCopyListPM().get(i).getExpdestexterne()
+									.getExpDestExterneNom() + " / ";
+					copyNouvelleTransaction = new Transaction();
+					copyNouvelleTransaction.setExpdest(nouvelleTransaction
+							.getExpdest());
+					copyNouvelleTransaction
+							.setIdUtilisateur(nouvelleTransaction
+									.getIdUtilisateur());
+					copyNouvelleTransaction.setDossier(nouvelleTransaction
+							.getDossier());
+					copyNouvelleTransaction
+							.setTransactionDateTransaction(nouvelleTransaction
+									.getTransactionDateTransaction());
+					copyNouvelleTransaction
+							.setTransactionDateReponse(nouvelleTransaction
+									.getTransactionDateReponse());
+					copyNouvelleTransaction
+							.setTransactionCommentaire(nouvelleTransaction
+									.getTransactionCommentaire());
+					copyNouvelleTransaction
+							.setTransactionSupprimer(nouvelleTransaction
+									.getTransactionSupprimer());
+					typetransaction = appMgr.getTypeTransactionByLibelle(
+							"Envoi").get(0);
+					copyNouvelleTransaction.setTypetransaction(typetransaction);
+					copyNouvelleTransaction
+							.setTransactionIdIntervenant(nouvelleTransaction
+									.getTransactionIdIntervenant());
+					copyNouvelleTransaction
+							.setTransactionTypeIntervenant(nouvelleTransaction
+									.getTransactionTypeIntervenant());
+
+					etat = appMgr.listEtatByLibelle("A valider").get(0);
+					copyNouvelleTransaction.setEtat(etat);
+					copyNouvelleTransaction.setTransactionOrdre(1);
+					transactionDestinationReelle = new TransactionDestinationReelle();
+					transactionDestinationReelle
+							.setTransactionDestinationReelleIdDestinataire(vb
+									.getCopyListPM().get(i).getExpdestexterne()
+									.getIdExpDestExterne());
+					transactionDestinationReelle
+							.setTransactionDestinationReelleTypeDestinataire("Externe");
+					appMgr.insert(transactionDestinationReelle);
+					copyNouvelleTransaction
+							.setTransactionDestinationReelle(transactionDestinationReelle);
+					appMgr.insert(copyNouvelleTransaction);
+					copyNouvelleTransaction.setTransactionFirst(copyNouvelleTransaction.getTransactionId());
+					appMgr.update(copyNouvelleTransaction);
+					vb.setTransaction(copyNouvelleTransaction);
+					expdest = new Expdest();
+					id = new TransactionDestinationId();
+					trDest = new TransactionDestination();
+					if (vb.getPerson().isAgent()) {
+						if (vb.getPerson().getAssociatedDirection() != null) {
+							expdest.setTypeExpDest("Interne-Person");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection()
+									.getResponsibleUnit().getId());
+							appMgr.insert(expdest);
+						} else {
+							expdest.setTypeExpDest("Externe");
+							expdest.setExpdestexterne(vb.getCopyListPM().get(i)
+									.getExpdestexterne());
+							appMgr.insert(expdest);
+						}
+					} else if (vb.getPerson().isSecretary()) {
+						expdest.setTypeExpDest("Interne-Person");
+						expdest.setIdExpDestLdap(vb.getPerson()
+								.getAssociatedDirection().getResponsibleUnit()
+								.getId());
+						appMgr.insert(expdest);
+					} else {
+						if (vb.getPerson().getAssociatedDirection()
+								.getAssociatedUnit() != null) {
+							expdest.setTypeExpDest("Interne-Person");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection()
+									.getAssociatedUnit().getResponsibleUnit()
+									.getId());
+							appMgr.insert(expdest);
+						} else {
+							expdest.setTypeExpDest("Interne-Boc");
+							expdest.setIdExpDestLdap(vb.getPerson()
+									.getAssociatedDirection()
+									.getAssociatedBOC().getIdBOC());
+							appMgr.insert(expdest);
+							etat = appMgr.listEtatByLibelle("Non traité")
+									.get(0);
+							copyNouvelleTransaction.setEtat(etat);
+							appMgr.update(copyNouvelleTransaction);
+							vb.setTransaction(copyNouvelleTransaction);
+						}
+					}
+					id.setIdTransaction(vb.getTransaction().getTransactionId());
+					id.setIdExpDest(expdest.getIdExpDest());
+					trDest.setId(id);
+					trDest.setTransactionDestTypeIntervenant("unit_"
+							+ String.valueOf(expdest.getIdExpDestLdap()));
+					appMgr.insert(trDest);
+				}
+			}
+			if (!vb.getCopyListSelectedBoc().isEmpty()) {
+				copyNouvelleTransaction = new Transaction();
+				copyNouvelleTransaction.setExpdest(nouvelleTransaction
+						.getExpdest());
+				copyNouvelleTransaction.setIdUtilisateur(nouvelleTransaction
+						.getIdUtilisateur());
+				copyNouvelleTransaction.setDossier(nouvelleTransaction
+						.getDossier());
+				copyNouvelleTransaction
+						.setTransactionDateTransaction(nouvelleTransaction
+								.getTransactionDateTransaction());
+				copyNouvelleTransaction
+						.setTransactionDateReponse(nouvelleTransaction
+								.getTransactionDateReponse());
+				copyNouvelleTransaction
+						.setTransactionCommentaire(nouvelleTransaction
+								.getTransactionCommentaire());
+				copyNouvelleTransaction
+						.setTransactionSupprimer(nouvelleTransaction
+								.getTransactionSupprimer());
+				typetransaction = appMgr.getTypeTransactionByLibelle("Envoi")
+						.get(0);
+				copyNouvelleTransaction.setTypetransaction(typetransaction);
+				etat = appMgr.listEtatByLibelle("A valider").get(0);
+				copyNouvelleTransaction.setEtat(etat);
+				appMgr.insert(copyNouvelleTransaction);
+				copyNouvelleTransaction.setTransactionFirst(copyNouvelleTransaction.getTransactionId());
+				appMgr.update(copyNouvelleTransaction);
+				vb.setTransaction(copyNouvelleTransaction);
+				for (int i = 0; i < vb.getCopyListSelectedBoc().size(); i++) {
+					result = result
+							+ vb.getCopyListSelectedBoc().get(i).getNameBOC()
+							+ " / ";
+					if (vb.getPerson().isResponsable()) {
+						expdest = new Expdest();
+						id = new TransactionDestinationId();
+						trDest = new TransactionDestination();
+						expdest.setTypeExpDest("Interne-Boc");
+						expdest.setIdExpDestLdap(vb.getCopyListSelectedBoc()
+								.get(i).getIdBOC());
+						appMgr.insert(expdest);
+						id.setIdTransaction(vb.getTransaction()
+								.getTransactionId());
+						id.setIdExpDest(expdest.getIdExpDest());
+						trDest.setId(id);
+						appMgr.insert(trDest);
+					} else {
+						expdest = new Expdest();
+						id = new TransactionDestinationId();
+						trDest = new TransactionDestination();
+						expdest.setTypeExpDest("Externe");
+						expdest.setIdExpDestLdap(vb.getCopyListSelectedBoc().get(i).getIdBOC());
+						appMgr.insert(expdest);
+						id.setIdTransaction(vb.getTransaction().getTransactionId());
+						id.setIdExpDest(expdest.getIdExpDest());
+						trDest.setId(id);
+						appMgr.insert(trDest);
+					}
+				}
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+			vb.setCopyDestNom(result);
+			if (vb.getCopyListPM().isEmpty() && vb.getCopyListPP().isEmpty()
+					&& vb.getCopyListSelectedPerson().isEmpty()
+					&& vb.getCopyListSelectedBoc().isEmpty()
+					&& vb.getCopyListSelectedUnit().isEmpty()) {
+				typetransaction = new Typetransaction();
+				typetransaction = appMgr.getTypeTransactionByLibelle("Départ").get(0);
+				nouvelleTransaction.setTypetransaction(typetransaction);
+				appMgr.insert(nouvelleTransaction);
+				nouvelleTransaction.setTransactionFirst(nouvelleTransaction.getTransactionId());
+				appMgr.update(nouvelleTransaction);
+				vb.setTransaction(nouvelleTransaction);
+			}
+			System.out.println("Fin Expéditeur");
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"partage",
+					"Evénement de log de partage du dossier "
+							+ dossier.getDossierId() + "-"
+							+ dossier.getDossierReference(), vb.getPerson(),
+					"INFO", appMgr);
+
+			status = true;
+			vb.setCopyListSelectedPerson(new ArrayList<Person>());
+			vb.setCopyListPP(new ArrayList<Pp>());
+			vb.setCopyListPM(new ArrayList<Pm>());
+			vb.setListSelectedItem(new ArrayList<ItemSelected>());
+			vb.setCopyListSelectedBoc(new ArrayList<BOC>());
+			vb.setCopyListSelectedUnit(new ArrayList<Unit>());
+			vb.setCopyDestNom(vb.getDestNom());
+			vb.setCopyListSelectedObject(new ArrayList<Object>());
+			vb.setDestNom(" ");
+		} catch (Exception e) {
+			System.out.println("********Erreur Transfere Courrier*********" + e.getMessage());
+			e.printStackTrace();
+			status1 = true;
+		}
+	}
+
+	public void setListDossiersEnvoyes(Transaction transaction,
+			String categorieDossier) {
+		CourrierConsulterInformations consulterInformations;
+		List<TransactionDestination> listTransactionDestination;
+		Expdest expDest;
+		int i = 0;
+		String result;
+		boolean findPerson = false;
+		if (!transaction.getTypetransaction().getTypeTransactionLibelle()
+				.equals("Début")) {
+			consulterInformations = new CourrierConsulterInformations();
+			listTransactionDestination = new ArrayList<TransactionDestination>();
+			listTransactionDestination = appMgr
+					.getListTransactionDestinationByIdTransaction(transaction
+							.getTransactionId());
+			result = "";
+			for (TransactionDestination transactionDestination : listTransactionDestination) {
+				expDest = new Expdest();
+				expDest = appMgr.getListExpDestByIdExpDest(
+						transactionDestination.getId().getIdExpDest()).get(0);
+				if (expDest.getTypeExpDest().equals("Interne-Person")) {
+					i = 0;
+					findPerson = false;
+					do {
+						if (vb.getCopyLdapListUser().get(i).getId() == expDest
+								.getIdExpDestLdap()) {
+							result = result
+									+ vb.getCopyLdapListUser().get(i).getCn()
+									+ " / ";
+							findPerson = true;
+						} else {
+							i++;
+						}
+					} while (!findPerson && i < vb.getCopyLdapListUser().size());
+				} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+					i = 0;
+					findPerson = false;
+					do {
+						if (vb.getCopyLdapListUnit().get(i).getIdUnit() == expDest
+								.getIdExpDestLdap()) {
+							result = result
+									+ vb.getCopyLdapListUnit().get(i)
+											.getNameUnit() + " / ";
+							findPerson = true;
+						} else {
+							i++;
+						}
+					} while (!findPerson && i < vb.getCopyLdapListUnit().size());
+				} else if (expDest.getTypeExpDest().equals("Externe")) {
+					if (expDest.getExpdestexterne().getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						result = result
+								+ expDest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PP)"
+								+ " / ";
+					} else {
+						result = result
+								+ expDest.getExpdestexterne()
+										.getExpDestExterneNom() + " (PM)"
+								+ " / ";
+					}
+				}
+			}
+			if (!result.equals("")) {
+				int lastIndex = result.lastIndexOf("/");
+				result = result.substring(0, lastIndex);
+			}
+			consulterInformations.setCourrierDestinataireReelle(result);
+			expDest = new Expdest();
+			expDest = appMgr.getListExpDestByIdExpDest(
+					transaction.getExpdest().getIdExpDest()).get(0);
+			if (expDest.getTypeExpDest().equals("Interne-Person")) {
+				i = 0;
+				findPerson = false;
+				do {
+					if (vb.getCopyLdapListUser().get(i).getId() == expDest
+							.getIdExpDestLdap()) {
+						consulterInformations.setCourrierExpediteur(vb
+								.getCopyLdapListUser().get(i).getCn());
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < vb.getCopyLdapListUser().size());
+			} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+				i = 0;
+				findPerson = false;
+				do {
+					if (vb.getCopyLdapListUnit().get(i).getIdUnit() == expDest
+							.getIdExpDestLdap()) {
+						consulterInformations.setCourrierExpediteur(vb
+								.getCopyLdapListUnit().get(i).getNameUnit());
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < vb.getCopyLdapListUnit().size());
+			} else if (expDest.getTypeExpDest().equals("Externe")) {
+				if (expDest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					consulterInformations.setCourrierExpediteur(expDest
+							.getExpdestexterne().getExpDestExterneNom()
+							+ " (PP)");
+				} else {
+					consulterInformations.setCourrierExpediteur(expDest
+							.getExpdestexterne().getExpDestExterneNom()
+							+ " (PM)");
+				}
+			}
+
+			consulterInformations.setCourrierAValider(0);
+			consulterInformations.setCourrierRecu(0);
+			Dossier dossier = new Dossier();
+			dossier = transaction.getDossier();
+			consulterInformations.setShared(true);
+			consulterInformations.setNotShared(false);
+			consulterInformations.setTransaction(transaction);
+			consulterInformations.setDossier(dossier);
+			consulterInformations.setCourrierCommentaire(dossier
+					.getDossierDescription());
+			consulterInformations
+					.setCourrierObjet(dossier.getDossierIntitule());
+			consulterInformations.setCourrierReference(dossier
+					.getDossierReference());
+			consulterInformations.setCourrierDateReceptionEnvoi(transaction
+					.getTransactionDateTransaction());
+			consulterInformations.setTypeCourrier(categorieDossier);
+			listCourriersEnvoyesJour.add(0, consulterInformations);
+
+		}
+	}
+
+	public void setListDossiersRecus(Transaction transaction,
+			String destinataire, String typeCourrier, int courrierRecu) {
+		CourrierConsulterInformations consulterInformations;
+		int refDossier = 0;
+		CourrierDossier courrierDossier;
+		Expdest expDest;
+		int i;
+		boolean findPerson;
+		if (!transaction.getTypetransaction().getTypeTransactionLibelle()
+				.equals("Début")) {
+			consulterInformations = new CourrierConsulterInformations();
+			expDest = new Expdest();
+			expDest = appMgr.getListExpDestByIdExpDest(
+					transaction.getExpdest().getIdExpDest()).get(0);
+			if (expDest.getTypeExpDest().equals("Interne-Person")) {
+				i = 0;
+				findPerson = false;
+				do {
+					if (vb.getCopyLdapListUser().get(i).getId() == expDest
+							.getIdExpDestLdap()) {
+						consulterInformations.setCourrierExpediteur(vb
+								.getCopyLdapListUser().get(i).getCn());
+						consulterInformations.setCourrierExpediteurObjet(vb
+								.getCopyLdapListUser().get(i));
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < vb.getCopyLdapListUser().size());
+			} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+				i = 0;
+				findPerson = false;
+				do {
+					if (vb.getCopyLdapListUnit().get(i).getIdUnit() == expDest
+							.getIdExpDestLdap()) {
+						consulterInformations.setCourrierExpediteur(vb
+								.getCopyLdapListUnit().get(i).getNameUnit());
+						consulterInformations.setCourrierExpediteurObjet(vb
+								.getCopyLdapListUnit().get(i));
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < vb.getCopyLdapListUnit().size());
+			} else if (expDest.getTypeExpDest().equals("Externe")) {
+				if (expDest.getExpdestexterne().getTypeutilisateur()
+						.getTypeUtilisateurLibelle().equals("PP")) {
+					consulterInformations.setCourrierExpediteur(expDest
+							.getExpdestexterne().getExpDestExterneNom()
+							+ " (PP)");
+					consulterInformations.setCourrierExpediteurObjet(expDest
+							.getExpdestexterne());
+				} else {
+					consulterInformations.setCourrierExpediteur(expDest
+							.getExpdestexterne().getExpDestExterneNom()
+							+ " (PM)");
+					consulterInformations.setCourrierExpediteurObjet(expDest
+							.getExpdestexterne());
+				}
+			}
+			if (transaction.getTransactionDestinationReelle() != null) {
+				TransactionDestinationReelle transactionDestinationReelle = new TransactionDestinationReelle();
+				Expdestexterne expDestExterne;
+				transactionDestinationReelle = transaction
+						.getTransactionDestinationReelle();
+				if (transactionDestinationReelle
+						.getTransactionDestinationReelleTypeDestinataire()
+						.equals("Externe")) {
+					expDestExterne = new Expdestexterne();
+					expDestExterne = appMgr
+							.getExpediteurById(
+									transactionDestinationReelle
+											.getTransactionDestinationReelleIdDestinataire())
+							.get(0);
+					if (expDestExterne.getTypeutilisateur()
+							.getTypeUtilisateurLibelle().equals("PP")) {
+						consulterInformations
+								.setCourrierDestinataireReelle(expDestExterne
+										.getExpDestExterneNom() + " (PP)");
+						consulterInformations
+								.setCourrierDestinataireObject(expDestExterne);
+					} else {
+						consulterInformations
+								.setCourrierDestinataireReelle(expDestExterne
+										.getExpDestExterneNom() + " (PM)");
+						consulterInformations
+								.setCourrierDestinataireObject(expDestExterne);
+					}
+				}
+			} else {
+				consulterInformations
+						.setCourrierDestinataireReelle(destinataire);
+			}
+			consulterInformations.setCourrierRecu(courrierRecu);
+			if (transaction.getTransactionDestinationReelle() != null
+					&& transaction.getEtat().getEtatLibelle()
+							.equals("A valider")) {
+				consulterInformations.setCourrierAValider(1);
+
+			} else {
+				consulterInformations.setCourrierAValider(0);
+			}
+
+			Dossier dossier = new Dossier();
+			dossier = transaction.getDossier();
+			courrierDossier = new CourrierDossier();
+			refDossier = dossier.getDossierId();
+			courrier = new Courrier();
+			courrierDossier = appMgr.getCourrierDossierByIdDossier(refDossier)
+					.get(0);
+			courrier = appMgr.getCourrierByIdCourrier(
+					courrierDossier.getId().getIdCourrier()).get(0);
+			consulterInformations.setShared(true);
+			consulterInformations.setNotShared(false);
+			consulterInformations.setTransaction(transaction);
+			consulterInformations.setDossier(dossier);
+			consulterInformations.setCourrierCommentaire(dossier
+					.getDossierDescription());
+			consulterInformations
+					.setCourrierObjet(dossier.getDossierIntitule());
+			consulterInformations.setCourrierReference(dossier
+					.getDossierReference());
+			consulterInformations.setCourrierDateReceptionEnvoi(transaction
+					.getTransactionDateTransaction());
+			consulterInformations.setTypeCourrier(typeCourrier);
+			listCourriersRecusJour.add(0, consulterInformations);
+		}
+	}
+
+	public void firstUpdateListDossiersRecus(String categorieCourrier) {
+		List<CourrierConsulterInformations> listCourriersSubordonnees = new ArrayList<CourrierConsulterInformations>();
+		for (int i = 0; i < listCourriersRecusJour.size(); i++) {
+			if (listCourriersRecusJour.get(i).getTypeCourrier()
+					.equals(categorieCourrier)) {
+				listCourriersSubordonnees.add(listCourriersRecusJour.get(i));
+			}
+		}
+		List<CourrierConsulterInformations> copyListCourriersSubordonnees = new ArrayList<CourrierConsulterInformations>();
+		CourrierConsulterInformations courrierConsInformations;
+		String result;
+		for (int i = 0; i < listCourriersSubordonnees.size(); i++) {
+			result = "";
+			courrierConsInformations = new CourrierConsulterInformations();
+			courrierConsInformations = listCourriersSubordonnees.get(i);
+			result = result
+					+ courrierConsInformations.getCourrierDestinataireReelle()
+					+ " / ";
+			if (!copyListCourriersSubordonnees
+					.contains(courrierConsInformations)) {
+
+				for (int j = 0; j < listCourriersSubordonnees.size(); j++) {
+					try {
+						if (listCourriersSubordonnees
+								.get(j)
+								.getCourrierReference()
+								.equals(courrierConsInformations
+										.getCourrierReference())
+								&& listCourriersSubordonnees
+										.get(j)
+										.getCourrierExpediteur()
+										.equals(courrierConsInformations
+												.getCourrierExpediteur())
+								&& listCourriersSubordonnees
+										.get(j)
+										.getCourrierDateReceptionEnvoi()
+										.toString()
+										.equals(courrierConsInformations
+												.getCourrierDateReceptionEnvoi()
+												.toString())
+								&& listCourriersSubordonnees.get(j) != courrierConsInformations) {
+							result = result
+									+ listCourriersSubordonnees.get(j)
+											.getCourrierDestinataireReelle()
+									+ " / ";
+							copyListCourriersSubordonnees
+									.add(listCourriersSubordonnees.get(j));
+						}
+					} catch (NullPointerException e) {
+					}
+
+				}
+				int lastIndex;
+				int indexOfObject;
+				if (!result.equals(courrierConsInformations
+						.getCourrierDestinataireReelle() + " / ")) {
+					lastIndex = result.lastIndexOf("/");
+					result = result.substring(0, lastIndex);
+					indexOfObject = listCourriersRecusJour
+							.indexOf(courrierConsInformations);
+					courrierConsInformations
+							.setCourrierDestinataireReelle(result);
+					listCourriersRecusJour.set(indexOfObject,
+							courrierConsInformations);
+				}
+			}
+		}
+		if (!copyListCourriersSubordonnees.isEmpty()) {
+			listCourriersRecusJour.removeAll(copyListCourriersSubordonnees);
+		}
+
+	}
+
+	public void secondUpdateListDossiersRecus() {
+		List<CourrierConsulterInformations> copyListCourriersRecus = new ArrayList<CourrierConsulterInformations>();
+		for (int i = 0; i < listCourriersRecusJour.size(); i++) {
+			copyListCourriersRecus.add(listCourriersRecusJour.get(i));
+		}
+		List<Integer> listAllIndexs = new ArrayList<Integer>();
+		List<Integer> listIndexs;
+		for (int i = 0; i < copyListCourriersRecus.size(); i++) {
+			if (!listAllIndexs.contains(i) || listAllIndexs.isEmpty()) {
+				listIndexs = new ArrayList<Integer>();
+				String result = "";
+				CourrierConsulterInformations courrierConsInformations = new CourrierConsulterInformations();
+				courrierConsInformations = copyListCourriersRecus.get(i);
+				result = result
+						+ courrierConsInformations
+								.getCourrierDestinataireReelle() + " / ";
+				for (int j = i + 1; j < copyListCourriersRecus.size(); j++) {
+					try {
+						if (copyListCourriersRecus
+								.get(j)
+								.getCourrierReference()
+								.equals(courrierConsInformations
+										.getCourrierReference())
+								&& copyListCourriersRecus
+										.get(j)
+										.getCourrierExpediteur()
+										.equals(courrierConsInformations
+												.getCourrierExpediteur())
+								&& copyListCourriersRecus
+										.get(j)
+										.getCourrierDateReceptionEnvoi()
+										.toString()
+										.equals(courrierConsInformations
+												.getCourrierDateReceptionEnvoi()
+												.toString())) {
+							result = result
+									+ copyListCourriersRecus.get(j)
+											.getCourrierDestinataireReelle()
+									+ " / ";
+							listIndexs.add(j);
+						}
+					} catch (NullPointerException e) {
+					}
+				}
+				System.out.println("   +Courrier : "
+						+ courrierConsInformations.getCourrierReference()
+						+ " Liste Destinataire : " + result);
+				int lastIndex;
+				String copyResult;
+				if (!listIndexs.isEmpty()) {
+					CourrierConsulterInformations copyCourrierConsulterInformations;
+					listAllIndexs.addAll(listIndexs);
+					String stringToReplace = courrierConsInformations
+							.getCourrierDestinataireReelle() + " / ";
+					System.out.println("      -Mot a eliminer : "
+							+ stringToReplace);
+					copyResult = result.replace(stringToReplace, "");
+					lastIndex = copyResult.lastIndexOf("/");
+					copyResult = copyResult.substring(0, lastIndex);
+					courrierConsInformations
+							.setCourrierAutreDestinataires(copyResult);
+					listCourriersRecusJour.set(i, courrierConsInformations);
+					for (int j = 0; j < listIndexs.size(); j++) {
+						copyCourrierConsulterInformations = new CourrierConsulterInformations();
+						copyCourrierConsulterInformations = copyListCourriersRecus
+								.get(listIndexs.get(j));
+						System.out.println("      -Mot a eliminer : "
+								+ copyCourrierConsulterInformations
+										.getCourrierDestinataireReelle());
+						copyResult = result.replace(
+								copyCourrierConsulterInformations
+										.getCourrierDestinataireReelle()
+										+ " / ", "");
+						lastIndex = copyResult.lastIndexOf("/");
+						copyResult = copyResult.substring(0, lastIndex);
+						copyCourrierConsulterInformations
+								.setCourrierAutreDestinataires(copyResult);
+						listCourriersRecusJour.set(listIndexs.get(j),
+								copyCourrierConsulterInformations);
+					}
+				}
+			}
+		}
+	}
+
+	// ************Getter & Setter********************
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public TransactionDestination getTransactionDestination() {
+		return transactionDestination;
+	}
+
+	public void setTransactionDestination(
+			TransactionDestination transactionDestination) {
+		this.transactionDestination = transactionDestination;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Expdestexterne getExpdestexterne() {
+		return expdestexterne;
+	}
+
+	public void setExpdestexterne(Expdestexterne expdestexterne) {
+		this.expdestexterne = expdestexterne;
+	}
+
+	public List<Expdestexterne> getListDestExpdestexternes() {
+		return listDestExpdestexternes;
+	}
+
+	public void setListDestExpdestexternes(
+			List<Expdestexterne> listDestExpdestexternes) {
+		this.listDestExpdestexternes = listDestExpdestexternes;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Date getDateReception() {
+		return dateReception;
+	}
+
+	public void setDateReception(Date dateReception) {
+		this.dateReception = dateReception;
+	}
+
+	public Date getDateReponse() {
+		return dateReponse;
+	}
+
+	public void setDateReponse(Date dateReponse) {
+		this.dateReponse = dateReponse;
+	}
+
+	public void setUtilisateur(Utilisateur utilisateur) {
+		this.utilisateur = utilisateur;
+	}
+
+	public Utilisateur getUtilisateur() {
+		return utilisateur;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setCourrierConsulterInformations(
+			List<CourrierConsulterInformations> courrierConsulterInformations) {
+		this.courrierConsulterInformations = courrierConsulterInformations;
+	}
+
+	public List<CourrierConsulterInformations> getCourrierConsulterInformations() {
+		return courrierConsulterInformations;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public String getSelectedItemConf() {
+		return selectedItemConf;
+	}
+
+	public void setSelectedItemConf(String selectedItemConf) {
+		this.selectedItemConf = selectedItemConf;
+	}
+
+	public String getSelectedItemUg() {
+		return selectedItemUg;
+	}
+
+	public void setSelectedItemUg(String selectedItemUg) {
+		this.selectedItemUg = selectedItemUg;
+	}
+
+	public List<Confidentialite> getListCf() {
+		return listCf;
+	}
+
+	public void setListCf(List<Confidentialite> listCf) {
+		this.listCf = listCf;
+	}
+
+	public List<Urgence> getListUg() {
+		return listUg;
+	}
+
+	public void setListUg(List<Urgence> listUg) {
+		this.listUg = listUg;
+	}
+
+	public void setDate1(Date date1) {
+		this.date1 = date1;
+	}
+
+	public Date getDate1() {
+		return date1;
+	}
+
+	public void setReponse1(String reponse1) {
+		this.reponse1 = reponse1;
+	}
+
+	public String getReponse1() {
+		return reponse1;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public void setNombreCourrier(int nombreCourrier) {
+		this.nombreCourrier = nombreCourrier;
+	}
+
+	public int getNombreCourrier() {
+		return nombreCourrier;
+	}
+
+	public void setCommentaireTransaction(String commentaireTransaction) {
+		this.commentaireTransaction = commentaireTransaction;
+	}
+
+	public String getCommentaireTransaction() {
+		return commentaireTransaction;
+	}
+
+	public void setListCourriersRecusJour(
+			List<CourrierConsulterInformations> listCourriersRecusJour) {
+		this.listCourriersRecusJour = listCourriersRecusJour;
+	}
+
+	public List<CourrierConsulterInformations> getListCourriersRecusJour() {
+		return listCourriersRecusJour;
+	}
+
+	public void setListCourriersEnvoyesJour(
+			List<CourrierConsulterInformations> listCourriersEnvoyesJour) {
+		this.listCourriersEnvoyesJour = listCourriersEnvoyesJour;
+	}
+
+	public List<CourrierConsulterInformations> getListCourriersEnvoyesJour() {
+		return listCourriersEnvoyesJour;
+	}
+
+}

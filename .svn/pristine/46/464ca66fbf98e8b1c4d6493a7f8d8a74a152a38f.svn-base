@@ -1,0 +1,236 @@
+package xtensus.beans.common.GBO;
+
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.sauvgardeRestauration.DB2Sql;
+import xtensus.entity.Sauvegardehistorique;
+import xtensus.services.ApplicationManager;
+
+/**
+ * @author HB
+ * 
+ */
+@Component
+@Scope("session")
+public class SauvgardeBean {
+
+	private ApplicationManager appMgr;
+	private boolean buttonRendered = true;
+	private boolean enabled = false;
+	private Long startTime;
+	private boolean status = false;
+	private String dateDerniereSauvgarde;
+	private String dateDerniereSauvgarde2;
+	private int a = 1;
+	private int b = 0;
+	private long timeAvancement;
+	@Autowired
+	private VariableGlobale vb;
+
+	public SauvgardeBean() {
+
+	}
+
+	@Autowired
+	public SauvgardeBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	@PostConstruct
+	public void initialize() {
+		List<Sauvegardehistorique> sauvegardehistoriques = new ArrayList<Sauvegardehistorique>();
+		try {
+			sauvegardehistoriques = appMgr.getList(Sauvegardehistorique.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Date date = new Date();
+		int lastId = sauvegardehistoriques.size();
+		try {
+			date = sauvegardehistoriques.get(lastId - 1)
+					.getSauvegardeHistoriqueDate();
+			dateDerniereSauvgarde = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+					.format(date);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			dateDerniereSauvgarde = " --";
+		}
+	}
+
+	public String startProcess() {
+		try {
+
+			dateDerniereSauvgarde2 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+					.format(new Date());
+			a = 0;
+			b = 1;
+			if (!isEnabled()) {
+				// **
+				Resource rsrc = new ClassPathResource(
+						"/paramDataBase.properties");
+				String pathConfigFile = rsrc.getFile().getAbsolutePath();
+				Properties props = new Properties();
+				props.load(new FileInputStream(pathConfigFile));
+				// **
+				long startT = System.currentTimeMillis();
+				Date d = new Date();
+				SimpleDateFormat dateFormat = new SimpleDateFormat(
+						"yyyy-MM-dd HH:mm:ss");
+				String dateSauvegarde = "_" + dateFormat.format(d);
+				dateSauvegarde = dateSauvegarde.replaceAll(":", "-");
+				dateSauvegarde = dateSauvegarde.replaceAll("\\s", "_");
+				System.out.println(dateSauvegarde);
+//				String path = "'C:/GBO/SQLServerBackups/GBO_BD_BackUp_file" + s
+//						+ ".Bak'";
+				StringBuilder path = new StringBuilder("'" + props.getProperty("DataBase.sauvegardeUrl"));
+				path.append(dateSauvegarde).append(props.getProperty("DataBase.sauvegardeUrlExtension") + "'");
+				DB2Sql.dumpDatabase(path.toString());
+				Sauvegardehistorique sauvegardehistorique = new Sauvegardehistorique();
+				Calendar calendar = Calendar.getInstance();
+				calendar.set(Calendar.HOUR_OF_DAY, 0);
+				calendar.set(Calendar.MINUTE, 0);
+				calendar.set(Calendar.SECOND, 0);
+				calendar.set(Calendar.MILLISECOND, 0);
+				sauvegardehistorique.setSauvegardeHistoriqueDate(calendar
+						.getTime());
+				sauvegardehistorique.setSauvegardeHistoriqueNomFichier(path.toString());
+				try {
+					appMgr.insert(sauvegardehistorique);
+				} catch (Exception e1) {
+					System.err.println("Erreur ajout date sauvegarde");
+					e1.printStackTrace();
+				}
+				// Pause for 2 seconds
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					System.err.println("Erreur Sleep");
+				}
+				long duree = System.currentTimeMillis() - startT;
+				System.out.println("Methode " + " a pris " + duree + " (ms)");
+				timeAvancement = (duree / 10) + 100;
+				//**
+				LogClass logClass = new LogClass();
+				logClass.addTrack("sauvegarde",
+						"Evénement de log de sauvegarde de la base de données GBO " ,
+						vb.getPerson(), "INFO", appMgr);
+			}
+			setEnabled(true);
+			setButtonRendered(false);
+			setStartTime(new Date().getTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Long getCurrentValue() {
+
+		if (isEnabled()) {
+			a = 0;
+			b = 1;
+			Long current = (new Date().getTime() - startTime) / timeAvancement;
+			if (current > 100) {
+				setButtonRendered(true);
+			} else if (current.equals(0)) {
+				return new Long(1);
+			}
+			return (new Date().getTime() - startTime) / timeAvancement;
+		}
+
+		if (startTime == null) {
+			return Long.valueOf(-1);
+		} else {
+			return Long.valueOf(101);
+		}
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public Long getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Long startTime) {
+		this.startTime = startTime;
+	}
+
+	public boolean isButtonRendered() {
+		return buttonRendered;
+	}
+
+	public void setButtonRendered(boolean buttonRendered) {
+		this.buttonRendered = buttonRendered;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setDateDerniereSauvgarde(String dateDerniereSauvgarde) {
+		this.dateDerniereSauvgarde = dateDerniereSauvgarde;
+	}
+
+	public String getDateDerniereSauvgarde() {
+		return dateDerniereSauvgarde;
+	}
+
+	public void setDateDerniereSauvgarde2(String dateDerniereSauvgarde2) {
+		this.dateDerniereSauvgarde2 = dateDerniereSauvgarde2;
+	}
+
+	public String getDateDerniereSauvgarde2() {
+		return dateDerniereSauvgarde2;
+	}
+
+	public void setA(int a) {
+		this.a = a;
+	}
+
+	public int getA() {
+		return a;
+	}
+
+	public void setB(int b) {
+		this.b = b;
+	}
+
+	public int getB() {
+		return b;
+	}
+
+	public void setTimeAvancement(long timeAvancement) {
+		this.timeAvancement = timeAvancement;
+	}
+
+	public long getTimeAvancement() {
+		return timeAvancement;
+	}
+}

@@ -1,0 +1,67 @@
+package xtensus.beans.common.GBO0;
+
+import java.io.Serializable;
+import java.util.Date;
+import javax.faces.event.ActionEvent;
+
+public class ProgressBarBean implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6631180930004509759L;
+	private boolean enabled;
+	private boolean buttonRendered;
+	private Long starttime;
+
+	public ProgressBarBean() {
+	}
+
+	public boolean isButtonRendered() {
+		return buttonRendered;
+	}
+
+	public void setButtonRendered(boolean buttonRendered) {
+		this.buttonRendered = buttonRendered;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public long getStarttime() {
+		return starttime;
+	}
+
+	public void setStarttime(long starttime) {
+		this.starttime = starttime;
+	}
+
+	public long getCurrentTime() {
+		if (enabled) {
+			Long current = (new Date().getTime() - starttime) / 100;
+			if (current >= 100) {
+				setButtonRendered(true);
+			} else if (current.equals(0)) {
+				return new Long(1);
+			}
+			return (new Date().getTime() - starttime) / 100;
+		}
+		if (starttime == null) {
+			return Long.valueOf(-1);
+		} else {
+			return Long.valueOf(100);
+		}
+
+	}
+
+	public void startButtonListener(ActionEvent actionEvent) {
+		enabled = true;
+		buttonRendered = false;
+		starttime = new Date().getTime();
+	}
+}

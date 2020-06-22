@@ -1,0 +1,832 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion utilisateur</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/calander.js" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+							</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+							</script>
+						<div class="dateenc">
+							<a href="document.location.href='Acceuil1.jsf'"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="document.location.href='Acceuil1.jsf'"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style=" height : 56px;">
+						<h:form>
+							<h:panelGrid columns="2">
+								<a4j:commandLink id="upd1"
+									action="#{utilisateurGestionBean.viderchampuser}"
+									reRender="hideChampOb,accor1,accoruser1,accor2,accoruser2,buttonDelUpUser,buttonValidateUser,data1,scroller1,records1,data2,scroller2,records2,in,in1,in2,in20,in3,in4,in5,in6,in7,in8,in9,in10,confirm,champOb1,champOb2,champOb3,champOb4">
+									<h:graphicImage id="ajouter1"
+										value="../framGraphique/images/ajouter.png"
+										style="margin-top:6px;" />
+								</a4j:commandLink>
+								<rich:toolTip for="upd1" direction="top-right"
+									value="#{msg.labelAjoututilisateur}" />
+							</h:panelGrid>
+							<a4j:keepAlive beanName="utilisateurGestionBean" />
+						</h:form>
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1"
+							style="display:#{utilisateurGestionBean.hideAccor};">
+							<a4j:keepAlive beanName="utilisateurGestionBean" ajaxOnly="true" />
+							<rich:simpleTogglePanel id="accor1" styleClass="rich-panel"
+								switchType="client" label="#{utilisateurGestionBean.titleaccor}"
+								opened="#{utilisateurGestionBean.openaccor1}">
+								<rich:messages ajaxRendered="true" errorClass="msgError"
+									styleClass="error" />
+								<table width="100%">
+									<tr>
+										<td style="width: 50%; padding-top: 20px;"><h:panelGrid
+												columns="2">
+												<h:column>
+													<h:outputText value="#{msg.matricule}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb1"
+														style="display:#{utilisateurGestionBean.hidebuttonValidateUser};"
+														value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in"
+														disabled="#{utilisateurGestionBean.inputdisable}"
+														value="#{utilisateurGestionBean.uidd}"
+														required="#{utilisateurGestionBean.msgerror}"
+														converterMessage="* #{msg.matricule} #{msg.champsentier}"
+														requiredMessage="* #{msg.matricule} #{msg.champsobligatoire}"
+														maxlength="25">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in1"
+														value="#{utilisateurGestionBean.userSurname}"
+														required="true"
+														requiredMessage="* #{msg.prenom} #{msg.champsobligatoire}"
+														maxlength="25">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" style=" height : 1px;" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in2"
+														value="#{utilisateurGestionBean.userName}" required="true"
+														requiredMessage="* #{msg.nom} #{msg.champsobligatoire}"
+														maxlength="25" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in3" value="#{utilisateurGestionBean.tel}"
+														required="true"
+														requiredMessage="* #{msg.telephone} #{msg.champsobligatoire}"
+														label="#{msg.telephone}"
+														validatorMessage="* #{msg.telephone} #{msg.validatorMaxchampsentier}"
+														converterMessage="* #{msg.telephone} #{msg.validatorMaxchampsentier}">
+														<f:validateLongRange minimum="10000000" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.emploi}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in4" value="#{utilisateurGestionBean.job}"
+														maxlength="25">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputTextarea id="in5"
+														value="#{utilisateurGestionBean.local}"
+														styleClass="xteDetailLabelTextArea"
+														style=" width : 140px;  height : 35px; " />
+												</h:column>
+											</h:panelGrid></td>
+										<td style="width: 50%;"><h:panelGrid columns="2">
+												<h:column>
+													<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in6"
+														value="#{utilisateurGestionBean.e_mail}" required="true"
+														requiredMessage="* #{msg.email} #{msg.champsobligatoire}"
+														validatorMessage="* #{msg.email} #{msg.invalid}"
+														maxlength="50">
+														<f:validator validatorId="checkvalidemail" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.societe}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in7"
+														value="#{utilisateurGestionBean.company}" maxlength="25">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText
+														value="#{msg.organisation}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in8"
+														value="#{utilisateurGestionBean.organisation}"
+														maxlength="35">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.login}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb2"
+														style="display:#{utilisateurGestionBean.hidebuttonValidateUser};"
+														value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in9"
+														disabled="#{utilisateurGestionBean.inputdisable}"
+														value="#{utilisateurGestionBean.log}"
+														required="#{utilisateurGestionBean.msgerror}"
+														requiredMessage="* #{msg.login} #{msg.champsobligatoire}" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.pwd}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb3"
+														style="display:#{utilisateurGestionBean.hidebuttonValidateUser};"
+														value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputSecret id="in10"
+														disabled="#{utilisateurGestionBean.inputdisable}"
+														value="#{utilisateurGestionBean.passwd}"
+														required="#{utilisateurGestionBean.msgerror}"
+														requiredMessage="* #{msg.pwd} #{msg.champsobligatoire}"
+														validatorMessage="* #{msg.confirmpwd} #{msg.incorrect}">
+														<f:validator validatorId="passwordValidator" />
+														<f:attribute name="confirm" value="#{confirm}" />
+													</h:inputSecret>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.retapepwd}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb4"
+														style="display:#{utilisateurGestionBean.hidebuttonValidateUser};"
+														value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputSecret id="confirm" binding="#{confirm}"
+														disabled="#{utilisateurGestionBean.inputdisable}"
+														required="#{utilisateurGestionBean.msgerror}"
+														requiredMessage="* #{msg.confirmpwd} #{msg.champsobligatoire}" />
+												</h:column>
+											</h:panelGrid></td>
+									</tr>
+								</table>
+								<rich:spacer height="10" />
+								<div align="center">
+									<div id="buttonValidateUser"
+										style="display:#{utilisateurGestionBean.hidebuttonValidateUser};">
+										<a4j:commandButton value="#{msg.buttonValidate}"
+											oncomplete="if(#{utilisateurGestionBean.status}==true) #{rich:component('msgPanalErrDuplicateUid')}.show(); if(#{utilisateurGestionBean.status3}==true) #{rich:component('msgPanalCA')}.show(); if(#{utilisateurGestionBean.status5}==true) #{rich:component('msgPanalErrRemainName')}.show();"
+											action="#{utilisateurGestionBean.saveuser}"
+											reRender="msgPanalCA,msgPanalErrDuplicateUid,msgPanalErrRemainName"></a4j:commandButton>
+									</div>
+									<div id="buttonDelUpUser"
+										style="display:#{utilisateurGestionBean.hidebuttonDelUpUser};">
+										<a4j:commandButton value="#{msg.Suppression}" type="submit"
+											oncomplete="if(#{utilisateurGestionBean.status2}==false) #{rich:component('askDelete')}.show(); else #{rich:component('askDelete2')}.show();"
+											action="#{utilisateurGestionBean.getdeleteuser}"
+											reRender="askDelete,askDelete2,data,record,scroller,data1,scroller1,records1,data2,scroller2,records2"></a4j:commandButton>
+										<a4j:commandButton value="#{msg.buttonModifier}" type="submit"
+											oncomplete="if(#{utilisateurGestionBean.status1}==true) #{rich:component('msgPanal')}.show(); if(#{utilisateurGestionBean.status4}==true) #{rich:component('msgPanalErreur')}.show();"
+											action="#{utilisateurGestionBean.updateuser}"
+											reRender="msgPanal,msgPanalErreur"></a4j:commandButton>
+									</div>
+								</div>
+								<rich:spacer height="10" />
+								<div align="left">
+									<h:outputText value="#{msg.infoChampObligatoir}" />
+								</div>
+								<!-- *****popup Erreur d'ajout duplicate uid****** -->
+								<rich:modalPanel id="msgPanalErrDuplicateUid" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErrDuplicateUid" />
+											<rich:componentControl for="msgPanalErrDuplicateUid"
+												attachTo="hidelinkErrDuplicateUid" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{utilisateurGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrDuplicateUid');"
+												action="#{utilisateurGestionBean.initializesave}"
+												type="submit" reRender="in" ajaxSingle="true"
+												styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur d'ajout remaining name****** -->
+								<rich:modalPanel id="msgPanalErrRemainName" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErrRemainName" />
+											<rich:componentControl for="msgPanalErrRemainName"
+												attachTo="hidelinkErrRemainName" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{utilisateurGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrRemainName');"
+												action="#{utilisateurGestionBean.initializesave}"
+												type="submit" reRender="in1,in2" ajaxSingle="true"
+												styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *******popup Info Validation d'ajout -->
+								<rich:modalPanel id="msgPanalCA" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkCA" />
+											<rich:componentControl for="msgPanalCA" attachTo="hidelinkCA"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmAjout}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCA');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{utilisateurGestionBean.viderchampuser}"
+												reRender="data,record,scroller,in,in1,in2,in3,in30,in4,in5,in6,in60,in7,in8,in9,in10,confirm" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******************popup validation de modification*********************** -->
+								<rich:modalPanel id="msgPanal" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelink1" />
+											<rich:componentControl for="msgPanal" attachTo="hidelink1"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{utilisateurGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												action="#{utilisateurGestionBean.initializeupdate}"
+												oncomplete="Richfaces.hideModalPanel('msgPanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="data,scroller,record" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur de modification****** -->
+								<rich:modalPanel id="msgPanalErreur" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErreur" />
+											<rich:componentControl for="msgPanalErreur"
+												attachTo="hidelinkErreur" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{utilisateurGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErreur');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******popup delete 1****** -->
+								<rich:modalPanel id="askDelete" autosized="true" height="90"
+									width="320">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelConfirm}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel" alt="Fermer" />
+											<rich:componentControl for="askDelete" attachTo="hidelinkdel"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{utilisateurGestionBean.message}" /></td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonValidate}"
+												action="#{utilisateurGestionBean.deleteuser}"
+												oncomplete="Richfaces.hideModalPanel('askDelete'); #{rich:component('msgPanalCD')}.show();"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+											<rich:spacer width="10" />
+											<a4j:commandButton value="#{msg.buttonCancel}"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('askDelete');" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******popup delete 2****** -->
+								<rich:modalPanel id="askDelete2" autosized="true" height="110"
+									width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelConfirm}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel1" alt="Fermer" />
+											<rich:componentControl for="askDelete2"
+												attachTo="hidelinkdel1" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{utilisateurGestionBean.message}#{msg.confirmDelete3}" />
+											</td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOui}"
+												action="#{utilisateurGestionBean.deleteuser}"
+												oncomplete="Richfaces.hideModalPanel('askDelete2'); #{rich:component('msgPanalCD')}.show();"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+											<rich:spacer width="10" />
+											<a4j:commandButton value="#{msg.buttonNon}"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('askDelete2');" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Info validation de suppression******* -->
+								<rich:modalPanel id="msgPanalCD" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<a4j:commandLink id="upd1"
+											action="#{utilisateurGestionBean.viderchampuser}"
+											reRender="data,record,scroller,in,in1,in2,in3,in30,in4,in5,in6,in60,in7,in8,in9,in10,confirm,data1,records1,scroller1,data2,records2,scroller2,accor1,accor2,accoruser1,accoruser2,buttonDelUpUser,buttonValidateUser,champOb1,champOb2,champOb3,champOb4,champOb5,champOb6,champOb7,champOb8">
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" />
+										</a4j:commandLink>
+
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmSuppression}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCD');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{utilisateurGestionBean.viderchampuser}"
+												reRender="data,record,scroller,in,in1,in2,in3,in30,in4,in5,in6,in60,in7,in8,in9,in10,confirm,data1,records1,scroller1,data2,records2,scroller2,accor1,accor2,accoruser1,accoruser2,buttonDelUpUser,buttonValidateUser,champOb1,champOb2,champOb3,champOb4,champOb5,champOb6,champOb7,champOb8" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</rich:simpleTogglePanel>
+						</h:form>
+					</div>
+					<div>
+						<h:form id="accoruser2"
+							style="display:#{utilisateurGestionBean.hidebuttonDelUpUser};">
+							<a4j:keepAlive beanName="utilisateurGestionBean" />
+							<rich:simpleTogglePanel id="accor2" styleClass="rich-panel"
+								switchType="client" label="#{msg.Affectationutilisateurs}"
+								opened="#{utilisateurGestionBean.openaccor}">
+								<div
+									style="align: center; float: left; margin-left: -10px; margin-top: -9px; width: 382px;">
+									<rich:dataTable value="#{utilisateurGestionBean.listUser1}"
+										var="varr" id="data1" rows="10" styleClass="rich-panel"
+										onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+										onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+										<f:facet name="header">
+											<h:panelGrid columns="2" style="margin:-3px;">
+												<h:outputText value="#{msg.groupesnoncourants}"
+													styleClass="xteEnregistrementLabelOutput"
+													style="padding-right:212px;" />
+												<h:column>
+													<div align="right">
+														<h:graphicImage id="info1"
+															value="../framGraphique/images/info2.png" alt="info" />
+														<rich:toolTip for="info1" direction="top-right"
+															value="#{msg.aideListGroupDisponible}#{utilisateurGestionBean.userSurname} #{utilisateurGestionBean.userName}" />
+													</div>
+												</h:column>
+											</h:panelGrid>
+										</f:facet>
+										<rich:column width="15%" sortBy="#{varr.uidd}"
+											filterBy="#{varr.uidd}" filterEvent="onkeyup"
+											label="#{msg.Reference}">
+											<f:facet name="header">
+												<h:outputText value="#{msg.Reference}" />
+											</f:facet>
+											<h:outputText value="#{varr.uidd}" />
+										</rich:column>
+										<rich:column sortBy="#{varr.groupName}"
+											filterBy="#{varr.groupName}" filterEvent="onkeyup"
+											label="#{msg.nom}" width="20%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.nom}" />
+											</f:facet>
+											<h:outputText value="#{varr.groupName}" />
+										</rich:column>
+										<rich:column width="10%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.operation}" />
+											</f:facet>
+											<div align="center">
+												<a4j:commandLink id="upd"
+													action="#{utilisateurGestionBean.affectuser}"
+													reRender="data1,data2,records1,records2,scroller1,scroller2">
+													<h:graphicImage value="../framGraphique/images/hc_Add.gif"
+														alt="details" style="width : 16px; height : 16px;" />
+												</a4j:commandLink>
+											</div>
+											<rich:toolTip for="upd" direction="top-right"
+												value="#{msg.buttonAffecter}" />
+										</rich:column>
+									</rich:dataTable>
+									<div align="center">
+										<rich:datascroller for="data1" id="scroller1" />
+										<h:outputText value="#{msg.nbEnregistrement}"
+											styleClass="xteNombreEnregistrementLabelOutput" />
+										<h:outputText id="records1"
+											value="#{utilisateurGestionBean.records1}"
+											styleClass="xteNombreEnregistrementLabelOutput" />
+									</div>
+								</div>
+								<div
+									style="align: center; float: right; margin-right: -10px; margin-top: -9px; width: 382px;">
+									<rich:dataTable value="#{utilisateurGestionBean.listUser2}"
+										var="varrr" id="data2" rows="10" style=" width : 382px;"
+										onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+										onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+										<f:facet name="header">
+											<h:panelGrid columns="2" style="margin:-3px;">
+												<h:outputText value="#{msg.groupecourants}"
+													styleClass="xteEnregistrementLabelOutput"
+													style="padding-right:229px;" />
+												<h:column>
+													<div align="right">
+														<h:graphicImage id="info1"
+															value="../framGraphique/images/info2.png" alt="info" />
+														<rich:toolTip for="info1" direction="top-right"
+															value="#{msg.aideListGroupCourants}#{utilisateurGestionBean.userSurname} #{utilisateurGestionBean.userName}" />
+													</div>
+												</h:column>
+											</h:panelGrid>
+										</f:facet>
+										<rich:column width="15%" sortBy="#{varrr.uidd}"
+											filterBy="#{varrr.uidd}" filterEvent="onkeyup"
+											label="#{msg.Reference}">
+											<f:facet name="header">
+												<h:outputText value="#{msg.Reference}" />
+											</f:facet>
+											<h:outputText value="#{varrr.uidd}" />
+										</rich:column>
+										<rich:column sortBy="#{varrr.groupName}"
+											filterBy="#{varrr.groupName}" filterEvent="onkeyup"
+											label="#{msg.nom}" width="20%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.nom}" />
+											</f:facet>
+											<h:outputText value="#{varrr.groupName}" />
+										</rich:column>
+										<rich:column width="10%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.operation}" />
+											</f:facet>
+											<div align="center">
+												<a4j:commandLink id="upd"
+													action="#{utilisateurGestionBean.desaffectuser}"
+													reRender="data1,data2,records1,records2,scroller1,scroller2">
+													<h:graphicImage value="../framGraphique/images/Delete.png"
+														alt="details" style=" height : 16px;" />
+												</a4j:commandLink>
+											</div>
+											<rich:toolTip for="upd" direction="top-right"
+												value="#{msg.labelDesaffect}" />
+										</rich:column>
+									</rich:dataTable>
+									<div align="center">
+										<rich:datascroller for="data2" id="scroller2" />
+										<h:outputText value="#{msg.nbEnregistrement}"
+											styleClass="xteNombreEnregistrementLabelOutput" />
+										<h:outputText id="records2"
+											value="#{utilisateurGestionBean.records2}"
+											styleClass="xteNombreEnregistrementLabelOutput" />
+									</div>
+								</div>
+							</rich:simpleTogglePanel>
+						</h:form>
+					</div>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listeutilfacet}" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="utilisateurGestionBean" ajaxOnly="true" />
+						<h:form>
+							<rich:dataTable value="#{utilisateurGestionBean.listUser}"
+								var="userr" id="data" rows="10" styleClass="rich-panel"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<rich:column sortBy="#{userr.uidd}" filterBy="#{userr.uidd}"
+									filterEvent="onkeyup" label="#{msg.matricule}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<h:outputText value="#{userr.uidd}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.userSurname}"
+									filterBy="#{userr.userSurname}" filterEvent="onkeyup"
+									label="#{msg.prenom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.prenom}" />
+									</f:facet>
+									<h:outputText value="#{userr.userSurname}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.userName}"
+									filterBy="#{userr.userName}" filterEvent="onkeyup"
+									label="#{msg.nom}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nom}" />
+									</f:facet>
+									<h:outputText value="#{userr.userName}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.log}" filterBy="#{userr.log}"
+									filterEvent="onkeyup" label="#{msg.login}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.login}" />
+									</f:facet>
+									<h:outputText value="#{userr.log}" />
+								</rich:column>
+								<rich:column sortBy="#{userr.tel}" filterBy="#{userr.tel}"
+									filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.telephone}" />
+									</f:facet>
+									<h:outputText value="#{userr.tel}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="utilisateurGestionBean"
+										ajaxOnly="true" />
+									<center>
+										<h:panelGrid columns="1">
+											<a4j:commandLink id="upd"
+												action="#{utilisateurGestionBean.getSelectionRowuser}"
+												reRender="hideChampOb,in,in1,in2,in3,in4,in5,in6,in7,in8,in9,in10,confirm,accor1,accoruser1,accor2,accoruser2,data1,scroller1,records1,data2,scroller2,records2,buttonValidateUser,buttonDelUpUser,champOb1,champOb2,champOb3,champOb4">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{utilisateurGestionBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+					</rich:panel>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

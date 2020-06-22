@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-04-25T09:22:52 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Decharge_Courrier_Ar" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1f13b1b7-0206-4e89-b401-47a8f662d730">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<field name="expediteurNom" class="java.lang.String">
+		<fieldDescription><![CDATA[expediteurNom]]></fieldDescription>
+	</field>
+	<field name="commentaire" class="java.lang.String">
+		<fieldDescription><![CDATA[commentaire]]></fieldDescription>
+	</field>
+	<field name="objet" class="java.lang.String">
+		<fieldDescription><![CDATA[objet]]></fieldDescription>
+	</field>
+	<field name="reference" class="java.lang.String">
+		<fieldDescription><![CDATA[reference]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="151" splitType="Stretch">
+			<staticText>
+				<reportElement x="145" y="120" width="260" height="20" uuid="1ed0c6a0-495b-4263-bc52-86d54b11dfd8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[وصل ايداع]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="470" y="90" width="64" height="20" uuid="c4a06d9c-94b5-4664-aa7c-7c489d4b160f">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitx" value="pixel"/>
+					<property name="local_mesure_unity" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[وصل ايداع عدد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="320" y="90" width="150" height="20" uuid="b84fa5b1-dd29-4079-8c4c-86c48f52b9ff">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[.........................................................]]></text>
+			</staticText>
+			<image>
+				<reportElement x="470" y="0" width="50" height="50" uuid="391194ea-febe-400b-8fc9-bfadd92d9f31"/>
+				<imageExpression><![CDATA["../../framGraphique/images/logoSonede.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="480" y="70" width="55" height="20" uuid="1c78db4a-9a91-4e75-ab84-313cc2542ac7">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مكتب الضبط]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="340" y="50" width="194" height="20" uuid="32385db8-618f-4075-8844-67a749099521">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الشركة الوطنية لاستغلال وتوزيع المياه]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="330" y="70" width="150" height="20" uuid="d658a882-2500-4081-b554-0a87b36739d3">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[.........................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="50" width="46" height="20" uuid="0fa57424-5b5f-4f3f-838e-b574d6076d24">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[تونس في:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="50" width="110" height="20" uuid="0c0a7f5e-ffc8-4e0c-afa7-42e3c5bd758c">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="280" y="70" width="200" height="20" uuid="94b45269-aea3-4859-880b-9445ebca3d75"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uniteConnecte}]]></textFieldExpression>
+			</textField>
+			<textField pattern="yyyy/MM/dd">
+				<reportElement x="10" y="50" width="110" height="20" uuid="9ba66165-800e-48d8-9ce8-734c07fd23ff"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="238" splitType="Stretch">
+			<staticText>
+				<reportElement x="440" y="10" width="95" height="20" uuid="9b8fcd4d-bc43-4bb8-b04a-45f3b0bcf2f2">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="local_mesure_unitx" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المودع  (الاسم واللقب):]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="490" y="35" width="45" height="20" uuid="ee764124-a857-48d7-a99a-5c64d69e0564">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الموضوع:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="477" y="55" width="58" height="20" uuid="3dabff33-3d4e-4d1c-8125-2644afdcd4af">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[عدد الصفحات:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="460" y="75" width="75" height="20" uuid="c0770059-c4d0-4368-8bc7-2d905ab23683">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[عدد التسجيل (*) :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="490" y="94" width="44" height="20" uuid="059bc5c6-4f84-4e5b-b5e3-410d79968991">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ملاحظات:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="294" y="140" width="240" height="30" uuid="706c1f4e-6a0d-4cd9-8fd8-64f9361071fe"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[(*) يتم مده للهيكل المعني عند المتابعة الاولى للمراسلة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="10" width="430" height="20" uuid="6ad989af-6107-4940-8282-1e57ba514692"/>
+				<text><![CDATA[.........................................................................................................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="35" width="480" height="20" uuid="c91ae462-4414-4707-a88e-e6ccfce41121"/>
+				<text><![CDATA[.............................................................................................................................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="55" width="470" height="20" uuid="b5981e62-0b7e-4f00-b27f-63974d7bb86a"/>
+				<text><![CDATA[.............................................................................................................................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="75" width="450" height="20" uuid="447d5a6f-41df-4c4b-945d-a49518345941"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[..........................................................................................................................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="94" width="480" height="20" uuid="a770f7fd-9fe4-4ef0-b2ef-ac60f20eb1df"/>
+				<text><![CDATA[.............................................................................................................................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="114" width="524" height="20" uuid="bce1adb9-b0e1-43be-b3c7-e9bb0f8d300a"/>
+				<text><![CDATA[...............................................................................................................................................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="50" y="190" width="125" height="20" uuid="b0848d7d-ae27-49b8-97e2-6d373f86cd00">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الختم والامضاء]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="10" y="95" width="467" height="39" uuid="11c4c200-f66e-41d1-b70b-8333709a2297"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{commentaire}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="300" y="75" width="140" height="20" uuid="bf1177c0-02db-49dc-88e1-9f8ccf5484fd"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="10" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{reference}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="35" width="380" height="20" uuid="013f3fd3-32e5-41f7-ba07-15ad3d988cd9"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{objet}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="120" y="10" width="310" height="20" uuid="f733e7c6-561a-4e32-835d-87a2057a6665"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteurNom}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

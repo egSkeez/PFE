@@ -1,0 +1,17 @@
+package xtensus.beans.common.GBO;
+
+import xtensus.entity.Entite;
+
+public class RapportAnnotationsCourrier extends Entite {
+	private String annotationLibelleAr;
+
+	public String getAnnotationLibelleAr() {
+		return annotationLibelleAr;
+	}
+
+	public void setAnnotationLibelleAr(String annotationLibelleAr) {
+		this.annotationLibelleAr = annotationLibelleAr;
+	}
+	
+
+}

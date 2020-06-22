@@ -1,0 +1,172 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.utils.ExpediteurType;
+import xtensus.beans.utils.RapportMailBean;
+import xtensus.entity.FaxMail;
+import xtensus.entity.Mail;
+import xtensus.entity.Variables;
+import xtensus.faxmail.beans.ConsulterMailBean;
+import xtensus.faxmail.beans.MailBean;
+import xtensus.faxmail.utils.MailConnection;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportMailList {
+	private ApplicationManager appMgr;
+	private Export export;
+
+	@Autowired
+	private ConsulterMailBean consulterMailBean;
+
+	@Autowired
+	public RapportMailList(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+	}
+
+	public void printMailPDF() {
+		try {
+
+			// Ines
+			MailConnection mailConnection = new MailConnection();
+			// List<MailBean> listMailBean =mailConnection.getAllMails() ;
+			List<Mail> listMail = consulterMailBean.getOldMailList();
+			
+			List<RapportMailBean> listRapportMailBean = new ArrayList<RapportMailBean>();
+			// MailBean mailBean = listMailBean.get(0);
+			int j =1;
+			
+			for (int i = 0; i < listMail.size(); i++) {
+			
+				RapportMailBean rapportMailBean = new RapportMailBean();
+				rapportMailBean.setIdMail(listMail.get(i).getMailId());
+				rapportMailBean.setSubject(listMail.get(i).getMailSubject());
+				rapportMailBean.setReplyTo(listMail.get(i).getMailReplyTo());
+				rapportMailBean.setReceivedDate(listMail.get(i).getMailReceivedDate());
+				rapportMailBean.setFromAddress(listMail.get(i).getMailFromAddress());
+				rapportMailBean.setToAddress(listMail.get(i).getMailToAddress());
+				rapportMailBean.setContent(listMail.get(i).getMailContent());
+				rapportMailBean.setAttachmentFileMap(listMail.get(i).getMailAttachmentFiles());
+				// societe
+				String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+						.get(0).getSocieteLibelle();
+				rapportMailBean.setSocieteNom(societeNom);
+				String societeOrganismeParent = appMgr
+						.listSocieteByLibelle("Ministere_Nom").get(0)
+						.getSocieteLibelle();
+				rapportMailBean
+						.setSocieteOrganismeParent(societeOrganismeParent);
+				String societeRepublique = appMgr
+						.listSocieteByLibelle("Republique_Nom").get(0)
+						.getSocieteLibelle();
+				rapportMailBean.setSocieteRepublique(societeRepublique);
+				String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+						.get(0).getSocieteLibelle();
+				rapportMailBean.setSocieteVille(societeVille);
+
+				// rapportMailBean.setPathJasper(vb.getPathJasper());
+				String nomProjet = appMgr.getList(Variables.class).get(0)
+						.getVariablesContenu();
+				rapportMailBean.setNomProjet(nomProjet);
+				rapportMailBean.setnumero(j);
+				listRapportMailBean.add(rapportMailBean);
+				j++;
+			}
+
+			// appel a export
+			export.exportToPDF(listRapportMailBean, "ficheListeMail", "Fiche_Mail");
+			// Ines
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	public void printMailExcel() {
+		try {
+
+			// Ines
+			// List<MailBean> listMailBean =mailConnection.getAllMails() ;
+			List<Mail> listMail = consulterMailBean.getOldMailList();
+			
+			List<String> listEntete = new ArrayList<String>();
+			List<String> listDonnees = new ArrayList<String>();
+			List<String> listString = new ArrayList<String>();
+			String separator = ";";
+			listEntete.add("Reference mail");
+			listEntete.add("Nom expediteur");
+			listEntete.add("Mail expediteur");
+			listEntete.add("Destinataire");
+			listEntete.add("Objet");
+			listEntete.add("Date reception");
+
+			for (Mail mail : listMail) {
+				listDonnees = new ArrayList<String>();
+				String ref=" ";
+				if(mail.getMailId()!= null)
+					ref = mail.getMailId().toString();
+									
+				
+				String nom =" ";
+				if(mail.getMailFromName()!= null)
+					nom = mail.getMailFromName();
+				
+				
+				
+				String mailExp = " ";
+				if(mail.getMailFromAddress() != null)
+					mailExp = mail.getMailFromAddress();
+
+				
+				String destinataire = " ";
+				if(mail.getMailToAddress() != null)
+					destinataire = mail.getMailToAddress();
+				
+				String objet = " ";
+				if(mail.getMailSubject() != null)
+					objet = mail.getMailSubject();
+				
+				String dateReception = " ";
+				if(mail.getMailReceivedDate() != null)
+					dateReception = mail.getMailReceivedDate().toString();
+				
+				listDonnees.add(ref);
+				listDonnees.add(nom);
+				listDonnees.add(mailExp);
+				listDonnees.add(destinataire);
+				listDonnees.add(objet);
+				listDonnees.add(dateReception);
+				String str = "";
+				for(String donnee:listDonnees){
+					str= str + "," + donnee.toString();
+				}
+				listString.add(str);
+			}
+			
+			export.exportToCSVGen(listEntete, listString, "Liste des E-mails", separator);			
+			
+			// Kaouther
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+}

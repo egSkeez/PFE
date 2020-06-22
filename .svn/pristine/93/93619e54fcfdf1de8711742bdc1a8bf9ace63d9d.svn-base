@@ -1,0 +1,61 @@
+package xtensus.beans.utils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.faces.model.SelectItem;
+
+import xtensus.entity.Entite;
+
+public class RechercheMulticriterModelForSubreport extends Entite{
+	private String typrRecherche;
+	private String typeDateRecherche;
+	private RechercheMulticritereModel criteresRecherche;
+	private String evenementChoixTypeDate;
+	private List<String> selectItemsAnnotation = new ArrayList<String>();
+	private String libeleTransaction;
+	private List<AnnotationModel> annotations=new ArrayList<AnnotationModel>();
+	public String getTyprRecherche() {
+		return typrRecherche;
+	}
+	public void setTyprRecherche(String typrRecherche) {
+		this.typrRecherche = typrRecherche;
+	}
+	public String getTypeDateRecherche() {
+		return typeDateRecherche;
+	}
+	public void setTypeDateRecherche(String typeDateRecherche) {
+		this.typeDateRecherche = typeDateRecherche;
+	}
+	public RechercheMulticritereModel getCriteresRecherche() {
+		return criteresRecherche;
+	}
+	public void setCriteresRecherche(RechercheMulticritereModel criteresRecherche) {
+		this.criteresRecherche = criteresRecherche;
+	}
+	public String getEvenementChoixTypeDate() {
+		return evenementChoixTypeDate;
+	}
+	public void setEvenementChoixTypeDate(String evenementChoixTypeDate) {
+		this.evenementChoixTypeDate = evenementChoixTypeDate;
+	}
+	public List<String> getSelectItemsAnnotation() {
+		return selectItemsAnnotation;
+	}
+	public void setSelectItemsAnnotation(List<String> selectItemsAnnotation) {
+		this.selectItemsAnnotation = selectItemsAnnotation;
+	}
+	public String getLibeleTransaction() {
+		return libeleTransaction;
+	}
+	public void setLibeleTransaction(String libeleTransaction) {
+		this.libeleTransaction = libeleTransaction;
+	}
+	public List<AnnotationModel> getAnnotations() {
+		return annotations;
+	}
+	public void setAnnotations(List<AnnotationModel> annotations) {
+		this.annotations = annotations;
+	}
+	
+}

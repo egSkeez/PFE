@@ -1,0 +1,595 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Entite;
+import xtensus.entity.Nature;
+import xtensus.entity.NatureCategorie;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class NatureCategorieGestionBean {
+
+	private NatureCategorie naturecategorie;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listnaturecategorieDM;
+	private List<NatureCategorie> listNatureCategorie;
+	private List<NatureCategorie> copylistNatureCategorie;
+
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+	private boolean statuscategorie;
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+
+	private NatureCategorie nat;
+	
+	private boolean categorieNatureLibelleShowFr;
+	private boolean categorieNatureLibelleShowAr;
+	private boolean categorieNatureDescriptionShowFr;
+	private boolean categorieNatureDescriptionShowAr;
+
+	@Autowired
+	public NatureCategorieGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		naturecategorie = new NatureCategorie();
+		nat = new NatureCategorie();
+		listnaturecategorieDM = new ListDataModel();
+		listNatureCategorie = new ArrayList<NatureCategorie>();
+		copylistNatureCategorie = new ArrayList<NatureCategorie>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out
+				.println("*************Bean NatureCatégorieGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titleaccor = messageSource.getMessage("ajoutcategorienature",new Object[] {}, lm.createLocal());
+		titre = "Ajouter Catégorie nature";
+		listNatureCategorie = new ArrayList<NatureCategorie>();
+		copylistNatureCategorie= new ArrayList<NatureCategorie>();
+		System.out.println(vb.getLocale());
+		try {
+			listNatureCategorie = appMgr.getList(NatureCategorie.class);
+			
+			if (vb.getLocale().equals("ar")) {
+				
+				categorieNatureLibelleShowFr = false;
+				categorieNatureDescriptionShowFr=false;
+				categorieNatureLibelleShowAr = true;
+				categorieNatureDescriptionShowAr=true;
+				
+			} else {
+				categorieNatureLibelleShowFr = true;
+				categorieNatureDescriptionShowFr=true;
+				categorieNatureLibelleShowAr = false;
+				categorieNatureDescriptionShowAr=false;
+				
+			}
+			
+			for (int i =0; i < listNatureCategorie.size(); i++) {
+				
+				nat = listNatureCategorie.get(i);
+				copylistNatureCategorie.add(nat);
+				nat = new NatureCategorie();
+				
+			}
+		} catch (Exception e) {
+			System.out.println("erreur");
+			e.printStackTrace();
+		}
+		listnaturecategorieDM.setWrappedData(copylistNatureCategorie);
+		hideAccor = "none";
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+			appMgr.insert(naturecategorie);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout", "Evénement de log d'ajout de la nature "
+					+ naturecategorie.getNatureCategorieId() + "-" + naturecategorie.getCategorieLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+			System.out
+					.println("***************Succes Nature atégorie GestionBean***************");
+		} catch (Exception e) {
+			status3 = true;
+			System.out
+					.println("***************Erreur Nature Catégorie GestionBean***************");
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			naturecategorie = (NatureCategorie) listnaturecategorieDM.getRowData();
+			vb.setNatureCategorie(naturecategorie);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de Catégorie nature "
+							+ naturecategorie.getNatureCategorieId() + "-"
+							+ naturecategorie.getCategorieLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+			System.out.println("*******Selection Catégorie Nature Consulter Bean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******Erreur De Selection Catégorie Nature Consulter Bean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier Catégorie nature";
+		titleaccor = messageSource.getMessage("consultationcategorienature",new Object[] {}, lm.createLocal());;
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		
+		
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			naturecategorie = vb.getNatureCategorie();
+			appMgr.update(naturecategorie);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			// -méthode updateSelectedRow()
+//			LogClass logClass = new LogClass();
+//			logClass.addTrack("modification",
+//					"Evénement de log de modification de la catégorie nature "
+//							+ vb.getNature().getNatureId() + "-"
+//							+ vb.getNature().getNatureLibelle(),
+//					vb.getPerson(), "INFO", appMgr);
+
+			listNatureCategorie = new ArrayList<NatureCategorie>();
+			Initialize();
+			naturecategorie = new NatureCategorie();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter Catégorie Nature";
+		titleaccor = messageSource.getMessage("ajoutcategorienature",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			//naturecategorie = vb.getNatureCategorie();
+			System.out.println("Delete de "+naturecategorie);
+			appMgr.delete(naturecategorie);
+
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression de la nature "
+							+ naturecategorie.getNatureCategorieId() + "-"
+							+ naturecategorie.getCategorieLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+
+		} catch (Exception e) {
+			
+System.out.println("Exception de suppression");
+e.printStackTrace();
+		}
+		listnaturecategorieDM = new ListDataModel();
+		listNatureCategorie = new ArrayList<NatureCategorie>();
+		copylistNatureCategorie = new ArrayList<NatureCategorie>();
+		Initialize();
+		 naturecategorie = new NatureCategorie();
+	}
+
+	public void annulModif() {
+		naturecategorie = new NatureCategorie();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter Catégorie Nature";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		naturecategorie = new NatureCategorie();
+		msgerror = true;
+		titleaccor = messageSource.getMessage("ajoutcategorienature",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	public void getDeleteFromListNature() {
+	
+		//JS
+		naturecategorie = (NatureCategorie) listnaturecategorieDM.getRowData();
+		List<Nature> listNature=new ArrayList<Nature>();
+		listNature=appMgr.listNaturesByCategorie(naturecategorie.getNatureCategorieId());
+		statuscategorie=false;
+		if (listNature!= null && listNature.size()>0) {
+	System.out.println("Caterogie avec des natures");
+			statuscategorie = true;
+			
+		}
+		}
+
+	
+	
+	
+	
+	// Fiche
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listnaturecategorieDM != null && listnaturecategorieDM.getWrappedData() != null)
+			records = ((List<NatureCategorie>) listnaturecategorieDM.getWrappedData()).size();	
+	
+		else
+			records = 0;
+		return records;
+	}
+
+
+	public NatureCategorie getNaturecategorie() {
+		return naturecategorie;
+	}
+
+	public void setNaturecategorie(NatureCategorie naturecategorie) {
+		this.naturecategorie = naturecategorie;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setNatureLibelleShowFr(boolean natureLibelleShowFr) {
+		this.categorieNatureLibelleShowFr = natureLibelleShowFr;
+	}
+
+	public boolean isNatureLibelleShowFr() {
+		return categorieNatureLibelleShowFr;
+	}
+
+	public void setNatureLibelleShowAr(boolean natureLibelleShowAr) {
+		this.categorieNatureLibelleShowAr = natureLibelleShowAr;
+	}
+
+	public boolean isNatureLibelleShowAr() {
+		return categorieNatureLibelleShowAr;
+	}
+
+	
+	
+	public List<NatureCategorie> getListNatureCategorie() {
+		return listNatureCategorie;
+	}
+
+	public void setListNatureCategorie(List<NatureCategorie> listNatureCategorie) {
+		this.listNatureCategorie = listNatureCategorie;
+	}
+
+	public List<NatureCategorie> getCopylistNatureCategorie() {
+		return copylistNatureCategorie;
+	}
+
+	public void setCopylistNatureCategorie(
+			List<NatureCategorie> copylistNatureCategorie) {
+		this.copylistNatureCategorie = copylistNatureCategorie;
+	}
+
+
+	public NatureCategorie getNat() {
+		return nat;
+	}
+
+	public void setNat(NatureCategorie nat) {
+		this.nat = nat;
+	}
+
+	public boolean isCategorieNatureLibelleShowFr() {
+		return categorieNatureLibelleShowFr;
+	}
+
+	public void setCategorieNatureLibelleShowFr(boolean categorieNatureLibelleShowFr) {
+		this.categorieNatureLibelleShowFr = categorieNatureLibelleShowFr;
+	}
+
+	public boolean isCategorieNatureLibelleShowAr() {
+		return categorieNatureLibelleShowAr;
+	}
+
+	public void setCategorieNatureLibelleShowAr(boolean categorieNatureLibelleShowAr) {
+		this.categorieNatureLibelleShowAr = categorieNatureLibelleShowAr;
+	}
+
+	public boolean isCategorieNatureDescriptionShowFr() {
+		return categorieNatureDescriptionShowFr;
+	}
+
+	public void setCategorieNatureDescriptionShowFr(
+			boolean categorieNatureDescriptionShowFr) {
+		this.categorieNatureDescriptionShowFr = categorieNatureDescriptionShowFr;
+	}
+
+	public boolean isCategorieNatureDescriptionShowAr() {
+		return categorieNatureDescriptionShowAr;
+	}
+
+	public void setCategorieNatureDescriptionShowAr(
+			boolean categorieNatureDescriptionShowAr) {
+		this.categorieNatureDescriptionShowAr = categorieNatureDescriptionShowAr;
+	}
+
+	public DataModel getListnaturecategorieDM() {
+		return listnaturecategorieDM;
+	}
+
+	public void setListnaturecategorieDM(DataModel listnaturecategorieDM) {
+		this.listnaturecategorieDM = listnaturecategorieDM;
+	}
+
+	public void setStatuscategorie(boolean statuscategorie) {
+		this.statuscategorie = statuscategorie;
+	}
+
+	public boolean isStatuscategorie() {
+		return statuscategorie;
+	}
+	
+	
+
+}

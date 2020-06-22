@@ -1,0 +1,18 @@
+package xtensus.beans.utils;
+
+public class RapportExpediteurDestinataire {
+private String destinataire;
+private String expediteur;
+public void setDestinataire(String destinataire) {
+	this.destinataire = destinataire;
+}
+public String getDestinataire() {
+	return destinataire;
+}
+public void setExpediteur(String expediteur) {
+	this.expediteur = expediteur;
+}
+public String getExpediteur() {
+	return expediteur;
+}
+}

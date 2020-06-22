@@ -1,0 +1,242 @@
+package xtensus.faxmail.utils;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+
+import xtensus.entity.Fax;
+import xtensus.entity.Mail;
+
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.PdfContentByte;
+
+import java.io.FileInputStream;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.Element;
+import com.lowagie.text.Image;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.Rectangle;
+
+import com.lowagie.text.pdf.PdfImportedPage;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.codec.Base64;
+import com.lowagie.text.html.simpleparser.HTMLWorker;
+import com.lowagie.text.html.simpleparser.StyleSheet;
+
+/**
+ * 
+ * @author HB , Xtensus Tunisie
+ * 
+ */
+public class Pdf {
+
+	public File createDocument(Mail mail) {
+		File file = null;
+		try {
+
+			Document pdfDocument = new Document();
+
+			StringReader reader = new StringReader(mail.getMailContent());
+
+			Reader htmlreader = new BufferedReader(reader);
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PdfWriter.getInstance(pdfDocument, baos);
+			pdfDocument.open();
+			StyleSheet styles = new StyleSheet();
+			styles.loadTagStyle("body", "font", "Bitstream Vera Sans");
+			ArrayList<?> arrayElementList = HTMLWorker.parseToList(htmlreader,
+					styles);
+			for (int i = 0; i < arrayElementList.size(); ++i) {
+				Element e = (Element) arrayElementList.get(i);
+				pdfDocument.add(e);
+			}
+			pdfDocument.close();
+			byte[] bs = baos.toByteArray();
+			Base64.encodeBytes(bs);
+			file = new File("temp_mail.pdf");
+			FileOutputStream out = new FileOutputStream(file);
+			out.write(bs);
+			out.close();
+
+		} catch (Exception e) {
+
+		}
+
+		return file;
+	}
+
+	/**
+	 * Cette methode permet de transformer un fax recu en fichier PDF
+	 * 
+	 * @param fax
+	 *            le fax reçu
+	 * @return le fax en pdf
+	 */
+	public File createFaxDocument(Fax fax) {
+		File file = null;
+		try {
+			Document pdfDocument = new Document(PageSize.A1);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PdfWriter writer = PdfWriter.getInstance(pdfDocument, baos);
+			writer.setStrictImageSequence(true);
+			pdfDocument.open();
+
+			FaxConnection faxConnection = new FaxConnection();
+
+			Image tiff = Image.getInstance(faxConnection.getFaxByName(
+					fax.getFaxFilename()).getData());
+			pdfDocument.add(tiff);
+			pdfDocument.close();
+			baos.flush();
+			byte[] bs = baos.toByteArray();
+			Base64.encodeBytes(bs);
+			file = new File("temp_fax.pdf");
+			FileOutputStream out = new FileOutputStream(file);
+			out.write(bs);
+			out.close();
+
+		} catch (Exception e) {
+		}
+		return file;
+	}
+
+	public void createMailDocument(Mail mail,
+			ByteArrayOutputStream arrayOutputStream) {
+		try {
+
+			Font smallBold16 = new Font(Font.TIMES_ROMAN, 16, Font.BOLD);
+			Font smallBold = new Font(Font.TIMES_ROMAN, 12, Font.BOLD);
+
+			Font smallBoldNormal = new Font(Font.TIMES_ROMAN, 12, Font.NORMAL);
+
+			Document document = new Document();
+
+			PdfWriter writer = PdfWriter.getInstance(document,
+					arrayOutputStream);
+			document.open();
+			PdfContentByte cb = writer.getDirectContent();
+
+			// Load template PDF
+			PdfReader readerTemplate = new PdfReader(
+					new FileInputStream(
+							"C:\\WorkspaceSIGA\\GBO_v1.g\\resources\\template.pdf"));
+			PdfImportedPage page = writer.getImportedPage(readerTemplate, 1);
+
+			// Copy first page of existing PDF into output PDF
+			document.newPage();
+			cb.addTemplate(page, 0, 0);
+
+			document.addTitle(mail.getMailFromName() + " - "
+					+ mail.getMailSubject());
+			document.addSubject(mail.getMailSubject());
+			document.addKeywords("email");
+			document.addAuthor("Xtensus Tunisie");
+			document.addCreator("Xtensus Tunisie");
+
+			Phrase myPhrase1 = new Phrase();
+			myPhrase1.add(new Phrase("\n"));
+			myPhrase1.add(new Phrase(mail.getMailToAddress(), smallBold16));
+			myPhrase1.add(new Phrase("\n"));
+			myPhrase1.add(new Phrase("\n"));
+
+			document.add(myPhrase1);
+
+			PdfPTable table = new PdfPTable(2);
+
+			PdfPCell cell1 = new PdfPCell(new Phrase("De : ", smallBold));
+			PdfPCell cell2 = new PdfPCell(new Phrase(mail.getMailFromName()
+					+ " [" + mail.getMailFromAddress() + "]", smallBoldNormal));
+			PdfPCell cell3 = new PdfPCell(new Phrase("Envoyé : ", smallBold));
+			PdfPCell cell4 = new PdfPCell(new Phrase(mail.getMailReceivedDate()
+					.toString(), smallBoldNormal));
+			PdfPCell cell5 = new PdfPCell(new Phrase("é : ", smallBold));
+			PdfPCell cell6 = new PdfPCell(new Phrase(mail.getMailToAddress(),
+					smallBoldNormal));
+
+			PdfPCell cell9 = new PdfPCell(new Phrase("Objet : ", smallBold));
+			PdfPCell cell10 = new PdfPCell(new Phrase(mail.getMailSubject(),
+					smallBoldNormal));
+
+			cell1.setBorder(Rectangle.NO_BORDER);
+			cell2.setBorder(Rectangle.NO_BORDER);
+			cell3.setBorder(Rectangle.NO_BORDER);
+			cell4.setBorder(Rectangle.NO_BORDER);
+			cell5.setBorder(Rectangle.NO_BORDER);
+			cell6.setBorder(Rectangle.NO_BORDER);
+
+			cell9.setBorder(Rectangle.NO_BORDER);
+			cell10.setBorder(Rectangle.NO_BORDER);
+
+			table.addCell(cell1);
+			table.addCell(cell2);
+			table.addCell(cell3);
+			table.addCell(cell4);
+			table.addCell(cell5);
+			table.addCell(cell6);
+
+			if (mail.getMailHeaders().containsKey("Cc")) {
+				PdfPCell cell7 = new PdfPCell(new Phrase("Cc : ", smallBold));
+				PdfPCell cell8 = new PdfPCell(new Phrase(mail.getMailHeaders()
+						.get("Cc"), smallBoldNormal));
+				cell7.setBorder(Rectangle.NO_BORDER);
+				cell8.setBorder(Rectangle.NO_BORDER);
+				table.addCell(cell7);
+				table.addCell(cell8);
+			}
+
+			table.addCell(cell9);
+			table.addCell(cell10);
+
+			table.setHorizontalAlignment(Element.ALIGN_LEFT);
+			table.setWidths(new int[] { 20, 80 });
+
+			document.add(table);
+
+			Phrase myPhrase = new Phrase();
+			myPhrase.add(new Phrase("\n"));
+			myPhrase.add(new Phrase("\n"));
+			document.add(myPhrase);
+
+			/*
+			 * Paragraph content = new Paragraph(mail.getMailContent(),
+			 * smallBoldNormal); document.add(content);
+			 */
+
+			StringReader reader = new StringReader(mail.getMailContent());
+
+			Reader htmlreader = new BufferedReader(reader);
+
+			StyleSheet styles = new StyleSheet();
+			styles.loadTagStyle("body", "font", "Bitstream Vera Sans");
+			ArrayList<?> arrayElementList = HTMLWorker.parseToList(htmlreader,
+					styles);
+			for (int i = 0; i < arrayElementList.size(); ++i) {
+				Element e = (Element) arrayElementList.get(i);
+				document.add(e);
+			}
+
+			document.close();
+
+		} catch (DocumentException e) {
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+	}
+
+}

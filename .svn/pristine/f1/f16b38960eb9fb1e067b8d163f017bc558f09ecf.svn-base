@@ -1,0 +1,386 @@
+package xtensus.beans.common.GBO;
+
+import groovy.swing.factory.VBoxFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Properties;
+
+import javax.naming.NamingException;
+import javax.naming.directory.InitialDirContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import xtensus.beans.utils.ArchiveModel;
+import xtensus.beans.utils.ConnexionLdap;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Etages;
+import xtensus.entity.Expdest;
+import xtensus.entity.Transaction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ArchiveBean {
+
+	public String PATH_RESULT_FILE;
+	private ApplicationManager appMgr;
+	private LdapOperation ldapOperation;
+	private List<ArchiveModel> listCourrier;
+	private int variableArchivageParAn;
+	private int annee = 0;
+	private long records;
+	private boolean status;
+
+	public ArchiveBean() {
+
+	}
+
+	@Autowired
+	public ArchiveBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		try {
+			this.appMgr = appMgr;
+			listCourrier = new ArrayList<ArchiveModel>();
+			Hashtable<String, String> hashtable = new Hashtable<String, String>();
+			hashtable = ConnexionLdap.getConnection();
+			ldapOperation = new LdapOperation();
+			ldapOperation.setDirContext(new InitialDirContext(hashtable));
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public void beginArchive() {
+		try {
+			status = false;
+			Date date = new Date();
+			variableArchivageParAn = Integer.parseInt(appMgr
+					.listVariablesByLibelle("variable_archivage_par_an").get(0)
+					.getVaraiablesValeur());
+			annee = date.getYear() - variableArchivageParAn + 1900;
+			Date dateArchivage = new Date(date.getYear()
+					- variableArchivageParAn, date.getMonth(), date.getDate(),
+					23, 59, 59);
+			List<Transaction> listTransaction = new ArrayList<Transaction>();
+			listTransaction = appMgr.getListTransactionByDate(dateArchivage);
+			System.out.println("   -Date : "+dateArchivage);
+			System.out.println("   -Size : "+listTransaction.size());
+			listCourrier = getListCourrier(listTransaction);
+			System.out.println("   -Size Archive: "+listTransaction.size());
+			System.out.println("Size list Courrier : " + listCourrier.size());
+			if (listCourrier.isEmpty()) {
+				status = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private List<ArchiveModel> getListCourrier(List<Transaction> listTransaction) {
+		List<ArchiveModel> listResult = new ArrayList<ArchiveModel>();
+		List<Courrier> listCourrier = new ArrayList<Courrier>();
+		ArchiveModel archiveModel;
+		Expdest expDest;
+		Dossier dossier = new Dossier();
+		CourrierDossier courrierDossier;
+		Courrier courrier;
+		String expediteur;
+		Etages etage;
+		for (Transaction transaction : listTransaction) {
+			System.out.println("*****" + transaction.getTransactionId());
+			dossier = transaction.getDossier();
+			courrierDossier = new CourrierDossier();
+			courrier = new Courrier();
+			courrierDossier = appMgr.getCourrierDossierByIdDossier(
+					dossier.getDossierId()).get(0);
+			courrier = appMgr.getCourrierByIdCourrier(
+					courrierDossier.getId().getIdCourrier()).get(0);
+			System.out.println("---" + courrier.getIdCourrier());
+			if (courrier.getCourrierflagArchive() == 0
+					&& courrier.getCourrierDateClassement() != null
+					&& !listCourrier.contains(courrier)) {
+				etage = new Etages();
+				etage = appMgr.listEtagesById(
+						courrier.getEtages().getIdetages()).get(0);
+				listCourrier.add(courrier);
+				expediteur = "";
+				archiveModel = new ArchiveModel();
+				archiveModel.setCourrier(courrier);
+//				archiveModel.setTitreDocument(courrier
+//						.getCourrierReferenceCorrespondant()
+//						+ " / "
+//						+ courrier.getCourrierObjet());
+				archiveModel.setTitreDocument(courrier.getCourrierReferenceCorrespondant() + "_" + courrier.getCourrierObjet());
+				archiveModel.setDateCreation(transaction.getTransactionDateTransaction());
+				expDest = new Expdest();
+				expDest = appMgr.getListExpDestByIdExpDest(transaction.getExpdest().getIdExpDest())
+						.get(0);
+				if (expDest.getTypeExpDest().equals("Interne-Person")) {
+					try {
+						expediteur = ldapOperation
+								.getPersonalisedUserById(expDest.getIdExpDestLdap())
+								.getAssociatedDirection().getNameUnit();
+					} catch (NullPointerException e) {
+						expediteur = "Bureau d'ordre";
+					}
+				} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+					expediteur = ldapOperation.getCnById(ldapOperation.CONTEXT_UNIT,
+							"departmentNumber", expDest.getIdExpDestLdap());
+				} else if (expDest.getTypeExpDest().equals("Interne-Boc")) {
+					expediteur = ldapOperation.getCnById(ldapOperation.CONTEXT_BOC,
+							"departmentNumber", expDest.getIdExpDestLdap());
+				}
+				archiveModel.setServiceConcerne(expediteur);
+				archiveModel.setDateCloture(courrier.getCourrierDateClassement());
+				archiveModel.setTypeBoite(etage.getTypeBoiteArchive());
+				archiveModel.setTitreBoite(etage.getEtagesLibelle());
+				archiveModel.setNumeroBoite(etage.getNumeroBoiteArchive());
+				// ** khaled saoudi
+				List<xtensus.entity.Document> listDoc = appMgr.getDocumentByIdCourrier(courrier.getIdCourrier());
+				if (!listDoc.isEmpty()){
+					StringBuilder chemainDocument = new StringBuilder(appMgr.listVariablesById(10).get(0).getVaraiablesValeur());
+					chemainDocument.append("/Courrier");
+					chemainDocument.append(courrier.getIdCourrier());
+					chemainDocument.append("/Doc");
+					chemainDocument.append(listDoc.get(0).getIdDocument());
+					System.out.println("chemain : " + chemainDocument);
+					archiveModel.setCheminFichier(chemainDocument.toString());
+				} else {
+					 archiveModel.setCheminFichier(""); 
+				}
+				// ** khaled saoudi
+				listResult.add(archiveModel);
+			}
+		}
+		return listResult;
+	}
+
+	public void archive() {
+		try {
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+			// root elements
+		
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement("workbook");
+			Attr attribute = doc.createAttribute("xmlns");
+			attribute.setValue("http://www.example.org/workbook");
+			rootElement.setAttributeNode(attribute);
+			attribute = doc.createAttribute("xmlns:xsi");
+			attribute.setValue("http://www.w3.org/2001/XMLSchema-instance");
+			rootElement.setAttributeNode(attribute);
+			attribute = doc.createAttribute("xsi:schemaLocation");
+			attribute.setValue("http://www.example.org/workbook workbook.xsd");
+			rootElement.setAttributeNode(attribute);
+			doc.appendChild(rootElement);
+
+			// sheet element
+			Element sheet = doc.createElement("sheet");
+			rootElement.appendChild(sheet);
+
+			Element row;
+			Element col;
+			Attr attr;
+			Courrier courrier;
+			for (Integer i = 0; i < listCourrier.size(); i++) {
+				courrier = new Courrier();
+				courrier = listCourrier.get(i).getCourrier();
+				courrier.setCourrierflagArchive(1);
+				courrier.setCourrierDateArchivage(new Date());
+				appMgr.update(courrier);
+				row = doc.createElement("row");
+				attr = doc.createAttribute("number");
+				Integer j = i + 1;
+				attr.setValue(j.toString());
+				row.setAttributeNode(attr);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("TITRE_DOC");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i).getTitreDocument()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("DATE_CREATION");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getDateCreation()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("DATE_CLOTURE");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getDateCloture()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("SERVICE");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getServiceConcerne()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("NUM_BOITE");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getNumeroBoite()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("TYPE_BOITE");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getTypeBoite()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("TITRE_BOITE");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getTitreBoite()));
+				row.appendChild(col);
+
+				col = doc.createElement("col");
+				attr = doc.createAttribute("number");
+				attr.setValue("FILE_PATH");
+				col.setAttributeNode(attr);
+				col.appendChild(doc.createTextNode(listCourrier.get(i)
+						.getCheminFichier()));
+				row.appendChild(col);
+
+				sheet.appendChild(row);
+			}
+
+			// write the content into xml file
+			TransformerFactory transformerFactory = TransformerFactory
+					.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			DOMSource source = new DOMSource(doc);
+			// StreamResult result = new StreamResult(new
+			// File("D:\\PFE\\GBO_2013_V2\\WebContent\\WEB-INF\\ArchiveConfig\\file.xml"));
+			SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+			// get the url 
+			Resource rsrc = new ClassPathResource(
+			"/paramDataBase.properties");
+	        String pathConfigFile = rsrc.getFile().getAbsolutePath();
+			Properties props = new Properties();
+			props.load(new FileInputStream(pathConfigFile));
+			
+			PATH_RESULT_FILE = props.getProperty("Archive.sauvegardeUrl");
+			//
+			String fileOutput = PATH_RESULT_FILE + "/archive"
+					+ sdf.format(new Date()) + ".xml";
+			StreamResult result = new StreamResult(new File(fileOutput));
+			// Output to console for testing
+			// StreamResult result = new StreamResult(System.out);
+			transformer.transform(source, result);
+			System.out.println(fileOutput);
+		} catch (ParserConfigurationException pce) {
+			pce.printStackTrace();
+		} catch (TransformerException tfe) {
+			tfe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setListCourrier(List<ArchiveModel> listCourrier) {
+		this.listCourrier = listCourrier;
+	}
+
+	public List<ArchiveModel> getListCourrier() {
+		return listCourrier;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public long getRecords() {
+		records = listCourrier.size();
+		return records;
+	}
+
+	public void setVariableArchivageParAn(int variableArchivageParAn) {
+		this.variableArchivageParAn = variableArchivageParAn;
+	}
+
+	public int getVariableArchivageParAn() {
+		return variableArchivageParAn;
+	}
+
+	public void setAnnee(int annee) {
+		this.annee = annee;
+	}
+
+	public int getAnnee() {
+		return annee;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+}

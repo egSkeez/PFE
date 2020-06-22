@@ -1,0 +1,69 @@
+package xtensus.faxmail.utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.Sanselan;
+import org.apache.sanselan.common.IImageMetadata;
+import org.apache.sanselan.formats.tiff.TiffImageMetadata;
+
+/**
+ * 
+ * @author HB , Xtensus Tunisie
+ * 
+ */
+public class TifFile {
+
+	private File file;
+
+	/**
+	 * constructeur de la classe.s
+	 * 
+	 * @param file
+	 */
+	public TifFile(File file) {
+		this.file = file;
+	}
+
+	/**
+	 * Cette methode permet de retourner les metadatas du fichier tif
+	 * 
+	 * @return une map cle valeur des metadatas
+	 */
+	public Map<String, String> getMetadata() {
+		String key, value;
+		Map<String, String> metadataMap = new HashMap<String, String>();
+		try {
+			IImageMetadata imageMetadata = Sanselan.getMetadata(file);
+
+			TiffImageMetadata tiffImageMetadata = (TiffImageMetadata) imageMetadata;
+
+			for (int i = 0; i < tiffImageMetadata.getItems().size(); i++) {
+				TiffImageMetadata.Item item = (TiffImageMetadata.Item) tiffImageMetadata
+						.getItems().get(i);
+				key = item.getKeyword().replace("'", "");
+				value = item.getText().replace("'", "");
+				metadataMap.put(key, value);
+			}
+
+		} catch (ImageReadException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return metadataMap;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+}

@@ -1,0 +1,199 @@
+package xtensus.beans.utils;
+
+import java.util.List;
+
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.Dossier;
+import xtensus.entity.Entite;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.Pp;
+import xtensus.entity.Societe;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+
+
+public class RapportDossier extends Entite{
+	
+	private Dossier dossier;
+	private Urgence urgence;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Nature nature;
+	private Courrier courrier;
+	private Expdestexterne expediteur;
+	private Expdestexterne destinataire;
+	private List<Document> documents;
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String dossierNom;
+	private String courrierReference;
+	private String dossierDescription;
+	private String nomProjet;
+	private int numero;
+	private String listCourriers;
+	private String confidentialites;
+	private String impotance;
+	private String pathJasper ;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinataire;
+	private Pp pp;
+	private List<CourrierInformations> listeCourrierAttacher;
+	
+	public Dossier getDossier() {
+		return dossier;
+	}
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+	public Urgence getUrgence() {
+		return urgence;
+	}
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+	public Transmission getTransmission() {
+		return transmission;
+	}
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+	public Nature getNature() {
+		return nature;
+	}
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+	public Courrier getCourrier() {
+		return courrier;
+	}
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+	public Expdestexterne  getExpediteur() {
+		return expediteur;
+	}
+	public void setExpediteur(Expdestexterne expediteur) {
+		this.expediteur = expediteur;
+	}
+	public Expdestexterne getDestinataire() {
+		return destinataire;
+	}
+	public void setDestinataire(Expdestexterne destinataire) {
+		this.destinataire = destinataire;
+	}
+	public List<Document> getDocuments() {
+		return documents;
+	}
+	public void setDocuments(List<Document> documents) {
+		this.documents = documents;
+	}
+	public String getSocieteNom() {
+		return societeNom;
+	}
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+	public String getSocieteVille() {
+		return societeVille;
+	}
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+	public String getDossierNom() {
+		return dossierNom;
+	}
+	public void setDossierNom(String dossierNom) {
+		this.dossierNom = dossierNom;
+	}
+	public String getCourrierReference() {
+		return courrierReference;
+	}
+	public void setCourrierReference(String courrierReference) {
+		this.courrierReference = courrierReference;
+	}
+	public String getDossierDescription() {
+		return dossierDescription;
+	}
+	public void setDossierDescription(String dossierDescription) {
+		this.dossierDescription = dossierDescription;
+	}
+	public String getNomProjet() {
+		return nomProjet;
+	}
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+	public void setNumero(int numero) {
+		this.numero = numero;
+	}
+	public int getNumero() {
+		return numero;
+	}
+	public void setListCourriers(String listCourriers) {
+		this.listCourriers = listCourriers;
+	}
+	public String getListCourriers() {
+		return listCourriers;
+	}
+	public void setConfidentialites(String confidentialites) {
+		this.confidentialites = confidentialites;
+	}
+	public String getConfidentialites() {
+		return confidentialites;
+	}
+	public void setImpotance(String impotance) {
+		this.impotance = impotance;
+	}
+	public String getImpotance() {
+		return impotance;
+	}
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+	public String getPathJasper() {
+		return pathJasper;
+	}
+	public void setRapportExpediteurDestinataire(
+			List<RapportExpediteurDestinataire> rapportExpediteurDestinataire) {
+		this.rapportExpediteurDestinataire = rapportExpediteurDestinataire;
+	}
+	public List<RapportExpediteurDestinataire> getRapportExpediteurDestinataire() {
+		return rapportExpediteurDestinataire;
+	}
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+	public Pp getPp() {
+		return pp;
+	}
+	public List<CourrierInformations> getListeCourrierAttacher() {
+		return listeCourrierAttacher;
+	}
+	public void setListeCourrierAttacher(
+			List<CourrierInformations> listeCourrierAttacher) {
+		this.listeCourrierAttacher = listeCourrierAttacher;
+	}
+	
+}

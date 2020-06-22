@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2020-06-10T16:16:49 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Rapport_Etat_Cheque" pageWidth="842" pageHeight="800" orientation="Landscape" columnWidth="780" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Error" uuid="118fa410-9228-4d36-b2e4-d079ee94cef5">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<field name="listeCourriersCheque" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourriersCheque]]></fieldDescription>
+	</field>
+	<field name="listeMontantTotal" class="java.util.List">
+		<fieldDescription><![CDATA[listeMontantTotal]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="periodeChoisie" class="java.lang.String">
+		<fieldDescription><![CDATA[periodeChoisie]]></fieldDescription>
+	</field>
+	<field name="listeCourriersChequeAgent" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourriersChequeAgent]]></fieldDescription>
+	</field>
+	<field name="listeCourriersChequeImpayes" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourriersChequeImpayes]]></fieldDescription>
+	</field>
+	<field name="listeSociete" class="java.util.List">
+		<fieldDescription><![CDATA[listeSociete]]></fieldDescription>
+	</field>
+	<field name="datePeriodeAnneeFR" class="java.lang.String">
+		<fieldDescription><![CDATA[datePeriodeAnneeFR]]></fieldDescription>
+	</field>
+	<field name="selectedUnit" class="xtensus.ldap.model.Unit">
+		<fieldDescription><![CDATA[selectedUnit]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="189" splitType="Stretch">
+			<subreport>
+				<reportElement x="57" y="0" width="700" height="60" uuid="5e57983a-3c04-4d87-bf5c-609d9907706c">
+					<property name="local_mesure_unitx" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="160" y="159" width="490" height="30" uuid="65bb5779-1d07-47b0-a826-07f95bd30df3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="22" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ce courrier ne contient pas des chèques]]></text>
+			</staticText>
+		</band>
+	</title>
+</jasperReport>

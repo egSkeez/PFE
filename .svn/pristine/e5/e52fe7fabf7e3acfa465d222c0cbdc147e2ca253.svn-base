@@ -1,0 +1,260 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ContactExpPMPP;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ContactPersonneMoraleConsultationBean {
+
+	private ApplicationManager appMgr;
+	private DataModel list;
+	private Expdestexterne exp;
+	private List<Expdestexterne> listExp;
+	private List<ContactExpPMPP> contactExpPMPPs;
+	private boolean status2;
+	private boolean status3;
+	private Pm pm;
+	private Pp pp;
+	@Autowired
+	private VariableGlobale vb;
+	private long records = 0;
+	private String typeExpUser;
+	private boolean disbaleCommandLink;
+	private Pm ppEmploi;
+
+	public ContactPersonneMoraleConsultationBean() {
+
+	}
+
+	@Autowired
+	public ContactPersonneMoraleConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		list = new ListDataModel();
+		listExp = new ArrayList<Expdestexterne>();
+		pm = new Pm();
+		pp = new Pp();
+		exp = new Expdestexterne();
+		System.out
+				.println("**************BeanInjecte ContactPersonneMoraleConsultationBean*********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		contactExpPMPPs = new ArrayList<ContactExpPMPP>();
+		if (vb.getNombrePP() == 0) {
+			disbaleCommandLink = true;
+		} else {
+			disbaleCommandLink = false;
+		}
+		try {
+			// nader
+//			List<Expdestexterne> expdestexternes = new ArrayList<Expdestexterne>();
+//			expdestexternes = appMgr.getList(Expdestexterne.class);
+//			for (Expdestexterne ex : expdestexternes) {
+//				ContactExpPMPP contactExpPMPP = new ContactExpPMPP();
+//				Pm pmcontact = new Pm();
+//				if (ex.getTypeutilisateur().getTypeUtilisateurId() == 2) {
+//					listExp.add(ex);
+//					int idexp = ex.getIdExpDestExterne();
+//					pmcontact = appMgr.getPMByReferenceExpediteur(idexp).get(0);
+//					contactExpPMPP.setExpdestexterne(ex);
+//					contactExpPMPP.setPm(pmcontact);
+//					contactExpPMPPs.add(contactExpPMPP);
+//				}
+//			}
+//			list.setWrappedData(contactExpPMPPs);
+//			typeExpUser = "";
+//		
+//				int id = vb.getExpdestexterne().getTypeutilisateur()
+//						.getTypeUtilisateurId();
+//				typeExpUser = appMgr.getTypeUtilisateurById(id).get(0)
+//						.getTypeUtilisateurLibelle();
+			// fin nader 
+			// **
+			
+			if (vb.getPp() != null){
+			ppEmploi = vb.getPp().getPm();
+			}
+			List<Expdestexterne> expdestexternes = appMgr.listExpDestByType(2);
+			for (Expdestexterne expdestexterne : expdestexternes) {
+				ContactExpPMPP contactExpPMPP = new ContactExpPMPP();
+				contactExpPMPP.setExpdestexterne(expdestexterne);
+				int refExpDest = expdestexterne.getIdExpDestExterne();
+				List<Pm> listpm = appMgr.getPMByReferenceExpediteur(refExpDest);
+				 Pm personneMorale = listpm.get(0);
+				contactExpPMPP.setPm(personneMorale);
+				//**
+				
+				if(ppEmploi != null &&  ppEmploi.getExpdestexterne().getIdExpDestExterne().equals(expdestexterne.getIdExpDestExterne())){
+					contactExpPMPP.setSelected(true);
+				}
+				//*
+				contactExpPMPPs.add(contactExpPMPP);
+			}
+			// **
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		list.setWrappedData(contactExpPMPPs);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void submitSelections(ActionEvent event) {
+
+		setStatus2(false);
+		setStatus3(false);
+		List<ContactExpPMPP> items = (List<ContactExpPMPP>) list
+				.getWrappedData();
+		List<ContactExpPMPP> selectedItems = new ArrayList<ContactExpPMPP>();
+		for (ContactExpPMPP item : items) {
+
+			if (item.isSelected()) {
+				selectedItems.add(item);
+			}
+		}
+		if (selectedItems.size() == 1) {
+			setStatus2(true);
+			setStatus3(false);
+			pp = vb.getPp();
+			for (int i = 0; i < selectedItems.size(); i++) {
+				pm = selectedItems.get(i).getPm();
+				pp.setPm(pm);
+				try {
+					appMgr.update(pp);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		} else {
+			setStatus2(false);
+			setStatus3(true);
+
+		}
+	}
+
+	// ************Getter & Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		records =  contactExpPMPPs.size();
+		return records;
+	}
+
+	public void setList(DataModel list) {
+		this.list = list;
+	}
+
+	public DataModel getList() {
+		return list;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public void setExp(Expdestexterne exp) {
+		this.exp = exp;
+	}
+
+	public Expdestexterne getExp() {
+		return exp;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public List<Expdestexterne> getListExp() {
+		return listExp;
+	}
+
+	public void setListExp(List<Expdestexterne> listExp) {
+		this.listExp = listExp;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public void setTypeExpUser(String typeExpUser) {
+		this.typeExpUser = typeExpUser;
+	}
+
+	public String getTypeExpUser() {
+		return typeExpUser;
+	}
+
+	public void setDisbaleCommandLink(boolean disbaleCommandLink) {
+		this.disbaleCommandLink = disbaleCommandLink;
+	}
+
+	public boolean isDisbaleCommandLink() {
+		return disbaleCommandLink;
+	}
+
+	public List<ContactExpPMPP> getContactExpPMPPs() {
+		return contactExpPMPPs;
+	}
+
+	public void setContactExpPMPPs(List<ContactExpPMPP> contactExpPMPPs) {
+		this.contactExpPMPPs = contactExpPMPPs;
+	}
+}

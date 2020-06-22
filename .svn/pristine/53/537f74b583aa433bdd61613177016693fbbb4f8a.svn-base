@@ -1,0 +1,214 @@
+package xtensus.beans.common.GBO;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.sauvgardeRestauration.SQLtoDB;
+import xtensus.entity.Sauvegardehistorique;
+import xtensus.services.ApplicationManager;
+
+/**
+ * @author HB
+ * 
+ */
+@Component
+@Scope("request")
+public class RestaurationBean {
+	private ApplicationManager appMgr;
+	private boolean buttonRendered;
+	private boolean completemsg;
+	private boolean enabled;
+	private Long startTime;
+	private boolean status;
+	private boolean backUpStatus;
+	@Autowired
+	private VariableGlobale vb;
+	private Date currentDate;
+	private long timeAvancement;
+	private List<Sauvegardehistorique> sauvegardehistoriques;
+
+	public RestaurationBean() {
+
+	}
+
+	@Autowired
+	public RestaurationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		sauvegardehistoriques = new ArrayList<Sauvegardehistorique>();
+	}
+
+	@PostConstruct
+	public void chargement() {
+		buttonRendered = true;
+		completemsg = false;
+		sauvegardehistoriques = new ArrayList<Sauvegardehistorique>();
+		try {
+			sauvegardehistoriques = appMgr.getList(Sauvegardehistorique.class);
+			List<Date> dates = new ArrayList<Date>();
+			for (Sauvegardehistorique sv : sauvegardehistoriques) {
+				dates.add(sv.getSauvegardeHistoriqueDate());
+			}
+			vb.setDatesSauvgardes(dates);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*** ***/
+	public void checkBackUp() {
+		if (currentDate == null) {
+			backUpStatus = false;
+		} else {
+			backUpStatus = false;
+		}
+	}
+
+	/*** ***/
+	public void startProcess() {
+		try {
+
+			long startT = System.currentTimeMillis();
+			status = false;
+			List<Sauvegardehistorique> listSauvegardehistorique = new ArrayList<Sauvegardehistorique>();
+
+			try {
+				System.out.println("current Date : " + currentDate);
+				listSauvegardehistorique = appMgr
+						.listSauvegardehistoriqueByDate(currentDate);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			int lastId = listSauvegardehistorique.size();
+
+			if (lastId > 0) {
+				String fileName = listSauvegardehistorique.get(lastId - 1)
+						.getSauvegardeHistoriqueNomFichier();
+
+				try {
+					SQLtoDB.resetDatabase(fileName);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
+			}
+			// Pause for 2 seconds
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				System.err.println("Erreur Sleep");
+			}
+			long duree = System.currentTimeMillis() - startT;
+			System.out.println("Methode " + " a pris " + duree + " (ms)");
+			timeAvancement = (duree / 10) + 100;
+			System.out.println("timeAvancement : " + timeAvancement);
+			vb.setInRestoration(true);
+			setButtonRendered(false);
+			setStartTime(new Date().getTime());
+			completemsg = true;
+			status = true;
+			// **
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"restauration",
+					"Evénement de log de restauration de la base de données GBO ",
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public Long getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Long startTime) {
+		this.startTime = startTime;
+	}
+
+	public boolean isButtonRendered() {
+		return buttonRendered;
+	}
+
+	public void setButtonRendered(boolean buttonRendered) {
+		this.buttonRendered = buttonRendered;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setCurrentDate(Date currentDate) {
+		this.currentDate = currentDate;
+	}
+
+	public Date getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setTimeAvancement(long timeAvancement) {
+		this.timeAvancement = timeAvancement;
+	}
+
+	public long getTimeAvancement() {
+		return timeAvancement;
+	}
+
+	public void setSauvegardehistoriques(
+			List<Sauvegardehistorique> sauvegardehistoriques) {
+		this.sauvegardehistoriques = sauvegardehistoriques;
+	}
+
+	public List<Sauvegardehistorique> getSauvegardehistoriques() {
+		return sauvegardehistoriques;
+	}
+
+	public void setCompletemsg(boolean completemsg) {
+		this.completemsg = completemsg;
+	}
+
+	public boolean isCompletemsg() {
+		return completemsg;
+	}
+
+	public boolean isBackUpStatus() {
+		return backUpStatus;
+	}
+
+	public void setBackUpStatus(boolean backUpStatus) {
+		this.backUpStatus = backUpStatus;
+	}
+
+}

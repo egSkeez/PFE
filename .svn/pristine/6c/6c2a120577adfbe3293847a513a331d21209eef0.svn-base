@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2020-02-26T20:08:53 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EtatAO_Recu" pageWidth="700" pageHeight="1000" columnWidth="660" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ee83e099-87cd-4528-b005-e4fc668d69b1">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<field name="reference" class="java.lang.String">
+		<fieldDescription><![CDATA[reference]]></fieldDescription>
+	</field>
+	<field name="dateRecep" class="java.util.Date">
+		<fieldDescription><![CDATA[dateRecep]]></fieldDescription>
+	</field>
+	<field name="dateReception" class="java.util.Date">
+		<fieldDescription><![CDATA[dateReception]]></fieldDescription>
+	</field>
+	<field name="numeroOrdre" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numeroOrdre]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="aoConsultation" class="xtensus.entity.AoConsultation">
+		<fieldDescription><![CDATA[aoConsultation]]></fieldDescription>
+	</field>
+	<field name="date" class="java.lang.String">
+		<fieldDescription><![CDATA[date]]></fieldDescription>
+	</field>
+	<field name="date1" class="java.lang.String">
+		<fieldDescription><![CDATA[date1]]></fieldDescription>
+	</field>
+	<field name="dateLimiteToString" class="java.lang.String">
+		<fieldDescription><![CDATA[dateLimiteToString]]></fieldDescription>
+	</field>
+	<field name="dateProlongationToString" class="java.lang.String">
+		<fieldDescription><![CDATA[dateProlongationToString]]></fieldDescription>
+	</field>
+	<field name="dateSeanceCommissionToString" class="java.lang.String">
+		<fieldDescription><![CDATA[dateSeanceCommissionToString]]></fieldDescription>
+	</field>
+	<field name="time" class="java.lang.String">
+		<fieldDescription><![CDATA[time]]></fieldDescription>
+	</field>
+	<field name="time2" class="java.lang.String">
+		<fieldDescription><![CDATA[time2]]></fieldDescription>
+	</field>
+	<field name="listeCourrierAOC" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourrierAOC]]></fieldDescription>
+	</field>
+	<field name="heureLimiteToString" class="java.lang.String">
+		<fieldDescription><![CDATA[heureLimiteToString]]></fieldDescription>
+	</field>
+	<field name="listeCourrierAOC2" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourrierAOC2]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="231" splitType="Stretch">
+			<staticText>
+				<reportElement x="47" y="112" width="554" height="29" uuid="1e06ca28-6727-4fc8-8448-49280c129f7a"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="22" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[الظروف الواردة بعد انعقاد جلسة الفتح الخاصة بها]]></text>
+			</staticText>
+			<image>
+				<reportElement x="527" y="0" width="50" height="36" uuid="44f754f5-62a2-4fd6-8e27-bb2f36008ca6"/>
+				<imageExpression><![CDATA["../../framGraphique/images/logoSonede.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="267" y="50" width="310" height="20" uuid="8fd3ae65-c66e-4465-8fa2-bff89b869dec"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الشركة الوطنية لاستغلال وتوزيع المياه]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="217" y="74" width="360" height="23" uuid="27b681be-5674-4ac5-8110-0e19f6dd3439"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uniteConnecte}]]></textFieldExpression>
+			</textField>
+			<textField pattern="yyyy/MM/dd">
+				<reportElement x="55" y="10" width="101" height="20" uuid="0efcf4c0-b5c4-4243-b543-e84326baaf25"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="158" y="10" width="40" height="20" uuid="9dfd8fc6-fbfd-4f94-a676-4f2802de7f33"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<text><![CDATA[تونس في:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="257" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="317" y="39" width="100" height="14" uuid="7d6984d2-0999-4d40-8df5-62c769fb29eb"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{aoConsultation}.getAoConsultationNumero()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="316" y="61" width="100" height="20" uuid="cff2cd98-a308-4a36-ac20-77c6db786c6b"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{aoConsultation}.getAoConsultationObjet()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="313" y="84" width="109" height="16" uuid="864b6045-6d81-4dba-a70e-74ebca3d9336"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{heureLimiteToString}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="287" y="107" width="134" height="16" uuid="1563bcda-e6da-4f59-9a91-4c08a045169e"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{dateProlongationToString}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="247" y="130" width="174" height="16" uuid="2436e8f1-076b-4348-b797-e9b90fc19433"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{dateSeanceCommissionToString}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="459" y="187" width="166" height="20" uuid="43949400-39ee-4d65-8967-cedb58d3b9b1">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="264" y="187" width="195" height="20" uuid="9a221e2e-1418-460e-8955-85c0d7987053">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[العروض الواردة عن طريق البريد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="134" y="187" width="130" height="20" uuid="280112f6-ef79-41d9-ae54-34b878abce84">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[العروض المسلمة مباشرة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="187" width="109" height="43" uuid="3056eb61-992e-42ab-9b63-6b575aa658ab">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="10">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[إقرار بالاستلام من طرف المكلف بأشغال لجنة الشراءات]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="70" y="230" width="64" height="27" uuid="31f27b56-651a-4ced-8d93-ad80a74e853f">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+				</reportElement>
+				<box topPadding="5">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[التاريخ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="230" width="45" height="27" uuid="580f57dc-ce44-49bb-adf3-ffe85655fcfb">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+				</reportElement>
+				<box topPadding="5">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الإمضاء]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="134" y="207" width="65" height="50" uuid="c5a648cd-20fb-4d12-b7c2-a02a9be640f4">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+				</reportElement>
+				<box topPadding="11">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ساعة تسلم 
+العرض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="199" y="207" width="65" height="50" uuid="ec7deb5a-a64a-4266-94d3-792aaec7d9a2">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="11">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[تاريخ تسلم
+ العرض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="264" y="207" width="65" height="50" uuid="c4e81187-d5c8-48a3-b85f-c8d995307dac">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="11">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ساعة وصول العرض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="329" y="207" width="65" height="50" uuid="06b01b2d-c4cd-4071-bea8-19afd1199440">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="11">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[تاريخ وصول العرض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="394" y="207" width="65" height="50" uuid="b86f58c2-0865-433b-91fb-9cdbcf57ebab">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="11">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المرجع البريدي للعرض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="459" y="207" width="101" height="50" uuid="c7374320-cf17-475f-827d-e190fadafd41">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+				</reportElement>
+				<box topPadding="11">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[عدد التسجيل في مكتب الضبط]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="560" y="207" width="65" height="50" uuid="c0f6e97c-1d21-4dfc-b478-75beb41aeab6">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+				</reportElement>
+				<box topPadding="11" leftPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[العدد الرتبي للعرض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="47" y="13" width="557" height="165" uuid="677d843c-50c3-43d2-8581-787bccbd13da"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="false"/>
+					<paragraph lineSpacing="Double" lineSpacingSize="2.0"/>
+				</textElement>
+				<text><![CDATA[طلب العروض/الإستشارة عدد .......................................................................................................................
+موضوع طلب العروض/الإستشارة: ................................................................................................................
+آخر أجل لقبول العروض :( التاريخ و الساعة) ....................................................................................................
+تمديد الآجال إلى: ......................................................................................................................................
+تاريخ انعقاد جلسة فتح العروض الفنية و المالية: ..................................................................................................]]></text>
+			</staticText>
+		</band>
+		<band height="30">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<subreport>
+				<reportElement positionType="Float" x="25" y="0" width="600" height="30" isRemoveLineWhenBlank="true" uuid="17562c63-7e1d-4382-95c7-e8b909d45c11">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeCourrierAOC})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["EtatAO_RecuApresOuverture_SousRapport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="30">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<subreport>
+				<reportElement positionType="Float" x="25" y="0" width="600" height="30" isRemoveLineWhenBlank="true" uuid="47e8a46e-58e9-4c9c-aeeb-504e0498e2b7">
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeCourrierAOC2})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["EtatAO_RecuApresOuverture_SousRapport2.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="317">
+			<staticText>
+				<reportElement positionType="Float" x="54" y="41" width="555" height="200" uuid="9eeeda4b-0c6b-4602-ad95-610d30264114"/>
+				<box topPadding="38">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="14" isBold="false"/>
+					<paragraph lineSpacing="Double"/>
+				</textElement>
+				<text><![CDATA[مكتب الظبط المعني
+الإمضاء]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

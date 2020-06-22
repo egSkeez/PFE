@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+
+<head>
+<title>Consulter contact</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<!-- *********************************** -->
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<h:panelGrid columns="4">
+								<a4j:commandLink
+									oncomplete="document.location.href='contactPersonneMoraleConsultation.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="1" styleClass="xtePanelGrid">
+								<h:outputText value="#{msg.ConsultExpfacet}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<h:form>
+							<table style="width: 100%;">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+											<h:outputText value="#{msg.ContactRaisonSociale}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{contactPersonneMoraleConsultationBean.vb.expdestexterne.expDestExterneNom}"
+												style=" width :100px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.ContactAdresse}"
+												styleClass="xteDetailLabel" />
+											<h:column />
+
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactRue}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="adr"
+												value="#{contactPersonneMoraleConsultationBean.vb.expdestexterne.expDestExterneAdresse}"
+												styleClass="xteDetailLabelOutput" />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactCode}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="code"
+												value="#{contactPersonneMoraleConsultationBean.vb.expdestexterne.expDestExterneCodePostale}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactPays}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+
+											<h:outputText id="pays"
+												value="#{contactPersonneMoraleConsultationBean.vb.expdestexterne.expDestExternePays}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.Gouvernorat}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+
+											<h:outputText id="gouvernorat"
+												value="#{contactPersonneMoraleConsultationBean.vb.expdestexterne.expDestExterneGouvernerat}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactVille}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="ville"
+												value="#{contactPersonneMoraleConsultationBean.vb.expdestexterne.expDestExterneVille}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+											<h:outputText value="#{msg.ContactTele}"
+												styleClass="xteDetailLabel" />
+											<h:outputText id="no"
+												value="#{contactPersonnePhysiqueConsultationBean.vb.expdestexterne.expDestExterneTelephone}"
+												styleClass="xteDetailLabelOutput" />
+
+										</h:panelGrid>
+									</td>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+											<h:outputText value="#{msg.Contactfax}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{contactPersonnePhysiqueConsultationBean.vb.expdestexterne.expDestExterneFax}"
+												style=" width : 200px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.ContactMail}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{contactPersonnePhysiqueConsultationBean.vb.expdestexterne.expDestExterneMail}"
+												style=" width :100px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactType}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{contactPersonneMoraleConsultationBean.typeExpUser}"
+												styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.ContactRegistreCommerce}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{contactPersonnePhysiqueConsultationBean.vb.pm.registreCommerce}"
+												style=" width : 200px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.ContactMatricule}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{contactPersonnePhysiqueConsultationBean.vb.pm.pmmatriculeFiscal}"
+												style=" width : 200px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactCNSS}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{contactPersonnePhysiqueConsultationBean.vb.pm.pmaffiliationCnss}"
+												style=" width : 200px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.NbrPP}"
+												styleClass="xteDetailLabel" />
+											<a4j:keepAlive beanName="contactConsultationBean" />
+											<h:outputText value="#{contactConsultationBean.vb.nombrePP}"
+												styleClass="xteDetailLabelOutput" />
+
+										</h:panelGrid>
+									</td>
+								</tr>
+							</table>
+
+
+						</h:form>
+					</rich:panel>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="1">
+								<h:outputText value="#{msg.RechercherPPfacet}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<h:form>
+							<rich:dataTable
+								value="#{contactPersonnePhysiqueConsultationBean.listPPModel}"
+								var="exp" id="data" rows="10" styleClass="rich-datatable">
+
+								<rich:column sortBy="#{exp.expdestexterne.expDestExterneNom}"
+									filterBy="#{exp.expdestexterne.expDestExterneNom}"
+									filterEvent="onkeyup" label="Nom">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpPrenomNomRaisonSociale}" />
+									</f:facet>
+									<h:outputText value="#{exp.expdestexterne.expDestExterneNom}" />
+								</rich:column>
+
+								<rich:column sortBy="#{exp.expdestexterne.expDestExterneMail}"
+									filterBy="#{exp.expdestexterne.expDestExterneMail}"
+									filterEvent="onkeyup" label="mail">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpMail}" />
+									</f:facet>
+									<h:outputText value="#{exp.expdestexterne.expDestExterneMail}" />
+								</rich:column>
+
+								<rich:column sortBy="#{exp.pp.cin}" filterBy="#{exp.pp.cin}"
+									filterEvent="onkeyup" label="Adr">
+									<f:facet name="header" id="yy">
+										<h:outputText value="#{msg.ExpCIN}" />
+									</f:facet>
+
+									<h:outputText value="#{exp.pp.cin}" />
+
+								</rich:column>
+
+								<rich:column sortBy="#{exp.pp.ppnumPortable}"
+									filterBy="#{exp.pp.ppnumPortable}" filterEvent="onkeyup"
+									label="Adr">
+									<f:facet name="header" id="yy">
+										<h:outputText value="#{msg.ExpPortable}" />
+									</f:facet>
+
+									<h:outputText value="#{exp.pp.ppnumPortable}" />
+
+								</rich:column>
+								<rich:column>
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpOperation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="2" width="10px">
+											<a4j:commandLink id="consult"
+												action="#{contactPersonnePhysiqueConsultationBean.getSelectionRow2}"
+												oncomplete="document.location.href='contactPersonnePhysiqueConsultation1.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="Consulter" />
+											</a4j:commandLink>
+											<rich:toolTip for="consult" value="#{msg.Consult}" />
+										</h:panelGrid>
+									</div>
+								</rich:column>
+
+
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.NbrExp}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="records"
+									value="#{contactPersonnePhysiqueConsultationBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+					</rich:panel>
+					<rich:modalPanel id="askDelete" autosized="true" height="90"
+						width="300">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:outputText value="#{msg.labelConfirmation}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="askDelete" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+
+
+						<h:form>
+							<a4j:keepAlive beanName="contactPersonnePhysiqueConsultationBean" />
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/interrogation.png"
+											alt="confirm" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText"
+											value="#{msg.confirmDelete}" /></td>
+								</tr>
+								<h:form>
+
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOui}"
+													action="#{contactPersonnePhysiqueConsultationBean.deleteExp}"
+													onclick="Richfaces.hideModalPanel('askDelete');"
+													oncomplete="document.location.href='PersonnePhysiqueNombreConsultation.jsf'"
+													type="submit" ajaxSingle="true" styleClass="submitButton"
+													reRender="data,scroller,list" /></td>
+
+											<td><a4j:commandButton value="#{msg.bouttonNon}"
+													styleClass="submitButton" type="submit" ajaxSingle="true"
+													onclick="Richfaces.hideModalPanel('askDelete');"
+													oncomplete="document.location.href='PersonnePhysiqueNombreConsultation.jsf'" />
+											</td>
+										</tr>
+
+
+									</table>
+
+
+
+								</h:form>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+					<rich:modalPanel id="askDeleteExp" autosized="true" height="100"
+						width="400">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:outputText value="#{msg.labelConfirmation}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink2" />
+								<rich:componentControl for="askDeleteExp" attachTo="hidelink2"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+
+
+						<h:form>
+
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/interrogation.png"
+											alt="confirm" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText"
+											value="#{msg.confirmDeleteExp}" /></td>
+								</tr>
+							</table>
+						</h:form>
+						<h:form>
+							<a4j:keepAlive beanName="contactPersonnePhysiqueConsultationBean" />
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOui}"
+											action="#{contactPersonnePhysiqueConsultationBean.deleteSelectedRow}"
+											onclick="Richfaces.hideModalPanel('askDeleteExp');"
+											oncomplete="document.location.href='PersonnePhysiqueNombreConsultation.jsf'"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											reRender="data,scroller,list" /></td>
+
+									<td><a4j:commandButton value="#{msg.bouttonNon}"
+											styleClass="submitButton" type="submit" ajaxSingle="true"
+											onclick="Richfaces.hideModalPanel('askDelete');"
+											oncomplete="document.location.href='PersonnePhysiqueNombreConsultation.jsf'" />
+									</td>
+								</tr>
+							</table>
+						</h:form>
+
+					</rich:modalPanel>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+
+</ui:composition>

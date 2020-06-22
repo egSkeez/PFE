@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <query name="listDossierPersonnaliser">SELECT do FROM Dossier do WHERE
+		do.typedossier.typeDossierLibelle=:id1</query>
+ <query name="listNature">SELECT n FROM Nature n WHERE (n.natureLibelle=:nom or n.natureLibelleAr=:nom)</query>
+ <query name="listTransmission">SELECT tr FROM Transmission tr WHERE
+		tr.transmissionLibelle=:nom</query>
+ <query name="listConfidentialite">SELECT cf FROM Confidentialite cf WHERE
+		cf.confidentialiteLibelle=:nom</query>
+ <query name="listUrgence">SELECT ug FROM Urgence ug WHERE
+		ug.urgenceLibelle=:nom</query>
+ <query name="listAnnotation">SELECT at FROM Annotation at WHERE
+		at.annotationLibelle=:nom</query>
+ <query name="listTypeDossierById">SELECT td FROM Typedossier td WHERE
+		td.typeDossierId=:id</query>
+ <query name="listTypeDossierByLibelle">SELECT td FROM Typedossier td WHERE
+		td.typeDossierLibelle=:nom</query>
+ <query name="listTypeTransactionById">SELECT tt FROM Typetransaction tt WHERE
+		tt.typeTransactionId=:id</query>
+ <query name="listTypeTransactionByLibelle">SELECT tt FROM Typetransaction tt WHERE
+		tt.typeTransactionLibelle=:nom</query>
+ <query name="listcourrierDossierByIdCourrier">SELECT cd FROM CourrierDossier cd WHERE
+		cd.id.idCourrier=:id</query>
+ <query name="listcourrierDossierByIdDossier">SELECT cd FROM CourrierDossier cd WHERE
+		cd.id.dossierId=:id</query>
+ <query name="listTransactionByIdDossier">SELECT td FROM Transaction td WHERE
+		td.dossier.dossierId=:id order by td.transactionId desc</query>
+ <query name="listTransactionByIdDossierByEtat">SELECT td FROM Transaction td WHERE
+		td.dossier.dossierId=:id AND td.etat.etatId !=6 order by td.transactionId desc</query>
+ <query name="listDossierById">SELECT d FROM Dossier d WHERE d.dossierId=:id</query>
+ <query name="listExpediteurById">SELECT exp FROM Expdestexterne exp WHERE
+		exp.idExpDestExterne=:id</query>
+ <query name="listNatureId">SELECT n FROM Nature n WHERE n.natureId=:id</query>
+ <query name="listTransmissionId">SELECT tr FROM Transmission tr WHERE
+		tr.transmissionId=:id</query>
+ <query name="listConfidentialiteId">SELECT cf FROM Confidentialite cf WHERE
+		cf.confidentialiteId=:id</query>
+ <query name="listUrgenceId">SELECT ug FROM Urgence ug WHERE ug.urgenceId=:id</query>
+ <query name="listAnnotationId">SELECT an FROM Annotation an WHERE
+		an.annotationId=:idA</query>
+ <query name="listDocumentByIdCourrier">SELECT doc FROM Document doc WHERE
+		doc.courrier.idCourrier=:id2</query>
+ <query name="listAnnotationIdByIdTransaction">SELECT ta FROM TransactionAnnotation ta WHERE
+		ta.id.idTransaction=:idA</query>
+ <query name="listCourrierById">SELECT cr FROM Courrier cr WHERE cr.idCourrier=:id</query>
+ <query name="listCourrierByRef">SELECT cr FROM Courrier cr WHERE cr.courrierReferenceCorrespondant=:ref</query>
+ <query name="listCourrierByIdCloture">SELECT cr FROM Courrier cr</query>
+ <query name="listCourrierInterene">SELECT cr FROM Courrier cr WHERE cr.idCourrier=:id AND cr.courrierReferenceCorrespondant LIKE 'i%'</query>
+ <query name="listCourrierTypeOrdreById">SELECT c FROM Courrier c
+WHERE c.courrierTypeOrdre IN (SELECT MAX(cr.courrierTypeOrdre) FROM Courrier cr
+								WHERE cr.courrierType = :type AND YEAR(cr.courrierDateReception) = :year)
+AND YEAR(c.courrierDateReception) = :year</query>
+ <query name="listCrByDateJourId">SELECT cr FROM Courrier cr WHERE cr.idCourrier=:id
+		and cr.courrierDateReception=:date</query>
+ <query name="listCrByDateId">SELECT cr FROM Courrier cr WHERE cr.idCourrier=:id
+		and cr.courrierDateReception=:dateD and
+		cr.courrierDateReception=:dateF</query>
+ <query name="listCrBySemId">SELECT cr FROM Courrier cr WHERE cr.idCourrier=:id
+		and cr.courrierDateReception=:debutS and
+		cr.courrierDateReception=:finS</query>
+ <query name="listTypeUtiisateurByLibelle">SELECT tu FROM Typeutilisateur tu WHERE
+		tu.typeUtilisateurLibelle=:id1</query>
+ <query name="listTypeUtiisateurById">SELECT tu FROM Typeutilisateur tu WHERE
+		tu.typeUtilisateurId=:id1</query>
+ <query name="PpByidExpediteur">SELECT pp FROM Pp pp WHERE
+		pp.expdestexterne.idExpDestExterne=:id</query>
+ <query name="PmByidExpediteur">SELECT pm FROM Pm pm WHERE
+		pm.expdestexterne.idExpDestExterne=:id</query>
+ <query name="listexpediteurBystatus">SELECT exp FROM Expdestexterne exp WHERE
+		exp.expDestExterneSupprimer=:status and exp.typeutilisateur.typeUtilisateurId != 3</query>
+ <query name="listPPByPm">SELECT p FROM Pp p WHERE p.pm.pmid=:id</query>
+ <query name="listPMByIdPm">SELECT p FROM Pm p WHERE p.pmid=:id</query>
+ <query name="rechercheCourrier">SELECT cr FROM Courrier cr WHERE
+		cr.courrierReferenceCorrespondant=:id or
+		cr.courrierDateReception=:daterrec or
+		cr.courrierNecessiteReponse=:nrep or cr.courrierDateReponse=:daterrep
+		or cr.keywords=:keyw</query>
+ <!-- Etat -->
+ <query name="listEtatByRef">SELECT e FROM Etat e WHERE e.etatId=:id1</query>
+ <query name="listEtatByCategorie">SELECT e FROM Etat e WHERE e.etatCategorie=:id1</query>
+ <query name="listEtatBylibelle">SELECT e FROM Etat e WHERE e.etatLibelle=:id1</query>
+ <!-- user -->
+ <query name="listUtiliById">SELECT utili FROM Utilisateur utili WHERE
+		utili.utilisateurId=:id</query>
+ <query name="listDestByIdTransaction">SELECT td FROM TransactionDestination td WHERE
+		td.id.idTransaction=:id</query>
+ <query name="deleteDossierCourrierByIdDossier">Delete FROM CourrierDossier cd WHERE
+		cd.id.dossierId=:id1</query>
+ <!-- CourrierTransaction -->
+ <query name="listExpDestById">SELECT ed FROM Expdest ed 
+		WHERE ( ed.idExpDestLdap=:id or ed.expdestexterne.idExpDestExterne=:id)
+		and ed.typeExpDest=:type</query>
+ <query name="listExpDestByIdExpDest">SELECT ed FROM Expdest ed WHERE ed.idExpDest=:id</query>
+ <query name="listTransactionDestinationByIdExpDest">SELECT td FROM TransactionDestination td WHERE
+		td.id.idExpDest=:id</query>
+ <query name="listTransactionDestinationByIdTransaction">SELECT td FROM TransactionDestination td WHERE
+		td.id.idTransaction=:id</query>
+ <query name="listTransactionByIdTransaction">SELECT t FROM Transaction t WHERE t.transactionId=:id
+		order by t.transactionId desc</query>
+ <query name="listTransactionByIdTransactionJour">SELECT t FROM Transaction t WHERE t.transactionId=:id
+		and t.transactionDateTransaction=:date order by t.transactionId desc</query>
+ <query name="listTransactionByIdExpDest">SELECT t FROM Transaction t WHERE
+		t.expdest.idExpDest=:id order by t.transactionId desc</query>
+ <query name="listTransactionByIdExpDestJour">SELECT t FROM Transaction t WHERE
+		t.expdest.idExpDest=:id and t.transactionDateTransaction=:date order
+		by t.transactionId desc</query>
+ <query name="listTransactionByIdAndFirstOrder">SELECT t FROM Transaction t WHERE
+		t.transactionDestinationReelle.transactionDestinationReelleId=:id and
+		t.transactionOrdre=:id1 ORDER BY t.transactionId DESC</query>
+ <query name="listCommentaireByIdTransaction">SELECT c FROM Commentaire c WHERE
+		c.transaction.transactionId=:id ORDER BY c.commentaireId DESC</query>
+ <query name="listCommentaireByIdCourrier">SELECT c FROM Commentaire c WHERE
+		c.transaction.transactionId=:id and c.courrier.idCourrier=:id1 ORDER
+		BY c.commentaireId DESC</query>
+ <query name="listCommentaireByIdUser">SELECT c FROM Commentaire c WHERE
+		c.commentaireIdExpediteur=:id and c.transaction.transactionId=:id1 and
+		c.commentaireTypeExpediteur=:type ORDER BY c.commentaireId DESC</query>
+ <query name="listCommentaireCourrierByIdUser">SELECT c FROM Commentaire c WHERE
+		c.commentaireIdExpediteur=:id and c.transaction.transactionId=:id1 and
+		c.courrier.idCourrier=:id2 and c.commentaireTypeExpediteur=:type ORDER
+		BY c.commentaireId DESC</query>
+ <query name="listTransactionEnvoyesParResponsableJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction=:date and (t.transactionIdIntervenant=:id
+		or t.transactionTypeIntervenant=:type or
+		t.transactionTypeIntervenant=:type1 ) order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuResponsableJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		(tr.transactionDestIdIntervenant=:id or
+		tr.transactionDestTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type1)) order by
+		trr.id.idTransaction desc</query>
+ <query name="listTransactionEnvoyesParResponsable">SELECT t FROM Transaction t WHERE
+		(t.transactionIdIntervenant=:id or t.transactionTypeIntervenant=:type
+		or t.transactionTypeIntervenant=:type1) order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuResponsable">SELECT trr FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and (tr.transactionDestIdIntervenant=:id or
+		                                    tr.transactionDestTypeIntervenant=:type or
+		                                    tr.transactionDestTypeIntervenant=:type1)) 
+		order by trr.id.idTransaction desc</query>
+ <query name="listTransactionEnvoyesParAgentJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction=:date and
+		t.transactionTypeIntervenant=:type order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuAgentJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		tr.transactionDestTypeIntervenant=:type) order by trr.id.idTransaction
+		desc</query>
+ <query name="listTransactionEnvoyesParAgent">SELECT t FROM Transaction t WHERE
+		t.transactionTypeIntervenant=:type order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuAgent">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and tr.transactionDestTypeIntervenant=:type ) order by
+		trr.id.idTransaction desc</query>
+ <query name="listTransactionEnvoyesParSecretaireJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction=:date and
+		(t.transactionTypeIntervenant=:type or
+		t.transactionTypeIntervenant=:type1 ) order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuSecretaireJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		(tr.transactionDestTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type1)) order by
+		trr.id.idTransaction desc</query>
+ <query name="listTransactionEnvoyesParSecretaire">SELECT t FROM Transaction t WHERE
+		t.transactionTypeIntervenant=:type or
+		t.transactionTypeIntervenant=:type1 order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuSecretaire">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and (tr.transactionDestTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type1)) order by
+		trr.id.idTransaction desc</query>
+ <query name="listPartageByIdTransaction">SELECT c FROM Commentaire c WHERE
+		c.transaction.transactionId=:id and c.dossier.dossierId=:id1</query>
+ <query name="listTransactionTest">SELECT t FROM Transaction t</query>
+ <query name="listTransactionTestRecord">SELECT count(*) FROM Transaction t</query>
+ <query name="listDroitByLibelle">SELECT d FROM Droit d WHERE d.droitLibelle=:libelle</query>
+ <query name="listMenuByIdDroit">SELECT m FROM Menu m WHERE m.menuId IN (SELECT
+		md.id.menuId FROM MenuDroit md,Menu me WHERE md.id.idDroit=:id and
+		md.id.menuId=me.menuId and me.menu.menuId=null and me.menuOrdre!=null)
+		ORDER BY m.menuOrdre ASC</query>
+ <query name="directionByRefrence">SELECT dr FROM Direction dr WHERE
+		dr.direction.directionId=:id1</query>
+ <query name="annotationByOrdre">SELECT an FROM Annotation an ORDER BY
+		an.annotationOrdre</query>
+ <query name="urgenceByOrdre">SELECT urg FROM Urgence urg ORDER BY urg.urgenceOrdre</query>
+ <query name="confidentialiteByOrdre">SELECT conf FROM Confidentialite conf ORDER BY
+		conf.confidentialiteOrdre</query>
+ <query name="natureByOrdreRef">SELECT nat FROM Nature nat ORDER BY nat.natureId</query>
+ <query name="countListconfidentialite">SELECT count(cour.idCourrier) FROM
+		Courrier cour where
+		cour.confidentialite.confidentialiteId=:id1</query>
+ <query name="countListurgence">SELECT count(cour.idCourrier) FROM
+		Courrier cour where
+		cour.urgence.urgenceId=:id1</query>
+ <query name="countListurgenceDossier">SELECT count(dos.dossierId) FROM
+		Dossier dos where
+		dos.urgence.urgenceId=:id1</query>
+ <query name="countListconfidentialiteDossier">SELECT count(dos.dossierId) FROM
+		Dossier dos where
+		dos.confidentialite.confidentialiteId=:id1</query>
+ <query name="aideByInterface">SELECT a FROM Aide a where
+		a.aideTitre=:titreInterface</query>
+ <query name="listDossierByIdProprietaire">SELECT d FROM Dossier d WHERE
+		d.dossierProprietaireId=:id</query>
+ <query name="countDossierByIdProprietaireAndTypeDossier">SELECT count(*) FROM Dossier d
+		WHERE d.dossierProprietaireId=:id and d.typedossier.typeDossierId = :idTypeDossier</query>
+ <query name="listCourrierNecessitnatReponse">SELECT c FROM Courrier c WHERE
+		c.courrierNecessiteReponse=:id</query>
+ <!-- Variables -->
+ <query name="listVariablesById">SELECT var FROM Variables var WHERE
+		var.variablesId=:id1</query>
+ <query name="listVariablesByLibelle">SELECT var FROM Variables var WHERE
+		var.variablesLibelle=:id1</query>
+ <!-- Societe -->
+ <query name="listSocieteById">SELECT s FROM Societe s WHERE s.societeId=:id1</query>
+ <query name="listSocieteByLibelle">SELECT s FROM Societe s WHERE s.societeVariable=:id1</query>
+ <!-- Armoire -->
+ <query name="listArmoireById">SELECT ar FROM Armoire ar WHERE ar.idarmoire=:id1</query>
+ <query name="listArmoireByLibelle">SELECT ar FROM Armoire ar WHERE
+		ar.armoireLibelle=:id1</query>
+ <query name="listArmoireByEtat">SELECT ar FROM Armoire ar WHERE ar.armoireEtat=:id1</query>
+ <!-- Etages -->
+ <query name="listEtagesById">SELECT et FROM Etages et WHERE et.idetages=:id1</query>
+<query name="listEtagesOrderById">SELECT et FROM Etages et ORDER BY et.armoire.idarmoire DESC</query>
+ <query name="listEtagesByIdArmoire">SELECT et FROM Etages et WHERE
+		et.armoire.idarmoire=:id1</query>
+ <query name="listEtagesByLibelle">SELECT et FROM Etages et WHERE
+		et.etagesLibelle=:id1</query>
+ <query name="listEtagesByIdArmoireAndEtat">SELECT et FROM Etages et WHERE
+		et.armoire.idarmoire=:id1 AND et.etagesEtat=:id2</query>
+ <query name="listCourrierByIdEtages">SELECT cr FROM Courrier cr WHERE
+		cr.etages.idetages=:id</query>
+ <query name="listArmoireUserClassement">SELECT cr FROM ArmoirBoiteArchiveUser cr WHERE
+		cr.idUser =:id ORDER BY cr.dateEnregistrement DESC</query>
+ <!-- Requette integrer -->
+ <query name="listTransactionEnvoyesParAgentBocJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction=:date and
+		(t.transactionTypeIntervenant=:type or
+		t.transactionTypeIntervenant=:type1) order by t.transactionId desc</query>
+ <query name="listTransactionEnvoyesParAgentBoc">SELECT t FROM Transaction t WHERE
+		t.transactionTypeIntervenant=:type or
+		t.transactionTypeIntervenant=:type1 order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuAgentBocJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		(tr.transactionDestTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type1)) and trr.id.idExpDest IN
+		(SELECT tr.id.idExpDest FROM Transaction t,TransactionDestination tr
+		Where t.transactionId=tr.id.idTransaction and
+		t.transactionDateTransaction=:date and
+		(tr.transactionDestTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type1)) order by
+		trr.id.idTransaction desc</query>
+ <query name="listTransactionRecusAuAgentBoc">SELECT trr FROM TransactionDestination trr WHERE
+		trr.transactionDestTypeIntervenant=:type or
+		trr.transactionDestTypeIntervenant=:type1 order by
+		trr.id.idTransaction desc</query>
+ <!-- Subordonnes -->
+ <query name="listTransactionEnvoyesParSubordonnesJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction=:date and t.transactionIdIntervenant=:id
+		and (t.transactionTypeIntervenant LIKE '%sub%' or
+		t.transactionTypeIntervenant LIKE '%agent%') order by t.transactionId
+		desc</query>
+ <query name="listTransactionRecusAuSubordonnesJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		tr.transactionDestIdIntervenant=:id and
+		(tr.transactionDestTypeIntervenant LIKE '%sub%' or
+		tr.transactionDestTypeIntervenant LIKE '%agent%')) and
+		trr.id.idExpDest IN (SELECT tr.id.idExpDest FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		tr.transactionDestIdIntervenant=:id and
+		(tr.transactionDestTypeIntervenant LIKE '%sub%' or
+		tr.transactionDestTypeIntervenant LIKE '%agent%')) order by
+		trr.id.idTransaction desc</query>
+ <query name="listTransactionEnvoyesParSubordonnes">SELECT t FROM Transaction t WHERE
+		t.transactionIdIntervenant=:id and (t.transactionTypeIntervenant LIKE
+		'%sub%' or t.transactionTypeIntervenant LIKE '%agent%') order by
+		t.transactionId desc</query>
+ <query name="listTransactionRecusAuSubordonnes">SELECT trr FROM TransactionDestination trr WHERE
+		trr.transactionDestIdIntervenant=:id and
+		(trr.transactionDestTypeIntervenant LIKE '%sub%' or
+		trr.transactionDestTypeIntervenant LIKE '%agent%') order by
+		trr.id.idTransaction desc</query>
+ <!-- Sous Unite -->
+ <query name="listTransactionEnvoyesParSousUniteJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction=:date and t.transactionIdIntervenant=:id
+		and t.transactionTypeIntervenant LIKE '%unit%' order by
+		t.transactionId desc</query>
+ <query name="listTransactionRecusAuSousUniteJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction=:date and
+		tr.transactionDestIdIntervenant=:id and
+		tr.transactionDestTypeIntervenant LIKE '%unit%') and trr.id.idExpDest
+		IN (SELECT tr.id.idExpDest FROM Transaction t,TransactionDestination
+		tr Where t.transactionId=tr.id.idTransaction and
+		t.transactionDateTransaction=:date and
+		tr.transactionDestIdIntervenant=:id and
+		tr.transactionDestTypeIntervenant LIKE '%unit%') order by
+		trr.id.idTransaction desc</query>
+ <query name="listTransactionEnvoyesParSousUnite">SELECT t FROM Transaction t WHERE
+		t.transactionIdIntervenant=:id and t.transactionTypeIntervenant LIKE
+		'%unit%' order by t.transactionId desc</query>
+ <query name="listTransactionRecusAuSousUnite">SELECT trr FROM TransactionDestination trr WHERE
+		trr.transactionDestIdIntervenant=:id and
+		trr.transactionDestTypeIntervenant LIKE '%unit%' order by
+		trr.id.idTransaction desc</query>
+ <!-- Boc -->
+ <query name="listTransactionBocJour">SELECT trr FROM Transaction trr 
+		WHERE trr.transactionId IN (SELECT tr.id.idTransaction 
+		                            FROM Transaction t,TransactionDestination tr
+		                            Where t.transactionId=tr.id.idTransaction
+		                            and t.transactionDateTransaction=:date 
+									and t.idUtilisateur=:id 
+									and (tr.transactionDestTypeIntervenant!=:type or tr.transactionDestTypeIntervenant = NULL))
+		                            order by trr.transactionId desc</query>
+ <query name="listTransactionBoc">SELECT trr FROM Transaction trr
+		WHERE trr.transactionId IN (SELECT tr.id.idTransaction 
+	                                FROM Transaction t,TransactionDestination tr
+		                            Where t.transactionId=tr.id.idTransaction
+		                            and t.idUtilisateur=:id and (tr.transactionDestTypeIntervenant!=:type or tr.transactionDestTypeIntervenant = NULL)) 
+									order by trr.transactionId desc</query>
+ <query name="listTransactionDestinationBocJour">SELECT trr FROM TransactionDestination trr 
+		                                            WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                                                                            Where t.transactionId=tr.id.idTransaction
+		                                                                            and t.transactionDateTransaction=:date 
+																					and tr.transactionDestTypeIntervenant=:type and t.etat.etatId!=:id) 
+		                                            and trr.id.idExpDest IN (SELECT tr.id.idExpDest FROM Transaction t,TransactionDestination tr
+		                                                                     Where t.transactionId=tr.id.idTransaction
+		                                                                     and t.transactionDateTransaction=:date 
+		                                                                     and tr.transactionDestTypeIntervenant=:type and t.etat.etatId!=:id)
+		                                            order by trr.id.idTransaction desc</query>
+ <query name="listTransactionDestinationBoc">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and tr.transactionDestTypeIntervenant=:type and t.etat.etatId!=:id)
+		and trr.id.idExpDest IN (SELECT tr.id.idExpDest FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and tr.transactionDestTypeIntervenant=:type and t.etat.etatId!=:id)
+		order by trr.id.idTransaction desc</query>
+ <query name="listTransactionDestinationBocSansEtat">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and tr.transactionDestTypeIntervenant=:type )
+		and trr.id.idExpDest IN (SELECT tr.id.idExpDest FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and tr.transactionDestTypeIntervenant=:type )
+		order by trr.id.idTransaction desc</query>
+ <!-- Traitement Boc -->
+ <query name="listTransactionExpediteurByIdTransactionDestinationReelle">SELECT t FROM Transaction t WHERE
+		t.transactionDestinationReelle.transactionDestinationReelleId=:id and
+		t.transactionOrdre=:id1</query>
+ <query name="listTransactionByIdTransactionDestinationReelle">SELECT t FROM Transaction t WHERE
+		t.transactionDestinationReelle.transactionDestinationReelleId=:id</query>
+ <query name="listTransactionByIdTransactionDestinationReelleByEtat">SELECT t FROM Transaction t WHERE
+		t.transactionDestinationReelle.transactionDestinationReelleId=:id AND t.etat.etatId =5</query>
+ <!-- LienCourrier -->
+ <query name="listCourrierLienByIdCourrier">SELECT lc FROM Lienscourriers lc WHERE
+		lc.courrier.idCourrier=:id</query>
+ <query name="listLiensCourriersByIdCourrierLien">SELECT cr FROM CourrierLiens cr WHERE
+		cr.id.liensCourrier=:id</query>
+ <query name="courrierLiensByIdLienCourrier">Delete FROM CourrierLiens cl WHERE
+		cl.id.liensCourrier=:id</query>
+ <query name="courrierLiensByIdCourrier">Delete FROM CourrierLiens cl WHERE
+		cl.id.idCourrier=:id</query>
+ <query name="listTransactionDestinationByType">SELECT tr FROM TransactionDestination tr WHERE
+		tr.transactionDestTypeIntervenant=:type</query>
+ <query name="accuseReceptionByIdCourrier">SELECT s FROM Suivitransmissioncourrier s WHERE
+		s.courrier.idCourrier=:id</query>
+ <query name="listSousMenuByIdMenu">SELECT m FROM Menu m WHERE m.menuId IN (SELECT
+		md.id.menuId FROM MenuDroit md,Menu me WHERE md.id.menuId=me.menuId
+		and me.menu.menuId=:id and md.id.idDroit=:id1) ORDER BY m.menuOrdre
+		ASC</query>
+ <!-- C* -->
+ <query name="CourrierLienByIdLienCourrierAndTypeLien">SELECT cr FROM CourrierLiens cr WHERE
+		cr.id.liensCourrier in (:listIdLien) and cr.courrierLienType =:typeLien</query>
+ <!-- C* 
+ Workflow -->
+ <query name="listWorkflowByIdNature">SELECT w FROM Workflow w WHERE w.nature.natureId=:id</query>
+ <!-- Relance -->
+ <query name="listTransactionByDossierIdAndType">SELECT t FROM Transaction t WHERE
+		t.transactionTypeIntervenant=:type and t.dossier.dossierId=:id order
+		by t.transactionId desc</query>
+ <query name="listTransactionByDossierIdAndIdUtilisateur">SELECT t FROM Transaction t WHERE
+		t.idUtilisateur=:id1 and t.dossier.dossierId=:id order
+		by t.transactionId desc</query>
+ <query name="listExpdestexterneByMail">SELECT exp FROM Expdestexterne exp WHERE
+		exp.expDestExterneMail=:mail and exp.typeutilisateur.typeUtilisateurId != 3</query>
+ <!-- Evenement -->
+ <query name="listEvenementByRef">Select e FROM Evenement e WHERE e.evenementId=:id1</query>
+ <query name="listEvenementBylibelle">Select e FROM Evenement e WHERE
+		e.evenementNomVariable=:id1</query>
+ <!-- Notification -->
+ <query name="listNotificationByRef">Select n FROM Notification n WHERE
+		n.notificationId=:id1</query>
+ <query name="listNotificationByEvenementAndLibelle">Select n FROM Notification n WHERE
+		n.evenement.evenementId=:id1 AND n.notificationNomVariable=:id2</query>
+ <query name="listNotificationByEvenement">Select n FROM Notification n WHERE
+		n.evenement.evenementId=:id1</query>
+ <query name="listNotificationByEvenementAndEtat">Select n FROM Notification n WHERE
+		n.notificationActivation=:id1 AND n.evenement.evenementId=:id2</query>
+ <!-- Notification User -->
+ <query name="listNotificationByUser">Select un FROM UserNotification un WHERE
+		un.utilisateursMatricule=:id1</query>
+ <query name="listNotificationByUserAndNotification">Select un FROM UserNotification un WHERE
+		un.utilisateursMatricule=:id1 AND un.idNotification=:id2</query>
+ <!-- Log -->
+ <query name="listLogByRef">Select l FROM Xtelog l WHERE l.logId=:id1</query>
+ <query name="listLogByEvenement">Select l FROM Xtelog l WHERE
+		l.evenement.evenementId=:id1</query>
+ <!-- Template Notification -->
+ <query name="listTemplateNotificationByNotification">Select t FROM Templatenotification t WHERE
+		t.notification.notificationId=:id1</query>
+ <!-- Template Log -->
+ <query name="listTemplateLogByLog">Select t FROM Templatelog t WHERE t.xtelog.logId=:id1</query>
+ <!-- Variables de notification -->
+ <query name="listVariableByRef">Select v FROM VariablesNotification v WHERE
+		v.variableId=:id1</query>
+ <!-- Variables Notification classe intermidere -->
+ <query name="listVariablesNotificationByNotification">SELECT nv FROM NotificationVariable nv WHERE
+		nv.id.notificationId=:id1</query>
+ <query name="deleteTransactionAnnotationByIdTransaction">Delete FROM TransactionAnnotation ta WHERE
+		ta.id.idTransaction=:id</query>
+ <query name="deleteTransactionDestinationByIdTransaction">Delete FROM TransactionDestination td WHERE
+		td.id.idTransaction=:id</query>
+ <!-- Raisonnontransmission -->
+ <query name="listRaisonById">Select e FROM Raisonnontransmission e WHERE
+		e.idraisonnontransmission=:id</query>
+ <query name="listRaisonByLibelle">Select e FROM Raisonnontransmission e WHERE
+		e.raisonnontransmissionLibelle=:id</query>
+ <query name="listRaisonByCategorie">Select e FROM Raisonnontransmission e WHERE
+		e.raisonnontransmissionCategorie=:id</query>
+ <!-- Tous -->
+ <query name="listTransactionDestinationForBoostAllByType">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and (t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert=null and
+		tr.transactionDestDateReponse!=null) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		(t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert=null and
+		tr.transactionDestDateReponse!=null) order by
+		trr.transactionDestDateReponse asc</query>
+  <query name="listTransactionDestinationForBoostAllBOC">SELECT trr FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and ( tr.transactionDestTypeIntervenant = null or t.transactionTypeIntervenant= null ) 
+									   and tr.transactionDestDateTransfert=null 
+									   and tr.transactionDestDateReponse!=null) 
+		order by trr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostByType">SELECT trr FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and (t.transactionTypeIntervenant=:type or tr.transactionDestTypeIntervenant=:type)
+		                               and tr.transactionDestDateTransfert=null
+		                               and tr.transactionDestDateReponse between Date(:dateDebut) and Date(:dateFin) )
+		and trr.id.idExpDest IN (SELECT tr.id.idExpDest FROM Transaction t,TransactionDestination tr
+		                         Where t.transactionId=tr.id.idTransaction
+		                         and (t.transactionTypeIntervenant=:type or tr.transactionDestTypeIntervenant=:type)
+		                         and tr.transactionDestDateTransfert=null
+		                         and tr.transactionDestDateReponse between Date(:dateDebut) and Date(:dateFin) )
+		order by trr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostBOC">SELECT trr FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and ( tr.transactionDestTypeIntervenant = null or t.transactionTypeIntervenant= null )
+		                               and tr.transactionDestDateTransfert=null
+		                               and tr.transactionDestDateReponse between Date(:dateDebut) and Date(:dateFin))
+		order by trr.transactionDestDateReponse asc</query>
+ <query name="countTransactionDestinationForBoostBOC">SELECT count(*) FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and ( tr.transactionDestTypeIntervenant = null or t.transactionTypeIntervenant= null )
+		                               and tr.transactionDestDateTransfert=null
+		                               and tr.transactionDestDateReponse between Date(:dateDebut) and Date(:dateFin) )</query>
+ <query name="countTransactionDestinationForBoostByType">SELECT count(*) FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and (t.transactionTypeIntervenant=:type or tr.transactionDestTypeIntervenant=:type)
+		                               and tr.transactionDestDateTransfert=null
+		                               and tr.transactionDestDateReponse between Date(:dateDebut) and Date(:dateFin) )
+		and trr.id.idExpDest IN (SELECT tr.id.idExpDest FROM Transaction t,TransactionDestination tr
+		                         Where t.transactionId=tr.id.idTransaction
+		                         and (t.transactionTypeIntervenant=:type or tr.transactionDestTypeIntervenant=:type)
+		                         and tr.transactionDestDateTransfert=null
+		                         and tr.transactionDestDateReponse between Date(:dateDebut) and Date(:dateFin) )</query>
+ <query name="listTransactionDestinationForBoostOutOfDateBOC">SELECT trr FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and ( tr.transactionDestTypeIntervenant = null or t.transactionTypeIntervenant= null )
+		                               and tr.transactionDestDateTransfert=null
+		                               and Date(:date) &gt; tr.transactionDestDateReponse )
+		order by trr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostOutOfDateBOCTraite">SELECT trr FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                              
+		                               and tr.transactionDestDateTransfert IS NOT null
+		                             and tr.transactionDestDateReponse IS NOT null
+		                                 )
+		order by trr.transactionDestDateReponse asc</query>
+ <query name="countTransactionDestinationForBoostOutOfDateBOC">SELECT count(*) FROM TransactionDestination trr 
+		WHERE trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction t,TransactionDestination tr
+		                               Where t.transactionId=tr.id.idTransaction
+		                               and ( tr.transactionDestTypeIntervenant = null or t.transactionTypeIntervenant= null )
+		                               and tr.transactionDestDateTransfert=null
+		                               and Date(:date) &gt; tr.transactionDestDateReponse )</query>
+ <query name="listTransactionDestinationForBoostOutOfDateByType">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and (t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert=null and Date(:date) &gt;
+		tr.transactionDestDateReponse ) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		(t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert=null and Date(:date) &gt;
+		tr.transactionDestDateReponse ) order by
+		trr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostOutOfDateByTypeTraite">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and (t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert IS NOT null and tr.transactionDestDateReponse is not null ) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		(t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert is not null and tr.transactionDestDateReponse is not null) order by
+		trr.transactionDestDateReponse asc</query>
+ <query name="countTransactionDestinationForBoostOutOfDateByType">SELECT count(*) FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and (t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert=null and Date(:date) &gt;
+		tr.transactionDestDateReponse ) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		(t.transactionTypeIntervenant=:type or
+		tr.transactionDestTypeIntervenant=:type) and
+		tr.transactionDestDateTransfert=null and Date(:date) &gt;
+		tr.transactionDestDateReponse )</query>
+ <!-- Arrive -->
+ <query name="listTransactionDestinationForBoostArrivalAllByType">SELECT tr FROM TransactionDestination tr WHERE
+		tr.transactionDestTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and
+		tr.transactionDestDateReponse!=null order by
+		tr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostArrivalByType">SELECT tr FROM TransactionDestination tr WHERE
+		tr.transactionDestTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and tr.transactionDestDateReponse
+		between :dateDebut and :dateFin order by tr.transactionDestDateReponse
+		asc</query>
+ <query name="listTransactionDestinationForBoostArrivalOutOfDateByType">SELECT tr FROM TransactionDestination tr WHERE
+		tr.transactionDestTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and :date &gt;
+		tr.transactionDestDateReponse order by tr.transactionDestDateReponse
+		asc</query>
+ <!-- Depart -->
+ <query name="listTransactionDestinationForBoostLivingAllByType">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and
+		tr.transactionDestDateReponse!=null) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		t.transactionTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and
+		tr.transactionDestDateReponse!=null) order by
+		trr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostLivingByType">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and tr.transactionDestDateReponse
+		between :dateDebut and :dateFin ) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		t.transactionTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and tr.transactionDestDateReponse
+		between :dateDebut and :dateFin ) order by
+		trr.transactionDestDateReponse asc</query>
+ <query name="listTransactionDestinationForBoostLivingOutOfDateByType">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and :date &gt;
+		tr.transactionDestDateReponse ) and trr.id.idExpDest IN (SELECT
+		tr.id.idExpDest FROM Transaction t,TransactionDestination tr Where
+		t.transactionId=tr.id.idTransaction and
+		t.transactionTypeIntervenant=:type and
+		tr.transactionDestDateTransfert=null and :date &gt;
+		tr.transactionDestDateReponse ) order by
+		trr.transactionDestDateReponse asc</query>
+ <!-- Type Evenement -->
+ <query name="listTypeEvenementByRef">SELECT te FROM TypeEvenement te WHERE
+		te.typeEvenementId=:id1</query>
+ <query name="listTypeEvenementBylibelle">SELECT te FROM TypeEvenement te WHERE
+		te.typeEvenementLibelle=:id1</query>
+ <!-- Message -->
+ <query name="listMessageByUser">SELECT m FROM Message m WHERE
+		m.idUser=:id1</query>
+ <query name="listLogByLibelle">Select l FROM Xtelog l WHERE l.logLibelle=:id1</query>
+ <query name="listMenuPrincipal">SELECT m FROM Menu m WHERE m.menu.menuId=null and
+		m.menuOrdre!=null ORDER
+		BY m.menuOrdre ASC</query>
+ <query name="listSousMenuByIdMenuPrincipal">SELECT m FROM Menu m WHERE m.menu.menuId=:id ORDER BY
+		m.menuOrdre ASC</query>
+ <query name="listMenusByIdDroit">SELECT m FROM Menu m WHERE m.menuId IN (SELECT
+		md.id.menuId FROM MenuDroit md,Menu me WHERE md.id.idDroit=:id and
+		md.id.menuId=me.menuId ) ORDER BY m.menuOrdre ASC</query>
+ <query name="menuDroitByIdDroit">Delete FROM MenuDroit md WHERE md.id.idDroit=:id</query>
+ <query name="listTransactionBoccJour">SELECT t FROM Transaction t WHERE
+		t.transactionDateTransaction between :dateDebut and :dateFin and
+		t.idUtilisateur=:id order by
+		t.transactionId desc</query>
+ <query name="listTransactionDestinationBoccJour">SELECT trr FROM TransactionDestination trr WHERE
+		trr.id.idTransaction IN (SELECT tr.id.idTransaction FROM Transaction
+		t,TransactionDestination tr Where t.transactionId=tr.id.idTransaction
+		and t.transactionDateTransaction between :dateDebut and :dateFin
+		and
+		tr.transactionDestTypeIntervenant=:type )
+		and trr.id.idExpDest IN
+		(SELECT tr.id.idExpDest FROM Transaction
+		t,TransactionDestination tr
+		Where t.transactionId=tr.id.idTransaction
+		and
+		t.transactionDateTransaction between :dateDebut and :dateFin
+		and
+		tr.transactionDestTypeIntervenant=:type )
+		order by trr.id.idTransaction
+		desc</query>
+ <query name="listCourrierNecessitantReponse">SELECT cr FROM Courrier cr WHERE
+		cr.courrierNecessiteReponse=:type
+		and cr.courrierDateReception between
+		:dateDebut and :dateFin</query>
+ <!-- Menu -->
+ <query name="listMenuPrincipalByLibelle">SELECT m FROM Menu m WHERE m.menu.menuId=null and
+		m.menuLibelle=:id ORDER BY m.menuOrdre ASC</query>
+ <query name="listMenuPrincipalByIdMenu">SELECT m FROM Menu m WHERE m.menuId=:id ORDER BY
+		m.menuOrdre ASC</query>
+ <query name="listMenuPrincipalByIdOrder">SELECT m FROM Menu m WHERE m.menu.menuId=null and
+		m.menuOrdre=:id ORDER BY m.menuOrdre ASC</query>
+ <query name="menuSousMenuByIdMenuPrincipal">Delete FROM Menu m WHERE m.menuId=:id</query>
+ <query name="menuDroitByIdMenu">Delete FROM MenuDroit md WHERE md.id.menuId=:id</query>
+ <query name="sousMenuByIdMenuPrincipal">Delete FROM Menu m WHERE m.menu.menuId=:id</query>
+ <query name="listNonAffectedSubMenu">SELECT m FROM Menu m WHERE m.menu.menuId=null and
+		m.menuOrdre=null ORDER BY m.menuId ASC</query>
+ <!-- pays -->
+ <query name="listGouverneratByRefPays">SELECT m FROM Gouvernerat m WHERE m.pays.paysId=:id</query>
+ <query name="listVilleByRefGouvernerat">SELECT m FROM Ville m WHERE
+		m.gouvernerat.gouverneratId=:id</query>
+ <query name="listPaysByLibelle">SELECT m FROM Pays m WHERE m.paysLibelle=:id</query>
+ <query name="listPaysByRef">SELECT m FROM Pays m WHERE m.paysId=:id</query>
+ <query name="listGovByRef">SELECT g FROM Gouvernerat g WHERE g.gouverneratId=:id</query>
+ <query name="listVilleByRef">SELECT v FROM Ville v WHERE v.villeId=:id</query>
+ <query name="listGouvernoratByLibelle">SELECT m FROM Gouvernerat m WHERE
+		m.gouverneratLibelle=:id</query>
+ <query name="listVilleByLibelle">SELECT m FROM Ville m WHERE m.villeNom=:id</query>
+ <!-- Mailing -->
+ <query name="listGroupeContactSujet">SELECT cr FROM Groupecontactmailing cr WHERE
+		cr.dateEnvoi=null</query>
+ <query name="listContactMailingbyIdMailing">SELECT cr FROM Groupecontactmailing cr WHERE
+		cr.id.idsujetmailing=:id</query>
+ <query name="listContactMailingbyIdGroupeAndIdMailing">SELECT cr FROM Groupecontactmailing cr WHERE
+		cr.id.idgroupecontact=:id and cr.id.idsujetmailing=:id1</query>
+ <query name="listGroupecontactpppmByIdGroupecontact">Select gr FROM Groupecontactpppm gr WHERE
+		gr.id.idgroupecontact=:id</query>
+ <query name="deleteContactGroupecontactByIdGroupecontact">Delete FROM Groupecontactpppm cd WHERE
+		cd.id.idgroupecontact=:id1</query>
+ <query name="listGroupecontactmailingByIdGroupecontact">Select gr FROM Groupecontactmailing gr WHERE
+		gr.id.idgroupecontact=:id)</query>
+ <query name="listSujetmailingById">Select sm FROM Sujetmailing sm WHERE
+		sm.idsujetmailing=:id</query>
+ <!-- Sauvegardehistorique -->
+ <query name="listSauvegardehistoriqueByDate">Select sh FROM Sauvegardehistorique sh WHERE
+		sh.sauvegardeHistoriqueDate=:id</query>
+ <!-- archive -->
+ <query name="listTransactionByDate">SELECT t FROM Transaction t WHERE
+		:date &gt; t.transactionDateTransaction</query>
+ <!-- archive -->
+ <query name="listMailByDeleteState">select mail from Mail mail
+		where mail.mailDeleted = :mailState</query>
+ <!-- expdest -->
+ <query name="listExpDestExterneByType">select expDestExterne from Expdestexterne as expDestExterne
+		where expDestExterne.typeutilisateur.typeUtilisateurId =:typeExpDestExterne</query>
+ <query name="countTransactionByIdExpdestExterne">select count(*) from Transaction as transaction,TransactionDestination trasanctionDest
+		where transaction.expdest.expdestexterne.idExpDestExterne =:idExpdestExterne
+		or trasanctionDest.id.idExpDest =:idExpdestExterne</query>
+ <!-- courrier -->
+ <query name="listCourrierByIdTransaction">SELECT c FROM Courrier c
+	WHERE c.idCourrier IN (SELECT cd.id.idCourrier FROM CourrierDossier cd
+							WHERE cd.id.dossierId IN (SELECT t.dossier.dossierId FROM Transaction t
+														WHERE t.transactionId =:idTransaction))</query>
+ <!-- ExpDestExterne-->
+ <query name="listExpDestExternJustPpAndPm">select expDestExterne from Expdestexterne as expDestExterne
+		where expDestExterne.typeutilisateur.typeUtilisateurId != 3</query>
+ <!-- MM-->
+ <query name="listPPByUser">SELECT p FROM Pp p WHERE p.expdestexterne.typeutilisateur.typeUtilisateurId =1</query>
+ <query name="listPMByUser">SELECT p FROM Pm p WHERE p.expdestexterne.typeutilisateur.typeUtilisateurId =2</query>
+ <!-- MM-->
+ <query name="listExpDestExterneUserByLdapUID">select expDestExterne from Expdestexterne as expDestExterne
+		where expDestExterne.expDestExterneLdapUID =:userUID</query>
+ <query name="listExpDestExterne">select expDestExterne from Expdestexterne as expDestExterne
+		where expDestExterne.idExpDestExterne=:id</query>
+ <query name="deleteGroupeContactPpPmByIdExpDestExterne">Delete FROM Groupecontactpppm cd WHERE
+	cd.id.idExpDestExterne=:idExpDestExterne</query>
+ <query name="deleteLiensCourriersByIdCourrier">Delete FROM Lienscourriers cl WHERE cl.courrier.idCourrier=:id</query>
+ <query name="deleteLiensCourriersByLienCourrierId">Delete FROM Lienscourriers cl WHERE cl.liensCourrier=:id</query>
+ <!-- Fahd -->
+ <query name="listTransactionByDateTansaction">SELECT t FROM Transaction t
+	WHERE t.transactionDateTransaction = (SELECT MIN(tt.transactionDateTransaction) FROM Transaction tt)</query>
+ <query name="listNatureWithWorkFlow">select nature from Nature nature inner join nature.workflows as workflow</query>
+ <query name="transactionDestinationReelleId">select trDestinationReel from TransactionDestinationReelle trDestinationReel where trDestinationReel.transactionDestinationReelleId =:idTransactionDestinationReel</query>
+ <query name="transactionDestinationReelleByDossierId">select trDestinationReel from TransactionDestinationReelle trDestinationReel 
+                                             inner join trDestinationReel.transactions as transaction inner join transaction.dossier as dossier inner join dossier.courriers as courrier with (courrier.idCourrier =:idDossier)</query>
+ <query name="listDocumentByIdCourrierAndDeleteFlag">SELECT d FROM Document d 
+WHERE d.documentDateInsertion IN (SELECT MAX(doc.documentDateInsertion) 
+                                      FROM Document doc 
+									  WHERE doc.courrier.idCourrier=:courrierId
+									  and doc.documentSupprime=:deleteFlag 
+									  and doc.documentCategorie.documentCategorieId=:catgDoc
+									  GROUP BY doc.documentParent.idDocument)order by d.ordre</query>
+ <query name="documentCategorieById">select d from DocumentCategorie d where d.documentCategorieId=:id</query>
+ <query name="uniteConnecteeById">select u from Unite u where u.uniteId= :id</query>
+
+ <!-- DOSSIER -->
+ <query name="dossierByIdCourrierAndIdTypeDossier">select d from Dossier d inner join d.courriers as courrier with(courrier.idCourrier =:idCourrier) where d.typedossier.typeDossierId =:idTypeDossier</query>
+ <query name="listVariableByLibelle">select v from Variables v where v.variablesLibelle like 'code_courrier_unique_personnalisable'</query>
+ <query name="countListCourriers">SELECT count(cour.idCourrier) FROM
+		Courrier cour</query>
+ <!-- AH -->
+ <query name="listeAnnotationsParDestinataireAndTransaction">SELECT a FROM Annotation a WHERE a.annotationId IN 
+ (SELECT t.id.idAnnotation FROM TransactionAnnotation t,Transaction tr, Dossier d
+	where tr.dossier.dossierId=:idDoss
+	AND tr.dossier.dossierId=d.dossierId
+	AND tr.transactionId=t.id.idTransaction
+	AND tr.transactionDestinationReelle.transactionDestinationReelleId IN (select trdr.transactionDestinationReelleId from TransactionDestinationReelle trdr
+																			where trdr.transactionDestinationReelleIdDestinataire=:idDest))</query>
+ <!-- Début des Requetes JS -->
+ <query name="listNaturesByCategorie">select n from Nature n 
+ where n.natureCategorie.natureCategorieId=:categorieId</query>
+ <query name="listDonneeSupplementaireNatureAffectes">select dsn from DonneeSupplementaireNature dsn where
+  dsn.nature.natureId=:idnature</query>
+   <query name="listDonneeSupplementaireTransmissionAffectes">select dsn from DonneeSupplementaireNature dsn where
+  dsn.transmission.transmissionId=:transmissionId</query>
+ <query name="deleteDonneeSupplementaireByIdNature">DELETE FROM DonneeSupplementaireNature dsn WHERE 
+ dsn.nature.natureId=:id</query>
+ <query name="listDonneeSupplementaireNatureAAffectes">select ds from DonneeSupplementaire ds where
+  ds.idDonneeSupplementaire not in (select dsn.donneeSupplementaire.idDonneeSupplementaire from DonneeSupplementaireNature dsn where
+  dsn.nature.natureId=:idnature)</query>
+ <query name="getDonneeSupplementaireCourrier">select cds from CourrierDonneeSupplementaire cds where
+  cds.idCourrier.idCourrier=:idCourrier</query>
+ <!-- KHA -->
+ <query name="listeAnnotationsParDestinataireEtTransaction">SELECT a FROM Annotation a WHERE a.annotationId IN 
+ (SELECT t.id.idAnnotation FROM TransactionAnnotation t,Transaction tr, Dossier d,TransactionDestination trdest
+	where tr.dossier.dossierId=:idDoss
+	AND tr.dossier.dossierId=d.dossierId
+	AND tr.transactionId=t.id.idTransaction
+	AND(
+	(tr.transactionDestinationReelle.transactionDestinationReelleId IN 
+	   (select trdr.transactionDestinationReelleId from TransactionDestinationReelle trdr where trdr.transactionDestinationReelleIdDestinataire=:idDest)
+	) 
+	 OR (tr.transactionId=trdest.id.idTransaction and trdest.id.idExpDest IN
+	     ( select ed from Expdest ed,TransactionDestination trdt where trdt.id.idExpDest=ed.idExpDest and ed.typeExpDest=:typeExp and ed.expdestexterne.idExpDestExterne=:idDest )
+		 )
+	)
+  )</query>
+ <!-- KHA 12-02-2019-->
+ <query name="listeAnnotationParDestinataireEtTransaction">SELECT a FROM Annotation a WHERE a.annotationId IN 
+ (SELECT t.id.idAnnotation FROM TransactionAnnotation t,Transaction tr, Dossier d,TransactionDestination trdest
+	where tr.dossier.dossierId=:idDoss
+	AND tr.dossier.dossierId=d.dossierId
+	AND tr.transactionId=t.id.idTransaction
+	AND(
+	(tr.transactionDestinationReelle.transactionDestinationReelleId IN 
+	   (select trdr.transactionDestinationReelleId from TransactionDestinationReelle trdr where trdr.transactionDestinationReelleIdDestinataire=:idDest)
+	) 
+	 OR (tr.transactionId=trdest.id.idTransaction and trdest.id.idExpDest IN
+	     ( select ed from Expdest ed,TransactionDestination trdt where trdt.id.idExpDest=ed.idExpDest  and ed.idExpDestLdap=:idDest )
+		 )
+	)
+  )</query>
+ <!-- KHA AJOUTEE 05-03-2019-->
+ <query name="listDestByIdDossier">SELECT e FROM Expdest e,Dossier d,Transaction tr,TransactionDestination trd where tr.dossier.dossierId=:idDossier and tr.dossier.dossierId=d.dossierId    
+and tr.transactionId=trd.id.idTransaction and trd.id.idExpDest=e.idExpDest</query>
+ <query name="listTransactionDestinationByIdExpDestIdExpDestLdap">select trd from TransactionDestination trd, Expdest e where trd.id.idExpDest=e.idExpDest and e.idExpDest=:idExpDest and e.idExpDestLdap=:idExpDestLdap</query>
+ <query name="listTransactionDocumentByIdTransaction">select trd from TransactionDocument trd,TransactionDestination  tr, Document d where trd.id.idTransaction=:idTransaction and trd.id.idTransaction=tr.id.idTransaction
+ and trd.id.idDocument=d.idDocument and d.documentSupprime=:deleteFlag</query>
+ <query name="listDocumentByIdDocument">select d from Document d where d.idDocument=:idDocument</query>
+ <query name="listeAnnotationParDestinataireEtTransactionReell">SELECT a FROM Annotation a WHERE a.annotationId IN 
+ (SELECT t.id.idAnnotation FROM TransactionAnnotation t,Transaction tr, Dossier d,TransactionDestination trdest
+	where tr.dossier.dossierId=:idDoss
+	AND tr.dossier.dossierId=d.dossierId
+	AND tr.transactionId=t.id.idTransaction
+	AND(
+	tr.transactionDestinationReelle.transactionDestinationReelleId IN 
+	   (select trdr.transactionDestinationReelleId from TransactionDestinationReelle trdr where trdr.transactionDestinationReelleIdDestinataire=:idDest)
+	 
+	 
+	)
+  )</query>
+ <query name="listeAnnotationParDestinataireEtTransactionExpDest">SELECT a FROM Annotation a WHERE a.annotationId IN 
+ (SELECT t.id.idAnnotation FROM TransactionAnnotation t,Transaction tr, Dossier d,TransactionDestination trdest
+	where tr.dossier.dossierId=:idDoss
+	AND tr.dossier.dossierId=d.dossierId
+	AND tr.transactionId=t.id.idTransaction
+	AND(
+	tr.transactionId=trdest.id.idTransaction and trdest.id.idExpDest IN
+	     ( select ed from Expdest ed,TransactionDestination trdt where trdt.id.idExpDest=ed.idExpDest  and ed.idExpDestLdap=:idDest ))
+	 
+	
+  )</query>
+ <!--KHA : liste de courrier de nature cheque-->
+ <query name="listeCourrierNatureCheque">SELECT c FROM Courrier c where c.nature.natureId =35</query>
+ <query name="listTransactionByIdAnnotation">SELECT ta FROM TransactionAnnotation ta ,Transaction tr WHERE
+ta.id.idTransaction=tr.transactionId AND ta.id.idAnnotation=:idA</query>
+ <query name="listRefCourrierByDestinataire">SELECT tr FROM Transaction tr WHERE
+tr.transactionId=(select Max(t.transactionId) From Transaction t,TransactionDestinationReelle tdr 
+where t.transactionDestinationReelle.transactionDestinationReelleId=tdr.transactionDestinationReelleId
+AND t.transactionDestinationReelle.transactionDestinationReelleIdDestinataire=:idLdap)</query>
+ <!-- Début des Requetes pour la version Arabe 
+ <query name="listNatureCourrierArabe">select n.natureId,n.natureLibelleAr,n.natureDescritonAr from Nature n</query> 
+ Fin des Requetes pour la version Arabe -->
+ 
+ <query name="listAoConsultationByIdAo">SELECT a FROM AoConsultation a order by aoConsultationId desc</query>
+  <query name="listAOConsultation">SELECT a FROM AoConsultation a WHERE  a.aoConsultationId LIKE :ref</query>
+ 
+ <!-- Reception Physique -->
+ <query name="courrierAvecReceptionPhysiqueByByEtat">SELECT td FROM TransactionDestination td,Transaction t,CourrierDossier cd,Courrier c
+  WHERE td.id.idTransaction=t.transactionId and t.dossier.dossierId=cd.id.dossierId and cd.id.idCourrier=c.idCourrier
+  and c.courrierAvecDocumentPhysique=1 and c.idCourrier=:ref and td.transactionDestEtatReceptionPhysique.etatId=8</query>
+ 
+ 
+ <query name="courrierAvecReceptionPhysique">SELECT td FROM TransactionDestination td,Transaction t,CourrierDossier cd,Courrier c
+  WHERE td.id.idTransaction=t.transactionId and t.dossier.dossierId=cd.id.dossierId and cd.id.idCourrier=c.idCourrier
+  and c.courrierAvecDocumentPhysique=1 and c.idCourrier=:ref and td.transactionDestEtatReceptionPhysique.etatId !=null </query>
+  <query name="getAOByRef">select v from AoConsultation v where v.aoConsultationNumero like :ref</query>
+  <query name="getUniteByCodeSONEDE">select v from Unite v where v.uniteCodeSonede like :c</query>
+  <query name="listEmployerById">select e from Employe e where e.employerId = :c</query>
+  <query name="listeChequeByCourrier">SELECT ch FROM Cheque ch WHERE	ch.chequeBordereauTransmission.idCourrier=:id1</query>
+</hibernate-mapping>

@@ -1,0 +1,98 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Nature;
+import xtensus.services.ApplicationManager;
+
+
+public class TestNaturePaginatingDataModel extends
+		TestPaginatingDataModel<Nature, Integer> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3168647306910649878L;
+	private ApplicationManager appMgr;
+
+	public TestNaturePaginatingDataModel(){
+		
+	}
+	
+	
+//	@Autowired
+//	public TestNaturePaginatingDataModel(@Qualifier("applicationManager") ApplicationManager appMgr){
+//		System.out.println("Constructor   TestNaturePaginatingDataModel");
+//		this.appMgr = appMgr;
+//		
+//	}
+	
+	
+	@Override
+	public Integer getId(Nature object) {
+		System.out.println("------------getId");
+		return object.getNatureId();
+	}
+
+	@Override
+	public List<Nature> findObjects(int firstRow, int numberOfRows,
+			String sortField, HashMap<String, Object> filterMap,
+			boolean descending) {
+		System.out.println("------------findObjects");
+		try {
+//			List<TestNature> list = new ArrayList<TestNature>();
+//			for (int i = 0; i < 5; i++) {
+//				TestNature t = new TestNature(i, "NAT :" + i);
+//				list.add(t);
+//			}
+//			
+//			return list;
+			return appMgr.getList(Nature.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public Nature getObjectById(Integer id) {
+		System.out.println("------------getObjectById");
+//		List<TestNature> list = new ArrayList<TestNature>();
+//		for (int i = 0; i < 5; i++) {
+//			TestNature t = new TestNature(i, "NAT :" + i);
+//			list.add(t);
+//		}
+//		
+//		return list.get(0);
+		return appMgr.getNatureById(id).get(0);
+	}
+
+	@Override
+	public Long getNumRecords(HashMap<String, Object> filterMap) {
+		System.out.println("------------getNumRecords");
+		return 110L;
+	}
+
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+
+	
+}

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoi_FR" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="d579d32f-2abd-40fa-a4c8-822573c166c1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="chartTitre_1" class="java.lang.String">
+		<fieldDescription><![CDATA[chartTitre_1]]></fieldDescription>
+	</field>
+	<field name="chartTitre_2" class="java.lang.String">
+		<fieldDescription><![CDATA[chartTitre_2]]></fieldDescription>
+	</field>
+	<field name="chartTitre_3" class="java.lang.String">
+		<fieldDescription><![CDATA[chartTitre_3]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="dossierArrivee" class="java.lang.Integer">
+		<fieldDescription><![CDATA[dossierArrivee]]></fieldDescription>
+	</field>
+	<field name="dossierArriveeLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[dossierArriveeLibelle]]></fieldDescription>
+	</field>
+	<field name="dossierDepart" class="java.lang.Integer">
+		<fieldDescription><![CDATA[dossierDepart]]></fieldDescription>
+	</field>
+	<field name="dossierDepartLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[dossierDepartLibelle]]></fieldDescription>
+	</field>
+	<field name="dossierTotal" class="java.lang.Integer">
+		<fieldDescription><![CDATA[dossierTotal]]></fieldDescription>
+	</field>
+	<field name="dossierTotalLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[dossierTotalLibelle]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="mesDossier" class="java.lang.Integer">
+		<fieldDescription><![CDATA[mesDossier]]></fieldDescription>
+	</field>
+	<field name="mesDossierLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[mesDossierLibelle]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="pourcentageDossierArrivee" class="java.lang.Float">
+		<fieldDescription><![CDATA[pourcentageDossierArrivee]]></fieldDescription>
+	</field>
+	<field name="pourcentageDossierArriveeLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[pourcentageDossierArriveeLibelle]]></fieldDescription>
+	</field>
+	<field name="pourcentageDossierDepart" class="java.lang.Float">
+		<fieldDescription><![CDATA[pourcentageDossierDepart]]></fieldDescription>
+	</field>
+	<field name="pourcentageDossierDepartLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[pourcentageDossierDepartLibelle]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="user" class="java.lang.String">
+		<fieldDescription><![CDATA[user]]></fieldDescription>
+	</field>
+	<title>
+		<band height="57" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="dbb042a5-fcea-49d9-bd04-73852c313482" x="492" y="0" width="63" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f38b1133-89b3-427d-aea6-b2cd7c321737" stretchType="RelativeToBandHeight" x="0" y="16" width="369" height="15"/>
+				<box topPadding="0" bottomPadding="2"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeOrganismeParent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="d57095fa-4776-4f29-9d0f-2107e108e9a3" stretchType="RelativeToBandHeight" x="0" y="31" width="370" height="15"/>
+				<box topPadding="0"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeRepublique}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f9471ffe-87d2-436a-b9f9-afc0d3cbd393" stretchType="RelativeToBandHeight" x="0" y="0" width="369" height="16"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="dcb8b277-3510-4d9f-8db5-df546ab9e6e1" x="410" y="0" width="82" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{societeVille}+ ", le "]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="72d1b999-1a25-4059-a779-0e4e95df442d" x="408" y="20" width="60" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Top"/>
+				<text><![CDATA[Utilisateur :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="de7e5669-428c-4f4b-978c-d1c63f029752" stretchType="RelativeToBandHeight" x="470" y="20" width="106" height="15"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{user}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="187">
+			<barChart>
+				<chart>
+					<reportElement uuid="29238f9f-09e3-4b21-a0e5-250b30c3f2ac" x="82" y="10" width="378" height="172"/>
+					<chartTitle>
+						<font size="8"/>
+						<titleExpression><![CDATA[$F{chartTitre_1}]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend>
+						<font size="8"/>
+					</chartLegend>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{dossierTotalLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{dossierTotalLibelle}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{dossierTotal}]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{dossierArriveeLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{dossierArriveeLibelle}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{dossierArrivee}]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{dossierDepartLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{dossierDepartLibelle}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{dossierDepart}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat>
+							<labelFont>
+								<font size="8"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="8"/>
+							</tickLabelFont>
+						</axisFormat>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat>
+							<labelFont>
+								<font size="8"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="8"/>
+							</tickLabelFont>
+						</axisFormat>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="184">
+			<textField>
+				<reportElement uuid="2a04ee4a-3e19-4374-982d-599de648ceb7" x="0" y="164" width="555" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+			<pieChart>
+				<chart>
+					<reportElement uuid="052382b3-4793-4cd3-9a7c-a9ad7f752edd" x="0" y="0" width="260" height="164"/>
+					<chartTitle>
+						<font size="8"/>
+						<titleExpression><![CDATA[$F{chartTitre_2}]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle>
+						<font size="8"/>
+					</chartSubtitle>
+					<chartLegend>
+						<font size="8"/>
+					</chartLegend>
+				</chart>
+				<pieDataset>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{dossierArriveeLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{dossierArrivee}]]></valueExpression>
+					</pieSeries>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{dossierDepartLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{dossierDepart}]]></valueExpression>
+					</pieSeries>
+				</pieDataset>
+				<piePlot>
+					<plot/>
+					<itemLabel>
+						<font size="8"/>
+					</itemLabel>
+				</piePlot>
+			</pieChart>
+			<pieChart>
+				<chart>
+					<reportElement uuid="04ee4458-c34e-4ada-8d93-ef8725ca44c4" x="290" y="0" width="265" height="164"/>
+					<chartTitle>
+						<font size="8"/>
+						<titleExpression><![CDATA[$F{chartTitre_3}]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle>
+						<font size="5"/>
+					</chartSubtitle>
+					<chartLegend>
+						<font size="8"/>
+					</chartLegend>
+				</chart>
+				<pieDataset>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{pourcentageDossierDepartLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{pourcentageDossierDepart}]]></valueExpression>
+					</pieSeries>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{pourcentageDossierArriveeLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{pourcentageDossierArrivee}]]></valueExpression>
+					</pieSeries>
+				</pieDataset>
+				<piePlot>
+					<plot/>
+					<itemLabel>
+						<font size="8"/>
+					</itemLabel>
+				</piePlot>
+			</pieChart>
+		</band>
+	</lastPageFooter>
+</jasperReport>

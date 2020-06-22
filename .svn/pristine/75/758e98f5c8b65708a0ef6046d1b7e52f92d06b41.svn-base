@@ -1,0 +1,521 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Transmission;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class TransmissionGestionBean {
+	private Transmission transmission;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listTransmissions;
+	private List<Transmission> listTransmission;
+	private List<Transmission> copylistTransmission;
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private Transmission transmission2;
+	
+	private boolean transmissionLibelleShowFr;
+	private boolean transmissionDescriptionShowFr;
+	private boolean transmissionLibelleShowAr;
+	private boolean transmissionDescriptionShowAr;
+
+	@Autowired
+	public TransmissionGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		transmission = new Transmission();
+		transmission2 = new Transmission();
+		listTransmissions = new ListDataModel();
+		listTransmission = new ArrayList<Transmission>();
+		copylistTransmission = new ArrayList<Transmission>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out
+				.println("*************Bean TransmissionGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titleaccor =  messageSource.getMessage("Ajouttransmission",new Object[] {}, lm.createLocal());
+		titre = "Ajouter Transmission";
+		listTransmission = new ArrayList<Transmission>();
+		copylistTransmission = new ArrayList<Transmission>();
+		try {
+			listTransmission = appMgr.getList(Transmission.class);
+			
+			if (vb.getLocale().equals("ar")) {
+				
+				setTransmissionLibelleShowFr(false);
+				setTransmissionDescriptionShowFr(false);
+				setTransmissionLibelleShowAr(true);
+				setTransmissionDescriptionShowAr(true);
+				
+			} else {
+				
+				setTransmissionLibelleShowFr(true);
+				setTransmissionDescriptionShowFr(true);
+				setTransmissionLibelleShowAr(false);
+				setTransmissionDescriptionShowAr(false);
+			}
+			
+			for (int i = listTransmission.size(); i >= 0; i--) {
+				transmission2 = listTransmission.get(i - 1);
+				copylistTransmission.add(transmission2);
+				transmission2 = new Transmission();
+			}
+		} catch (Exception e) {
+			System.out.println("erreur");
+		}
+		listTransmissions.setWrappedData(copylistTransmission);
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+			appMgr.insert(transmission);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout",
+					"Evénement de log d'ajout du type de transmission "
+							+ transmission.getTransmissionId() + "-"
+							+ transmission.getTransmissionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+			System.out
+					.println("***************Succes TransmissionGestionBean***************");
+		} catch (Exception e) {
+			status3 = true;
+			System.out
+					.println("***************Erreur TransmissionGestionBean***************");
+		}
+
+	}
+
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			transmission = (Transmission) listTransmissions.getRowData();
+			vb.setTransmission(transmission);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation du type de transmission "
+							+ transmission.getTransmissionId() + "-"
+							+ transmission.getTransmissionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			System.out
+					.println("*******SelectionTransmissionConsulterBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionTransmissionConsulterBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier transmission";
+		titleaccor = messageSource.getMessage("Consultationtransmission",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			transmission = vb.getTransmission();
+			appMgr.update(transmission);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification du type de transmission "
+							+ vb.getTransmission().getTransmissionId() + "-"
+							+ vb.getTransmission().getTransmissionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			listTransmission = new ArrayList<Transmission>();
+			Initialize();
+			transmission = new Transmission();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter Transmission";
+		titleaccor =  messageSource.getMessage("Ajouttransmission",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			transmission = vb.getTransmission();
+			appMgr.delete(transmission);
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression du type de transmission "
+							+ transmission.getTransmissionId() + "-"
+							+ transmission.getTransmissionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+		} catch (Exception e) {
+
+		}
+		listTransmissions = new ListDataModel();
+		listTransmission = new ArrayList<Transmission>();
+		copylistTransmission = new ArrayList<Transmission>();
+		Initialize();
+
+	}
+
+	public void annulModif() {
+		transmission = new Transmission();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter transmission";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		transmission = new Transmission();
+		msgerror = true;
+		titleaccor =  messageSource.getMessage("Ajouttransmission",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listTransmissions == null
+				&& listTransmissions.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Transmission>) listTransmissions.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public DataModel getListTransmissions() {
+		return listTransmissions;
+	}
+
+	public void setListTransmissions(DataModel listTransmissions) {
+		this.listTransmissions = listTransmissions;
+	}
+
+	public List<Transmission> getListTransmission() {
+		return listTransmission;
+	}
+
+	public void setListTransmission(List<Transmission> listTransmission) {
+		this.listTransmission = listTransmission;
+	}
+
+	public List<Transmission> getCopylistTransmission() {
+		return copylistTransmission;
+	}
+
+	public void setCopylistTransmission(List<Transmission> copylistTransmission) {
+		this.copylistTransmission = copylistTransmission;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public Transmission getTransmission2() {
+		return transmission2;
+	}
+
+	public void setTransmission2(Transmission transmission2) {
+		this.transmission2 = transmission2;
+	}
+
+	public void setTransmissionLibelleShowFr(boolean transmissionLibelleShowFr) {
+		this.transmissionLibelleShowFr = transmissionLibelleShowFr;
+	}
+
+	public boolean isTransmissionLibelleShowFr() {
+		return transmissionLibelleShowFr;
+	}
+
+	public void setTransmissionDescriptionShowFr(
+			boolean transmissionDescriptionShowFr) {
+		this.transmissionDescriptionShowFr = transmissionDescriptionShowFr;
+	}
+
+	public boolean isTransmissionDescriptionShowFr() {
+		return transmissionDescriptionShowFr;
+	}
+
+	public void setTransmissionLibelleShowAr(boolean transmissionLibelleShowAr) {
+		this.transmissionLibelleShowAr = transmissionLibelleShowAr;
+	}
+
+	public boolean isTransmissionLibelleShowAr() {
+		return transmissionLibelleShowAr;
+	}
+
+	public void setTransmissionDescriptionShowAr(
+			boolean transmissionDescriptionShowAr) {
+		this.transmissionDescriptionShowAr = transmissionDescriptionShowAr;
+	}
+
+	public boolean isTransmissionDescriptionShowAr() {
+		return transmissionDescriptionShowAr;
+	}
+
+}

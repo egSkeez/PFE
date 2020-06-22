@@ -1,0 +1,505 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Relance des couriers</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+
+									<a4j:commandLink id="accueil"
+										onclick="document.location.href='acceuilGBO.jsf'">
+										<h:graphicImage
+											value="../framGraphique/images/accueilActif.png"
+											onmouseover="this.src='../framGraphique/images/accueilmodifier.png'"
+											onmouseout="this.src='../framGraphique/images/accueilActif.png'" />
+									</a4j:commandLink>
+									<rich:spacer width="7" />
+									<a4j:commandLink id="accueilRelance"
+										onclick="document.location.href='courrierRelance.jsf'">
+										<h:graphicImage
+											value="../framGraphique/images/relanceAccueilInactif.png"
+											onmouseover="this.src='../framGraphique/images/relanceAccuelActif.png'"
+											onmouseout="this.src='../framGraphique/images/relanceAccueilInactif.png'" />
+									</a4j:commandLink>
+									
+
+								</div>
+								<div id="barreIconeDroite">
+									<h:commandLink id="pdf" target="_blank"
+										action="#{courrierRelanceBean.printPDF}"
+										status="ajaxStatusRapport">
+										<h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf" />
+									</h:commandLink>
+									<rich:toolTip for="pdf" value="#{msg.pdfExportRetard}"
+										direction="top-right" />
+									
+									
+								<h:commandLink id="pdf2"
+										action="#{courrierRelanceBean.printPDF2}"
+										status="ajaxStatusRapport">
+										<h:graphicImage width="31" height="25"  value="../framGraphique/images/ccTraiter.jpg"
+											onmouseover="this.src='../framGraphique/images/ccTraiter.jpg'"
+											onmouseout="this.src='../framGraphique/images/ccTraiter.jpg'"
+											alt="pdf" rendered="#{variableGlobale.rendered}"/>
+									</h:commandLink>
+									<rich:toolTip for="pdf2" value="#{msg.pdfExportTraite}"
+										direction="top-right" />
+										<a4j:commandLink id="go2"
+																				action="#{courrierRelanceBean.toDest}"
+																				ajaxSingle="true"
+																				>
+																				<h:graphicImage
+																					value="../framGraphique/images/Loupe-2---26pix.png" />
+																			</a4j:commandLink>
+																			<rich:toolTip for="go2" value="#{msg.pdfExportfiltre}"
+										direction="top-right" />
+									<h:outputText value="#{variableGlobale.expNom}"
+																				styleClass="xteDetailLabelOutput"
+																				rendered="#{courrierAjoutBean.etatCircuitWorkflowTextArea}"
+																				style="margin-left: 2px; margin-right: 2px; width: 221px; margin-top: 2px; margin-bottom: 2px; height: 46px; " />
+																													
+								</div>
+							</div>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.boostMailFacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+									
+								</h:panelGrid>
+							</f:facet>
+							<div align="center">
+								<h:panelGrid columns="5" id="panelGridButtonId">
+									<a4j:commandButton value="#{msg.bouttonRelancerTout}"
+										type="submit" styleClass="submitButton" style="width:100%;"
+										action="#{courrierRelanceBean.loadAll}" status="ajaxStatus"
+										reRender="data,scroller,record,selectoneRadioId,panelGridButtonId">
+									</a4j:commandButton>
+									<h:column>
+										<h:graphicImage rendered="#{courrierRelanceBean.showAllImage}"
+											value="../framGraphique/images/boostAllMail.png" />
+										<h:graphicImage rendered="#{courrierRelanceBean.hideAllImage}"
+											value="../framGraphique/images/boostAllMailActif.png" />
+									</h:column>
+									<rich:spacer width="10px" />
+									<a4j:commandButton value="#{msg.bouttonRelancerUnJour}"
+										type="submit" styleClass="submitButton" style="width:100%;"
+										action="#{courrierRelanceBean.loadDayMinus}"
+										status="ajaxStatus"
+										reRender="data,scroller,record,selectoneRadioId,panelGridButtonId" />
+									<h:column>
+										<h:graphicImage rendered="#{courrierRelanceBean.showDayImage}"
+											value="../framGraphique/images/boostOneDayLeft.png" />
+										<h:graphicImage rendered="#{courrierRelanceBean.hideDayImage}"
+											value="../framGraphique/images/boostOneDayLeftActif.png" />
+									</h:column>
+									<a4j:commandButton value="#{msg.bouttonRelancerUneSemaine}"
+										type="submit" styleClass="submitButton" style="width:100%;"
+										action="#{courrierRelanceBean.loadWeekMinus}"
+										status="ajaxStatus"
+										reRender="data,scroller,record,selectoneRadioId,panelGridButtonId" />
+									<h:column>
+										<h:graphicImage
+											rendered="#{courrierRelanceBean.showWeekImage}"
+											value="../framGraphique/images/boostOneWeekLeft.png" />
+										<h:graphicImage
+											rendered="#{courrierRelanceBean.hideWeekImage}"
+											value="../framGraphique/images/boostOneWeekLeftActif.png" />
+									</h:column>
+									<rich:spacer width="10px" />
+									<a4j:commandButton value="#{msg.bouttonRelancerDepasse}"
+										type="submit" styleClass="submitButton" style="width:100%;"
+										action="#{courrierRelanceBean.loadOutOfDate}"
+										status="ajaxStatus"
+										reRender="data,scroller,record,selectoneRadioId,panelGridButtonId" />
+									<h:column>
+										<h:graphicImage
+											rendered="#{courrierRelanceBean.showNegatifImage}"
+											value="../framGraphique/images/boostExpiredMail.png" />
+										<h:graphicImage
+											rendered="#{courrierRelanceBean.hideNegatifImage}"
+											value="../framGraphique/images/boostExpiredMailActif.png" />
+									</h:column>
+								</h:panelGrid>
+							</div>
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+							<rich:modalPanel id="waitPanel" style="text-align:center"
+								autosized="true">
+								<h:outputText value="#{msg.messageRecherche}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:outputText value="#{msg.result}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+							<a4j:keepAlive beanName="courrierRelanceBean" ajaxOnly="true" />
+							<rich:spacer height="10" />
+							<h:panelGrid columns="3">
+							<h:column>
+							<h:selectOneRadio id="selectoneRadioId"
+								styleClass="xteDetailLabelOutput"
+								disabled="#{courrierRelanceBean.disableSelectRadio}"
+								style="direction:#{languageManager.direction};"
+								value="#{courrierRelanceBean.typeRelance}"
+								layout="lineDirection">
+								 
+								<a4j:support event="onchange" reRender="data,scroller,record"
+									ajaxSingle="true" status="ajaxStatus"
+									actionListener="#{courrierRelanceBean.eventChooseTypeRelance}" >
+									 <a4j:keepAlive beanName="courrierRelanceBean"></a4j:keepAlive>
+									</a4j:support>
+								<f:selectItem
+									itemLabel="#{msg.courrierRelanceBeanItemReponse}"
+									itemValue="Tous" />
+								<f:selectItem
+									itemLabel="#{msg.courrierRelanceBeanItemRecusReponse}"
+									itemValue="Arrive" />
+								<f:selectItem
+									itemLabel="#{msg.courrierRelanceBeanItemEnvoyesReponse}"
+									itemValue="Depart" />
+							</h:selectOneRadio>
+							</h:column>
+							<rich:spacer width="50"/>
+							<h:column>
+							  <a4j:commandLink id="cmdLinkNotifAll" action="#{courrierRelanceBean.envoiMailing}"  status="ajaxStatus" >
+							     <h:graphicImage
+											value="../framGraphique/images/executeAllIcon.png"
+											 />
+							  </a4j:commandLink>
+							  <rich:toolTip for="cmdLinkNotifAll" value="#{msg.boostButtonAll}"
+													direction="top-left" />
+													<!-- popoup wait -->
+					<a4j:status id="ajaxStatusWait" forceId="true"
+						onstart="#{rich:component('waitPanelALL')}.show('',{height:'85px', width:'250px'})"
+						onstop="#{rich:component('waitPanelALL')}.hide()" />
+					<rich:modalPanel id="waitPanelALL" style="text-align:center">
+						<h:outputText value="#{msg.messageAttente}"
+							style="font-weight:bold;font-size:large" />
+						<div align="center">
+							<h:graphicImage value="../framGraphique/images/timeOut.gif"
+								alt="timeOut" />
+						</div>
+					</rich:modalPanel>
+							</h:column>
+							</h:panelGrid>
+							<rich:spacer height="10" />
+							<rich:dataTable width="10%"
+								value="#{courrierRelanceBean.listTransactionCourrier}" var="cr"
+								id="data" rows="10" styleClass="rich-datatable">
+								<f:facet name="header">
+									<h:outputText value="#{msg.listCourriersNecessitantReponse}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</f:facet>
+								<rich:column 
+									sortBy="#{cr.courrier.courrierReferenceCorrespondant}"
+									filterBy="#{cr.courrier.courrierReferenceCorrespondant}"
+									 filterEvent="onkeyup" label="#{msg.Reference}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.courrier.courrierReferenceCorrespondant}" />
+								</rich:column>
+								<rich:column sortBy="#{cr.courrier.courrierObjet}" 
+									filterBy="#{cr.courrier.courrierObjet}" filterEvent="onkeyup"
+									label="#{msg.ColonneObjet}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneObjet}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrier.courrierObjet}" />
+								</rich:column>
+								<rich:column sortBy="#{cr.courrier.nature.natureLibelle}"
+									filterBy="#{cr.courrier.nature.natureLibelle}"
+									filterEvent="onkeyup" label="#{msg.ColonneNature}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneNature}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrier.nature.natureLibelle}" />
+								</rich:column>
+
+								<rich:column sortBy="#{cr.destinataireReelle}"
+									filterBy="#{cr.destinataireReelle}" filterEvent="onkeyup"
+									label="#{msg.ColonneDest}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.colonneDestExp}" />
+									</f:facet>
+									<h:outputText value="#{cr.destinataireReelle}" />
+								</rich:column>
+
+								<rich:column
+									sortBy="#{cr.transaction.transactionDateTransaction}"
+									filterBy="#{cr.transaction.transactionDateTransaction}"
+									 filterEvent="onkeyup"
+									label="#{msg.ColonneDateRecep}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDateRecep}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.transaction.transactionDateTransaction}" />
+								</rich:column>
+
+								<rich:column
+									sortBy="#{cr.transactionDestination.transactionDestDateReponse}"
+									filterBy="#{cr.transactionDestination.transactionDestDateReponse}"
+									filterEvent="onkeyup" label="#{msg.ColonneDateRep}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDateRep}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.transactionDestination.transactionDestDateReponse}" />
+								</rich:column>
+								<rich:column style="text-align: center;"
+									sortBy="#{cr.toleranceRange}" filterBy="#{cr.toleranceRange}"
+									filterEvent="onkeyup">
+									<f:facet name="header">
+										<h:outputText value="#{msg.delais}" />
+									</f:facet>
+									<h:outputText value="#{cr.toleranceRange}"
+										styleClass="xteDetailLabelOutput" />
+								</rich:column>
+								<rich:column >
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneOperation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="2">
+											<h:column>
+												<a4j:commandLink id="consultJP"
+													action="#{courrierRelanceBean.getSelectedRow}"
+													oncomplete="document.location.href='courrierDetailsRelance.jsf'">
+													<h:graphicImage
+														value="../framGraphique/images/icone-detail.png"
+														alt="Consulter" />
+												</a4j:commandLink>
+												<rich:toolTip for="consultJP" value="#{msg.Consult}"
+													direction="top-left" />
+											</h:column>
+											<h:column rendered="#{cr.mailSent}">
+												<a4j:commandLink id="aValiderBoc"
+													action="#{courrierRelanceBean.getSelectedRowForBoost}"
+													oncomplete="#{rich:component('askDelete2')}.show()"
+													reRender="askDelete2,msgPanalCD">
+													<h:graphicImage
+														value="../framGraphique/images/executeIcon.png"
+														alt="aValider1" />
+												</a4j:commandLink>
+												<rich:toolTip for="aValiderBoc" value="#{msg.boostButton}"
+													direction="top-left" />
+											</h:column>
+										</h:panelGrid>
+									</div>
+								</rich:column>
+							</rich:dataTable>
+							<rich:datascroller for="data" id="scroller" />
+							<div align="center">
+								<h:outputText value="#{msg.NombreEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record" value="#{courrierRelanceBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+					</h:form>
+										<!-- ******popup delete 2****** -->
+										<rich:modalPanel id="askDelete2" autosized="true" height="110"
+											width="350">
+											<a4j:keepAlive beanName="courrierRelanceBean" ajaxOnly="true" />
+											<f:facet name="header">
+												<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+													<h:outputText value="#{msg.labelConfirm}"
+														styleClass="xtePopupInformationTextHeader" />
+												</h:panelGrid>
+											</f:facet>
+											
+												<f:facet name="controls">
+											<h:panelGroup>
+													<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelink" />
+												<rich:componentControl for="askDelete2" attachTo="hidelink"
+													operation="hide" event="onclick" />
+								</h:panelGroup>
+							
+											</f:facet>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/interrogation.png" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="xtePopupInformationText"
+															value="#{msg.confirmNotify}" /></td>
+												</tr>
+											</table>
+											<h:form>
+												<div align="center">
+													<a4j:commandButton value="#{msg.buttonOui}"
+														action="#{courrierRelanceBean.boost}" ajaxSingle="true"
+														oncomplete="Richfaces.hideModalPanel('askDelete2'); #{rich:component('msgPanalCD')}.show();"
+														type="submit" styleClass="submitButton" />
+													<rich:spacer width="10" />
+													<a4j:commandButton value="#{msg.buttonNon}"
+														onclick="document.location.href='courrierRelance.jsf'" type="submit"
+									ajaxSingle="true" styleClass="submitButton" />
+												</div>
+											</h:form>
+										</rich:modalPanel>
+										<!-- *****popup Info validation de suppression******* -->
+										<rich:modalPanel id="msgPanalCD" autosized="true" height="90"
+											width="350">
+											<a4j:keepAlive beanName="courrierRelanceBean" ajaxOnly="true" />
+											<f:facet name="header">
+												<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+													<rich:spacer width="2" />
+													<h:outputText value="#{msg.labelInfo}"
+														styleClass="xtePopupInformationTextHeader" />
+												</h:panelGrid>
+											</f:facet>
+											<f:facet name="controls">
+												<h:panelGroup>
+													<h:graphicImage value="../framGraphique/images/close.png"
+														width="15" height="15" id="hidelinkdel" alt="Fermer" />
+													<rich:componentControl for="msgPanalCD"
+														attachTo="hidelinkdel" operation="hide" event="onclick" />
+												</h:panelGroup>
+											</f:facet>
+											<h:form>
+												<table align="center">
+													<tr>
+														<td align="left"><h:graphicImage
+																value="../framGraphique/images/information.png" /></td>
+														<td align="center" colspan="2"><h:outputText
+																styleClass="xtePopupInformationText"
+																value="#{msg.confirmBoost}" /></td>
+													</tr>
+												</table>
+												<div align="center">
+													<a4j:commandButton value="#{msg.buttonOk}"
+														onclick="Richfaces.hideModalPanel('msgPanalCD');"
+														oncomplete="document.location.href='courrierRelance.jsf'"
+														type="submit" ajaxSingle="true" styleClass="submitButton" />
+												</div>
+											</h:form>
+										</rich:modalPanel>
+						<!-- *****popup Info validation de suppression******* -->
+										<rich:modalPanel id="popUpBoostAll" autosized="true" height="90"
+											width="350">
+											<a4j:keepAlive beanName="courrierRelanceBean" ajaxOnly="true" />
+											<f:facet name="header">
+												<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+													<rich:spacer width="2" />
+													<h:outputText value="#{msg.labelInfo}"
+														styleClass="xtePopupInformationTextHeader" />
+												</h:panelGrid>
+											</f:facet>
+											<f:facet name="controls">
+												<h:panelGroup>
+													<h:graphicImage value="../framGraphique/images/close.png"
+														width="15" height="15" id="hidelinkdelAll" alt="Fermer" />
+													<rich:componentControl for="popUpBoostAll"
+														attachTo="hidelinkdelAll" operation="hide" event="onclick" />
+												</h:panelGroup>
+											</f:facet>
+											<h:form>
+												<table align="center">
+													<tr>
+														<td align="left"><h:graphicImage
+																value="../framGraphique/images/information.png" /></td>
+														<td align="center" colspan="2"><h:outputText
+																styleClass="xtePopupInformationText"
+																value="#{msg.confirmBoostALL}" /></td>
+													</tr>
+												</table>
+												<div align="center">
+													<a4j:commandButton value="#{msg.buttonOk}"
+														ajaxSingle="true"
+														onclick="Richfaces.hideModalPanel('popUpBoostAll');"
+														type="submit" styleClass="submitButton" />
+												</div>
+											</h:form>
+										</rich:modalPanel>
+				</div>
+				<div id="inter" />
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

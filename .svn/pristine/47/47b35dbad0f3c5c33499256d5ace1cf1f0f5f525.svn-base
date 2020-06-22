@@ -1,0 +1,537 @@
+package xtensus.beans.common.GBO;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
+
+import org.richfaces.model.TreeNodeImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Transaction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class RapportsCourriersBean {
+	@Autowired
+	private VariableGlobale vb;
+	
+	private ApplicationManager appMgr;
+	private LdapOperation ldapOperation;
+	private Date selectedDate;
+	private List<Unit> listeUnite;
+	private List<SelectItem> selectItemsUnitee = new ArrayList<SelectItem>();
+	private String selectedItemUnite;
+	private boolean showInputDay;
+	private boolean showInputMonth;
+	private boolean showInputYear;
+	private boolean showInputPeriode;
+	private Date selectedDateF;
+	private String choixMois;
+	private String choixAnnee;
+	// =======
+	private String typeDate;
+	Calendar cal = Calendar.getInstance();
+	private Date anneeDebut;
+	private boolean showdateF;
+	String datePeriodeAR = "";
+	String datePeriodeFR = "";
+	String moisArabe;
+	@Autowired
+	public RapportsCourriersBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listeUnite = new ArrayList<Unit>();
+		ldapOperation = new LdapOperation();
+		showInputDay = true;
+		showInputMonth = false;
+		showInputYear = false;
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			//vb.setIdNatureForTestRapport(1992);
+			listeUnite = vb.getCopyLdapListUnit();
+			System.out.println(" listeUnite size=  " + listeUnite.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void save(ActionEvent actionEvent) {
+		try {
+			
+			System.out.println(" DANS save");
+			int moisChoisi=0;
+			int  annee=0;
+			if (vb.getTypeDateRapport() != null) {
+				System.out.println(" DANS vb.getTypeDateRapport() != null");
+				if (vb.getTypeDateRapport().equals("jour")) {
+					System.out.println(" DANS vb.getTypeDateRapport() = jour");
+					selectedDateF = selectedDate;
+					vb.setSelectedDateD(selectedDate);
+					vb.setSelectedDateF(selectedDateF);
+					SimpleDateFormat debut = new SimpleDateFormat("yyyy-MM-dd");
+					String dateD = debut.format(selectedDate);
+					datePeriodeAR =  " يوم : " + dateD;
+					datePeriodeFR = "le : "+dateD;
+					vb.setDatePeriodeAnneeAR(datePeriodeAR);
+					vb.setDatePeriodeAnneeFR(datePeriodeFR);
+				} else if (vb.getTypeDateRapport().equals("mois")) {
+					System.out.println(" DANS vb.getTypeDateRapport() = mois");
+					
+					if (choixMois != null && choixAnnee != null){
+					
+					 moisChoisi = Integer.valueOf(choixMois);
+					 annee = Integer.valueOf(choixAnnee);
+					 buildMoisArabe(moisChoisi);
+					 datePeriodeAR = "  في شهر: " +moisArabe +" من "+ choixAnnee   ;
+					 datePeriodeFR = "le mois du : " +choixMois+ " / " + choixAnnee;
+					 vb.setDatePeriodeAnneeAR(datePeriodeAR);
+					 vb.setDatePeriodeAnneeFR(datePeriodeFR);
+					buildDate(moisChoisi, annee);
+					}
+				} else if (vb.getTypeDateRapport().equals("periode")) {
+					System.out
+							.println(" DANS vb.getTypeDateRapport() = periode");
+					vb.setSelectedDateD(selectedDate);
+					vb.setSelectedDateF(selectedDateF);
+					SimpleDateFormat debut = new SimpleDateFormat("yyyy-MM-dd");
+					String dateD = debut.format(selectedDate);
+					String dateF = debut.format(selectedDateF);
+					datePeriodeAR = "  من  " +dateD  + " إلى " + dateF;
+					datePeriodeFR = "du : " +dateD+ " au " + dateF;
+					vb.setDatePeriodeAnneeAR(datePeriodeAR);
+					vb.setDatePeriodeAnneeFR(datePeriodeFR);
+				} else {
+					System.out.println(" DANS vb.getTypeDateRapport() = année");
+					moisChoisi = 10;
+					annee = Integer.valueOf(choixAnnee);
+					datePeriodeAR = " : في سنة " + choixAnnee;
+					datePeriodeFR = "en "+choixAnnee;
+					vb.setDatePeriodeAnneeAR(datePeriodeAR);
+					vb.setDatePeriodeAnneeFR(datePeriodeFR);
+					buildDate(moisChoisi, annee);
+
+				}
+			}
+			if (selectedItemUnite != null) {
+				ldapOperation = new LdapOperation();
+				Unit unit = ldapOperation.getUnitById(Integer
+						.valueOf(selectedItemUnite));
+				System.out.println(" short name unit selectionee = "
+						+ unit.getNameUnit());
+				vb.setSelectedUnit(unit);
+				vb.setIdUnit(unit.getIdUnit());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(" #### Dans choix année == " + choixAnnee);
+		System.out.println(" VB selectedDate=  " + vb.getSelectedDateD());
+		System.out.println(" VB selectedDateF=  " + vb.getSelectedDateF());
+	}
+
+	public void buildMoisArabe(int numMois){
+		
+		switch (numMois) {
+		case 1 :
+			moisArabe= "جانفي";
+			break;
+		case 2 :
+			moisArabe= "فيفري";
+		    break;
+		case 3 :
+			moisArabe= "مارس";
+		    break;
+		case 4 :
+			moisArabe= "أفريل";
+		    break;
+		case 5 :
+			moisArabe= "ماي";
+		    break;
+		case 6 :
+			moisArabe= "جوان";
+		    break;
+		case 7 :
+			moisArabe= "جويلية";
+		    break;
+		case 8 :
+			moisArabe= "أوت";
+		    break;
+		case 9 :
+			moisArabe= "سبتمبر";
+		    break;
+		case 10 :
+			moisArabe= "أكتوبر";
+		    break;
+		case 11 :
+			moisArabe= "نوفمبر";
+		    break;
+		case 12 :
+			moisArabe= "ديسمبر";
+		    break;
+		}
+	}
+	public void buildDate(int moisChoisi, int annee) {
+
+		System.out.println(" DANS buildDate");
+
+		try {
+
+			int mois = moisChoisi;
+
+			System.out.println("#### mois == " + mois);
+			System.out.println("#### annee == " + annee);
+			System.out.println("#### moisChoisi == " + moisChoisi);
+
+			int i = 0;
+			if (mois == 2) {
+				if(annee % 4==0 && annee % 100!=0)
+				i = 29;
+				else
+					i=28;
+			} else if (mois % 2 == 0) {
+				i = 30;
+			} else {
+				i = 31;
+			}
+			
+			Date dateD = new Date();
+			dateD.setDate(1);
+			dateD.setMonth(mois - 1);
+			dateD.setYear(annee - 1900);
+			
+			Date dateF = new Date();
+			dateF.setDate(i);
+			dateF.setMonth(mois - 1);
+			dateF.setYear(annee - 1900);
+			vb.setSelectedDateD(dateD);
+			vb.setSelectedDateF(dateF);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void chooseTypeDate(ActionEvent actionEvent) {
+		System.out.println(" dans chooseTypeDate ");
+		System.out.println(" typeDate=  " + typeDate);
+		if (typeDate != null) {
+			if (typeDate.equals("jour")) {
+				showInputDay = true;
+				showInputMonth = false;
+				showInputYear = false;
+				showInputPeriode = false;
+				selectedDate = new Date();
+				selectedDateF = new Date();
+				showdateF = false;
+				vb.setJourOuAutr(5);
+				System.out.println(" ### selectedDate=  " + selectedDate);
+				System.out.println(" ### selectedDateF=  " + selectedDateF);
+			} else if (typeDate.equals("mois")) {
+				showInputDay = false;
+				showInputMonth = true;
+				showInputYear = true;
+				showInputPeriode = false;
+				vb.setJourOuAutr(4);
+				selectedDate = new Date();
+				selectedDateF = new Date();
+				showdateF = false;
+				System.out.println(" ###dans save selectedDate=  "
+						+ selectedDate);
+				System.out.println(" ###dans save selectedDateF=  "
+						+ selectedDateF);
+			} else if (typeDate.equals("periode")) {
+				showInputDay = true;
+				showInputMonth = false;
+				showInputYear = false;
+				showInputPeriode = true;
+				selectedDate = new Date();
+				selectedDateF = new Date();
+				vb.setJourOuAutr(1);
+				showdateF = true;
+				System.out.println(" ### selectedDate=  " + selectedDate);
+				System.out.println(" ### selectedDateF=  " + selectedDateF);
+			} else {
+				showInputDay = false;
+				showInputMonth = false;
+				showInputYear = true;
+				showInputPeriode = false;
+				selectedDate = new Date();
+				selectedDateF = new Date();
+				vb.setJourOuAutr(3);
+				showdateF = false;
+				System.out.println(" ### selectedDate=  " + selectedDate);
+				System.out.println(" ### selectedDateF=  " + selectedDateF);
+			}
+		}
+		vb.setTypeDateRapport(typeDate);
+	}
+
+	
+
+	public List<SelectItem> getSelectItemsYear() {
+		System.out.println("Das Méthode getSelectItemsYear ");
+		List<SelectItem> selectItemsYear = new ArrayList<SelectItem>();
+		List<Transaction> listeTransaction = appMgr
+				.getListTransactionByDateTransaction();
+
+		if (listeTransaction != null && listeTransaction.size() > 0) {
+			anneeDebut = listeTransaction.get(0)
+					.getTransactionDateTransaction();
+			System.out.println("anneeDebut =" + anneeDebut);
+			SimpleDateFormat maDateLongue = new SimpleDateFormat("yyyy");
+			int firstYear = Integer.parseInt(maDateLongue.format(anneeDebut));
+			System.out.println("firstYear =" + firstYear);
+			int lastYear;
+			// Date currentDate = new Date();
+			lastYear = cal.get(Calendar.YEAR);
+			System.out.println("lastYear =" + lastYear);
+			selectItemsYear.add(new SelectItem(""));
+			for (int i = firstYear; i <= lastYear; i++) {
+				selectItemsYear.add(new SelectItem(String.valueOf(i)));
+			}
+			System.out.println("selectItemsYear =" + selectItemsYear);
+		}
+		return selectItemsYear;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	
+
+	public List<Unit> getListeUnite() {
+		return listeUnite;
+	}
+
+	public void setListeUnite(List<Unit> listeUnite) {
+		this.listeUnite = listeUnite;
+	}
+
+	public List<SelectItem> getSelectItemsUnitee() {
+		int idUnit = 0;
+		String libelleUnit = "";
+		if(!vb.getPerson().isBoc()){
+			Unit uniteConnecgte=vb.getPerson().getAssociatedDirection();
+					
+			idUnit = Integer.valueOf(uniteConnecgte.getIdUnit());
+			if(idUnit==2990){
+				selectItemsUnitee.add(new SelectItem(""));
+				for (int i = 0; i < listeUnite.size(); i++) {
+					idUnit = Integer.valueOf(listeUnite.get(i).getIdUnit());
+					libelleUnit = listeUnite.get(i).getNameUnit().trim();
+					selectItemsUnitee.add(new SelectItem(String.valueOf(idUnit),
+							libelleUnit));
+
+				}
+			}else{
+				libelleUnit = uniteConnecgte.getNameUnit();
+				selectItemsUnitee.add(new SelectItem(String.valueOf(idUnit),
+						libelleUnit));
+				//unité sélectionnée == unité connectée
+				vb.setSelectedUnit(uniteConnecgte);
+				vb.setIdUnit(idUnit);
+			}
+			
+		}
+		
+		else {
+		//Cas d'un BO importer la liste des tous les unité rattachées
+			//Le BO de membre connecté
+			BOC boc= vb.getPerson().getAssociatedBOC();
+			List<Unit> listeUniteBO = listUniteBO(boc);
+			
+			
+		selectItemsUnitee.add(new SelectItem(""));
+		for (int i = 0; i < listeUniteBO.size(); i++) {
+			idUnit = Integer.valueOf(listeUniteBO.get(i).getIdUnit());
+			libelleUnit = listeUniteBO.get(i).getNameUnit().trim();
+			selectItemsUnitee.add(new SelectItem(String.valueOf(idUnit),libelleUnit));
+
+		}
+		}
+		return selectItemsUnitee;
+	}
+	
+	
+	List<Unit> listUniteBO(BOC noeudEnCours){
+
+		List<Unit> listeResusltat= new ArrayList<Unit>();
+		
+	
+		BOC boc = (BOC) noeudEnCours;
+				
+		if (boc.getListDirectionsChildBOC() != null) {
+		 
+			
+			for (int i = 0; i < boc.getListDirectionsChildBOC().size(); i++) {
+			
+				listSousUniteUnite(boc.getListDirectionsChildBOC().get(i),listeResusltat);
+				//listeResusltat.addAll(listSousUniteUnite(boc.getListDirectionsChildBOC().get(i),listeResusltat));
+//				listeResusltat.add(boc.getListDirectionsChildBOC()
+//						.get(i));
+					
+			}
+		}
+		return listeResusltat;
+	}
+	void listSousUniteUnite(Unit uniteEnCours, List<Unit> listeResusltat){
+		if(uniteEnCours.getListUnitsChildUnit()!=null && uniteEnCours.getListUnitsChildUnit().size()>0){
+			for(int i=0; i<uniteEnCours.getListUnitsChildUnit().size();i++){
+				listeResusltat.add(uniteEnCours);
+				listSousUniteUnite(uniteEnCours.getListUnitsChildUnit().get(i),listeResusltat);
+			//listeResusltat.addAll(listSousUniteUnite(uniteEnCours.getListUnitsChildUnit().get(i),listeResusltat));
+			}
+		}
+		else
+		{
+		System.out.println(uniteEnCours);
+			listeResusltat.add(uniteEnCours);
+			//return listeResusltat;
+		}
+				
+		
+		//return 	listeResusltat;
+	}
+	
+
+	public void setSelectItemsUnitee(List<SelectItem> selectItemsUnitee) {
+		this.selectItemsUnitee = selectItemsUnitee;
+	}
+
+	public String getSelectedItemUnite() {
+		return selectedItemUnite;
+	}
+
+	public void setSelectedItemUnite(String selectedItemUnite) {
+		this.selectedItemUnite = selectedItemUnite;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public Date getSelectedDate() {
+		return selectedDate;
+	}
+
+	public void setSelectedDate(Date selectedDate) {
+		System.out.println(" DANS setSelectedDate===> " + selectedDate);
+		this.selectedDate = selectedDate;
+	}
+
+	public Date getSelectedDateF() {
+		return selectedDateF;
+	}
+
+	public void setSelectedDateF(Date selectedDateF) {
+		System.out.println(" DANS selectedDateF===> " + selectedDateF);
+		this.selectedDateF = selectedDateF;
+	}
+
+	public String getTypeDate() {
+		return typeDate;
+	}
+
+	public void setTypeDate(String typeDate) {
+		this.typeDate = typeDate;
+	}
+
+	public boolean isShowInputDay() {
+		return showInputDay;
+	}
+
+	public void setShowInputDay(boolean showInputDay) {
+		this.showInputDay = showInputDay;
+	}
+
+	public boolean isShowInputMonth() {
+		return showInputMonth;
+	}
+
+	public void setShowInputMonth(boolean showInputMonth) {
+		this.showInputMonth = showInputMonth;
+	}
+
+	public boolean isShowInputYear() {
+		return showInputYear;
+	}
+
+	public void setShowInputYear(boolean showInputYear) {
+		this.showInputYear = showInputYear;
+	}
+
+	public boolean isShowInputPeriode() {
+		return showInputPeriode;
+	}
+
+	public void setShowInputPeriode(boolean showInputPeriode) {
+		this.showInputPeriode = showInputPeriode;
+	}
+
+	public String getChoixMois() {
+		return choixMois;
+	}
+
+	public void setChoixMois(String choixMois) {
+		this.choixMois = choixMois;
+	}
+
+	public String getChoixAnnee() {
+		return choixAnnee;
+	}
+
+	public void setChoixAnnee(String choixAnnee) {
+		this.choixAnnee = choixAnnee;
+	}
+
+	public Calendar getCal() {
+		return cal;
+	}
+
+	public void setCal(Calendar cal) {
+		this.cal = cal;
+	}
+
+	public Date getAnneeDebut() {
+		return anneeDebut;
+	}
+
+	public void setAnneeDebut(Date anneeDebut) {
+		this.anneeDebut = anneeDebut;
+	}
+
+	public boolean isShowdateF() {
+		return showdateF;
+	}
+
+	public void setShowdateF(boolean showdateF) {
+		this.showdateF = showdateF;
+	}
+
+}

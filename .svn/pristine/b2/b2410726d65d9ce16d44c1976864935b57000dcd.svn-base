@@ -1,0 +1,152 @@
+package xtensus.beans.common.GBO;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.FaxUtil;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Expdestexterne;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class FaxEnvoiBean {
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private VariableGlobale vb;
+	private String content;
+	private String numFax;
+	private String nameContact;
+	private boolean status;
+	private boolean status1;
+
+	public FaxEnvoiBean() {
+
+	}
+
+	@Autowired
+	public FaxEnvoiBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	@PostConstruct
+	public void initialize() {
+		try {
+			if(vb.getExpdestexterne() != null){
+				numFax = vb.getExpdestexterne().getExpDestExterneFax();
+				if (vb.getExpdestexterne().getTypeutilisateur().getTypeUtilisateurId() == 1) {
+					nameContact = vb.getExpdestexterne().getExpDestExterneNom()+ " " + vb.getExpdestexterne().getExpDestExternePrenom();
+				} else {
+					nameContact = vb.getExpdestexterne().getExpDestExterneNom();
+				}
+			}
+			if(vb.getOtherAnnotation() != null){
+				content = vb.getOtherAnnotation();
+			}
+		} catch (Exception e) {
+			numFax = "";
+			nameContact = "";
+		}
+	}
+	
+	public void save(){
+		try {
+			FaxUtil faxUtil = new FaxUtil();
+//			String tt = StringEscapeUtils.unescapeHtml(content);
+//			String text = tt.replaceAll("<[^>]*>", "");
+//			System.out.println(text);
+//			faxUtil.sendEmailSSL(" ", text, numFax, "", "");
+			content = StringEscapeUtils.unescapeHtml(content);
+			content = content.replaceAll("<p>", "");
+			content = content.replace("</p>", "\n");
+			content = content.replace("<br />", "\n");
+			content = content.replaceAll("<[^>]*>", "");
+			faxUtil.sendEmailSSL(" ", content, numFax, "", "");
+			status = FaxUtil.status;
+			vb.setExpdestexterne(new Expdestexterne());
+		} catch (Exception e) {
+			e.printStackTrace();
+			vb.setExpdestexterne(new Expdestexterne());
+		}
+	}
+	/** **/
+	public void saveTempValue(){
+//		content = StringEscapeUtils.unescapeHtml(content);
+//		content = content.replaceAll("<p>", "");
+//		content = content.replace("</p>", "\n");
+//		System.out.println("Contenu: \n"+content);
+		vb.setOtherAnnotation(content);
+	}
+	
+	
+	public void reset(){
+		vb.setExpdestexterne(new Expdestexterne());
+	}
+
+	// ************Getter & Setter********************
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+	
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setNumFax(String numFax) {
+		this.numFax = numFax;
+	}
+
+	public String getNumFax() {
+		return numFax;
+	}
+
+	public void setNameContact(String nameContact) {
+		this.nameContact = nameContact;
+	}
+
+	public String getNameContact() {
+		return nameContact;
+	}
+
+}
+

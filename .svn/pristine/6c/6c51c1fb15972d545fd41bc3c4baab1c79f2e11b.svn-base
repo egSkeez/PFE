@@ -1,0 +1,533 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Sujetmailing;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class SujetMailingGestionBean {
+
+	private Sujetmailing sujetmailing;
+	private String copySujetmailinglibelle;
+	// div
+	private String divajouter;
+	private String divmodifier;
+	private String divconsult;
+	private String divnonconsult;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listsujetmailing;
+	private List<Sujetmailing> listMR;
+	private List<Sujetmailing> copylistMR;
+
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private boolean statusDelete;
+	private boolean statusNoDelete;
+	private Sujetmailing moder;
+
+	@Autowired
+	public SujetMailingGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		sujetmailing = new Sujetmailing();
+		moder = new Sujetmailing();
+		listsujetmailing = new ListDataModel();
+		listMR = new ArrayList<Sujetmailing>();
+		copylistMR = new ArrayList<Sujetmailing>();
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out.println("*************Bean Injecte***************");
+		divajouter = "inline";
+		divmodifier = "none";
+		divconsult = "none";
+		divnonconsult = "inline";
+		infoChampObligatoir = "inline";
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajouter sujet de Mailing";
+		listMR = new ArrayList<Sujetmailing>();
+		copylistMR = new ArrayList<Sujetmailing>();
+		try {
+			listMR = appMgr.getList(Sujetmailing.class);
+			for (int i = listMR.size()-1; i >= 0; i--) {
+				moder = listMR.get(i);
+				copylistMR.add(moder);
+				moder = new Sujetmailing();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listsujetmailing.setWrappedData(copylistMR);
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+
+		try {
+			sujetmailing.setSujetmailingDatecreation(new Date());
+			appMgr.insert(sujetmailing);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout",
+					"Evénement de log d'ajout de sujet de mailing " + sujetmailing.getIdsujetmailing() + "-" + sujetmailing.getSujetmailingLibelle() ,
+					vb.getPerson(), "INFO", appMgr);
+			status = true;
+			Initialize();
+
+		} catch (Exception e) {
+			status3 = true;
+			e.printStackTrace();
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		try {
+			sujetmailing = (Sujetmailing) listsujetmailing.getRowData();
+			vb.setSujetmailing(sujetmailing);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation de sujet de mailing " + sujetmailing.getIdsujetmailing() + "-" + sujetmailing.getSujetmailingLibelle() ,
+					vb.getPerson(), "INFO", appMgr);
+			System.out
+					.println("*******SelectionSujetmailingConsulterBean*********");
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionSujetmailingConsulterBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		divnonconsult = "inline";
+		divconsult = "none";
+		infoChampObligatoir = "inline";
+		titre = "Modification sujet de Mailing";
+		titleaccor =  messageSource.getMessage("ModificationsujetdeMailing", new Object[]{},lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+	}
+
+	public void getSelectionRowConst() {
+		this.getSelectionRow();
+		divmodifier = "none";
+		divnonconsult = "none";
+		divconsult = "inline";
+		titre = "Consultation sujet de Mailing";
+		titleaccor =  messageSource.getMessage("ConsultationsujetdeMailing", new Object[]{},lm.createLocal());
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+		try {
+			appMgr.update(sujetmailing);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de sujet de mailing " + sujetmailing.getIdsujetmailing() + "-" + sujetmailing.getSujetmailingLibelle() ,
+					vb.getPerson(), "INFO", appMgr);
+			listMR = new ArrayList<Sujetmailing>();
+			Initialize();
+			sujetmailing = new Sujetmailing();
+			divajouter = "inline";
+			divmodifier = "none";
+			infoChampObligatoir = "inline";
+			titre = "Ajout sujet de Mailing";
+			titleaccor =  messageSource.getMessage("AjoutsujetdeMailing", new Object[]{},lm.createLocal());
+			System.out.println("UpdateTerminee");
+			status1 = true;
+		} catch (Exception e) {
+			status2 = true;
+		}
+	}
+
+	public void getSelectionRowDelete() {
+		statusDelete = false;
+		try {
+			sujetmailing = (Sujetmailing) listsujetmailing.getRowData();
+			if (appMgr.getContactSujetmailingByIdSujetmailing(sujetmailing.getIdsujetmailing()).isEmpty()) {
+				statusDelete = true;
+			}
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionSujetmailingConsulterBean*******");
+		}
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			// etat=vb.getEtat();
+			appMgr.delete(sujetmailing);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression de sujet de mailing " + sujetmailing.getIdsujetmailing() + "-" + sujetmailing.getSujetmailingLibelle() ,
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listsujetmailing = new ListDataModel();
+		listMR = new ArrayList<Sujetmailing>();
+		copylistMR = new ArrayList<Sujetmailing>();
+		Initialize();
+		hidechamp();
+		// etat = new Etat();
+	}
+
+	public void annulModif() {
+		sujetmailing = new Sujetmailing();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajout sujet de Mailing";
+		// tran.setTransmissionLibelle("");
+
+	}
+
+	public void viderchamp() {
+		sujetmailing = new Sujetmailing();
+		msgerror = true;
+		titleaccor =messageSource.getMessage("AjoutsujetdeMailing", new Object[]{},lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divnonconsult = "inline";
+		divconsult = "none";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+
+	}
+
+	public void hidechamp() {
+		hideAccor = "none";
+		divajouter = "none";
+		divnonconsult = "none";
+		divconsult = "none";
+		divmodifier = "none";
+		infoChampObligatoir = "none";
+		status = false;
+		status1 = false;
+		status2 = false;
+		status3 = false;
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// *****************Getters &Setters*******************************
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listsujetmailing == null
+				&& listsujetmailing.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Sujetmailing>) listsujetmailing.getWrappedData())
+					.size();
+		return records;
+	}
+
+	public Sujetmailing getSujetmailing() {
+		return sujetmailing;
+	}
+
+	public void setSujetmailing(Sujetmailing sujetmailing) {
+		this.sujetmailing = sujetmailing;
+	}
+
+	public String getCopySujetmailinglibelle() {
+		return copySujetmailinglibelle;
+	}
+
+	public void setCopySujetmailinglibelle(String copySujetmailinglibelle) {
+		this.copySujetmailinglibelle = copySujetmailinglibelle;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public DataModel getListsujetmailing() {
+		return listsujetmailing;
+	}
+
+	public void setListsujetmailing(DataModel listsujetmailing) {
+		this.listsujetmailing = listsujetmailing;
+	}
+
+	public List<Sujetmailing> getListMR() {
+		return listMR;
+	}
+
+	public void setListMR(List<Sujetmailing> listMR) {
+		this.listMR = listMR;
+	}
+
+	public List<Sujetmailing> getCopylistMR() {
+		return copylistMR;
+	}
+
+	public void setCopylistMR(List<Sujetmailing> copylistMR) {
+		this.copylistMR = copylistMR;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public Sujetmailing getModer() {
+		return moder;
+	}
+
+	public void setModer(Sujetmailing moder) {
+		this.moder = moder;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public String getDivconsult() {
+		return divconsult;
+	}
+
+	public void setDivconsult(String divconsult) {
+		this.divconsult = divconsult;
+	}
+
+	public String getDivnonconsult() {
+		return divnonconsult;
+	}
+
+	public void setDivnonconsult(String divnonconsult) {
+		this.divnonconsult = divnonconsult;
+	}
+
+	public void setStatusDelete(boolean statusDelete) {
+		this.statusDelete = statusDelete;
+	}
+
+	public boolean isStatusDelete() {
+		return statusDelete;
+	}
+
+	public void setStatusNoDelete(boolean statusNoDelete) {
+		this.statusNoDelete = statusNoDelete;
+	}
+
+	public boolean isStatusNoDelete() {
+		return statusNoDelete;
+	}
+
+}

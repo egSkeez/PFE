@@ -1,0 +1,492 @@
+package xtensus.beans.utils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import xtensus.entity.CourrierDonneeSupplementaire;
+
+public class RechercheMulticritereModel {
+	private String courrierObjet;
+	private String courrierDescription;
+	private Date dateRecep;
+	private Date dateRecepFin;
+	private Date dateNecessiteRep;
+	private String motCle;
+	private String expediteur;
+	private Integer idExpediteur;
+	private String destinataire;
+	private List<String> listIdDestinataire;
+	private String necessiteReponse;
+	private String selectedItemsTr;
+	private String selectedItemNature;
+	private String selectedItemConf;
+	private String selectedItemUg;
+	private String courrierReference;
+	private String oldRef;
+	private List<String> annees;
+	private List<String> selectedItemsAnnotation;
+	private int etatCloturer;
+	private int idCourrierTest;
+	private String refCourrierTest;
+	private String courrierCopyTransfere;
+	private String courrierCopy;
+	//[JS] le 2019-07-27
+	private Date dateCourrierReel;
+	private Date dateCourrierReelFin;
+   //[JS]
+	private String selectedItemCategorie;
+	private String colonne1;
+	private String colonne2;
+	private String colonne3;
+	private String colonne4;
+	private String colonne5;
+	private String colonne6;
+	private String colonne7;
+	private String colonne8;
+	private String colonne9;
+	private String colonne10;
+	private String colonne11;
+	private String colonne12;	
+	private String colonne13;
+	private Date colonne14;
+	private Date colonne15;
+	private Date colonne16;
+	private Date colonne17;
+	private Date colonne18;
+	private Date colonne19;
+	private Date colonne20;
+	private String colonne21;
+	private Boolean colonne22;
+
+	
+	
+	
+	
+	
+	public RechercheMulticritereModel(){
+		this.necessiteReponse = "Tous";
+		this.expediteur = "";
+		this.destinataire = ""; 
+		this.courrierObjet = "";
+		this.courrierDescription = "";
+		this.motCle = "";
+		this.idExpediteur = null;
+		this.listIdDestinataire = new ArrayList<String>();
+		this.selectedItemsAnnotation = new ArrayList<String>();
+		this.selectedItemsTr = "";
+		this.selectedItemConf = "";
+		this.selectedItemNature = "";
+		this.selectedItemUg = "";
+		this.oldRef = null;
+		this.dateNecessiteRep = null;
+		this.dateRecep = null;
+		this.dateRecepFin = null;
+		this.etatCloturer=2;
+		this.selectedItemCategorie="";
+		this.dateCourrierReel=null;	
+		this.dateCourrierReelFin=null;
+		this.colonne1="";
+		this.colonne2="";
+		this.colonne3="";
+		this.colonne4="";
+		this.colonne5="";
+	}
+	
+	public void setCourrierObjet(String courrierObjet) {
+		this.courrierObjet = courrierObjet;
+	}
+
+	public String getCourrierObjet() {
+		return courrierObjet;
+	}
+
+	public void setDateRecep(Date dateRecep) {
+		this.dateRecep = dateRecep;
+	}
+
+	public Date getDateRecep() {
+		return dateRecep;
+	}
+
+	public void setDateRecepFin(Date dateRecepFin) {
+		this.dateRecepFin = dateRecepFin;
+	}
+
+	public Date getDateRecepFin() {
+		return dateRecepFin;
+	}
+
+	public void setMotCle(String motCle) {
+		this.motCle = motCle;
+	}
+
+	public String getMotCle() {
+		return motCle;
+	}
+
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public String getExpediteur() {
+		return expediteur;
+	}
+
+	public void setIdExpediteur(Integer idExpediteur) {
+		this.idExpediteur = idExpediteur;
+	}
+
+	public Integer getIdExpediteur() {
+		return idExpediteur;
+	}
+
+	public void setSelectedItemsTr(String selectedItemsTr) {
+		this.selectedItemsTr = selectedItemsTr;
+	}
+
+	public String getSelectedItemsTr() {
+		return selectedItemsTr;
+	}
+
+	public void setSelectedItemNature(String selectedItemNature) {
+		this.selectedItemNature = selectedItemNature;
+	}
+
+	public String getSelectedItemNature() {
+		return selectedItemNature;
+	}
+
+	public void setListIdDestinataire(List<String> listIdDestinataire) {
+		this.listIdDestinataire = listIdDestinataire;
+	}
+
+	public List<String> getListIdDestinataire() {
+		return listIdDestinataire;
+	}
+
+	public void setDestinataire(String destinataire) {
+		this.destinataire = destinataire;
+	}
+
+	public String getDestinataire() {
+		return destinataire;
+	}
+
+	public void setSelectedItemConf(String selectedItemConf) {
+		this.selectedItemConf = selectedItemConf;
+	}
+
+	public String getSelectedItemConf() {
+		return selectedItemConf;
+	}
+
+	public void setSelectedItemUg(String selectedItemUg) {
+		this.selectedItemUg = selectedItemUg;
+	}
+
+	public String getSelectedItemUg() {
+		return selectedItemUg;
+	}
+
+	public void setSelectedItemsAnnotation(List<String> selectedItemsAnnotation) {
+		this.selectedItemsAnnotation = selectedItemsAnnotation;
+	}
+
+	public List<String> getSelectedItemsAnnotation() {
+		return selectedItemsAnnotation;
+	}
+
+	public void setNecessiteReponse(String necessiteReponse) {
+		this.necessiteReponse = necessiteReponse;
+	}
+
+	public String getNecessiteReponse() {
+		return necessiteReponse;
+	}
+
+	public void setDateNecessiteRep(Date dateNecessiteRep) {
+		this.dateNecessiteRep = dateNecessiteRep;
+	}
+
+	public Date getDateNecessiteRep() {
+		return dateNecessiteRep;
+	}
+
+	public void setCourrierDescription(String courrierDescription) {
+		this.courrierDescription = courrierDescription;
+	}
+
+	public String getCourrierDescription() {
+		return courrierDescription;
+	}
+
+	public String getOldRef() {
+		return oldRef;
+	}
+
+	public void setOldRef(String oldRef) {
+		this.oldRef = oldRef;
+	}
+
+	public String getCourrierReference() {
+		return courrierReference;
+	}
+
+	public void setCourrierReference(String courrierReference) {
+		this.courrierReference = courrierReference;
+	}
+
+	public List<String> getAnnees() {
+		return annees;
+	}
+
+	public void setAnnees(List<String> annees) {
+		this.annees = annees;
+	}
+
+	public int getIdCourrierTest() {
+		return idCourrierTest;
+	}
+
+	public void setIdCourrierTest(int idCourrierTest) {
+		this.idCourrierTest = idCourrierTest;
+	}
+
+	public String getRefCourrierTest() {
+		return refCourrierTest;
+	}
+
+	public void setRefCourrierTest(String refCourrierTest) {
+		this.refCourrierTest = refCourrierTest;
+	}
+
+	public int getEtatCloturer() {
+		return etatCloturer;
+	}
+
+	public void setEtatCloturer(int etatCloturer) {
+		this.etatCloturer = etatCloturer;
+	}
+
+	public String getCourrierCopyTransfere() {
+		return courrierCopyTransfere;
+	}
+
+	public void setCourrierCopyTransfere(String courrierCopyTransfere) {
+		this.courrierCopyTransfere = courrierCopyTransfere;
+	}
+
+	public String getCourrierCopy() {
+		return courrierCopy;
+	}
+
+	public void setCourrierCopy(String courrierCopy) {
+		this.courrierCopy = courrierCopy;
+	}
+
+	public void setSelectedItemCategorie(String selectedItemCategorie) {
+		this.selectedItemCategorie = selectedItemCategorie;
+	}
+
+	public String getSelectedItemCategorie() {
+		return selectedItemCategorie;
+	}
+
+	public String getColonne1() {
+		return colonne1;
+	}
+
+	public void setColonne1(String colonne1) {
+		this.colonne1 = colonne1;
+	}
+
+	public String getColonne2() {
+		return colonne2;
+	}
+
+	public void setColonne2(String colonne2) {
+		this.colonne2 = colonne2;
+	}
+
+	public String getColonne3() {
+		return colonne3;
+	}
+
+	public void setColonne3(String colonne3) {
+		this.colonne3 = colonne3;
+	}
+
+	public String getColonne4() {
+		return colonne4;
+	}
+
+	public void setColonne4(String colonne4) {
+		this.colonne4 = colonne4;
+	}
+
+	public String getColonne5() {
+		return colonne5;
+	}
+
+	public void setColonne5(String colonne5) {
+		this.colonne5 = colonne5;
+	}
+
+	public void setColonne6(String colonne6) {
+		this.colonne6 = colonne6;
+	}
+
+	public String getColonne6() {
+		return colonne6;
+	}
+
+	public void setColonne7(String colonne7) {
+		this.colonne7 = colonne7;
+	}
+
+	public String getColonne7() {
+		return colonne7;
+	}
+
+	public void setColonne8(String colonne8) {
+		this.colonne8 = colonne8;
+	}
+
+	public String getColonne8() {
+		return colonne8;
+	}
+
+	public String getColonne9() {
+		return colonne9;
+	}
+
+	public void setColonne9(String colonne9) {
+		this.colonne9 = colonne9;
+	}
+
+	public String getColonne10() {
+		return colonne10;
+	}
+
+	public void setColonne10(String colonne10) {
+		this.colonne10 = colonne10;
+	}
+
+	public String getColonne11() {
+		return colonne11;
+	}
+
+	public void setColonne11(String colonne11) {
+		this.colonne11 = colonne11;
+	}
+
+	public String getColonne12() {
+		return colonne12;
+	}
+
+	public void setColonne12(String colonne12) {
+		this.colonne12 = colonne12;
+	}
+
+	public String getColonne13() {
+		return colonne13;
+	}
+
+	public void setColonne13(String colonne13) {
+		this.colonne13 = colonne13;
+	}
+
+	public Date getColonne14() {
+		return colonne14;
+	}
+
+	public void setColonne14(Date colonne14) {
+		this.colonne14 = colonne14;
+	}
+
+	public Date getColonne15() {
+		return colonne15;
+	}
+
+	public void setColonne15(Date colonne15) {
+		this.colonne15 = colonne15;
+	}
+
+	public Date getColonne16() {
+		return colonne16;
+	}
+
+	public void setColonne16(Date colonne16) {
+		this.colonne16 = colonne16;
+	}
+
+	public Date getColonne17() {
+		return colonne17;
+	}
+
+	public void setColonne17(Date colonne17) {
+		this.colonne17 = colonne17;
+	}
+
+	public Date getColonne18() {
+		return colonne18;
+	}
+
+	public void setColonne18(Date colonne18) {
+		this.colonne18 = colonne18;
+	}
+
+	public Date getColonne19() {
+		return colonne19;
+	}
+
+	public void setColonne19(Date colonne19) {
+		this.colonne19 = colonne19;
+	}
+
+	public Date getColonne20() {
+		return colonne20;
+	}
+
+	public void setColonne20(Date colonne20) {
+		this.colonne20 = colonne20;
+	}
+
+	public String getColonne21() {
+		return colonne21;
+	}
+
+	public void setColonne21(String colonne21) {
+		this.colonne21 = colonne21;
+	}
+
+	public Boolean getColonne22() {
+		return colonne22;
+	}
+
+	public void setColonne22(Boolean colonne22) {
+		this.colonne22 = colonne22;
+	}
+
+	public void setDateCourrierReel(Date dateCourrierReel) {
+		this.dateCourrierReel = dateCourrierReel;
+	}
+
+	public Date getDateCourrierReel() {
+		return dateCourrierReel;
+	}
+
+	public void setDateCourrierReelFin(Date dateCourrierReelFin) {
+		this.dateCourrierReelFin = dateCourrierReelFin;
+	}
+
+	public Date getDateCourrierReelFin() {
+		return dateCourrierReelFin;
+	}
+
+	
+
+
+	
+}

@@ -1,0 +1,516 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Transaction;
+import xtensus.entity.Typedossier;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class DossierGestionBean {
+
+	private Dossier dossier;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	// private DataModel listnature;
+	private DataModel listdossier;
+	// private List<Nature> listN;
+	// private List<Nature> copylistN;
+	private List<Dossier> listDossier;
+	private List<Dossier> copylistDossier;
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+
+	private Typedossier typedossier;
+	private Dossier dossier2;
+	private boolean deleteSuccess;
+	private boolean bloqueDelete;
+
+	public DossierGestionBean() {
+
+	}
+
+	@Autowired
+	public DossierGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		dossier = new Dossier();
+		setDossier2(new Dossier());
+		listdossier = new ListDataModel();
+		listDossier = new ArrayList<Dossier>();
+		copylistDossier = new ArrayList<Dossier>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		typedossier = new Typedossier();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titleaccor =messageSource.getMessage("ajoutDossier",new Object[] {}, lm.createLocal());
+		titre = "Ajouter dossier";
+		listDossier = new ArrayList<Dossier>();
+		copylistDossier = new ArrayList<Dossier>();
+		int refUserConnecte = vb.getPerson().getId();
+		try {
+			List<Dossier> dossiers = new ArrayList<Dossier>();
+			dossiers = appMgr.listDossierByIdProprietaire(refUserConnecte);
+			for (Dossier d : dossiers) {
+				if (d.getTypedossier().getTypeDossierId() != 1) {
+					listDossier.add(d);
+				}
+			}
+			for (int i = listDossier.size(); i >= 0; i--) {
+				if (i != 0) {
+					dossier2 = listDossier.get(i - 1);
+					copylistDossier.add(dossier2);
+				}
+				dossier2 = new Dossier();
+			}
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+		}
+		listdossier.setWrappedData(copylistDossier);
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+			typedossier = appMgr.getList(Typedossier.class).get(1);
+			dossier.setDossierDateCreation(new Date());
+			dossier.setTypedossier(typedossier);
+			dossier.setDossierProprietaireId(vb.getPerson().getId());
+			appMgr.insert(dossier);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"ajout",
+					"Evénement de log d'ajout du dossier "
+							+ dossier.getDossierId() + "-"
+							+ dossier.getDossierReference(), vb.getPerson(),
+					"INFO", appMgr);
+
+			Initialize();
+		} catch (Exception e) {
+			e.printStackTrace();
+			status3 = true;
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			dossier = (Dossier) listdossier.getRowData();
+			vb.setDossier(dossier);
+			vb.setRedirect("fromDossierGestion");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier dossier";
+		titleaccor =messageSource.getMessage("consultationDossier",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+		Initialize();
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			dossier = vb.getDossier();
+			appMgr.update(dossier);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification du dossier "
+							+ vb.getDossier().getDossierId() + "-"
+							+ vb.getDossier().getDossierReference(),
+					vb.getPerson(), "INFO", appMgr);
+
+			listDossier = new ArrayList<Dossier>();
+			Initialize();
+			dossier = new Dossier();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter dossier";
+		titleaccor =messageSource.getMessage("ajoutDossier",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			dossier = vb.getDossier();
+			
+		    List<Transaction> listTransactionDossier = appMgr.getTransactionByIdDossier(dossier.getDossierId());
+			if(!listTransactionDossier.isEmpty()){
+				 bloqueDelete = true;
+				return;
+			}else{
+			  List<CourrierDossier> listCourrierDossir = appMgr.getCourrierDossierByIdDossier(dossier.getDossierId());
+			  for (CourrierDossier courrierDossier : listCourrierDossir) {
+				     appMgr.delete(courrierDossier);
+			   }
+			  appMgr.delete(dossier);
+			  LogClass logClass = new LogClass();
+				logClass.addTrack("suppression",
+						"Evénement de log de suppression du dossier "
+								+ vb.getDossier().getDossierId() + "-"
+								+ vb.getDossier().getDossierReference(),
+						vb.getPerson(), "INFO", appMgr);
+                deleteSuccess = true;
+			}
+			
+			
+			
+			
+
+		} catch (Exception e) {
+           e.printStackTrace();
+		}
+		listdossier = new ListDataModel();
+		listDossier = new ArrayList<Dossier>();
+		copylistDossier = new ArrayList<Dossier>();
+		//Initialize();
+		// nature = new Nature();
+	}
+	public boolean isDeleteSuccess() {
+		return deleteSuccess;
+	}
+
+	public void setDeleteSuccess(boolean deleteSuccess) {
+		this.deleteSuccess = deleteSuccess;
+	}
+
+	public void annulModif() {
+		dossier = new Dossier();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter dossier";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		dossier = new Dossier();
+		msgerror = true;
+		titleaccor =messageSource.getMessage("ajoutDossier",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		Initialize();
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listdossier == null && listdossier.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Dossier>) listdossier.getWrappedData()).size();
+		return records;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setListdossier(DataModel listdossier) {
+		this.listdossier = listdossier;
+	}
+
+	public DataModel getListdossier() {
+		return listdossier;
+	}
+
+	public void setDossier2(Dossier dossier2) {
+		this.dossier2 = dossier2;
+	}
+
+	public Dossier getDossier2() {
+		return dossier2;
+	}
+
+	public List<Dossier> getListDossier() {
+		return listDossier;
+	}
+
+	public void setListDossier(List<Dossier> listDossier) {
+		this.listDossier = listDossier;
+	}
+
+	public List<Dossier> getCopylistDossier() {
+		return copylistDossier;
+	}
+
+	public void setCopylistDossier(List<Dossier> copylistDossier) {
+		this.copylistDossier = copylistDossier;
+	}
+
+	public void setTypedossier(Typedossier typedossier) {
+		this.typedossier = typedossier;
+	}
+
+	public Typedossier getTypedossier() {
+		return typedossier;
+	}
+
+	public boolean isBloqueDelete() {
+		return bloqueDelete;
+	}
+
+	public void setBloqueDelete(boolean bloqueDelete) {
+		this.bloqueDelete = bloqueDelete;
+	}
+
+}

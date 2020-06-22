@@ -1,0 +1,472 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.entity.Annotation;
+import xtensus.entity.Courrier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Variables;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+	public class affectationDesaffectationCourrierValiseBean {
+
+	private ApplicationManager appMgr;
+	private int nombreCourrier;
+	private int nombreCourrierAffectes;
+	private DataModel listeCourriersAffectesAValiseDM;
+	private DataModel listeCourriersNonAffectesAValiseDM;
+	private String LibelleEtat;
+    private CourrierInformations cv;
+	private CourrierInformations valiseCourriers;
+	private List<CourrierInformations> listeCourriersAffectesAValise;
+	private List<CourrierInformations> listeCourriersNonAffectesAValise;
+	private Transaction	tr;
+	private boolean status;
+	private boolean status1;
+	private Date dateDebut;
+	private Date dateFin;
+	private List<Integer> listIdsSousUnit;
+	private List<Integer> listIdsSubordonne;
+	private CourrierInformations courriersParValise; 
+	private String consultationCourrierSecretaire;
+	private String consultationCourrierSubordonne;
+	private String consultationCourrierSousUnite;
+	private Integer idUser;
+	private HashMap<String, Object> filterMap = new HashMap<String, Object>();
+	private boolean descending;
+	private String sortField;
+	private List<Integer> listIdBocMembers;
+
+	private String type;
+	private String type1;
+	private String typeSecretaire;
+	private Integer typeTransmission;
+	private Integer stateTraitement;
+    @Autowired
+    private CourrierConsultationJourBean courrierConsultationRecentBean;
+	private long records = 0;
+	@Autowired
+	private VariableGlobale vb;
+	
+	private long records2=0;
+	public affectationDesaffectationCourrierValiseBean() {
+
+	}
+	@Autowired
+	public affectationDesaffectationCourrierValiseBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		listeCourriersAffectesAValiseDM = new ListDataModel();
+		listeCourriersNonAffectesAValiseDM= new ListDataModel();
+		valiseCourriers=new CourrierInformations();
+		courriersParValise=new CourrierInformations();
+		listeCourriersNonAffectesAValise=new ArrayList<CourrierInformations>();
+		listeCourriersAffectesAValise=new ArrayList<CourrierInformations>();
+		tr=new Transaction();
+		cv=new CourrierInformations();
+		listIdsSubordonne = new ArrayList<Integer>();
+		listIdsSousUnit = new ArrayList<Integer>();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			valiseCourriers = vb.getCourrierInformations();
+			System.out.println("2019-06-20 : "+valiseCourriers);
+	 	   System.out.println("2019-06-20 "+valiseCourriers.getCourrier().getIdCourrier());
+	 	//**
+			// XTE : consultation courrier secretaire
+			consultationCourrierSecretaire = appMgr.listVariablesById(3).get(0)
+					.getVaraiablesValeur();
+			// XTE : consultation courier subordonne
+			consultationCourrierSubordonne = appMgr.listVariablesById(4).get(0)
+					.getVaraiablesValeur();
+			// XTE : consultation courier sous unitee
+			consultationCourrierSousUnite = appMgr.listVariablesById(5).get(0)
+					.getVaraiablesValeur();
+			// identify connected user
+			idUser = vb.getPerson().getId();
+			type = "";
+			type1 = "";
+			if (vb.getPerson().isBoc()) {
+				listIdBocMembers = new ArrayList<Integer>();
+				List<Person> listBocMembers = vb.getPerson().getAssociatedBOC()
+						.getMembersBOC();
+				for (Person person : listBocMembers) {
+					System.out.println("ID PErsonne :" + person.getId());
+					System.out.println("Nom Personne :" + person.getNom()
+							+ "   Prenom Personne :" + person);
+					listIdBocMembers.add(person.getId());
+				}
+				type = "boc_" + vb.getPerson().getAssociatedBOC().getIdBOC();
+				type1 = "";
+			} else if (vb.getPerson().isResponsable()) {
+				type = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+				type1 = "sub_" + idUser;
+				// NEW
+
+				for (Unit unit : vb.getPerson().getAssociatedDirection()
+						.getListUnitsChildUnit()) {
+					
+					listIdsSousUnit.add(unit.getIdUnit());
+					 
+					try {
+						listIdsSubordonne
+								.add(unit.getResponsibleUnit().getId());
+						
+					} catch (Exception e) {
+						System.out.println("#Sub-Unit without Responsible");
+					}
+
+				}
+				// FIn NEW
+				try {
+					typeSecretaire = "secretary_"
+							+ vb.getPerson().getAssociatedDirection()
+									.getSecretaryUnit().getId();
+					
+				} catch (NullPointerException e) {
+					consultationCourrierSecretaire = "Non";
+				}
+
+			} else if (vb.getPerson().isSecretary()) {
+				type = "secretary_" + idUser;
+				type1 = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+			} else if (vb.getPerson().isAgent()) {
+				type = "agent_" + idUser;
+				type1 = "";
+			}
+	 	//********* Début *******************//
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.DAY_OF_MONTH, 1);
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			dateDebut = calendar.getTime();
+			
+			//********* Fin *********************//
+			calendar.set(Calendar.HOUR_OF_DAY, 23);
+			calendar.set(Calendar.MINUTE, 59);
+			calendar.set(Calendar.SECOND, 59);
+			calendar.set(Calendar.MILLISECOND, 999);
+			dateFin = calendar.getTime();
+	 	   	listeCourriersAffectesAValise = appMgr.findCourrierEnvoyerBOCByCriteria(
+					filterMap, sortField, descending, 8, dateDebut,
+					dateFin, type, type1, listIdBocMembers,
+					"Tout les courriers", "tous",
+					0, 10, "T", false,
+					vb.getDbType(),valiseCourriers.getCourrier().getIdCourrier(),0, 0); 	   		
+	 	   		
+	 	   		
+			System.out.println("taille liste Courriers Affectes : "+listeCourriersAffectesAValise.size());
+
+			
+	 	    listeCourriersNonAffectesAValise = appMgr.findCourrierEnvoyerBOCByCriteria(
+					filterMap, sortField, descending, 7, dateDebut,
+					dateFin, type, type1, listIdBocMembers,
+					"Tout les courriers", "tous",
+					0, 10, "T", false,
+					vb.getDbType(),null,0,0);	
+			System.out.println("taille liste Courriers Non Affectées : "+listeCourriersNonAffectesAValise.size());
+
+			for (CourrierInformations courrierInformations : listeCourriersAffectesAValise) {
+				try {
+					courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);
+					System.out.println("L : "
+							+ courrierInformations.getCourrierID()
+							+ " du  "
+							+ courrierInformations.getCourrierExpediteur()
+							+ " à "
+							+ courrierInformations
+									.getCourrierDestinataireReelle());
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("######CAUSED BY : "
+							+ courrierInformations.getCourrierReference());
+
+					continue;
+				}
+			}
+			
+			nombreCourrierAffectes=listeCourriersAffectesAValise.size();
+			listeCourriersAffectesAValiseDM.setWrappedData(listeCourriersAffectesAValise);
+
+			
+			for (CourrierInformations courrierInformations : listeCourriersNonAffectesAValise) {
+				try {
+					courrierConsultationRecentBean.searchExpediteurDestinataire(courrierInformations);
+					System.out.println("L : "
+							+ courrierInformations.getCourrierID()
+							+ " du  "
+							+ courrierInformations.getCourrierExpediteur()
+							+ " à "
+							+ courrierInformations
+									.getCourrierDestinataireReelle());
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("######CAUSED BY : "
+							+ courrierInformations.getCourrierReference());
+
+					continue;
+				}
+			}
+			nombreCourrier = listeCourriersNonAffectesAValise.size();
+			listeCourriersNonAffectesAValiseDM.setWrappedData(listeCourriersNonAffectesAValise);
+				
+			int refTransaction = valiseCourriers.getTransactionID();
+			System.out.println("ref transaction : "+refTransaction);
+			List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+			if (transaction != null)
+			{
+				tr = transaction.get(0);
+				
+			}
+			System.out.println("/////////////////transaction" + tr.getEtat().getEtatId());
+			LibelleEtat = tr.getEtat().getEtatLibelle();
+					} 
+		
+		catch (Exception e) {		
+			e.printStackTrace();
+		}
+	}
+
+	
+		public void move() {
+		
+		System.out.println(" Fonction MOVE ");
+		
+			CourrierInformations courrierInfo = new CourrierInformations();
+			try {
+				courrierInfo = (CourrierInformations) listeCourriersNonAffectesAValiseDM.getRowData();
+				listeCourriersNonAffectesAValise.remove(courrierInfo);
+				listeCourriersAffectesAValise.add(0, courrierInfo);
+				listeCourriersNonAffectesAValiseDM.setWrappedData(listeCourriersNonAffectesAValise);
+				listeCourriersAffectesAValiseDM.setWrappedData(listeCourriersAffectesAValise);
+			} catch (Exception e) {
+				System.out.println("*******ErreurDeSelection*******");
+			}
+
+		
+
+	}
+		
+		public void remove(){
+			
+			CourrierInformations courrierInfo = new CourrierInformations();
+				try {
+					System.out.println("####### Dans remove ");
+					courrierInfo = (CourrierInformations) listeCourriersAffectesAValiseDM.getRowData();
+					listeCourriersAffectesAValise.remove(courrierInfo);
+					listeCourriersNonAffectesAValise.add(courrierInfo);
+					listeCourriersAffectesAValiseDM.setWrappedData(listeCourriersAffectesAValise);
+					System.out.println("####### listeCourriersAffectesAValise size == "+ listeCourriersAffectesAValise.size());
+					listeCourriersNonAffectesAValiseDM.setWrappedData(listeCourriersNonAffectesAValise);
+					System.out.println("####### listeCourriersNonAffectesAValise size == "+ listeCourriersNonAffectesAValise.size());
+				} catch (Exception e) {
+					System.out.println("*******ErreurDeSelection*******");
+				}
+			
+			
+		}
+		public void affecter(){
+			status=false;
+			status1=false;
+			try {
+				System.out.println("####### Dans affecter ");
+				//suppression des données existantes
+				System.out.println("####### listeCourriersAffectesAValise size == "+ listeCourriersAffectesAValise.size());
+				Courrier courrier=new Courrier();
+				
+			if(listeCourriersAffectesAValise != null && listeCourriersAffectesAValise.size()>0 ){
+				
+			for(CourrierInformations donnee :listeCourriersAffectesAValise){					
+				courrier=(Courrier) appMgr.getCourrierByIdCourrier(donnee.getCourrierID()).get(0);
+					System.out.println(donnee);
+					courrier.setIdcourrierFK(valiseCourriers.getCourrier());
+					appMgr.update(courrier);
+						
+					} 	
+				
+				setStatus(true);
+			}	
+			System.out.println("####### listeCourriersNonAffectesAValise size == "+ listeCourriersNonAffectesAValise.size());
+			if(listeCourriersNonAffectesAValise != null && listeCourriersNonAffectesAValise.size()>0 ){
+
+			for(CourrierInformations donnee :listeCourriersNonAffectesAValise){
+				System.out.println("### listeCourriersNonAffectesAValise.get(0).getCourrierID() == " + listeCourriersNonAffectesAValise.get(0).getCourrierID());
+				System.out.println("### donnee.getCourrier() == " + donnee.getCourrier());
+				courrier= appMgr.getCourrierByIdCourrier(donnee.getCourrierID()).get(0);
+					System.out.println(donnee);
+					courrier.setIdcourrierFK(null);
+					appMgr.update(courrier);
+				
+			}
+			setStatus(true);
+
+			}
+
+			else if (listeCourriersAffectesAValise.size() == 0) {
+				setStatus1(true);
+			}
+			}
+			catch (Exception e) {
+						e.printStackTrace();
+					}			
+					
+				
+				
+		}
+	
+
+	
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+
+		return (listeCourriersNonAffectesAValiseDM != null && listeCourriersNonAffectesAValiseDM.getWrappedData() != null) ? ((List<CourrierInformations>) listeCourriersNonAffectesAValiseDM
+				.getWrappedData()).size() : 0;
+	}
+			
+	/**
+	 * Getter and Setter
+	 */
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	public long getNombreCourrier() {
+		return nombreCourrier;
+	}
+	public void setNombreCourrier(int nombreCourrier) {
+		this.nombreCourrier = nombreCourrier;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+	public void setValiseCourriers(CourrierInformations valiseCourriers) {
+		this.valiseCourriers = valiseCourriers;
+	}
+	public CourrierInformations getValiseCourriers() {
+		return valiseCourriers;
+	}
+	public void setCourriersParValise(CourrierInformations courriersParValise) {
+		this.courriersParValise = courriersParValise;
+	}
+	public CourrierInformations getCourriersParValise() {
+		return courriersParValise;
+	}
+	public List<CourrierInformations> getListeCourriersNonAffectesAValise() {
+		return listeCourriersNonAffectesAValise;
+	}
+	public void setListeCourriersNonAffectesAValise(
+			List<CourrierInformations> listeCourriersNonAffectesAValise) {
+		this.listeCourriersNonAffectesAValise = listeCourriersNonAffectesAValise;
+	}
+	public void setListeCourriersAffectesAValise(
+			List<CourrierInformations> listeCourriersAffectesAValise) {
+		this.listeCourriersAffectesAValise = listeCourriersAffectesAValise;
+	}
+	public List<CourrierInformations> getListeCourriersAffectesAValise() {
+		return listeCourriersAffectesAValise;
+	}
+	public DataModel getListeCourriersAffectesAValiseDM() {
+		return listeCourriersAffectesAValiseDM;
+	}
+	public void setListeCourriersAffectesAValiseDM(
+			DataModel listeCourriersAffectesAValiseDM) {
+		this.listeCourriersAffectesAValiseDM = listeCourriersAffectesAValiseDM;
+	}
+	public DataModel getListeCourriersNonAffectesAValiseDM() {
+		return listeCourriersNonAffectesAValiseDM;
+	}
+	public void setListeCourriersNonAffectesAValiseDM(
+			DataModel listeCourriersNonAffectesAValiseDM) {
+		this.listeCourriersNonAffectesAValiseDM = listeCourriersNonAffectesAValiseDM;
+	}
+	public Transaction getTr() {
+		return tr;
+	}
+	public void setTr(Transaction tr) {
+		this.tr = tr;
+	}
+	public void setLibelleEtat(String libelleEtat) {
+		LibelleEtat = libelleEtat;
+	}
+	public String getLibelleEtat() {
+		return LibelleEtat;
+	}
+	public void setNombreCourrierAffectes(int nombreCourrierAffectes) {
+		this.nombreCourrierAffectes = nombreCourrierAffectes;
+	}
+	public int getNombreCourrierAffectes() {
+		return nombreCourrierAffectes;
+	}
+	public void setCv(CourrierInformations cv) {
+		this.cv = cv;
+	}
+	public CourrierInformations getCv() {
+		return cv;
+	}
+	public void setRecords2(long records2) {
+		this.records2 = records2;
+	}
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (listeCourriersAffectesAValiseDM != null && listeCourriersAffectesAValiseDM.getWrappedData() != null)
+			records2 = ((List<CourrierInformations>) listeCourriersAffectesAValiseDM.getWrappedData()).size();
+			
+		else
+			records2 = 0;
+		return records2;
+	}
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	public boolean isStatus() {
+		return status;
+	}
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+	public boolean isStatus1() {
+		return status1;
+	}
+
+
+}

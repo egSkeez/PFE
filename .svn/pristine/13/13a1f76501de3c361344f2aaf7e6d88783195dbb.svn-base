@@ -1,0 +1,101 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.AoConsultation;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+	public class AoConsultationModificationBean {
+
+	private ApplicationManager appMgr;
+	private AoConsultation aoConsultation;
+	private List<AoConsultation> listAoConsultation;
+	private boolean succesModif;
+	
+	@Autowired
+	private VariableGlobale vb;
+	
+	
+	public AoConsultationModificationBean() {
+
+	}
+	@Autowired
+	public AoConsultationModificationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		listAoConsultation = new ArrayList<AoConsultation>();
+		aoConsultation = new AoConsultation();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		System.out.println("/////////////////Initialize");
+
+		try {
+			aoConsultation = vb.getAoConsultation();
+		} 
+		
+		catch (Exception e) {		
+			e.printStackTrace();
+		}
+	}
+
+		public void update(){
+			succesModif=false;
+			try {
+				appMgr.update(aoConsultation);
+				Initialize();
+				succesModif=true;
+			} catch (Exception e) {
+				System.out.println("Modif Erreur");
+				e.printStackTrace();
+			}
+		}
+		
+	/**
+	 * Getter and Setter
+	 */
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public List<AoConsultation> getListAoConsultation() {
+		return listAoConsultation;
+	}
+
+	public void setListAoConsultation(List<AoConsultation> listAoConsultation) {
+		this.listAoConsultation = listAoConsultation;
+	}
+
+	public boolean isSuccesModif() {
+		return succesModif;
+	}
+	public void setSuccesModif(boolean succesModif) {
+		this.succesModif = succesModif;
+	}
+	public VariableGlobale getVb() {
+		return vb;
+	}
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+}

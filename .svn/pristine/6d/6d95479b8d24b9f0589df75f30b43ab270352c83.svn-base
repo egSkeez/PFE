@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FichePersonneMorale" language="groovy" pageWidth="595" pageHeight="842" columnWidth="525" leftMargin="35" rightMargin="35" topMargin="35" bottomMargin="20" uuid="ce2bc5d8-dcef-474d-9db9-a9f54dae7580">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="14"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\PFE\\DEV\\workspace\\GBO_v1.f\\WebContent\\WEB-INF\\rapports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="numero" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numero]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="pp" class="xtensus.entity.Pp">
+		<fieldDescription><![CDATA[pp]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="nombrePersonnel" class="java.lang.Integer">
+		<fieldDescription><![CDATA[nombrePersonnel]]></fieldDescription>
+	</field>
+	<field name="expediteur" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expediteur]]></fieldDescription>
+	</field>
+	<field name="rapportListPPs" class="java.util.List">
+		<fieldDescription><![CDATA[rapportListPPs]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="pps" class="java.util.List">
+		<fieldDescription><![CDATA[pps]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="pm" class="xtensus.entity.Pm">
+		<fieldDescription><![CDATA[pm]]></fieldDescription>
+	</field>
+	<field name="expediteur2" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expediteur2]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="128" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="1fb89e27-01cd-4168-9da2-26e355fa921f" x="0" y="78" width="525" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fiche Entreprise]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f9471ffe-87d2-436a-b9f9-afc0d3cbd393" stretchType="RelativeToBandHeight" x="0" y="31" width="368" height="15"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="19e8f430-d572-470a-ae60-5cc0619c8993" x="463" y="0" width="62" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f38b1133-89b3-427d-aea6-b2cd7c321737" stretchType="RelativeToBandHeight" x="0" y="15" width="368" height="16"/>
+				<box topPadding="0" bottomPadding="2"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeOrganismeParent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="d57095fa-4776-4f29-9d0f-2107e108e9a3" stretchType="RelativeToBandHeight" x="0" y="0" width="368" height="15"/>
+				<box topPadding="0"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeRepublique}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7e2da321-eeeb-4259-bbcf-f37c0dbf401d" x="368" y="0" width="90" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeVille}+", le "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="ac8dc0ad-89b0-4914-bc6c-5fcdf98126db" x="0" y="93" width="525" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getExpDestExterneNom()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="99" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="0" y="45" width="83" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Affiliation CNSS :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="0" y="30" width="122" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Registre de commerce :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b76aa692-88a7-46bc-b12d-a16b482ed1b0" x="313" y="30" width="37" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[E-mail : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="0" y="60" width="83" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Matricule fiscal :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="313" y="15" width="28" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fax :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="0" y="0" width="17" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ID :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="313" y="60" width="98" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre personnel :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="0" y="15" width="83" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Raison sociale :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="313" y="45" width="48" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Adresse :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="313" y="0" width="95" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Numéro téléphone : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="78" y="15" width="196" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getExpDestExterneNom()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="116" y="30" width="157" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pm}.getRegistreCommerce()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="85" y="45" width="196" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pm}.getPmaffiliationCnss()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="81" y="60" width="196" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pm}.getPmmatriculeFiscal()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="408" y="0" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getExpDestExterneTelephone()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="341" y="15" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getExpDestExterneFax()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="352" y="30" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getExpDestExterneMail()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="361" y="45" width="164" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getExpDestExterneAdresse() +", " + $F{expediteur}.getExpDestExterneVille() + " " + $F{expediteur}.getExpDestExterneCodePostale()+ " " +$F{expediteur}.getExpDestExternePays()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="411" y="60" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombrePersonnel}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" x="19" y="0" width="262" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur}.getIdExpDestExterne()]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="72" splitType="Stretch">
+			<subreport>
+				<reportElement uuid="96f432be-a3c2-43f1-9a4e-58b8fd8deee9" stretchType="RelativeToBandHeight" x="0" y="0" width="523" height="24"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{rapportListPPs})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$F{pathJasper} + "FichePersonneMorale_ListePersonne.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="10" splitType="Stretch">
+			<textField>
+				<reportElement uuid="3d22625c-b9aa-45ef-af73-074acf157092" x="0" y="0" width="523" height="10"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0fe6a501-de13-4e92-b0ee-073c9e5bf35b" x="0" y="0" width="525" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

@@ -1,0 +1,108 @@
+package xtensus.beans.common;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+
+import org.richfaces.event.UploadEvent;
+import org.richfaces.model.UploadItem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.File;
+
+/**
+ * @author issam
+ * 
+ */
+@Component
+@Scope("request")
+public class FileUploadBean {
+
+	@Autowired
+	private VariableGlobale vbg;
+
+	private ArrayList<File> files = new ArrayList<File>();
+	private int uploadsAvailable = 1;
+	private boolean autoUpload = true;
+	private boolean useFlash = true;
+
+	public int getSize() {
+		if (getFiles().size() > 0) {
+			return getFiles().size();
+		} else {
+			return 0;
+		}
+	}
+
+	public FileUploadBean() {
+	}
+
+	public void paint(OutputStream stream, Object object) throws IOException {
+		stream.write(getFiles().get((Integer) object).getData());
+	}
+
+	synchronized public void listener(UploadEvent event) throws Exception {
+
+		UploadItem item = event.getUploadItem();
+		System.out.println("******** listener  getData ********");
+		vbg.setDocumentPath(item.getFileName());
+		vbg.setUploadedData(item.getData());
+	    System.out.println("extension : " + item.getFileName());
+        String fileName = item.getFileName();
+        String documentType = fileName.substring(fileName.lastIndexOf("."));
+        System.out.println("Dans méthode listener  : "+documentType);
+        vbg.setDocumentType(documentType);
+		File file = new File();
+		file.setLength(item.getData().length);
+		file.setName(item.getFileName());
+		file.setData(item.getData());
+		files.add(file);
+		uploadsAvailable--;
+
+	}
+
+	public String clearUploadData() {
+		files.clear();
+		setUploadsAvailable(1);
+		return null;
+	}
+
+	public long getTimeStamp() {
+		return System.currentTimeMillis();
+	}
+
+	public ArrayList<File> getFiles() {
+		return files;
+	}
+
+	public void setFiles(ArrayList<File> files) {
+		this.files = files;
+	}
+
+	public int getUploadsAvailable() {
+		return uploadsAvailable;
+	}
+
+	public void setUploadsAvailable(int uploadsAvailable) {
+		this.uploadsAvailable = uploadsAvailable;
+	}
+
+	public boolean isAutoUpload() {
+		return autoUpload;
+	}
+
+	public void setAutoUpload(boolean autoUpload) {
+		this.autoUpload = autoUpload;
+	}
+
+	public boolean isUseFlash() {
+		return useFlash;
+	}
+
+	public void setUseFlash(boolean useFlash) {
+		this.useFlash = useFlash;
+	}
+
+}

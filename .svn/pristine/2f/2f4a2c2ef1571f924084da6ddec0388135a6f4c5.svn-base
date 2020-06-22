@@ -1,0 +1,218 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Nature;
+import xtensus.entity.Transmission;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class AdministrationTransmissionBean {
+
+	private Transmission transmission;
+	private List<Transmission> listTransmission;
+	private DataModel listTransmissionDM;
+	private long recordsTransmission=0;
+
+
+
+
+	@Autowired
+	private VariableGlobale vb;
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private boolean transmissionLibelleShowFr;
+	private boolean transmissionLibelleShowAr;
+	private boolean transmissionDescriptionShowFr;
+	private boolean transmissionDescriptionShowAr;
+
+
+	@Autowired
+	public AdministrationTransmissionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		transmission = new Transmission();
+		listTransmission=new ArrayList<Transmission>();
+		listTransmissionDM=new ListDataModel();
+		System.out
+				.println("*************Bean NatureGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		
+
+		try {
+			
+			listTransmission=appMgr.getList(Transmission.class);
+			System.out.println("Taille List Transmission :"+listTransmission.size());
+		
+		if (vb.getLocale().equals("ar")) {
+				
+				transmissionLibelleShowFr = false;
+				setTransmissionDescriptionShowFr(false);
+				transmissionLibelleShowAr = true;
+				setTransmissionDescriptionShowAr(true);
+				
+			} else {
+				transmissionLibelleShowFr = true;
+				setTransmissionDescriptionShowFr(true);
+				transmissionLibelleShowAr = false;
+				setTransmissionDescriptionShowAr(false);
+				
+			}			
+		} catch (Exception e) {
+		
+			e.printStackTrace();
+		}
+		listTransmissionDM.setWrappedData(listTransmission);
+	
+	}
+
+
+	public List<Transmission> getListTransmission() {
+		return listTransmission;
+	}
+
+	public void setListTransmission(List<Transmission> listTransmission) {
+		this.listTransmission = listTransmission;
+	}
+
+	
+
+	public DataModel getListTransmissionDM() {
+		return listTransmissionDM;
+	}
+
+	public void setListTransmissionDM(DataModel listTransmissionDM) {
+		this.listTransmissionDM = listTransmissionDM;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public long getRecordsTransmission() {
+		if (listTransmissionDM != null && listTransmissionDM.getWrappedData() != null)
+			recordsTransmission = ((List<Nature>) listTransmissionDM.getWrappedData()).size();
+			
+		else
+			recordsTransmission = 0;
+
+		return recordsTransmission;	}
+
+	public void setRecordsTransmission(long recordsTransmission) {
+		this.recordsTransmission = recordsTransmission;
+	}
+
+	public void getSelectionRow2() {
+		try {
+			transmission = (Transmission) listTransmissionDM.getRowData();
+			vb.setTransmission(transmission);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de la nature "
+							+ transmission.getTransmissionId() + "-"
+							+ transmission.getTransmissionLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+			System.out.println("*******SelectionNatureConsulterBean*********");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelectionNatureConsulterBean*******");
+		}
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public boolean isTransmissionLibelleShowFr() {
+		return transmissionLibelleShowFr;
+	}
+
+	public void setTransmissionLibelleShowFr(boolean transmissionLibelleShowFr) {
+		this.transmissionLibelleShowFr = transmissionLibelleShowFr;
+	}
+
+	public boolean isTransmissionLibelleShowAr() {
+		return transmissionLibelleShowAr;
+	}
+
+	public void setTransmissionLibelleShowAr(boolean transmissionLibelleShowAr) {
+		this.transmissionLibelleShowAr = transmissionLibelleShowAr;
+	}
+
+	public boolean isTransmissionDescriptionShowFr() {
+		return transmissionDescriptionShowFr;
+	}
+
+	public void setTransmissionDescriptionShowFr(
+			boolean transmissionDescriptionShowFr) {
+		this.transmissionDescriptionShowFr = transmissionDescriptionShowFr;
+	}
+
+	public boolean isTransmissionDescriptionShowAr() {
+		return transmissionDescriptionShowAr;
+	}
+
+	public void setTransmissionDescriptionShowAr(
+			boolean transmissionDescriptionShowAr) {
+		this.transmissionDescriptionShowAr = transmissionDescriptionShowAr;
+	}
+
+}

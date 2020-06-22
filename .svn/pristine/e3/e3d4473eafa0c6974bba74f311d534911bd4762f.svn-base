@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Accuse Reception</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel" style="height:45px;">
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:commandLink id="retour"
+										oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+										<h:graphicImage value="../framGraphique/images/retour.png"
+											onclick="this.src='../framGraphique/images/retourClick.png'"
+											onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+											onmouseout="this.src='../framGraphique/images/retour.png'" />
+									</a4j:commandLink>
+									<rich:toolTip for="retour" value="#{msg.Retour}" />
+									<rich:spacer width="20" />
+								</div>
+								<div id="barreIconeDroite"></div>
+							</div>
+						</rich:panel>
+
+						<ui:include src="informationCourrier.xhtml"></ui:include>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:outputText value="#{msg.accuseReception}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+											<h:outputText
+												value="#{msg.suiviTransmissionCourrierCommantaire} :"
+												styleClass="xteDetailLabel" />
+											<h:outputText id="desc" styleClass="xteDetailLabelOutput"
+												value="#{courrierConsulterAccuseReceptionBean.suivitransmissioncourrier.suiviTransmissionCourrierCommantaire}" />
+											<h:outputText value="#{msg.etat} :"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{courrierConsulterAccuseReceptionBean.etatAccuse}"
+												styleClass="xteDetailLabelOutput"></h:outputText>
+											<h:outputText value="#{msg.raison} :"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{courrierConsulterAccuseReceptionBean.raison}"
+												styleClass="xteDetailLabelOutput"></h:outputText>
+										</h:panelGrid></td>
+									<td width="50%" valign="top"><h:panelGrid columns="2">
+
+											<h:outputText
+												value="#{msg.suiviTransmissionCourrierDateSysteme} :"
+												styleClass="xteDetailLabel" />
+
+											<h:outputText
+												value="#{courrierConsulterAccuseReceptionBean.suivitransmissioncourrier.suiviTransmissionCourrierDateSysteme}"
+												styleClass="xteDetailLabelOutput"></h:outputText>
+
+											<h:outputText
+												value="#{msg.suiviTransmissionCourrierDateMaj} :"
+												styleClass="xteDetailLabel" />
+
+											<h:outputText
+												value="#{courrierConsulterAccuseReceptionBean.suivitransmissioncourrier.suiviTransmissionCourrierDateMaj}"
+												styleClass="xteDetailLabelOutput"></h:outputText>
+												<h:outputText value="#{msg.accuserDoc}" styleClass="xteDetailLabel" />
+											<h:commandLink id="accuseDoc" disabled="#{courrierConsulterAccuseReceptionBean.showGedErrorMessage}"
+												value="#{courrierConsulterAccuseReceptionBean.accuseName}"
+												action="#{courrierConsulterAccuseReceptionBean.downloadAccuse}"
+												styleClass="xteDetailLabelOutput" target="_blank" />
+										</h:panelGrid></td>
+								</tr>
+							</table>
+						</rich:panel>
+					</h:form>
+					<rich:modalPanel id="info" autosized="true" height="90" width="350">
+						<a4j:keepAlive beanName="courrierConsulterAccuseReceptionBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkinfo" />
+								<rich:componentControl for="info" attachTo="hidelinkinfo"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{courrierConsulterAccuseReceptionBean.message}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									oncomplete="Richfaces.hideModalPanel('info');" type="submit"
+									ajaxSingle="true" styleClass="submitButton" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

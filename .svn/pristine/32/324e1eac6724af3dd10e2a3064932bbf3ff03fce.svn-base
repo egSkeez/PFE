@@ -1,0 +1,1107 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.util.ByteArrayDataSource;
+import javax.naming.Binding;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.GBO.DeconnexionBean;
+import xtensus.entity.Employe;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Group;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class UtilisateurGestionBean {
+
+	@Autowired
+	private ApplicationManager appMgr;
+	private int userReference;
+	private String userSurName;
+	private String userName;
+	private String userAbv;
+	private String userTelephoneNumber;
+	private String userFax;
+	private String userEmail;
+	private String userAdress;
+	private Integer userPostalCode;
+	private String userLogin;
+	private String userPWD;
+	private List<Group> listgroups;
+	private List<Group> listcurrentsgroups;
+	private List<Group> listavailablesgroups;
+	private DataModel listCurrentsGroups;
+	private DataModel listAvailablesGroups;
+	private LdapOperation ldapOperation;
+	private Person person;
+	private int records1;
+	private int records2;
+	public boolean status;
+	public boolean status1;
+	public boolean status2;
+	public boolean status3;
+	public boolean status4;
+	public boolean status5;
+	public boolean status6;
+	public boolean status7;
+	private String showButtonValidate;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private DeconnexionBean deconnexionBean;
+	private String prenomUserAr;
+	private String nomUserAr;
+	private boolean ficheMembreArabe;
+
+	private enum enumKeyAttribute {
+		manager, secretary, member
+	};
+
+	public UtilisateurGestionBean() {
+		ldapOperation = new LdapOperation();
+		showButtonValidate = "true";
+	}
+
+	@PostConstruct
+	public void initialize() {
+		try {
+			listcurrentsgroups = new ArrayList<Group>();
+			listavailablesgroups = new ArrayList<Group>();
+			listCurrentsGroups = new ListDataModel();
+			listAvailablesGroups = new ListDataModel();
+			System.out.println("dans la fonction des Users");
+
+			List<Variables> variables = new ArrayList<Variables>();
+			ficheMembreArabe = false;
+			variables = appMgr
+					.listVariablesByLibelle("gestion_fiche_membre_en_arabe");
+			if (variables != null && variables.size() > 0)
+				if ((variables.get(0).getVaraiablesValeur().toLowerCase())
+						.equals("oui")) {
+					ficheMembreArabe = true;
+				}
+
+			person = vb.getUser();
+			if (person != null) {
+				prenomUserAr = person.getPrenomUserAr();
+				nomUserAr = person.getNomUserAr();
+
+				userSurName = person.getPrenom();
+				userName = person.getNom();
+				userAbv = person.getShortName();
+				userTelephoneNumber = person.getTelephoneNumber();
+				userEmail = person.getEmail();
+				userAdress = person.getAdresse();
+
+				if (person.getCodePostal() == 0) {
+					userPostalCode = null;
+				} else {
+					userPostalCode = person.getCodePostal();
+				}
+				if (person.getFax() == null) {
+					userFax = null;
+				} else {
+					userFax = person.getFax();
+				}
+				showButtonValidate = "true";
+				userLogin = person.getLogin();
+				String pathUser = "cn=" + person.getCn() + ","
+						+ ldapOperation.CONTEXT_USER;
+
+				listgroups = new ArrayList<Group>();
+
+				listcurrentsgroups = ldapOperation
+						.getCurrentsGroupsByPathUser(pathUser);
+				ldapOperation.getListGroup(listgroups);
+				boolean findGroup;
+				int j;
+				for (int i = 0; i < listgroups.size(); i++) {
+					listavailablesgroups.add(listgroups.get(i));
+				}
+				if (!listcurrentsgroups.isEmpty()) {
+					for (int i = 0; i < listcurrentsgroups.size(); i++) {
+						findGroup = false;
+						j = 0;
+						do {
+							if (listcurrentsgroups.get(i).getId() == listavailablesgroups
+									.get(j).getId()) {
+								listavailablesgroups
+										.remove(listavailablesgroups.get(j));
+								findGroup = true;
+							} else {
+								j++;
+							}
+						} while (!findGroup && j < listavailablesgroups.size());
+
+					}
+				}
+			}
+			listCurrentsGroups.setWrappedData(listcurrentsgroups);
+			listAvailablesGroups.setWrappedData(listavailablesgroups);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void updateUser(Employe employe, String ancien) {
+		DirContext dirContext;
+		String newPath;
+		String pathUser;
+		String newName = employe.getEmployerNom();
+		// copyPerson = new Person();
+		int idU = employe.getEmployerId();
+		System.out.println("idU="+idU);
+		BasicAttributes attributes = new BasicAttributes(true);
+		Attribute attribut = new BasicAttribute("uid");
+		attribut.add(idU);
+		attributes.put(attribut);
+
+		try {
+			dirContext = ldapOperation.getDirContext();
+			NamingEnumeration e = dirContext.search(ldapOperation.CONTEXT_USER,
+					attributes);
+			if (e.hasMore()) {
+
+				pathUser = "cn=" + ancien + "," + ldapOperation.CONTEXT_USER;
+				newPath = "cn=" + newName + "," + ldapOperation.CONTEXT_USER;
+				System.out.println("ancien  "+ancien);
+				System.out.println("newName "+newName);
+				dirContext.rename(pathUser, newPath);
+				dirContext.modifyAttributes(newPath,DirContext.REPLACE_ATTRIBUTE, attributes);
+
+				BasicAttributes attributess = new BasicAttributes(true);
+				Attribute attribute = new BasicAttribute("member");
+				attribute.add(pathUser);
+				attributess.put(attribute);
+				BasicAttributes attributessToBeReplaced = new BasicAttributes(
+						true);
+				Attribute attributeToBeReplaced = new BasicAttribute("member");
+				attributeToBeReplaced.add(newPath);
+				attributessToBeReplaced.put(attributeToBeReplaced);
+				NamingEnumeration namingEnumeration = dirContext.search(
+						ldapOperation.CONTEXT_GROUP, attributess);
+				while (namingEnumeration.hasMore()) {
+					Binding b = (Binding) namingEnumeration.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributess);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, attributessToBeReplaced);
+				}
+
+				NamingEnumeration namingEnumeration1 = dirContext.search(
+						ldapOperation.CONTEXT_BOC, attributess);
+				while (namingEnumeration1.hasMore()) {
+					Binding b = (Binding) namingEnumeration1.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributess);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, attributessToBeReplaced);
+				}
+
+				NamingEnumeration namingEnumeration2 = dirContext.search(
+						ldapOperation.CONTEXT_UNIT, attributess);
+				while (namingEnumeration2.hasMore()) {
+					Binding b = (Binding) namingEnumeration2.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributess);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, attributessToBeReplaced);
+				}
+
+				attributess = new BasicAttributes(true);
+				attribute = new BasicAttribute("manager");
+				attribute.add(pathUser);
+				attributess.put(attribute);
+				attributessToBeReplaced = new BasicAttributes(true);
+				attributeToBeReplaced = new BasicAttribute("manager");
+				attributeToBeReplaced.add(newPath);
+				attributessToBeReplaced.put(attributeToBeReplaced);
+				NamingEnumeration namingEnumeration3 = dirContext.search(
+						ldapOperation.CONTEXT_UNIT, attributess);
+				while (namingEnumeration3.hasMore()) {
+					Binding b = (Binding) namingEnumeration3.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributess);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, attributessToBeReplaced);
+				}
+
+				attributess = new BasicAttributes(true);
+				attribute = new BasicAttribute("secretary");
+				attribute.add(pathUser);
+				attributess.put(attribute);
+				attributessToBeReplaced = new BasicAttributes(true);
+				attributeToBeReplaced = new BasicAttribute("secretary");
+				attributeToBeReplaced.add(newPath);
+				attributessToBeReplaced.put(attributeToBeReplaced);
+				NamingEnumeration namingEnumeration4 = dirContext.search(
+						ldapOperation.CONTEXT_UNIT, attributess);
+				while (namingEnumeration4.hasMore()) {
+					Binding b = (Binding) namingEnumeration4.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributess);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, attributessToBeReplaced);
+				}
+
+				System.out.println("sucees de modif");
+
+				LogClass logClass = new LogClass();
+				logClass.addTrack("modification",
+						"Evénement de log de modification de l'utilisateur "
+								+ vb.getUser().getId() + "-"
+								+ vb.getUser().getCn(), vb.getPerson(), "INFO",
+						appMgr);
+
+			}
+
+		} catch (NamingException ex) {
+
+			System.out.println("Erreur lors de l'acces au serveur LDAP" + ex);
+			ex.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void update() {
+		DirContext dirContext;
+		String newPath;
+		String pathUser;
+		Person copyPerson;
+		status = false;
+		status1 = false;
+		status4 = false;
+		copyPerson = new Person();
+
+		BasicAttributes attributes = new BasicAttributes(true);
+		Attribute attribut = new BasicAttribute("employeeNumber");
+		attribut.add(userAbv);
+		attributes.put(attribut);
+
+		System.out.println("userAbv   "+userAbv);
+		System.out.println("vb.getUser().getShortName()"+vb.getUser().getShortName());
+		
+		try {
+			dirContext = ldapOperation.getDirContext();
+			NamingEnumeration e = dirContext.search(ldapOperation.CONTEXT_USER,
+					attributes);
+			if (e.hasMore() && !userAbv.equals(vb.getUser().getShortName())) {
+				userAbv = "";
+				setMessage(messageSource.getMessage(
+						"erreurInsertUserDuplicateShortName", new Object[] {},
+						lm.createLocal()));
+				status = true;
+			} else {
+				pathUser = "cn=" + vb.getUser().getCn() + ","
+						+ ldapOperation.CONTEXT_USER;
+				attributes = new BasicAttributes(true);
+				copyPerson.setId(vb.getUser().getId());
+				attributes.put("cn", userSurName + " " + userName);
+				copyPerson.setCn(userSurName + " " + userName);
+				attributes.put("givenName", userSurName);
+				copyPerson.setPrenom(userSurName);
+				attributes.put("sn", userName);
+				copyPerson.setNom(userName);
+				attributes.put("mail", userEmail);
+				copyPerson.setEmail(userEmail);
+				attributes.put("telephoneNumber",
+						String.valueOf(userTelephoneNumber));
+				copyPerson.setTelephoneNumber(userTelephoneNumber);
+				if (userAdress.toString().equals("")) {
+					attributes.put("street", " ");
+					copyPerson.setAdresse("");
+				} else {
+					attributes.put("street", userAdress);
+					copyPerson.setAdresse(userAdress);
+				}
+
+				if (userAbv.toString().equals("")) {
+					attributes.put("employeeNumber", " ");
+					copyPerson.setShortName(userAbv);
+				} else {
+					attributes.put("employeeNumber", userAbv);
+					copyPerson.setShortName(userAbv);
+				}
+
+				if (userFax.toString().equals("")) {
+					attributes.put("facsimileTelephoneNumber", "");
+					copyPerson.setFax(null);
+				} else {
+					attributes.put("facsimileTelephoneNumber",
+							String.valueOf(userFax));
+					copyPerson.setFax(userFax);
+				}
+				if (userPostalCode.toString().equals("")) {
+					attributes.put("postalCode", "");
+					copyPerson.setCodePostal(null);
+				} else {
+					attributes
+							.put("postalCode", String.valueOf(userPostalCode));
+					copyPerson.setCodePostal(userPostalCode);
+				}
+				// Tester si on a la gestion de la fiche en arabe
+				if (ficheMembreArabe) {
+					
+					if (prenomUserAr != null && prenomUserAr.length()>0) {
+						attributes.put("businessCategory", prenomUserAr);
+						copyPerson.setPrenomUserAr(prenomUserAr);
+					}
+					else
+					{
+						attributes.put("businessCategory", "");
+						copyPerson.setPrenomUserAr(null);
+					}
+					
+					
+					
+//					if (prenomUserAr == null
+//							|| prenomUserAr.toString().equals("")) {
+//						attributes.put("businessCategory", "");
+//						copyPerson.setPrenomUserAr(null);
+//					} else {
+//						attributes.put("businessCategory", prenomUserAr);
+//						copyPerson.setPrenomUserAr(prenomUserAr);
+//					}
+
+//					if (nomUserAr == null || nomUserAr.toString().equals("")) {
+//						attributes.put("carLicense", "");
+//						copyPerson.setNomUserAr(null);
+//					} else {
+//						attributes.put("carLicense", nomUserAr);
+//						copyPerson.setNomUserAr(nomUserAr);
+//					}
+
+				}
+
+				if (vb.getUser().getCn().equals(userSurName + " " + userName)) {
+					dirContext.modifyAttributes(pathUser,
+							DirContext.REPLACE_ATTRIBUTE, attributes);
+					status1 = true;
+					setMessage(messageSource.getMessage("confirmUpdate",
+							new Object[] {}, lm.createLocal()));
+					System.out.println("sucees de modif");
+				} else {
+					newPath = "cn=" + userSurName + " " + userName + ","
+							+ ldapOperation.CONTEXT_USER;
+					dirContext.rename(pathUser, newPath);
+					dirContext.modifyAttributes(newPath,
+							DirContext.REPLACE_ATTRIBUTE, attributes);
+
+					BasicAttributes attributess = new BasicAttributes(true);
+					Attribute attribute = new BasicAttribute("member");
+					attribute.add(pathUser);
+					attributess.put(attribute);
+					BasicAttributes attributessToBeReplaced = new BasicAttributes(
+							true);
+					Attribute attributeToBeReplaced = new BasicAttribute(
+							"member");
+					attributeToBeReplaced.add(newPath);
+					attributessToBeReplaced.put(attributeToBeReplaced);
+					NamingEnumeration namingEnumeration = dirContext.search(
+							ldapOperation.CONTEXT_GROUP, attributess);
+					while (namingEnumeration.hasMore()) {
+						Binding b = (Binding) namingEnumeration.next();
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.REMOVE_ATTRIBUTE, attributess);
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.ADD_ATTRIBUTE,
+								attributessToBeReplaced);
+					}
+					/**
+					 * @author Amir Bellakhal
+					 */
+
+					
+				
+					
+					
+//					NamingEnumeration namingEnumeration5 = dirContext.search(
+//							ldapOperation.CONTEXT_GROUPXGED, attributess);
+//					while (namingEnumeration5.hasMore()) {
+//						Binding c = (Binding) namingEnumeration5.next();
+//						dirContext.modifyAttributes(c.getNameInNamespace(),
+//								DirContext.REMOVE_ATTRIBUTE, attributess);
+//						dirContext.modifyAttributes(c.getNameInNamespace(),
+//								DirContext.ADD_ATTRIBUTE,
+//								attributessToBeReplaced);
+//					}
+
+//					NamingEnumeration namingEnumeration6 = dirContext.search(
+//							ldapOperation.CONTEXT_GROUPGAS, attributess);
+//					while (namingEnumeration6.hasMore()) {
+//						Binding b = (Binding) namingEnumeration6.next();
+//						dirContext.modifyAttributes(b.getNameInNamespace(),
+//								DirContext.REMOVE_ATTRIBUTE, attributess);
+//						dirContext.modifyAttributes(b.getNameInNamespace(),
+//								DirContext.ADD_ATTRIBUTE,
+//								attributessToBeReplaced);
+//					}
+					NamingEnumeration namingEnumeration1 = dirContext.search(
+							ldapOperation.CONTEXT_BOC, attributess);
+					while (namingEnumeration1.hasMore()) {
+						Binding b = (Binding) namingEnumeration1.next();
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.REMOVE_ATTRIBUTE, attributess);
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.ADD_ATTRIBUTE,
+								attributessToBeReplaced);
+					}
+
+					NamingEnumeration namingEnumeration2 = dirContext.search(
+							ldapOperation.CONTEXT_UNIT, attributess);
+					while (namingEnumeration2.hasMore()) {
+						Binding b = (Binding) namingEnumeration2.next();
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.REMOVE_ATTRIBUTE, attributess);
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.ADD_ATTRIBUTE,
+								attributessToBeReplaced);
+					}
+
+					attributess = new BasicAttributes(true);
+					attribute = new BasicAttribute("manager");
+					attribute.add(pathUser);
+					attributess.put(attribute);
+					attributessToBeReplaced = new BasicAttributes(true);
+					attributeToBeReplaced = new BasicAttribute("manager");
+					attributeToBeReplaced.add(newPath);
+					attributessToBeReplaced.put(attributeToBeReplaced);
+					NamingEnumeration namingEnumeration3 = dirContext.search(
+							ldapOperation.CONTEXT_UNIT, attributess);
+					while (namingEnumeration3.hasMore()) {
+						Binding b = (Binding) namingEnumeration3.next();
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.REMOVE_ATTRIBUTE, attributess);
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.ADD_ATTRIBUTE,
+								attributessToBeReplaced);
+					}
+
+					attributess = new BasicAttributes(true);
+					attribute = new BasicAttribute("secretary");
+					attribute.add(pathUser);
+					attributess.put(attribute);
+					attributessToBeReplaced = new BasicAttributes(true);
+					attributeToBeReplaced = new BasicAttribute("secretary");
+					attributeToBeReplaced.add(newPath);
+					attributessToBeReplaced.put(attributeToBeReplaced);
+					NamingEnumeration namingEnumeration4 = dirContext.search(
+							ldapOperation.CONTEXT_UNIT, attributess);
+					while (namingEnumeration4.hasMore()) {
+						Binding b = (Binding) namingEnumeration4.next();
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.REMOVE_ATTRIBUTE, attributess);
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.ADD_ATTRIBUTE,
+								attributessToBeReplaced);
+					}
+
+					status1 = true;
+					setMessage(messageSource.getMessage("confirmUpdate",
+							new Object[] {}, lm.createLocal()));
+					System.out.println("sucees de modif");
+				}
+				LogClass logClass = new LogClass();
+				logClass.addTrack("modification",
+						"Evénement de log de modification de l'utilisateur "
+								+ vb.getUser().getId() + "-"
+								+ vb.getUser().getCn(), vb.getPerson(), "INFO",
+						appMgr);
+				vb.setUser(copyPerson);
+			}
+
+		} catch (NamingException ex) {
+			setMessage(messageSource.getMessage("erreurInsertUtilisateur",
+					new Object[] {}, lm.createLocal()));
+			userSurName = "";
+			userName = "";
+			status4 = true;
+			System.err.println("Erreur lors de l'acces au serveur LDAP" + ex);
+			ex.printStackTrace();
+		}
+	}
+
+	public void initializeupdate() {
+		status = false;
+		status1 = false;
+		status4 = false;
+	}
+
+	public void getdelete() {
+		status2 = true;
+		setMessage(messageSource.getMessage("ConfirmDeleteGroups",
+				new Object[] {}, lm.createLocal()));
+		if (listcurrentsgroups.isEmpty()) {
+			status2 = false;
+			setMessage(messageSource.getMessage("confirmDeleteutilisateur",
+					new Object[] {}, lm.createLocal()));
+		}
+	}
+
+	public void delete() {
+		DirContext dirContext;
+		String copyGroup;
+		try {
+			dirContext = ldapOperation.getDirContext();
+			System.out.println("*********vb.getUser******** "
+					+ vb.getUser().getCn());
+			String pathUser = "cn=" + vb.getUser().getCn() + ","
+					+ ldapOperation.CONTEXT_USER;
+			// **
+
+			String pathUnit = null;
+			Attributes attributesUnit = null;
+			Attribute attributUnit = null;
+			pathSearch: for (enumKeyAttribute keyAttribute : enumKeyAttribute
+					.values()) {
+				attributesUnit = new BasicAttributes(true);
+				attributUnit = new BasicAttribute(keyAttribute.toString(),
+						pathUser);
+				attributesUnit.put(attributUnit);
+				NamingEnumeration e = dirContext.search(
+						ldapOperation.CONTEXT_UNIT, attributesUnit);
+				while (e.hasMore()) {
+					Binding b = (Binding) e.next();
+					pathUnit = b.getNameInNamespace();
+					break pathSearch;
+				}
+			}
+			if (pathUnit != null) {
+				dirContext.modifyAttributes(pathUnit,
+						DirContext.REMOVE_ATTRIBUTE, attributesUnit);
+			} else {
+				pathSearch: for (enumKeyAttribute keyAttribute : enumKeyAttribute
+						.values()) {
+					attributesUnit = new BasicAttributes(true);
+					attributUnit = new BasicAttribute(keyAttribute.toString(),
+							pathUser);
+					attributesUnit.put(attributUnit);
+					NamingEnumeration e = dirContext.search(
+							ldapOperation.CONTEXT_BOC, attributesUnit);
+					while (e.hasMore()) {
+						Binding b = (Binding) e.next();
+						pathUnit = b.getNameInNamespace();
+						break pathSearch;
+					}
+				}
+				if (pathUnit != null) {
+					dirContext.modifyAttributes(pathUnit,
+							DirContext.REMOVE_ATTRIBUTE, attributesUnit);
+				}
+			}
+			// dirContext.close();
+			// **
+			if (!listcurrentsgroups.isEmpty()) {
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("member", pathUser);
+				attributes.put(attribut);
+				for (int i = 0; i < listcurrentsgroups.size(); i++) {
+					copyGroup = "cn=" + listcurrentsgroups.get(i).getCn() + ","
+							+ ldapOperation.CONTEXT_GROUP;
+					dirContext.modifyAttributes(copyGroup,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+				}
+			}
+			dirContext.unbind(pathUser);
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression de l'utilisateur "
+							+ vb.getUser().getId() + "-" + vb.getUser().getCn(),
+					vb.getPerson(), "INFO", appMgr);
+
+			// Envoi d'un mail lors de la suppression d'un utilisateur
+			SendMail(vb.getUser());
+
+			// si l'utilisateur supprime lui méme, on le deconnécté forcément de
+			// l'application
+			if (vb.getPerson().getId() == vb.getUser().getId()) {
+				deconnexionBean.deconnexion();
+			}
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void SendMail(Person person) {
+		Properties props = new Properties();
+		props.put("mail.smtp.host", "mail.xtensus.com");
+		props.put("mail.smtp.socketFactory.port", "465");
+		props.put("mail.smtp.socketFactory.class",
+				"javax.net.ssl.SSLSocketFactory");
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.port", "25");
+
+		Session session = Session.getDefaultInstance(props,
+				new javax.mail.Authenticator() {
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication(
+								"gbo.mail@xtensus.net", "ADFHF632SM");
+					}
+				});
+
+		try {
+
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress("gbo.mail@xtensus.net"));
+			message.setRecipients(Message.RecipientType.TO,
+					InternetAddress.parse("support@xtensus.com"));
+			message.setSubject("xGBO - Utilisateur Supprimé");
+			message.setText("Bonjour,"
+					+ "\n\n Un utilisateur a été supprimé dans GBO : \n\n"
+					+ "\n Id : " + person.getId() + " \n" + "\n Cn : "
+					+ person.getCn() + " \n" + "\n Mot de passe : "
+					+ person.getPwd() + " \n" + "\n Email : "
+					+ person.getEmail() + " \n" + "\n Date de suppression : "
+					+ new Date() + " \n");
+
+			Transport.send(message);
+
+			System.out.println("Done");
+
+		} catch (MessagingException exp) {
+			throw new RuntimeException(exp);
+		}
+	}
+
+	public void affectGroup() {
+		Group group = new Group();
+		try {
+			showButtonValidate = "false";
+			group = (Group) listAvailablesGroups.getRowData();
+			listavailablesgroups.remove(group);
+			listcurrentsgroups.add(0, group);
+			listCurrentsGroups.setWrappedData(listcurrentsgroups);
+			listAvailablesGroups.setWrappedData(listavailablesgroups);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+
+	}
+
+	public void desaffectGroup() {
+		Group group = new Group();
+		try {
+			showButtonValidate = "false";
+			group = (Group) listCurrentsGroups.getRowData();
+			listcurrentsgroups.remove(group);
+			listavailablesgroups.add(0, group);
+			listCurrentsGroups.setWrappedData(listcurrentsgroups);
+			listAvailablesGroups.setWrappedData(listavailablesgroups);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+	}
+
+	public void validAffectation() {
+		status6 = false;
+		status7 = false;
+		String pathUser = "cn=" + vb.getUser().getCn() + ","
+				+ ldapOperation.CONTEXT_USER;
+		DirContext dirContext;
+		String copyGroup;
+		List<Group> copyListGroup = new ArrayList<Group>();
+		copyListGroup = ldapOperation.getCurrentsGroupsByPathUser(pathUser);
+		try {
+			dirContext = ldapOperation.getDirContext();
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("member", pathUser);
+			attributes.put(attribut);
+			for (Group group : copyListGroup) {
+				copyGroup = "cn=" + group.getCn() + ","
+						+ ldapOperation.CONTEXT_GROUP;
+				dirContext.modifyAttributes(copyGroup,
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+			}
+			for (Group group : listcurrentsgroups) {
+				copyGroup = "cn=" + group.getCn() + ","
+						+ ldapOperation.CONTEXT_GROUP;
+				dirContext.modifyAttributes(copyGroup,
+						DirContext.ADD_ATTRIBUTE, attributes);
+			}
+			status6 = true;
+			setMessage(messageSource.getMessage("confirmAffectation",
+					new Object[] {}, lm.createLocal()));
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation de l'utilisateur "
+							+ vb.getUser().getId() + "-" + vb.getUser().getCn()
+							+ " au(x) groupe(s)", vb.getPerson(), "INFO",
+					appMgr);
+		} catch (NamingException e) {
+			System.out.println("erreur de suppression");
+			status7 = true;
+			setMessage(messageSource.getMessage("ErreurAffectation",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("Erreur lors de l'accés au serveur LDAPé" + e);
+			e.printStackTrace();
+		}
+	}
+
+	public void initializeaffect() {
+		showButtonValidate = "true";
+		status6 = false;
+		status7 = false;
+	}
+
+	public int getUserReference() {
+		return userReference;
+	}
+
+	public void setUserReference(int userReference) {
+		this.userReference = userReference;
+	}
+
+	public String getUserSurName() {
+		return userSurName;
+	}
+
+	public void setUserSurName(String userSurName) {
+		this.userSurName = userSurName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserTelephoneNumber() {
+		return userTelephoneNumber;
+	}
+
+	public void setUserTelephoneNumber(String userTelephoneNumber) {
+		this.userTelephoneNumber = userTelephoneNumber;
+	}
+
+	public String getUserFax() {
+		return userFax;
+	}
+
+	public void setUserFax(String userFax) {
+		this.userFax = userFax;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
+	public String getUserAdress() {
+		return userAdress;
+	}
+
+	public void setUserAdress(String userAdress) {
+		this.userAdress = userAdress;
+	}
+
+	public Integer getUserPostalCode() {
+		return userPostalCode;
+	}
+
+	public void setUserPostalCode(Integer userPostalCode) {
+		this.userPostalCode = userPostalCode;
+	}
+
+	public String getUserLogin() {
+		return userLogin;
+	}
+
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
+	}
+
+	public String getUserPWD() {
+		return userPWD;
+	}
+
+	public void setUserPWD(String userPWD) {
+		this.userPWD = userPWD;
+	}
+
+	public DataModel getListCurrentsGroups() {
+		return listCurrentsGroups;
+	}
+
+	public void setListCurrentsGroups(DataModel listCurrentsGroups) {
+		this.listCurrentsGroups = listCurrentsGroups;
+	}
+
+	public DataModel getListAvailablesGroups() {
+		return listAvailablesGroups;
+	}
+
+	public void setListAvailablesGroups(DataModel listAvailablesGroups) {
+		this.listAvailablesGroups = listAvailablesGroups;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords1() {
+		if (listCurrentsGroups == null
+				&& listCurrentsGroups.getWrappedData() == null)
+			records1 = 0;
+		else
+			records1 = ((List<Group>) listCurrentsGroups.getWrappedData())
+					.size();
+		return records1;
+	}
+
+	public void setRecords1(int records1) {
+		this.records1 = records1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if (listAvailablesGroups == null
+				&& listAvailablesGroups.getWrappedData() == null)
+			records2 = 0;
+		else
+			records2 = ((List<Group>) listAvailablesGroups.getWrappedData())
+					.size();
+
+		return records2;
+	}
+
+	public void setRecords2(int records2) {
+		this.records2 = records2;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus4() {
+		return status4;
+	}
+
+	public void setStatus4(boolean status4) {
+		this.status4 = status4;
+	}
+
+	public boolean isStatus5() {
+		return status5;
+	}
+
+	public void setStatus5(boolean status5) {
+		this.status5 = status5;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setListcurrentsgroups(List<Group> listcurrentsgroups) {
+		this.listcurrentsgroups = listcurrentsgroups;
+	}
+
+	public List<Group> getListcurrentsgroups() {
+		return listcurrentsgroups;
+	}
+
+	public void setListavailablesgroups(List<Group> listavailablesgroups) {
+		this.listavailablesgroups = listavailablesgroups;
+	}
+
+	public List<Group> getListavailablesgroups() {
+		return listavailablesgroups;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public boolean isStatus6() {
+		return status6;
+	}
+
+	public void setStatus6(boolean status6) {
+		this.status6 = status6;
+	}
+
+	public boolean isStatus7() {
+		return status7;
+	}
+
+	public void setStatus7(boolean status7) {
+		this.status7 = status7;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setShowButtonValidate(String showButtonValidate) {
+		this.showButtonValidate = showButtonValidate;
+	}
+
+	public String getShowButtonValidate() {
+		return showButtonValidate;
+	}
+
+	public List<Group> getListgroups() {
+		return listgroups;
+	}
+
+	public void setListgroups(List<Group> listgroups) {
+		this.listgroups = listgroups;
+	}
+
+	public void setUserAbv(String userAbv) {
+		this.userAbv = userAbv;
+	}
+
+	public String getUserAbv() {
+		return userAbv;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public DeconnexionBean getDeconnexionBean() {
+		return deconnexionBean;
+	}
+
+	public void setDeconnexionBean(DeconnexionBean deconnexionBean) {
+		this.deconnexionBean = deconnexionBean;
+	}
+
+	public String getPrenomUserAr() {
+		return prenomUserAr;
+	}
+
+	public void setPrenomUserAr(String prenomUserAr) {
+		this.prenomUserAr = prenomUserAr;
+	}
+
+	public String getNomUserAr() {
+		return nomUserAr;
+	}
+
+	public void setNomUserAr(String nomUserAr) {
+		this.nomUserAr = nomUserAr;
+	}
+
+	public boolean isFicheMembreArabe() {
+		return ficheMembreArabe;
+	}
+
+	public void setFicheMembreArabe(boolean ficheMembreArabe) {
+		this.ficheMembreArabe = ficheMembreArabe;
+	}
+
+}

@@ -1,0 +1,27 @@
+package xtensus.beans.utils;
+
+import xtensus.ldap.model.Unit;
+
+public class StatistiqueCourrierStructure {
+
+	private Unit unite;
+	private Integer pourcentage;
+	
+	
+	
+	public Unit getUnite() {
+		return unite;
+	}
+	public void setUnite(Unit unite) {
+		this.unite = unite;
+	}
+	public Integer getPourcentage() {
+		return pourcentage;
+	}
+	public void setPourcentage(Integer pourcentage) {
+		this.pourcentage = pourcentage;
+	}
+	
+	
+	
+}

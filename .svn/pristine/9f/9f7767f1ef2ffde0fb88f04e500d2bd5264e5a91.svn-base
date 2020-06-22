@@ -1,0 +1,180 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.StatistiqueDossier;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component()
+@Scope("request")
+public class StatistiqueDossierBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	public boolean statusAide;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private CourrierConsultationBean consultationBean;
+	private StatistiqueDossier statistiqueDossier;
+
+	@Autowired
+	public StatistiqueDossierBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+
+		System.out
+				.println("*************Bean StatistiqueCourrierBean Injecte***************");
+	}
+
+	// Fiche Courrier Franéais
+	public void printStatistiquePDF() {
+		/***** Dossier *****/
+		int mesDossier = 0;
+		int dossierArrivee = 0;
+		int dossierDepart = 0;
+		float pourcentageDossierArrivee = 0;
+		float pourcentageDossierDepart = 0;
+		int dossierTotal = 0;
+//		int refUserConnecte = vb.getPerson().getId();
+		try {
+			List<StatistiqueDossier> rapportStatistique = new ArrayList<StatistiqueDossier>();
+			StatistiqueDossier rapport = new StatistiqueDossier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			/***** Dossier ********/
+//			mesDossier = appMgr.listDossierByIdProprietaire(refUserConnecte)
+//					.size();
+//			int dossierArriveeJour = consultationBean
+//					.getListDossiersRecusJour().size();
+//			int dossierDepartJour = consultationBean
+//					.getListDossiersEnvoyesJour().size();
+//			dossierArrivee = consultationBean.getListDossiersRecus().size()
+//					+ dossierArriveeJour;
+//			dossierDepart = consultationBean.getListDossiersEnvoyes().size()
+//					+ dossierDepartJour;
+			dossierTotal = dossierArrivee + dossierDepart;
+			if (dossierTotal != 0) {
+				pourcentageDossierArrivee = (dossierArrivee * 100)
+						/ dossierTotal;
+				pourcentageDossierDepart = (dossierDepart * 100) / dossierTotal;
+			} else {
+				pourcentageDossierArrivee = 0;
+				pourcentageDossierDepart = 0;
+			}
+
+			rapport.setMesDossier(mesDossier);
+			rapport.setDossierArrivee(dossierArrivee);
+			rapport.setDossierDepart(dossierDepart);
+			rapport.setDossierTotal(dossierTotal);
+			rapport.setPourcentageDossierArrivee(pourcentageDossierArrivee);
+			rapport.setPourcentageDossierDepart(pourcentageDossierDepart);
+
+			rapport.setMesDossierLibelle(mesDossier + "Mes Dossier");
+			rapport.setDossierArriveeLibelle(dossierArrivee
+					+ " Dossiers Arrivés");
+			rapport.setDossierDepartLibelle(dossierDepart + " Dossiers Envoyés");
+			rapport.setDossierTotalLibelle(dossierTotal + " Total");
+			rapport.setPourcentageDossierArriveeLibelle(pourcentageDossierArrivee
+					+ " % Dossiers Arrivés");
+			rapport.setPourcentageDossierDepartLibelle(pourcentageDossierDepart
+					+ " % Dossiers Envoyés");
+			
+			/*************************************/
+			String chartTitre_1 = "Dossiers Arrivés/Départs (Barre)";
+			String chartTitre_2 = "Dossiers Arrivés/Départs (Cercle)";
+			String chartTitre_3 = "% Dossiers Arrivés/Départs";
+			rapport.setChartTitre_1(chartTitre_1);
+			rapport.setChartTitre_2(chartTitre_2);
+			rapport.setChartTitre_3(chartTitre_3);
+			rapport.setUser(vb.getPerson().getPrenom() + " "
+					+ vb.getPerson().getNom());
+			rapportStatistique.add(rapport);
+			export.exportToPDF(rapportStatistique, "StatistiqueDossier",
+					"StatistiqueDossier");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	/*********** Getters && Setters *****************/
+
+	public boolean isStatusAide() {
+		return statusAide;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public void setStatusAide(boolean statusAide) {
+		this.statusAide = statusAide;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public CourrierConsultationBean getConsultationBean() {
+		return consultationBean;
+	}
+
+	public void setConsultationBean(CourrierConsultationBean consultationBean) {
+		this.consultationBean = consultationBean;
+	}
+
+	public void setStatistiqueDossier(StatistiqueDossier statistiqueDossier) {
+		this.statistiqueDossier = statistiqueDossier;
+	}
+
+	public StatistiqueDossier getStatistiqueDossier() {
+		return statistiqueDossier;
+	}
+
+}

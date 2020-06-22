@@ -1,0 +1,85 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<style>
+.responsive {
+ 	 width: 100px;
+        max-width: 100%;
+        height: auto;
+}
+</style>
+</head>
+<body>
+
+	<div id="headerGlobal">
+		<h:form id="form">
+			<div id="header_G">
+				<h:panelGrid>
+
+					<h:column>
+						<h:panelGrid columns="2">
+
+							<h:column>
+								<img class="logo" src="../framGraphique/images/gbo-logo.png"
+									alt="logo" style="height : 45px; width : 71px;"/>
+							</h:column>
+						</h:panelGrid>
+					</h:column>
+				</h:panelGrid>
+			</div>
+			<div>
+				<h:panelGrid columns="5" style="">
+					<h:column>
+						<img class="user-image" src="../framGraphique/images/UserGBO.png"
+							alt="user" />
+					</h:column>
+					<h:column>
+						<h:outputText
+							value="#{variableGlobale.person.prenom} #{variableGlobale.person.nom}  / #{variableGlobale.person.login} "
+							style="color:#FFFFFF;font-family:verdana; font-size: 12px;" />
+					</h:column>
+					<h:column>
+						<img class="user-image"
+							src="../framGraphique/images/StopStart.png" alt="dÃ©connexion" />
+					</h:column>
+					<a4j:keepAlive beanName="deconnexionBean" />
+					<a4j:keepAlive beanName="toolBarBean" ajaxOnly="true" />
+					<h:column>
+						<a4j:commandLink action="#{deconnexionBean.deconnexion}" ajaxSingle="true"
+							title="#{msg.Deconnexion}">
+							<h:outputText value="#{msg.Deconnexion}"
+								/>
+						</a4j:commandLink>
+					</h:column>
+				</h:panelGrid>
+				<div id="buttonHeader">
+					<a4j:commandLink id="buttonAr"
+						action="#{languageManager.setArabLanguage}" oncomplete="javascript:location.reload(true)"  >
+						<h:graphicImage value="../framGraphique/images/logoAr.png"
+							alt="details" />
+					</a4j:commandLink>
+					<rich:toolTip for="buttonAr" value="#{msg.logoAr}"
+						direction="top-right" />
+					<rich:spacer width="10" />
+					<a4j:commandLink id="buttonFr"
+						action="#{languageManager.setFrenchLangauge}" oncomplete="javascript:location.reload(true)" >
+						<h:graphicImage value="../framGraphique/images/logoFr.png"
+							alt="details" />
+					</a4j:commandLink>
+					<rich:toolTip for="buttonFr" value="#{msg.logoFr}"
+						direction="top-right" />
+				</div>
+			</div>
+		</h:form>
+	</div>
+</body>
+	</html>
+</ui:composition>

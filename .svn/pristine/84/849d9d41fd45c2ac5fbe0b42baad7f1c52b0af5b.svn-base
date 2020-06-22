@@ -1,0 +1,59 @@
+package xtensus.beans.common.GBO;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RecherchePpModel;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class AnnuaireRecherchePpBean {
+	
+	private ApplicationManager appMgr;
+	private RecherchePpModel recherchePpModel;
+	@Autowired
+	private VariableGlobale vb;
+	
+	@Autowired
+	public AnnuaireRecherchePpBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		recherchePpModel = new RecherchePpModel();
+	}
+	
+	@PostConstruct
+	public void initialize() {
+		recherchePpModel = vb.getRecherchePpModelForDetails();
+	}
+	
+	//Getters and Setters
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setRecherchePpModel(RecherchePpModel recherchePpModel) {
+		this.recherchePpModel = recherchePpModel;
+	}
+
+	public RecherchePpModel getRecherchePpModel() {
+		return recherchePpModel;
+	}
+
+
+}

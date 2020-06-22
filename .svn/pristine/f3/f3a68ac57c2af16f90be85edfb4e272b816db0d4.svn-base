@@ -1,0 +1,1200 @@
+package xtensus.faxmail.utils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+import javax.mail.BodyPart;
+import javax.mail.FetchProfile;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Header;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Part;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.internet.MimeMessage.RecipientType;
+import javax.mail.search.FlagTerm;
+import javax.mail.Flags.Flag;
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import xtensus.entity.Unite;
+import xtensus.faxmail.beans.AttachmentFileBean;
+import xtensus.faxmail.beans.MailBean;
+
+public class MailConnection {
+
+	private Store store;
+	private String host;
+	private String user;
+	private String password;
+	private Properties prop;
+
+	
+	// Khaled Saoudi
+	public MailConnection() {
+		prop = new Properties();
+		try {
+			// Recupération des donnée à patir de la BD table Unite
+			Resource rsrc = new ClassPathResource(
+			".."+File.separator+"MailFax"+File.separator+"mailReception.properties");
+	        String pathConfigFile = rsrc.getFile().getAbsolutePath();
+			System.out.println(pathConfigFile);
+
+			// String pathConfigFile = "C://GBO//MailFax//mail.properties";
+			prop.load(new FileInputStream(pathConfigFile));
+
+			// smtp properties
+			host = prop.getProperty("mail.pop3.host");
+			user = prop.getProperty("mail.pop3.user");
+			password = prop.getProperty("mail.pop3.pass");
+
+			System.out.println("host  "+host);
+			System.out.println("user  "+user);
+			System.out.println("password  "+password);
+
+			// authentification
+			Session session = Session.getInstance(prop,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(user, password);
+						}
+					});
+			//session.setDebug(true);
+			store = session.getStore(prop.getProperty("mail.store.protocol"));
+			System.out.println("store   "+store);
+			store.connect(host, user, password);
+
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	//AH
+	public MailConnection( final String user, final String password) {
+		prop = new Properties();
+		try {
+			// Recupération des donnée à patir de la BD table Unite
+
+			Resource rsrc = new ClassPathResource(
+					".."+File.separator+"MailFax"+File.separator+"mailReception.properties");
+			        String pathConfigFile = rsrc.getFile().getAbsolutePath();
+					System.out.println(pathConfigFile);
+prop.load(new FileInputStream(pathConfigFile));
+			// String pathConfigFile = "C://GBO//MailFax//mail.properties";
+//			prop.load(new FileInputStream(pathConfigFile));
+
+
+this.host = prop.getProperty("mail.pop3.host");
+ prop.setProperty("mail.pop3.user",user);
+ this.user=prop.getProperty("mail.pop3.user");
+ prop.setProperty("mail.pop3.pass",password);
+ this.password = prop.getProperty("mail.pop3.pass");
+
+System.out.println("host  "+this.host);
+System.out.println("user  "+this.user);
+System.out.println("password  "+this.password);
+
+			// authentification
+
+			Session session = Session.getInstance(prop,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(user, password);
+						}
+					});
+			//session.setDebug(true);
+			store = session.getStore(prop.getProperty("mail.store.protocol"));
+			System.out.println("store   "+store);
+			store.connect(host, user, password);
+			System.out.println("Connexion réussie");
+		} catch (NoSuchProviderException e) {
+			
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// Nader Kassas
+	// public MailConnection() {
+	// prop = new Properties();
+	// try {
+	// // get context path
+	// ExternalContext jsfContext = FacesContext.getCurrentInstance()
+	// .getExternalContext();
+	// ServletContext servletContext = (ServletContext) jsfContext
+	// .getContext();
+	// String webContentRoot = servletContext.getRealPath("/");
+	// // String res = webContentRoot.substring(0, 16) + "GBO_v1.k";
+	// // System.out.println(res);
+	// // webContentRoot = res;
+	// // fichier xml
+	// String pathConfigFile = webContentRoot
+	// + "\\WEB-INF\\GEDConfig\\smtp.properties";
+	// prop.load(new FileInputStream(pathConfigFile));
+	//
+	// // smtp properties
+	// Properties props = new Properties();
+	// host = prop.getProperty("mail.smtp.host");
+	// user = getProp().getProperty("mail.session.user");
+	// password = getProp().getProperty("mail.session.pass");
+	// props.put("mail.smtp.host", host);
+	// // props.put("mail.smtp.socketFactory.port",
+	// // prop.getProperty("mail.smtp.socketFactory.port"));
+	// // props.put("mail.smtp.socketFactory.class",
+	// // prop.getProperty("mail.smtp.socketFactory.class"));
+	// // props.put("mail.smtp.auth", prop.getProperty("mail.smtp.auth"));
+	// // props.put("mail.smtp.port", prop.getProperty("mail.smtp.port"));
+	//
+	// // authentification
+	// Session session = Session.getDefaultInstance(props,
+	// new javax.mail.Authenticator() {
+	// protected PasswordAuthentication getPasswordAuthentication() {
+	// return new PasswordAuthentication(user, password);
+	// }
+	// });
+	// store = session.getStore("imaps");
+	// store.connect(host, user, password);
+	//
+	// } catch (NoSuchProviderException e) {
+	// e.printStackTrace();
+	// } catch (MessagingException e) {
+	// e.printStackTrace();
+	// } catch (FileNotFoundException e) {
+	// e.printStackTrace();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// }
+
+	public MailBean getLastMail() {
+
+		String toAddress = null;
+		String fromAddress = null;
+		String fromName = null;
+		String fromOrganization = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+
+		String subject = null;
+		Date receivedDate = null;
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap = new HashMap<String, String>();
+		Map<String, Integer> attachmentFileMap = new HashMap<String, Integer>();
+
+		try {
+			Folder inbox = store.getFolder("Inbox");
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+
+			int numberOfMessages = message.length;
+			Message lastMessage = message[numberOfMessages - 1];
+
+			Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+			while (headersEnumeration.hasMoreElements()) {
+				Header h = (Header) headersEnumeration.nextElement();
+				headerMap.put(h.getName(), h.getValue());
+			}
+
+			replyTo = headerMap.get("Cc");
+			priority = headerMap.get("Importance");
+			fromOrganization = headerMap.get("Organization");
+
+			from = lastMessage.getFrom()[0].toString();
+			toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+					.toString();
+			subject = lastMessage.getSubject().toString();
+			receivedDate = lastMessage.getReceivedDate();
+
+			for (int j = 0; j < from.length(); j++) {
+				if (from.charAt(j) == '<') {
+					fromAddress = from.substring(j + 1, from.length() - 1);
+				}
+			}
+
+			fromName = from.replaceAll("<" + fromName + ">", "").trim();
+
+			if (lastMessage.isMimeType("multipart/*")) {
+				Multipart multipart = (Multipart) lastMessage.getContent();
+				int count = multipart.getCount();
+				for (int i = 0; i < count; i++) {
+					InputStream inputStream = multipart.getBodyPart(i)
+							.getInputStream();
+					int c;
+					while ((c = inputStream.read()) != -1) {
+						originalContent += c;
+					}
+				}
+			} else {
+
+				originalContent = lastMessage.getContent().toString();
+			}
+
+			inbox.close(true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			content = Utils.extractText(originalContent);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return new MailBean(fromName, fromAddress, fromOrganization, toAddress,
+				subject, receivedDate, content, originalContent, replyTo,
+				priority, headerMap, attachmentFileMap, null);
+
+	}
+
+	/**
+	 * Cette fonction permet de retourner tout les mails recus.
+	 * 
+	 * @return Liste des mails recus
+	 */
+	public List<MailBean> getAllMails() {
+		List<MailBean> mailList = new ArrayList<MailBean>();
+
+		String toAddress = null;
+		String fromAddress = null;
+		String fromOrganization = null;
+		String fromName = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+
+		String subject = null;
+		Date receivedDate = null;
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap;
+
+		Map<String, Integer> attachmentFileMap;
+		List<AttachmentFileBean> attachmentFileList;
+
+		try {
+
+			Folder inbox = store.getFolder("Inbox");
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+
+			int numberOfMessages = message.length;
+
+			for (int i = 0; i < numberOfMessages; i++) {
+				headerMap = new HashMap<String, String>();
+				attachmentFileMap = new HashMap<String, Integer>();
+				attachmentFileList = new ArrayList<AttachmentFileBean>();
+
+				Message lastMessage = message[i];
+
+				Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+				while (headersEnumeration.hasMoreElements()) {
+					Header h = (Header) headersEnumeration.nextElement();
+					headerMap.put(h.getName(), h.getValue());
+				}
+
+				replyTo = headerMap.get("Cc");
+				priority = headerMap.get("Importance");
+				fromOrganization = headerMap.get("Organization");
+
+				from = lastMessage.getFrom()[0].toString();
+                fromAddress = null;
+				for (int j = 0; j < from.length(); j++) {
+					if (from.charAt(j) == '<') {
+						fromAddress = from.substring(j + 1, from.length() - 1);
+					}
+				}
+				if(fromAddress == null){
+					fromAddress = from;
+					int index = from.lastIndexOf("@");
+					fromName = from.substring(0, index);
+				}else{
+					fromName = from.replaceAll("<" + fromAddress + ">", "").trim();
+				}
+				
+
+				toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+						.toString();
+				subject = lastMessage.getSubject().toString();
+				if(subject.equals("G_SA_T")){
+					System.out.println(subject);
+				}
+	              //12 Aug 2014 16:29:31
+	              receivedDate = null;
+	              String Received = headerMap.get("Date");
+	              try {
+	            	  SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+	            	  receivedDate = formatter.parse(Received);
+	            	  
+				} catch (Exception e) {
+                    System.out.println("#PARSE Exception");
+					SimpleDateFormat formatter = new SimpleDateFormat("d MMM yyyy H:m:s", Locale.ENGLISH);
+					receivedDate = formatter.parse(Received);
+	            	   
+				}
+				System.out
+						.println("-----------------------------------------------------------");
+				System.out.println("Message content-type : "
+						+ lastMessage.getContentType() + " ...");
+
+				if (lastMessage.isMimeType("multipart/*")) {
+					Multipart multipart = (Multipart) message[i].getContent();
+					System.out.println("Contenu mail : "
+							+ multipart.getBodyPart(0).getContent());
+					for (int x = 0; x < multipart.getCount(); x++) {
+
+						BodyPart bodyPart = multipart.getBodyPart(x);
+						String disposition = bodyPart.getDisposition();
+                        
+						// ** 2014-10-22
+						System.out.println("contentType" + bodyPart.getContentType());
+						if (bodyPart.isMimeType("multipart/mixed") || bodyPart.isMimeType("multipart/alternative") || bodyPart.isMimeType("multipart/related")) {
+							originalContent = getText(bodyPart);
+							Multipart multipart2 = (Multipart) bodyPart.getContent();
+							for (int k = 0; k < multipart2.getCount(); k++) {
+								BodyPart bodyPart2 = multipart2.getBodyPart(k);
+								String disposition2 = bodyPart2.getDisposition();
+								if (disposition2 != null
+										&& (disposition2
+												.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+														.equalsIgnoreCase(BodyPart.INLINE)) ){
+	                                System.out.println("k : " + k);
+									DataHandler handler = bodyPart2.getDataHandler();
+										attachmentFileMap.put(
+												handler.getName(),
+												bodyPart.getSize());
+
+										attachmentFileList
+												.add(new AttachmentFileBean(
+														message[i]
+																.getHeader("Message-ID")[0],
+														handler.getName(),
+														IOUtils.toByteArray(handler
+																.getInputStream()),
+														receivedDate,
+														fromAddress));
+
+								} 
+							}
+						}
+						else{
+							if(bodyPart.getContentType().startsWith(
+									"TEXT/PLAIN") || bodyPart.getContentType().startsWith(
+									"text/plain")){
+//										originalContent = bodyPart.getContent()
+//										.toString();
+										originalContent = multipart.getBodyPart(0).getContent().toString();
+									}
+						}
+						//**
+//						else {
+//							System.out.println(" Part NOT alternative " + x + " content-type : "
+//									+ bodyPart.getContentType() + " ...");
+//							if (bodyPart.isMimeType("multipart/*")) {
+//								Multipart multipart2 = (Multipart) bodyPart
+//										.getContent();
+//								for (int k = 0; k < multipart2.getCount(); k++) {
+//									BodyPart bodyPart2 = multipart2
+//											.getBodyPart(k);
+//									if (bodyPart2.getContentType().startsWith(
+//											"TEXT/HTML")) {
+//										originalContent = bodyPart2
+//												.getContent().toString();
+//									}
+//								}
+//							}
+//							// Khaled saoudi
+//							else {
+//								if(x==0){
+//									originalContent = bodyPart.getContent()
+//									.toString();
+//								}else {
+//									if(bodyPart.getContentType().startsWith(
+//									"TEXT/PLAIN")){
+//										originalContent = bodyPart.getContent()
+//										.toString();
+//									}
+//								}
+//							}
+//						}
+						// ** 2014-10-22
+						if (disposition != null
+								&& (disposition
+										.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+										.equalsIgnoreCase(BodyPart.INLINE)) ) {
+
+							DataHandler handler = bodyPart.getDataHandler();
+							attachmentFileMap.put(handler.getName(),
+									bodyPart.getSize());
+
+							attachmentFileList.add(new AttachmentFileBean(
+									message[i].getHeader("Message-ID")[0],
+									handler.getName(), IOUtils
+											.toByteArray(handler
+													.getInputStream()),
+									receivedDate, fromAddress));
+
+						} 
+//						else if (disposition != null
+//								&& (disposition
+//										.equalsIgnoreCase(BodyPart.INLINE))) {
+//
+//							DataHandler handler = bodyPart.getDataHandler();
+//
+//							attachmentFileMap.put(handler.getName(),
+//									bodyPart.getSize());
+//
+//							attachmentFileList.add(new AttachmentFileBean(
+//									message[i].getHeader("Message-ID")[0],
+//									handler.getName(), IOUtils
+//											.toByteArray(handler
+//													.getInputStream()),
+//									receivedDate, fromAddress));
+//
+//						}
+					}
+
+				}
+
+				else {
+
+					originalContent = lastMessage.getContent().toString();
+				}
+				if (originalContent != null) {
+					try {
+						content = Utils.extractText(originalContent);
+						originalContent = originalContent.replaceAll("\r\n", "<br/>");
+						System.out.println("originalContent : " + originalContent);
+					} catch (Exception e) {
+						content = "le contenu de ce mail n'est pas charger";
+					}
+				} else {
+					content = "Mail sans Message";
+				}
+
+				mailList.add(new MailBean(fromName, fromAddress,
+						fromOrganization, toAddress, subject, receivedDate,
+						content, originalContent, replyTo, priority, headerMap,
+						attachmentFileMap, attachmentFileList));
+				 content = null;
+				 originalContent = null;
+
+			}
+			inbox.close(true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return mailList;
+	}
+
+	public List<MailBean> getMailsAfter(Date date) {
+		List<MailBean> mailList = new ArrayList<MailBean>();
+		String toAddress = null;
+		String fromAddress = null;
+		String fromName = null;
+		String fromOrganization = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+
+		String subject = null;
+		Date receivedDate = new Date();
+
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap;
+		Map<String, Integer> attachmentFileMap = new HashMap<String, Integer>();
+		List<AttachmentFileBean> attachmentFileList;
+		try {
+
+			Folder inbox = store.getFolder("Inbox");
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+
+			int numberOfMessages = message.length;
+			for (int i = 0; i < numberOfMessages; i++) {
+				headerMap = new HashMap<String, String>();
+				attachmentFileMap = new HashMap<String, Integer>();
+				attachmentFileList = new ArrayList<AttachmentFileBean>();
+
+				Message lastMessage = message[i];
+
+				Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+				while (headersEnumeration.hasMoreElements()) {
+					Header h = (Header) headersEnumeration.nextElement();
+					headerMap.put(h.getName(), h.getValue());
+				}
+
+				replyTo = headerMap.get("Cc");
+				priority = headerMap.get("Importance");
+				fromOrganization = headerMap.get("Organization");
+
+				from = lastMessage.getFrom()[0].toString();
+                fromAddress = null;
+				for (int j = 0; j < from.length(); j++) {
+					if (from.charAt(j) == '<') {
+						fromAddress = from.substring(j + 1, from.length() - 1);
+					}
+				}
+				if(fromAddress == null){
+					fromAddress = from;
+					int index = from.lastIndexOf("@");
+					fromName = from.substring(0, index);
+				}else{
+					fromName = from.replaceAll("<" + fromAddress + ">", "").trim();
+				}
+				
+
+				toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+						.toString();
+				subject = lastMessage.getSubject().toString();
+	              receivedDate = null;
+	              String Received = headerMap.get("Date");
+	              try {
+	            	  SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+	            	  receivedDate = formatter.parse(Received);
+	            	  
+				} catch (Exception e) {
+                    System.out.println("#PARSE Exception");
+					SimpleDateFormat formatter = new SimpleDateFormat("d MMM yyyy H:m:s", Locale.ENGLISH);
+					receivedDate = formatter.parse(Received);
+	            	   
+				}
+				//TODO
+				if (receivedDate.after(date)) {
+				if (lastMessage.isMimeType("multipart/*")) {
+					Multipart multipart = (Multipart) message[i].getContent();
+					System.out.println("Contenu mail : "
+							+ multipart.getBodyPart(0).getContent());
+					for (int x = 0; x < multipart.getCount(); x++) {
+
+						BodyPart bodyPart = multipart.getBodyPart(x);
+						String disposition = bodyPart.getDisposition();
+                        
+						// ** 2014-10-22
+						System.out.println("contentType" + bodyPart.getContentType());
+						if (bodyPart.isMimeType("multipart/mixed") || bodyPart.isMimeType("multipart/alternative") || bodyPart.isMimeType("multipart/related")) {
+							originalContent = getText(bodyPart);
+							Multipart multipart2 = (Multipart) bodyPart.getContent();
+							for (int k = 0; k < multipart2.getCount(); k++) {
+								BodyPart bodyPart2 = multipart2.getBodyPart(k);
+								String disposition2 = bodyPart2.getDisposition();
+								if (disposition2 != null
+										&& (disposition2
+												.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+														.equalsIgnoreCase(BodyPart.INLINE)) ){
+	                                System.out.println("k : " + k);
+									DataHandler handler = bodyPart2.getDataHandler();
+										attachmentFileMap.put(
+												handler.getName(),
+												bodyPart.getSize());
+
+										attachmentFileList
+												.add(new AttachmentFileBean(
+														message[i]
+																.getHeader("Message-ID")[0],
+														handler.getName(),
+														IOUtils.toByteArray(handler
+																.getInputStream()),
+														receivedDate,
+														fromAddress));
+
+								} 
+							}
+						}
+						else{
+							if(bodyPart.getContentType().startsWith(
+									"TEXT/PLAIN") || bodyPart.getContentType().startsWith(
+									"text/plain")){
+										originalContent = multipart.getBodyPart(0).getContent().toString();
+									}
+						}
+						if (disposition != null
+								&& (disposition
+										.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+										.equalsIgnoreCase(BodyPart.INLINE)) ) {
+
+							DataHandler handler = bodyPart.getDataHandler();
+							attachmentFileMap.put(handler.getName(),
+									bodyPart.getSize());
+
+							attachmentFileList.add(new AttachmentFileBean(
+									message[i].getHeader("Message-ID")[0],
+									handler.getName(), IOUtils
+											.toByteArray(handler
+													.getInputStream()),
+									receivedDate, fromAddress));
+
+						} 
+					}
+
+				}
+
+				else {
+
+					originalContent = lastMessage.getContent().toString();
+				}
+				if (originalContent != null) {
+					try {
+						content = Utils.extractText(originalContent);
+						originalContent = originalContent.replaceAll("\r\n", "<br/>");
+						System.out.println("originalContent : " + originalContent);
+					} catch (Exception e) {
+						content = "le contenu de ce mail n'est pas charger";
+					}
+				} else {
+					content = "Mail sans Message";
+				}
+
+				mailList.add(new MailBean(fromName, fromAddress,
+						fromOrganization, toAddress, subject, receivedDate,
+						content, originalContent, replyTo, priority, headerMap,
+						attachmentFileMap, attachmentFileList));
+				 content = null;
+				 originalContent = null;
+			  }
+			}
+			// ancienne fonction de lecture du contenu
+//			for (int i = 0; i < numberOfMessages; i++) {
+//				headerMap = new HashMap<String, String>();
+//				attachmentFileList = new ArrayList<AttachmentFileBean>();
+//				Message lastMessage = message[i];
+//
+//				Enumeration<?> headersEnumeration = lastMessage.getAllHeaders();
+//				while (headersEnumeration.hasMoreElements()) {
+//					Header h = (Header) headersEnumeration.nextElement();
+//					headerMap.put(h.getName(), h.getValue());
+//				}
+//
+//				replyTo = headerMap.get("Cc");
+//				priority = headerMap.get("Importance");
+//				fromOrganization = headerMap.get("Organization");
+//
+//				from = lastMessage.getFrom()[0].toString();
+//				// get Received Date
+//				 String Received = headerMap.get("Date");
+//	              receivedDate = null;
+//	              try {
+//	            	  SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy H:m:s", Locale.ENGLISH);
+//	            	  receivedDate = formatter.parse(Received);
+//	            	  
+//				} catch (Exception e) {
+//                   System.out.println("#PARSE Exception");
+//					SimpleDateFormat formatter = new SimpleDateFormat("d MMM yyyy H:m:s", Locale.ENGLISH);
+//					receivedDate = formatter.parse(Received);
+//	            	   
+//				}
+//				
+////				receivedDate = lastMessage.getReceivedDate();
+//
+//				// java.sql.Date sqlDate = new java.sql.Date(
+//				// receivedDate.getTime());
+//
+//				if (receivedDate.after(date)) {
+//					fromAddress = null;
+//					//--
+//					for (int j = 0; j < from.length(); j++) {
+//						if (from.charAt(j) == '<') {
+//							fromAddress = from.substring(j + 1,
+//									from.length() - 1);
+//						}
+//					}
+//					if(fromAddress == null){
+//						fromAddress = from;
+//						int index = from.lastIndexOf("@");
+//						fromName = from.substring(0, index);
+//					}else{
+//						fromName = from.replaceAll("<" + fromAddress + ">", "").trim();
+//					}
+//					toAddress = lastMessage.getRecipients(RecipientType.TO)[0]
+//							.toString();
+//					subject = lastMessage.getSubject().toString();
+//					System.out.println(subject);
+//                    // ** Get the mail Content
+//					if (lastMessage.isMimeType("multipart/*")) {
+//						Multipart multipart = (Multipart) message[i].getContent();
+//						System.out.println("Contenu mail : "
+//								+ multipart.getBodyPart(0).getContent());
+//						for (int x = 0; x < multipart.getCount(); x++) {
+//							BodyPart bodyPart = multipart.getBodyPart(x);
+//							String disposition = bodyPart.getDisposition();
+//							// ** 2014-10-22
+//							if (bodyPart.isMimeType("multipart/mixed") || bodyPart.isMimeType("multipart/alternative") || bodyPart.isMimeType("multipart/related")) {
+//								originalContent = getText(bodyPart);
+//								Multipart multipart2 = (Multipart) bodyPart.getContent();
+//								for (int k = 0; k < multipart2.getCount(); k++) {
+//									BodyPart bodyPart2 = multipart2.getBodyPart(k);
+//									String disposition2 = bodyPart2.getDisposition();
+//									if (disposition2 != null
+//											&& (disposition2
+//													.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+//															.equalsIgnoreCase(BodyPart.INLINE)) ){
+//		                                System.out.println("k : " + k);
+//										DataHandler handler = bodyPart2.getDataHandler();
+//										attachmentFileMap.put(handler.getName(),
+//												bodyPart.getSize());
+//
+//										attachmentFileList.add(new AttachmentFileBean(
+//												message[i].getHeader("Message-ID")[0],
+//												handler.getName(), IOUtils
+//														.toByteArray(handler
+//																.getInputStream()),
+//												receivedDate, fromAddress));
+//										
+//									} 
+//								}
+//							}else{
+//								if(bodyPart.getContentType().startsWith(
+//								"TEXT/PLAIN") || bodyPart.getContentType().startsWith(
+//								"text/plain")){
+////									originalContent = bodyPart.getContent()
+////									.toString();
+//									originalContent = multipart.getBodyPart(0).getContent().toString();
+//								}
+//							}
+//							// ** 2014-10-22
+//							if (disposition != null
+//									&& (disposition
+//											.equalsIgnoreCase(BodyPart.ATTACHMENT) || disposition
+//													.equalsIgnoreCase(BodyPart.INLINE)) ){
+//                                System.out.println("x : " + x);
+//								DataHandler handler = bodyPart.getDataHandler();
+//								attachmentFileMap.put(handler.getName(),
+//										bodyPart.getSize());
+//
+//								attachmentFileList.add(new AttachmentFileBean(
+//										message[i].getHeader("Message-ID")[0],
+//										handler.getName(), IOUtils
+//												.toByteArray(handler
+//														.getInputStream()),
+//										receivedDate, fromAddress));
+//								
+//
+//							} 
+//						}
+//
+//					}
+//
+//					else {
+//						
+//						originalContent = lastMessage.getContent().toString();
+//						
+//					}
+//					// Fin Get the mail Content
+//					
+//					if (originalContent != null) {
+//						content = Utils.extractText(originalContent);
+//						originalContent = originalContent.replaceAll("\r\n", "<br/>");
+//						System.out.println("originalContent : " + originalContent);
+//					} else {
+//						originalContent = "Mail sans Message";
+//						content = "Mail sans Message";
+//					}
+//					mailList.add(new MailBean(fromName, fromAddress,
+//							fromOrganization, toAddress, subject, receivedDate,
+//							content, originalContent, replyTo, priority,
+//							headerMap, attachmentFileMap, attachmentFileList));
+//					 
+//					//**
+//					
+//					//**
+//					
+//					
+//					
+//					content = null;
+//					 originalContent = null;
+//				}
+//			}
+			inbox.close(true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return mailList;
+
+	}
+
+	public MailBean getMailByMessageId(String messageId) {
+
+		MailBean mailBean = null;
+
+		String toAddress = null;
+		String fromAddress = null;
+		String fromName = null;
+		String fromOrganization = null;
+		String from = null;
+		String replyTo = null;
+		String priority = null;
+		String subject = null;
+		Date receivedDate = new Date();
+		String content = null;
+		String originalContent = null;
+		Map<String, String> headerMap = null;
+		Map<String, Integer> attachmentFileMap = new HashMap<String, Integer>();
+		;
+
+		Folder inbox;
+		try {
+			inbox = store.getFolder("Inbox");
+
+			inbox.open(Folder.READ_ONLY);
+			Message message[] = inbox.getMessages();
+			int numberOfMessages = message.length;
+
+			int i = 0;
+			boolean flag = false;
+
+			while ((i < numberOfMessages) && (flag == false)) {
+
+				if (message[i].getHeader("Message-ID")[0]
+						.equalsIgnoreCase(messageId)) {
+
+					flag = true;
+
+					Enumeration<?> headersEnumeration = message[i]
+							.getAllHeaders();
+					headerMap = new HashMap<String, String>();
+
+					while (headersEnumeration.hasMoreElements()) {
+						Header h = (Header) headersEnumeration.nextElement();
+						headerMap.put(h.getName(), h.getValue());
+					}
+
+					replyTo = headerMap.get("Cc");
+					priority = headerMap.get("Importance");
+					fromOrganization = headerMap.get("Organization");
+
+					from = message[i].getFrom()[0].toString();
+
+					for (int j = 0; j < from.length(); j++) {
+						if (from.charAt(j) == '<') {
+							fromAddress = from.substring(j + 1,
+									from.length() - 1);
+						}
+					}
+
+					fromName = from.replaceAll("<" + fromAddress + ">", "")
+							.trim();
+
+					toAddress = message[i].getRecipients(RecipientType.TO)[0]
+							.toString();
+					subject = message[i].getSubject().toString();
+					receivedDate = message[i].getReceivedDate();
+
+					if (message[i].isMimeType("multipart/*")) {
+						Multipart multipart = (Multipart) message[i]
+								.getContent();
+
+						for (int x = 0; x < multipart.getCount(); x++) {
+
+							BodyPart bodyPart = multipart.getBodyPart(x);
+							String disposition = bodyPart.getDisposition();
+
+							if (disposition != null
+									&& (disposition.equals(BodyPart.ATTACHMENT))) {
+								System.out
+										.println("Mail have some attachment : ");
+								DataHandler handler = bodyPart.getDataHandler();
+								System.out.println("File name : "
+										+ handler.getName());
+								bodyPart.getSize();
+
+							} else {
+								originalContent = (String) bodyPart
+										.getContent().toString();
+							}
+						}
+					}
+
+					else {
+						originalContent = message[i].getContent().toString();
+					}
+					content = Utils.extractText(originalContent);
+
+					inbox.close(true);
+
+//					mailBean = new MailBean(fromName, fromAddress,
+//							fromOrganization, toAddress, subject, receivedDate,
+//							content, originalContent, replyTo, priority,
+//							headerMap, attachmentFileMap, null);
+				}
+			}
+
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return mailBean;
+	}
+
+	public byte[] downloadAttachmentFile(String messageId, String filename) {
+		byte[] byteArray = null;
+		Folder inbox;
+		/***Achref Changement:
+		 * J'ai commenté les ligne 805 to 808 et 812 to 818 qui permet la connexion é l'e-mail 
+		 *  puisque au niveau de l'initialize on a déja une connexion 
+		 */
+//		Properties properties = System.getProperties();
+//		properties.setProperty("mail.store.protocol", "pop3");
+		//Partie originale avant le changement 
+//		Session session = Session.getDefaultInstance(properties, null);
+		
+		try {
+			//Achref modification
+//			Session session = Session.getInstance(properties, null);
+//			session.setDebug(true);
+//			Store store;
+//			store = session.getStore("pop3");
+//			store.connect(host, user, password);
+			inbox = store.getFolder("INBOX");
+			inbox.open(Folder.READ_ONLY);
+//			Message[] message = inbox.getMessages();
+			Message[] message = inbox.search(new FlagTerm(new Flags(Flag.USER), false));
+			
+			FetchProfile fp = new FetchProfile();
+			fp.add(FetchProfile.Item.ENVELOPE);
+			fp.add(FetchProfile.Item.CONTENT_INFO);
+			fp.add(FetchProfile.Item.FLAGS);
+
+			inbox.fetch(message, fp);
+			int i = message.length - 1;
+			
+			boolean flag = false;
+
+			while ((i >= 0) && (!flag)) {
+				if (message[i].getHeader("Message-ID")[0]
+						.equalsIgnoreCase(messageId)) {
+					flag = true;
+					System.out.println("reading message number : " + i
+							+ " with id : "
+							+ message[i].getHeader("Message-ID")[0]
+							+ " and with content-type : "
+							+ message[i].getContentType() + " ...");
+					Object content = message[i].getContent();
+					if (content instanceof Multipart) {
+//						if (((Multipart) content).getBodyPart(0)
+//								.getContentType()
+//								.equals("multipart/alternative")) {
+//							System.out
+//									.println("content-type : multipart/alternative");
+//						} else {
+
+							String disposition = "";
+							String contentType = "";
+
+							for (int j = 0; j < ((Multipart) content)
+									.getCount(); j++) {
+								Part part = ((Multipart) content)
+										.getBodyPart(j);
+								String dispositionPart = part.getDisposition();
+								String contentTypePart = part.getContentType();
+//								System.out.println("content-type : "
+//										+ contentType);
+//								System.out.println("disposition : "
+//										+ disposition);
+								if (part.isMimeType("multipart/mixed") || part.isMimeType("multipart/alternative") || part.isMimeType("multipart/related")) {
+									Multipart multipart2 = (Multipart) part.getContent();
+									for (int k = 0; k < multipart2.getCount(); k++) {
+										BodyPart bodyPart2 = multipart2.getBodyPart(k);
+										disposition = bodyPart2.getDisposition();
+										contentType = bodyPart2.getContentType();
+										System.out.println("content-type : "
+												+ contentType);
+										System.out.println("disposition : "
+												+ disposition);
+//								if (disposition == null) {
+//									if ((contentType.length() >= 10)
+//											&& (contentType.toLowerCase()
+//													.substring(0, 10)
+//													.equals("text/plain"))) {
+//
+//									} else if (part
+//											.isMimeType("multipart/alternative")) {
+//
+//									}
+//								} else 
+								if (disposition != null
+										&& (disposition
+												.equalsIgnoreCase(Part.ATTACHMENT) || disposition
+												.equalsIgnoreCase(Part.INLINE))) {
+
+									if (bodyPart2.getFileName().equals(filename)) {
+										try {
+											byteArray = IOUtils
+													.toByteArray(bodyPart2
+															.getInputStream());
+											break;
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+									}
+								}
+									}
+								}
+//									else if (disposition
+//										.equalsIgnoreCase(Part.INLINE)) {
+//									System.out.println("Inline disposition");
+//								} else {
+//									System.out.println("Other disposition");
+//								}
+//							}
+								if (dispositionPart != null
+										&& (dispositionPart
+												.equalsIgnoreCase(Part.ATTACHMENT) || dispositionPart
+												.equalsIgnoreCase(Part.INLINE))) {
+
+									if (part.getFileName().equals(filename)) {
+										try {
+											byteArray = IOUtils
+													.toByteArray(part
+															.getInputStream());
+											break;
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+									}
+								}
+						}
+					}
+				}
+				i--;
+			}
+//			inbox.close(true);
+			store.close();
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return byteArray;
+	}
+	// from Oracle
+	/**
+	 * Return the primary text content of the message.
+	 */
+	private String getText(Part p) throws MessagingException, IOException {
+		if (p.isMimeType("text/*")) {
+			 String s = (String) p.getContent();
+			// textIsHtml = p.isMimeType("text/html");
+			return s;
+		}
+
+		if (p.isMimeType("multipart/alternative")) {
+			// prefer html text over plain text
+			Multipart mp = (Multipart) p.getContent();
+			String text = null;
+			for (int i = 0; i < mp.getCount(); i++) {
+				Part bp = mp.getBodyPart(i);
+				if (bp.isMimeType("text/plain")) {
+					if (text == null)
+						text = getText(bp);
+					// continue;
+					break;
+				} else if (bp.isMimeType("text/html")) {
+					String s = getText(bp);
+					if (s != null)
+						return s;
+				} else {
+					return getText(bp);
+				}
+			}
+			return text;
+		} else if (p.isMimeType("multipart/*")) {
+			Multipart mp = (Multipart) p.getContent();
+			for (int i = 0; i < mp.getCount(); i++) {
+				String s = getText(mp.getBodyPart(i));
+				if (s != null)
+					return s;
+			}
+		}
+
+		return null;
+	}
+	
+	public Properties getProp() {
+		return prop;
+	}
+
+	public void setProp(Properties prop) {
+		this.prop = prop;
+	}
+
+	public void close() {
+		try {
+			store.close();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+}

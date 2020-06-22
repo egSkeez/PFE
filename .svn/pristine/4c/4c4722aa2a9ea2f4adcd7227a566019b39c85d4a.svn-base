@@ -1,0 +1,836 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.GBO.LoginBean;
+import xtensus.entity.Variables;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ListeUtilisateurBean {
+
+	@Autowired
+	private ApplicationManager appMgr;
+	private int userReference;
+	private String userSurName;
+	private String userName;
+	private String userAbv;
+	private String userTelephoneNumber;
+	private String userFax;
+	private String userEmail;
+	private String userAdress;
+	private Integer userPostalCode;
+	private String userLogin;
+	private String userPWD;
+	private List<Person> listusers;
+	private DataModel listUser;
+	private String pathUser;
+	private LdapOperation ldapOperation;
+	private int records;
+	public boolean status;
+	public boolean status3;
+	public boolean status5;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String hideAccor;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private UserNotificationAjoutBean userNotificationAjoutBean;
+	private String prenomUserAr;
+	private String nomUserAr;
+	private boolean ficheMembreArabe;
+	private boolean uniciteLogin;
+
+	public ListeUtilisateurBean() {
+		ldapOperation = new LdapOperation();
+		listusers = new ArrayList<Person>();
+		listUser = new ListDataModel();
+		hideAccor = "none";
+	}
+
+	@Autowired
+	public ListeUtilisateurBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		listusers = new ArrayList<Person>();
+		listUser = new ListDataModel();
+		hideAccor = "none";
+	}
+
+	@PostConstruct
+	public void initialize() {
+		userReference = ldapOperation.getListUser(listusers);
+		listUser.setWrappedData(listusers);
+		List<Variables> variables = new ArrayList<Variables>();
+		ficheMembreArabe = false;
+		variables = appMgr
+				.listVariablesByLibelle("gestion_fiche_membre_en_arabe");
+		if (variables != null && variables.size() > 0)
+			if ((variables.get(0).getVaraiablesValeur().toLowerCase())
+					.equals("oui")) {
+				ficheMembreArabe = true;
+			}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void save() {
+		DirContext dirContext;
+		userReference++;
+		Person person = new Person();
+		status = false;
+		status3 = false;
+		status5 = false;
+
+		uniciteLogin = true;
+		
+		try {
+			BasicAttributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("displayName");
+			attribut.add(userLogin);
+			attributes.put(attribut);
+			dirContext = ldapOperation.getDirContext();
+			NamingEnumeration e;
+
+			e = dirContext.search(ldapOperation.CONTEXT_USER, attributes);
+
+			if (e.hasMore() && !userLogin.equals("")) {
+				uniciteLogin = false;
+			}
+
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+		}
+		
+		if (uniciteLogin) {
+		
+		
+		BasicAttributes attributes = new BasicAttributes(true);
+		Attribute attribut = new BasicAttribute("employeeNumber");
+		attribut.add(userAbv);
+		attributes.put(attribut);
+
+		try {
+			dirContext = ldapOperation.getDirContext();
+			NamingEnumeration e = dirContext.search(ldapOperation.CONTEXT_USER,
+					attributes);
+			if (e.hasMore() && !userAbv.equals("")) {
+
+				userReference--;
+				userAbv = "";
+				setMessage(messageSource.getMessage(
+						"erreurInsertUserDuplicateShortName", new Object[] {},
+						lm.createLocal()));
+				status = true;
+			} else {
+				String entryDN = "cn=" + userSurName + " " + userName + ","
+						+ ldapOperation.CONTEXT_USER;
+				Attribute ObjectClass = new BasicAttribute("objectClass");
+				ObjectClass.add("top");
+				ObjectClass.add("person");
+				ObjectClass.add("organizationalPerson");
+				ObjectClass.add("inetOrgPerson");
+				BasicAttributes entry = new BasicAttributes();
+				entry.put(ObjectClass);
+				entry.put("cn", userSurName + " " + userName);
+				person.setCn(userSurName + " " + userName);
+				entry.put("sn", userName);
+				person.setNom(userName);
+				entry.put("uid", String.valueOf(userReference));
+				person.setId(userReference);
+				entry.put("givenName", userSurName);
+				person.setPrenom(userSurName);
+				entry.put("displayName", userLogin);
+				person.setLogin(userLogin);
+				entry.put("userPassword", userPWD);
+				person.setPwd(userPWD);
+				entry.put("mail", userEmail);
+				person.setEmail(userEmail);
+				if (userAdress.equals("")) {
+					entry.put("street", " ");
+					person.setAdresse("");
+				} else {
+					entry.put("street", userAdress);
+					person.setAdresse(userAdress);
+				}
+				if (userAbv.equals("")) {
+					entry.put("employeeNumber", " ");
+					person.setShortName(userAbv);
+				} else {
+					entry.put("employeeNumber", userAbv);
+					person.setShortName(userAbv);
+				}
+
+				entry.put("telephoneNumber", userTelephoneNumber);
+				person.setTelephoneNumber(userTelephoneNumber);
+				entry.put("facsimileTelephoneNumber", userFax);
+				if (userFax.equals("")) {
+					entry.put("facsimileTelephoneNumber", userTelephoneNumber);
+					person.setFax("");
+				} else {
+					person.setFax(userFax);
+				}
+				entry.put("postalCode", String.valueOf(userPostalCode));
+				person.setCodePostal(userPostalCode);
+				if (userPostalCode.toString().equals("")) {
+					person.setCodePostal(0);
+				} else {
+
+					person.setCodePostal(userPostalCode);
+				}
+
+				if (ficheMembreArabe) {
+					if (prenomUserAr == null
+							|| prenomUserAr.toString().equals("")) {
+						attributes.put("businessCategory", "");
+						person.setPrenomUserAr(null);
+					} else {
+						attributes.put("businessCategory", prenomUserAr);
+						person.setPrenomUserAr(prenomUserAr);
+					}
+
+					if (nomUserAr == null || nomUserAr.toString().equals("")) {
+						attributes.put("carLicense", "");
+						person.setNomUserAr(null);
+					} else {
+						attributes.put("carLicense", nomUserAr);
+						person.setNomUserAr(nomUserAr);
+					}
+
+				}
+
+				dirContext.createSubcontext(entryDN, entry);
+				listusers.add(0, person);
+				listUser.setWrappedData(listusers);
+				vb.getCopyLdapListOtherUser().add(person);
+				status3 = true;
+				LogClass logClass = new LogClass();
+				logClass.addTrack(
+						"ajout",
+						"Evénement de log d'ajout de l'utilisateur "
+								+ person.getId() + "-" + person.getCn(),
+						vb.getPerson(), "INFO", appMgr);
+
+				// Envoi d'un mail lors de l'ajout d'un nouvel utilisateur
+				/*
+				 * SendMail(person);
+				 * 
+				 * System.out.println("utilisateur ajouté avec succés"); /******
+				 * User -- Notification *****
+				 */
+				// reference user ajouté => userReference
+				/*
+				 * userNotificationAjoutBean
+				 * .ajouterUserNotification(userReference);
+				 */
+			}
+
+		} catch (NamingException ex) {
+			setMessage(messageSource.getMessage("erreurInsertUtilisateur",
+					new Object[] {}, lm.createLocal()));
+			userReference--;
+			userSurName = "";
+			userName = "";
+			status5 = true;
+			System.err.println("Add Utilisateur:error adding entry," + ex);
+			ex.printStackTrace();
+		}
+
+		
+	} 
+	
+	else {
+		System.out.println("Le login existe déjà");
+	}
+	}
+
+	public Person saveEmploye(Person p, boolean ficheMembreArabe) {
+		Person person = new Person();
+
+		DirContext dirContext;
+
+		try {
+			dirContext = ldapOperation.getDirContext();
+
+			String entryDN = "cn=" + p.getNom() + ","
+					+ ldapOperation.CONTEXT_USER;
+			Attribute ObjectClass = new BasicAttribute("objectClass");
+			ObjectClass.add("top");
+			ObjectClass.add("person");
+			ObjectClass.add("organizationalPerson");
+			ObjectClass.add("inetOrgPerson");
+			BasicAttributes entry = new BasicAttributes();
+			entry.put(ObjectClass);
+			entry.put("cn", p.getNom());
+			person.setCn(p.getNom());
+			entry.put("sn", p.getNom());
+			person.setNom(p.getNom());
+			
+			entry.put("uid", String.valueOf((int)p.getId()));
+			person.setId((int)p.getId());
+			System.out.println("ID Utilisateur  "+(int)p.getId());
+			entry.put("givenName", " ");
+			person.setPrenom(" ");
+			entry.put("displayName", p.getLogin());
+			person.setLogin(p.getLogin());
+			entry.put("userPassword", p.getPwd());
+			person.setPwd(p.getPwd());
+			entry.put("mail", p.getEmail());
+			person.setEmail(p.getEmail());
+			System.out.println("p.getAdresse() "+p.getAdresse());
+			if (p.getAdresse()!=null && p.getAdresse().length()==0) {
+				entry.put("street", " ");
+				person.setAdresse("--");
+			} else {
+				entry.put("street", p.getAdresse());
+				person.setAdresse(p.getAdresse());
+			}
+			
+			System.out.println("p.getShortName() "+p.getShortName());
+			if (p.getShortName().equals("")) {
+				entry.put("employeeNumber", " ");
+				person.setShortName(p.getShortName());
+			} else {
+				entry.put("employeeNumber", p.getShortName());
+				person.setShortName(p.getShortName());
+			}
+			System.out.println("11");
+			
+			if(p.getTelephoneNumber()==null){
+				entry.put("telephoneNumber", "0");
+				person.setTelephoneNumber("0");
+
+			}
+			else if (p.getTelephoneNumber()!=null && p.getTelephoneNumber().equals("")) {
+				entry.put("telephoneNumber", "0");
+				person.setTelephoneNumber("0");
+
+			} else {
+				entry.put("telephoneNumber", p.getTelephoneNumber());
+				person.setTelephoneNumber(p.getTelephoneNumber());
+
+			}
+			
+//			if( p.getTelephoneNumber()!=nullc)
+//			entry.put("telephoneNumber", p.getTelephoneNumber());
+			
+			//entry.put("facsimileTelephoneNumber", userFax);
+			System.out.println("22");
+			if (p.getFax()==null ||(p.getFax()!=null && p.getFax().length()==0)) {
+				entry.put("facsimileTelephoneNumber", " ");
+				person.setFax("");
+			} else {
+				entry.put("facsimileTelephoneNumber", p.getFax());
+				person.setFax(p.getFax());
+				System.out.println("p.getFax()!=null "+p.getFax());
+			}
+			System.out.println("33");
+//			entry.put("postalCode", String.valueOf(p.getCodePostal()));
+//			person.setCodePostal(p.getCodePostal());
+
+			if (p.getCodePostal()!=null && p.getCodePostal().toString().equals("")) {
+				entry.put("postalCode", String.valueOf(0));
+				person.setCodePostal(0);
+			} else {
+				entry.put("postalCode", String.valueOf(p.getCodePostal()));
+				person.setCodePostal(p.getCodePostal());
+			}
+			System.out.println("44");
+			if (ficheMembreArabe) {
+				
+				if (p.getPrenomUserAr() != null && p.getPrenomUserAr().length()>0) {
+					entry.put("businessCategory", p.getPrenomUserAr());
+					person.setPrenomUserAr(p.getPrenomUserAr());
+				}
+				else
+				{
+					entry.put("businessCategory", "");
+					person.setPrenomUserAr("");
+				}
+				System.out.println("55");
+//				if (p.getPrenomUserAr() == null || p.getPrenomUserAr().toString().equals("")) {
+//					entry.put("businessCategory", "");
+//					person.setPrenomUserAr(null);
+//				} else {
+//					entry.put("businessCategory", p.getPrenomUserAr());
+//					person.setPrenomUserAr(p.getPrenomUserAr());
+//				}
+				
+				System.out.println("66");
+//				if (p.getNomUserAr() != null
+//						|| p.getNomUserAr().length()>0) {
+//					entry.put("carLicense", p.getNomUserAr());
+//					person.setNomUserAr(p.getNomUserAr());
+//				}
+//				else{
+//					entry.put("carLicense", "");
+//					person.setNomUserAr("");
+//				}
+				System.out.println("77");
+//				
+//				if (p.getNomUserAr() == null
+//						|| p.getNomUserAr().toString().equals("")) {
+//					entry.put("carLicense", "");
+//					person.setNomUserAr(null);
+//				} else {
+//					entry.put("carLicense", p.getNomUserAr());
+//					person.setNomUserAr(p.getNomUserAr());
+//				}
+
+			}
+			dirContext.createSubcontext(entryDN, entry);
+			vb.getCopyLdapListAllUser().add(person);
+			//vb.getCopyLdapListOtherUser().add(person);
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"ajout",
+					"Evénement de log d'ajout de l'utilisateur "
+							+ person.getId() + "-" + person.getCn(),
+					vb.getPerson(), "INFO", appMgr);
+			System.out.println("Fin ADD");
+		} catch (NamingException ex) {
+			
+			System.out.println("Add Utilisateur:error adding entry," + ex);
+			ex.printStackTrace();
+		}
+return person;
+	}
+
+	public void SendMail(Person person) {
+
+		try {
+			// Chargement des parametres Mails
+
+			// **
+			ExternalContext jsfContext = FacesContext.getCurrentInstance()
+					.getExternalContext();
+			ServletContext servletContext = (ServletContext) jsfContext
+					.getContext();
+			String webContentRoot = servletContext.getRealPath("/");
+			String pathConfigFile = webContentRoot
+					+ "\\WEB-INF\\MailFax\\mail.properties";
+			final Properties proprietes = new Properties();
+			proprietes.load(new FileInputStream(pathConfigFile));
+
+			Session session = Session.getDefaultInstance(proprietes,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(proprietes
+									.getProperty("mail.session.user"),
+									proprietes.getProperty("mail.session.pass"));
+						}
+					});
+
+			try {
+
+				Message message = new MimeMessage(session);
+				message.setFrom(new InternetAddress(proprietes
+						.getProperty("mailFrom")));// exp
+				message.setRecipients(Message.RecipientType.TO,
+						InternetAddress.parse("support@xtensus.com"));
+				message.setSubject("xGBO - Nouvel Utilisateur");
+				message.setText("Bonjour,"
+						+ "\n\n Un nouvel utilisateur a été créé dans GBO avec les informations suivantes : \n\n"
+						+ "\n Id : " + person.getId() + " \n" + "\n Cn : "
+						+ person.getCn() + " \n" + "\n Mot de passe : "
+						+ person.getPwd() + " \n" + "\n Email : "
+						+ person.getEmail() + " \n" + "\n Date de création : "
+						+ new Date() + " \n");
+
+				Transport.send(message);
+
+				System.out.println("Done");
+
+			} catch (MessagingException exp) {
+				throw new RuntimeException(exp);
+			}
+
+		} catch (Exception e) {
+			System.out
+					.println("***********************Erreur des paramètres smtp**************");
+			e.printStackTrace();
+		}
+	}
+
+	public void initializesave() {
+		status = false;
+		status3 = false;
+		status5 = false;
+	}
+
+	/*
+	 * private void scroller(object sender, ScrollEventArgs e) { if
+	 * (e.ScrollOrientation == ScrollOrientation.VerticalScroll) {
+	 * 
+	 * int y = maGridView.FirstDisplayedScrollingRowIndex;
+	 * 
+	 * if (first_displayed <= 10) // condition aux limites { first_displayed =
+	 * y; if (y <= 10) { blockIndex = 0; } else { blockIndex = (uint)
+	 * (first_displayed-10); }
+	 * 
+	 * } else { first_displayed += (y - 10); if (first_displayed <= 10) {
+	 * blockIndex = 0; } else { blockIndex = (uint)(first_displayed - 10); } }
+	 * 
+	 * LoadTable(file, (blockIndex)); maGridView.Refresh();
+	 * 
+	 * if (first_displayed > 10) { maGridView.FirstDisplayedScrollingRowIndex =
+	 * 10; } else { maGridView.FirstDisplayedScrollingRowIndex =
+	 * first_displayed; }
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
+	public void selectionPageAction() {
+		int numpage;
+
+	}
+
+	public void getSelectionRow() {
+		Person person = new Person();
+		person = (Person) listUser.getRowData();
+		vb.setUser(person);
+		LogClass logClass = new LogClass();
+		logClass.addTrack(
+				"consultation",
+				"Evénement de log de consultation de l'utilisateur "
+						+ person.getId() + "-" + person.getCn(),
+				vb.getPerson(), "INFO", appMgr);
+	}
+
+	public void showAddForm() {
+		status = false;
+		status3 = false;
+		status5 = false;
+		userSurName = "";
+		userName = "";
+		userAbv = "";
+		userTelephoneNumber = null;
+		userFax = null;
+		userEmail = "";
+		userAdress = "";
+		userPostalCode = null;
+		userLogin = "";
+		userPWD = "";
+		hideAccor = "inline";
+	}
+
+	public void cleanAll() {
+		status = false;
+		status3 = false;
+		status5 = false;
+		userSurName = "";
+		userName = "";
+		userAbv = "";
+		userTelephoneNumber = null;
+		userFax = null;
+		userEmail = "";
+		userAdress = "";
+		userPostalCode = null;
+		userLogin = "";
+		userPWD = "";
+		hideAccor = "none";
+	}
+
+	public void viderchampuser() {
+		initializesave();
+		userSurName = "";
+		userName = "";
+		userAbv = "";
+		userTelephoneNumber = null;
+		userFax = null;
+		userEmail = "";
+		userAdress = "";
+		userPostalCode = null;
+		userLogin = "";
+		userPWD = "";
+		hideAccor = "inline";
+	}
+
+	public int getUserReference() {
+		return userReference;
+	}
+
+	public void setUserReference(int userReference) {
+		this.userReference = userReference;
+	}
+
+	public String getUserSurName() {
+		return userSurName;
+	}
+
+	public void setUserSurName(String userSurName) {
+		this.userSurName = userSurName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserTelephoneNumber() {
+		return userTelephoneNumber;
+	}
+
+	public void setUserTelephoneNumber(String userTelephoneNumber) {
+		this.userTelephoneNumber = userTelephoneNumber;
+	}
+
+	public String getUserFax() {
+		return userFax;
+	}
+
+	public void setUserFax(String userFax) {
+		this.userFax = userFax;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
+	public String getUserAdress() {
+		return userAdress;
+	}
+
+	public void setUserAdress(String userAdress) {
+		this.userAdress = userAdress;
+	}
+
+	public Integer getUserPostalCode() {
+		return userPostalCode;
+	}
+
+	public void setUserPostalCode(Integer userPostalCode) {
+		this.userPostalCode = userPostalCode;
+	}
+
+	public String getUserLogin() {
+		return userLogin;
+	}
+
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
+	}
+
+	public String getUserPWD() {
+		return userPWD;
+	}
+
+	public void setUserPWD(String userPWD) {
+		this.userPWD = userPWD;
+	}
+
+	public DataModel getListUser() {
+		return listUser;
+	}
+
+	public void setListUser(DataModel listUser) {
+		this.listUser = listUser;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listUser != null && listUser.getWrappedData() != null)
+			records = ((List<Person>) listUser.getWrappedData()).size();
+		else
+			records = 0;
+		return records;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus5() {
+		return status5;
+	}
+
+	public void setStatus5(boolean status5) {
+		this.status5 = status5;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setListusers(List<Person> listusers) {
+		this.listusers = listusers;
+	}
+
+	public List<Person> getListusers() {
+		return listusers;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setPathUser(String pathUser) {
+		this.pathUser = pathUser;
+	}
+
+	public String getPathUser() {
+		return pathUser;
+	}
+
+	public void setUserAbv(String userAbv) {
+		this.userAbv = userAbv;
+	}
+
+	public String getUserAbv() {
+		return userAbv;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setUserNotificationAjoutBean(
+			UserNotificationAjoutBean userNotificationAjoutBean) {
+		this.userNotificationAjoutBean = userNotificationAjoutBean;
+	}
+
+	public UserNotificationAjoutBean getUserNotificationAjoutBean() {
+		return userNotificationAjoutBean;
+	}
+
+	public boolean isFicheMembreArabe() {
+		return ficheMembreArabe;
+	}
+
+	public void setFicheMembreArabe(boolean ficheMembreArabe) {
+		this.ficheMembreArabe = ficheMembreArabe;
+	}
+
+	public String getPrenomUserAr() {
+		return prenomUserAr;
+	}
+
+	public void setPrenomUserAr(String prenomUserAr) {
+		this.prenomUserAr = prenomUserAr;
+	}
+
+	public String getNomUserAr() {
+		return nomUserAr;
+	}
+
+	public void setNomUserAr(String nomUserAr) {
+		this.nomUserAr = nomUserAr;
+	}
+
+	public boolean isUniciteLogin() {
+		return uniciteLogin;
+	}
+
+	public void setUniciteLogin(boolean uniciteLogin) {
+		this.uniciteLogin = uniciteLogin;
+	}
+
+}

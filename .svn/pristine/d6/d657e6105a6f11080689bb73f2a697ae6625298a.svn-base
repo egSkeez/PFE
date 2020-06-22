@@ -1,0 +1,58 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <h:head>
+        <title>Progress Bar Test</title>
+        <style type="text/css">
+            .rich-progress-completed {
+                background-color: blue;             
+                color: red;
+                background-image:url('/WebApplication1/resources/GreenBar.png') ;
+            }
+            .rich-progress-bar-uploaded {
+                background-color: blueviolet;
+                color: yellow;              
+                background-image:url('/WebApplication1/resources/red-bar.png') ;
+            }
+
+        </style>
+    </h:head>
+
+    <h:body>
+        <h:form id="MTForm" >
+            <rich:progressBar id="progBar"
+                              minValue="0"
+                              maxValue="100"
+                              mode="ajax"
+                              interval="100"
+                              value="#{progressBar.currentTime}"
+                              label="#{progressBar.currentTime}"
+                              enabled="#{progressBar.enabled}"                             
+                              remainingClass="rich-progress-completed"
+                              progressClass="rich-progress-bar-uploaded"
+                              >
+                <f:facet name="initial">
+                    <h:panelGroup>
+                        <h:outputText value="progress not started yet"/>
+                        <a4j:commandButton value="Start" actionListener="#{progressBar.startButtonListener}"
+                                           rendered="#{!progressBar.buttonRendered}" execute="@form" render="progBar"/>
+                    </h:panelGroup>
+                </f:facet>
+                <f:facet name="finish">
+                    <h:panelGroup>
+                        <h:outputText value="progress finished"/>
+                        <a4j:commandButton value="Restart" actionListener="#{progressBar.startButtonListener}"
+                                           rendered="#{progressBar.buttonRendered}" execute="@form" render="progBar"/>
+                    </h:panelGroup>
+                </f:facet>
+
+            </rich:progressBar>
+        </h:form>
+    </h:body>
+</html>
+
+

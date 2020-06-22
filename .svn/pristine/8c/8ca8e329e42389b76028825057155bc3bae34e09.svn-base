@@ -1,0 +1,615 @@
+package xtensus.faxmail.beans;
+
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ComparatorMail;
+import xtensus.entity.Employe;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Mail;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Unite;
+import xtensus.faxmail.utils.GedUtils;
+import xtensus.faxmail.utils.MailConnection;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ConsulterMailBean {
+
+	private ApplicationManager appMgr;
+	private Mail mail;
+	private MailConnection mailConnection;
+	private ApplicationManager applicationManager;
+	private DataModel listmailDM;
+	private List<MailBean> newMailList;
+	private List<Mail> oldMailList; // liste des mails stockes dans la base
+	private LdapOperation ldapOperation;
+
+	private List<Mail> mailList; // liste des mails a afficher
+
+	private int compteur;
+	private GedUtils gedUtils;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	public boolean status;
+	public boolean statusPerson;
+	@Autowired
+	private ConsulterFaxBean consulterFaxBean;
+	// **
+	Properties props;
+	private String adresseMailConnecte;
+	private boolean avoirMail;
+	private List<AttachmentFileBean> attachmentFileBeanList;
+    // **
+	@Autowired
+	public ConsulterMailBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		this.mail = new Mail();
+		this.oldMailList = new ArrayList<Mail>();
+		this.newMailList = new ArrayList<MailBean>();
+		listmailDM = new ListDataModel();
+		props = new Properties();
+		ldapOperation = new LdapOperation();
+
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			// **
+			Resource rsrc = new ClassPathResource("/paramAlfresco.properties");
+			String pathConfigFile = rsrc.getFile().getAbsolutePath();
+			props.load(new FileInputStream(pathConfigFile));
+			// **
+			mail = new Mail();
+			attachmentFileBeanList= new ArrayList<AttachmentFileBean>();
+			this.mailList = new ArrayList<Mail>(); // liste des mails a afficher
+			adresseMailConnecte="";
+			// récupérer Mail par adresse connecté
+			if(vb.getPerson().isBoc()){
+				System.out.println("ID Boc Connecté::"+vb.getPerson().getAssociatedBOC().getIdBOC());
+				
+				List<Unite> bo=appMgr.getListeBoParId(vb.getPerson().getAssociatedBOC().getIdBOC()+"");
+				if(bo!=null && bo.size()>0){
+				System.out.println(bo.get(0).getUniteMailUser());
+				adresseMailConnecte=bo.get(0).getUniteMailUser();
+				}
+			}else
+			{	
+				Unit unite=vb.getPerson().getAssociatedDirection();
+				System.out.println(unite.getIdUnit());
+				String CodeString =unite.getIdUnit().toString();
+				System.out.println("i="+CodeString.length());
+				for(int i=CodeString.length();i<8;i++)
+					CodeString="0"+CodeString;
+				for(int i=CodeString.length();i<12;i++)
+					CodeString=" "+CodeString;
+				System.out.println("CodeString:"+CodeString+".");
+				Unite u=appMgr.getUniteConnecteeById(CodeString);
+				System.out.println(u);
+				adresseMailConnecte=u.getUniteMailUser();
+							
+			}
+					
+			
+//			this.oldMailList = appMgr.getListUnique(Mail.class);
+//			oldMailList = appMgr.listMailBymailState(0);
+			oldMailList=new ArrayList<Mail>();
+			if(adresseMailConnecte!=null && adresseMailConnecte.length()>0){
+				//Récupérer la liste des mails avec le destinataire a l'adresse de membre connecté   
+				oldMailList=appMgr.listMailByDestinataireAdresse(adresseMailConnecte,0);
+				System.out.println("adresseMailConnecte "+adresseMailConnecte);
+				if(oldMailList!=null ){
+					System.out.println("oldMailList "+oldMailList.size());
+					
+				}
+				else{
+					System.out.println("oldMailList est null");
+				}
+			}
+			
+			gedUtils = vb.getGedUtils();
+			if (gedUtils == null) {
+				gedUtils = new GedUtils(
+						props.getProperty("alfresco.Url"), props.getProperty("alfresco.login"),
+						props.getProperty("alfresco.password"));
+				vb.setGedUtils(gedUtils);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		compteur = oldMailList.size();
+		// ** Nader kassas
+		// List<Mail> listMailtriee = new ArrayList<Mail>();
+		// for (int i = oldMailList.size(); i > 0; i--) {
+		// Mail m = new Mail();
+		// m = oldMailList.get(i - 1);
+		// listMailtriee.add(m);
+		// }
+		// ** Nader Kassas
+		Collections.reverse(oldMailList);
+		listmailDM.setWrappedData(oldMailList);
+	}
+
+	public byte[] downloadAttachmentFile(String messageId, String filename) {
+		return mailConnection.downloadAttachmentFile(messageId, filename);
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public void synchroniseList() {
+		try {
+			gedUtils = new GedUtils();
+			mail = new Mail();
+			gedUtils = vb.getGedUtils();
+			if (gedUtils == null) {
+				gedUtils = new GedUtils(
+						props.getProperty("alfresco.Url"), props.getProperty("alfresco.login"),
+						props.getProperty("alfresco.password"));
+				vb.setGedUtils(gedUtils);
+			}
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			this.mailList = new ArrayList<Mail>(); // liste des mails a afficher
+			long deb = System.currentTimeMillis();
+				
+			if(vb.getPerson().isBoc()){
+				System.out.println("ID Boc Connecté::"+vb.getPerson().getAssociatedBOC().getIdBOC());
+				List<Unite> bo=appMgr.getListeBoParId(vb.getPerson().getAssociatedBOC().getIdBOC()+"");
+
+				
+				if(bo!=null && bo.size()>0){
+				System.out.println(bo.get(0).getUniteMailUser());
+				 Unite boConected = bo.get(0);
+					
+					if(bo!=null && boConected.getUniteMailUser()!=null && boConected.getUniteMailUser().trim().length()>0 
+						&& boConected.getUniteMailPass()!=null && boConected.getUniteMailPass().trim().length()>0)
+					{	
+						avoirMail=true;
+						this.mailConnection =new MailConnection(boConected.getUniteMailUser(), boConected.getUniteMailPass());
+					}
+					else{
+						avoirMail=false;
+						System.out.println("cette User n'pas d'adresse Mail");
+					}
+				}
+				this.mailConnection = new MailConnection();
+				//boc.set
+			}else
+			{
+				Unit unite=vb.getPerson().getAssociatedDirection();
+				System.out.println(unite.getIdUnit());
+				String CodeString =unite.getIdUnit().toString();
+				System.out.println("i="+CodeString.length());
+				for(int i=CodeString.length();i<8;i++)
+					CodeString="0"+CodeString;
+				for(int i=CodeString.length();i<12;i++)
+					CodeString=" "+CodeString;
+				System.out.println("CodeString:"+CodeString+".");
+				Unite u=appMgr.getUniteConnecteeById(CodeString);
+				System.out.println(u);
+				if(u!=null &&u.getUniteMailUser()!=null && u.getUniteMailUser().trim().length()>0 
+					&& u.getUniteMailPass()!=null && u.getUniteMailPass().trim().length()>0)
+				{	
+//				u.setUniteMailUser("boc_test@sonede.com.tn");
+//					u.setUniteMailPass("Sonede2019*");
+					avoirMail=true;
+					this.mailConnection =new MailConnection(u.getUniteMailUser(), u.getUniteMailPass());
+				}
+				else{
+					avoirMail=false;
+					System.out.println("cette User n'pas d'adresse Mail");
+				}
+				
+			}
+			
+			long fin = System.currentTimeMillis();
+			System.out.println("Duration : " + (fin - deb));
+			Date lastDate = new Date();
+if(avoirMail){
+			if (oldMailList.isEmpty()) {
+				System.out.println("oldMailList.isEmpty()");
+				this.newMailList = mailConnection.getAllMails(); // Recuperation
+																	// les mails
+				
+			} else {
+				System.out.println("NOT  oldMailList.isEmpty()");
+				lastDate = oldMailList.get(0).getMailReceivedDate();
+				// recuperation de la date du
+				this.newMailList = mailConnection.getMailsAfter(lastDate); // recuperaiton
+				
+				System.out.println("======================= Affichage de la list des mail téléchargée");
+				for(int i=0;i<newMailList.size();i++){
+					newMailList.get(i).getAttachmentFileList();
+				}
+			}
+			System.out.println("FINT De chargement");
+			mailList = oldMailList;
+			for (MailBean mailBean : newMailList) {
+				// long dateTime = mailBean.getReceivedDate().getTime();
+				// java.sql.Date sqlDate = new java.sql.Date(dateTime);
+
+				if (mailBean.getAttachmentFileMap() != null) {
+					map = mailBean.getAttachmentFileMap();
+					/*
+					 * int nb = map.size(); if (nb != 0) {
+					 * 
+					 * for (AttachmentFileBean attachmentFile : mailBean
+					 * .getAttachmentFileList()) {
+					 * gedUtils.saveAttachFile(attachmentFile); } }
+					 */
+				}
+
+				mail = new Mail(mailBean.getFromName(),
+						mailBean.getFromAddress(),
+						mailBean.getFromOrganization(),
+						mailBean.getToAddress(), mailBean.getSubject(),
+						mailBean.getReceivedDate(), mailBean.getContent(),
+						mailBean.getOriginalContent(), mailBean.getReplyTo(),
+						mailBean.getPriority(), mailBean.getHeaderMap(), map,
+						0, 0);
+                System.out.println("subject" + mail.getMailSubject());
+				mailList.add(mail);
+				try {
+				    appMgr.insert(mail);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		compteur = mailList.size();
+		Collections.sort(mailList, new ComparatorMail());
+		listmailDM.setWrappedData(mailList);
+		// Nader kassas
+		// List<Mail> listMailtriee = new ArrayList<Mail>();
+		// for (int i = mailList.size(); i > 0; i--) {
+		// Mail m = new Mail();
+		// m = mailList.get(i - 1);
+		// listMailtriee.add(m);
+		// }
+		// Nader Kassas
+
+		/*************** synchronisation List Fax ***********************/
+		//consulterFaxBean.synchroniseFax();
+	}
+
+	public String details() {
+		try{
+		mail = (Mail) listmailDM.getRowData();
+		//System.out.println("Attachement  "+mail.getMailAttachmentFiles());
+		vb.setMail(mail);
+		
+		return ("details");
+		}
+		catch(Exception e){
+			e.printStackTrace();return null;
+		}
+			
+	}
+
+	public String getSelectionRow() {
+		String res = "nopass";
+		status = false;
+		statusPerson=false;
+		try {
+			
+			mail = (Mail) listmailDM.getRowData();
+			
+			vb.setMail(mail);
+			
+			
+			//AH : récupéter les attachements si existe
+			attachmentFileBeanList.clear();
+			System.out.println("ID Mail :: "+mail.getMailId());
+			attachmentFileBeanList=appMgr.listeMailAttachementFilesByIdMessage(mail.getMailId());
+			//mettre la liste dans une varible globale en cas d'utilisation dans l'ajout
+			vb.setAttachmentFileBeanList(attachmentFileBeanList);
+			
+			vb.setFaxMail(null);
+			if (mail.getMailIs_treated() == 0) {
+				String mailExpediteur = mail.getMailFromAddress(); 
+				System.out.println("mailExp  "+mailExpediteur);
+				//1- vérification dans liste contacts
+				// Recherche dans contacts par mail pour vérifier si l'expéditeur est externe. 
+				Expdestexterne expdestexterne = new Expdestexterne();
+				List<Expdestexterne> expdestexternes = appMgr.listExpdestexterneByMail(mailExpediteur);
+				
+				List<Person> listPerson=new ArrayList<Person>();
+				listPerson=ldapOperation.getUserByMail(mailExpediteur);
+				
+				List<Unite> listeUnites=appMgr.getUniteParMail(mailExpediteur);
+				
+				if(expdestexternes!=null && expdestexternes.size()>0){
+					//Existe un PP ou PM avec cet adresse.
+					Pp pp = new Pp();
+					Pm pm = new Pm();
+					List<Object> copyListSelectedObjectExp = new ArrayList<Object>();
+					expdestexterne = expdestexternes.get(0);
+										
+					int refExp = expdestexterne.getIdExpDestExterne();
+					if(expdestexterne.getTypeutilisateur().getTypeUtilisateurId()==1){
+						System.out.println("Expéditeur PP");
+					int nbPP = appMgr.getPPByReferenceExpediteur(refExp).size();
+					pp = appMgr.getPPByReferenceExpediteur(refExp).get(0);
+					vb.setExpNom(expdestexterne.getExpDestExterneNom()+ " "+expdestexterne.getExpDestExternePrenom());
+					copyListSelectedObjectExp.add(pp);
+					statusPerson=true;
+					}
+					if(expdestexterne.getTypeutilisateur().getTypeUtilisateurId()==2){
+						System.out.println("Expéditeur PM"+expdestexterne.getExpDestExterneNom());
+					int nbPM = appMgr.getPMByReferenceExpediteur(refExp).size();
+					pm = appMgr.getPMByReferenceExpediteur(refExp).get(0);
+					copyListSelectedObjectExp.add(pm);
+					vb.setExpNom(expdestexterne.getExpDestExterneNom());
+					statusPerson=true;
+					}
+					
+					vb.setCopyListSelectedObjectExp(copyListSelectedObjectExp);
+						
+					
+					res = "pass";
+				}
+				else if(listPerson!=null  && listPerson.size()>0){
+					System.out.println("Expéditeur person");
+	                	// Vérifier si c'est un Person
+	                	List<Object> copyListSelectedObjectExp = new ArrayList<Object>();				
+			
+						Person person=ldapOperation.getPersonalisedUserById(listPerson.get(0).getId());
+
+						vb.setExpNom(person.getCn());
+						copyListSelectedObjectExp.add(person);
+						vb.setCopyListSelectedObjectExp(copyListSelectedObjectExp);
+						res = "pass";
+						statusPerson=true;
+	                
+				}
+				else if(listeUnites!=null && listeUnites.size()>0){
+					System.out.println("Expéditeur Unite");
+					// Vérifier si c'est une Unité 					
+					Unite uniteExp=listeUnites.get(0);
+					//Vérifier si cette Unité dans l'organigramme
+					System.out.println(Integer.parseInt(uniteExp.getUniteCodeSonede().trim()));
+					Unit uniteExpediteur=ldapOperation.getUnitById(Integer.parseInt(uniteExp.getUniteCodeSonede().trim()));
+					if(uniteExpediteur.getNameUnit()!=null){
+						//Cette Unité existe dansl'organigramme
+						List<Object> copyListSelectedObjectExp = new ArrayList<Object>();				
+						
+						vb.setExpNom(uniteExpediteur.getNameUnit());
+						copyListSelectedObjectExp.add(uniteExpediteur);
+						vb.setCopyListSelectedObjectExp(copyListSelectedObjectExp);
+						statusPerson=true;
+						res = "pass";
+					}
+					else{
+						System.out.println("cette Unité n'est pas encore ajouté à l'organigramme");
+					}
+					
+				}
+				else{
+					// Ce mail n'esxiste dans aucun type 
+					setMessage(messageSource.getMessage("erreurTransfereMail",
+							new Object[] {}, lm.createLocal()));
+					status = true;
+				}
+				              
+              
+				
+			} else {
+				setMessage(messageSource.getMessage("confirmTransfereMail",
+						new Object[] {}, lm.createLocal()));
+				status = true;
+			}
+			System.out.println("*******SelectionSucces*********");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		vb.setRedirect("FromMail");
+		vb.setStatusPerson(statusPerson);
+		return res;
+	}
+
+	public void getSelectionRowForDelete() {
+		try {
+			mail = (Mail) listmailDM.getRowData();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void deleteSelectedMail() {
+		try {
+			mail.setMailDeleted(1);
+			appMgr.update(mail);
+			oldMailList.remove(mail);
+			listmailDM.setWrappedData(oldMailList);
+			compteur--;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public Mail getMail() {
+		return mail;
+	}
+
+	public void setMail(Mail mail) {
+		this.mail = mail;
+	}
+
+	public MailConnection getMailConnection() {
+		return mailConnection;
+	}
+
+	public void setMailConnection(MailConnection mailConnection) {
+		this.mailConnection = mailConnection;
+	}
+
+	public List<MailBean> getNewMailList() {
+		return newMailList;
+	}
+
+	public void setNewMailList(List<MailBean> newMailList) {
+		this.newMailList = newMailList;
+	}
+
+	public List<Mail> getMailList() {
+		return mailList;
+	}
+
+	public void setMailList(List<Mail> mailList) {
+		this.mailList = mailList;
+	}
+
+	public List<Mail> getOldMailList() {
+		return oldMailList;
+	}
+
+	public void setOldMailList(List<Mail> oldMailList) {
+		this.oldMailList = oldMailList;
+	}
+
+	public int getCompteur() {
+
+		return compteur;
+	}
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	public ApplicationManager getApplicationManager() {
+		return applicationManager;
+	}
+
+	public void setApplicationManager(ApplicationManager applicationManager) {
+		this.applicationManager = applicationManager;
+	}
+
+	public void setListmailDM(DataModel listmailDM) {
+		this.listmailDM = listmailDM;
+	}
+
+	public DataModel getListmailDM() {
+		return listmailDM;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setGedUtils(GedUtils gedUtils) {
+		this.gedUtils = gedUtils;
+	}
+
+	public GedUtils getGedUtils() {
+		return gedUtils;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatusPerson() {
+		return statusPerson;
+	}
+
+	public void setStatusPerson(boolean statusPerson) {
+		this.statusPerson = statusPerson;
+	}
+
+	public boolean isAvoirMail() {
+		return avoirMail;
+	}
+
+	public void setAvoirMail(boolean avoirMail) {
+		this.avoirMail = avoirMail;
+	}
+
+
+	// public void setConsulterFaxBean(ConsulterFaxBean consulterFaxBean) {
+	// this.consulterFaxBean = consulterFaxBean;
+	// }
+	//
+	// public ConsulterFaxBean getConsulterFaxBean() {
+	// return consulterFaxBean;
+	// }
+
+}

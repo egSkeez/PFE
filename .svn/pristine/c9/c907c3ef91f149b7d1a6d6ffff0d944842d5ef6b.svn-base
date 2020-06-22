@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-03-19T17:47:01 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoiCourrierFR" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="dd1876e2-8328-4ee7-924d-ab24cb8583a9">
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="88"/>
+	<property name="ireport.y" value="93"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\WorkSpaceGPR\\GBO_v1.d\\WebContent\\WEB-INF\\Rapports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="annotation" class="java.util.List">
+		<fieldDescription><![CDATA[annotation]]></fieldDescription>
+	</field>
+	<field name="bureauOrdre" class="xtensus.entity.Bureauordre">
+		<fieldDescription><![CDATA[bureauOrdre]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="confidentialite" class="java.util.List">
+		<fieldDescription><![CDATA[confidentialite]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="destinataire" class="java.lang.String">
+		<fieldDescription><![CDATA[destinataire]]></fieldDescription>
+	</field>
+	<field name="direction" class="xtensus.entity.Direction">
+		<fieldDescription><![CDATA[direction]]></fieldDescription>
+	</field>
+	<field name="directions" class="java.util.List">
+		<fieldDescription><![CDATA[directions]]></fieldDescription>
+	</field>
+	<field name="expediteur" class="java.lang.String">
+		<fieldDescription><![CDATA[expediteur]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="natures" class="java.util.List">
+		<fieldDescription><![CDATA[natures]]></fieldDescription>
+	</field>
+	<field name="societes" class="java.util.List">
+		<fieldDescription><![CDATA[societes]]></fieldDescription>
+	</field>
+	<field name="urgence" class="java.util.List">
+		<fieldDescription><![CDATA[urgence]]></fieldDescription>
+	</field>
+	<field name="variable" class="xtensus.entity.Variables">
+		<fieldDescription><![CDATA[variable]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String"/>
+	<field name="pathJasper" class="java.lang.String"/>
+	<field name="societeVille" class="java.lang.String"/>
+	<field name="societeOrganismeParent" class="java.lang.String"/>
+	<field name="societeRepublique" class="java.lang.String"/>
+	<field name="societeNom" class="java.lang.String"/>
+	<field name="listeSociete" class="java.util.List"/>
+	<field name="adresse" class="java.lang.String"/>
+	<title>
+		<band height="283">
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="187" y="31" width="169" height="17" uuid="7e561b6f-9d68-4db5-afd8-1d0aee965052"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Bordereau d'Envoi Interne]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="139" y="49" width="58" height="15" uuid="51a762b9-c062-4d0f-a6f6-f0e86bc29561"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Expéditeur :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="198" y="171" width="124" height="15" uuid="76eb9f29-a844-4ee4-94c6-01fee0d62c9d"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="11" isBold="true" isUnderline="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Liste des Annotations]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="197" y="49" width="100" height="15" uuid="413ccdc7-f90a-4233-a536-8b7dab736492"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="html">
+					<font fontName="Arial" size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{direction}.getDirectionIntitule()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="176" y="95" width="300" height="15" uuid="a90b9267-e7ec-4e17-a885-45ef56df02f3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierObjet()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="139" y="94" width="32" height="15" uuid="24fc7af7-93c0-430b-9322-b2b884d6635f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Objet :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="139" y="64" width="115" height="15" uuid="141a00a4-99f9-4be9-bc4f-4eab25ebe235"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Source de réception :]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="243" y="64" width="219" height="15" uuid="66f769c7-2718-469e-acdb-06739b5640c2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="html">
+					<font fontName="Arial" size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{destinataire}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="240" y="79" width="233" height="15" uuid="3be549d3-711c-4caf-aa43-d8912d0b1b5c"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierReferenceCorrespondant()+"/"+$F{courrier}.getCourrierOldDateOper()]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy à HH:mm">
+				<reportElement positionType="FixRelativeToBottom" x="232" y="126" width="124" height="15" uuid="bdac289b-d874-453a-b485-e12c807d4d91"/>
+				<box topPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="139" y="79" width="101" height="15" uuid="d856cb8d-1ee0-4f2a-a893-6d2a346d652f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Numéro du courrier :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="139" y="126" width="91" height="15" uuid="872a095a-57c8-4489-9938-50ee26eabca9"/>
+				<box topPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Date de récéption :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="139" y="109" width="60" height="15" uuid="87201b24-2669-4361-9b1c-5407dfbd4214"/>
+				<box topPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Description:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="201" y="109" width="254" height="15" uuid="f7c52fdb-bedb-4545-a9b4-e55ed5085053"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierCommentaire()]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="15" y="247" width="510" height="34" uuid="3991f445-7da7-47c9-a8c4-d23135f4354b"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{annotation})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["BordereauEnvoi_FR_AnnotationsFR.jasper"]]></subreportExpression>
+			</subreport>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="320" y="183" width="206" height="1" uuid="efff6cde-1a85-487e-b09d-37fbaebfd251"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<frame>
+				<reportElement positionType="FixRelativeToBottom" x="7" y="183" width="517" height="98" uuid="c98301a7-9945-4d3c-86e8-3ee5e25c3e58"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<line>
+					<reportElement positionType="FixRelativeToBottom" x="0" y="0" width="192" height="1" uuid="f886262a-72aa-4daf-9bfc-d1f4757973aa"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineStyle="Solid"/>
+					</graphicElement>
+				</line>
+			</frame>
+			<subreport>
+				<reportElement x="0" y="0" width="554" height="10" uuid="b8d0a028-cd16-4f07-9e7b-e4b5f7926be5"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="50">
+			<staticText>
+				<reportElement positionType="Float" x="169" y="20" width="151" height="14" uuid="288b394e-55b7-4815-a414-93f95b0ac078"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="11" isBold="true" isUnderline="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Degrès de Confidentialité]]></text>
+			</staticText>
+			<frame>
+				<reportElement stretchType="RelativeToBandHeight" x="7" y="29" width="521" height="20" uuid="4710e596-6326-4685-8e13-78150f6ead77"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<line>
+					<reportElement positionType="Float" x="0" y="0" width="162" height="1" uuid="3be962c0-31c3-46bc-809e-98e4454da219"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<subreport>
+					<reportElement stretchType="RelativeToBandHeight" x="9" y="5" width="509" height="9" uuid="c39409fd-a679-41ae-820f-26f784bc9dcd"/>
+					<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{confidentialite})]]></dataSourceExpression>
+					<subreportExpression><![CDATA["BordereauEnvoi_FR_CofidentialiteFR.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+			<line>
+				<reportElement positionType="Float" x="320" y="30" width="208" height="1" uuid="e82cb1a0-5757-4099-955d-027f3780bc25"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="62">
+			<staticText>
+				<reportElement x="169" y="10" width="151" height="15" uuid="ec94405e-bd82-40ea-977f-23660f641087"/>
+				<box topPadding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true" isUnderline="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Degrès d'importance]]></text>
+			</staticText>
+			<frame>
+				<reportElement stretchType="RelativeToTallestObject" x="7" y="21" width="522" height="14" uuid="765cb75e-00cc-4576-b92d-591643265c34"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<line>
+					<reportElement positionType="Float" x="313" y="0" width="209" height="1" uuid="076a9c31-0c9c-471c-b1a7-6c963d6b44a3"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineStyle="Solid"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="0" y="0" width="162" height="1" uuid="5163f58a-7637-4079-83ea-d8fd796f2c04"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineStyle="Solid"/>
+					</graphicElement>
+				</line>
+				<subreport>
+					<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="7" y="6" width="510" height="5" uuid="299ee2ee-d0a3-4bb6-abca-5565d4d1312f"/>
+					<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{urgence})]]></dataSourceExpression>
+					<subreportExpression><![CDATA["BordereauEnvoi_FR_UrgencesFR.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+			<staticText>
+				<reportElement positionType="Float" x="201" y="47" width="99" height="15" uuid="b480f6fc-9e1a-4a50-a4ed-e4cf01efe172"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true" isUnderline="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Diffusion]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="34"/>
+	</detail>
+	<lastPageFooter>
+		<band height="166">
+			<rectangle radius="10">
+				<reportElement x="15" y="20" width="404" height="59" uuid="58fc7a1a-5e4d-4b0e-bce1-4bbfff5f7f91"/>
+			</rectangle>
+			<line>
+				<reportElement x="15" y="84" width="517" height="1" uuid="67c760d0-f8d2-49b5-9199-9b5c53418a8b"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="17" y="95" width="48" height="15" uuid="47a709c1-0dd7-4ecf-b977-6a7ac9ddb0c6"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Reçus le :]]></text>
+			</staticText>
+			<rectangle radius="10">
+				<reportElement x="437" y="20" width="100" height="59" uuid="1cd9bcd9-e586-4a02-88f5-8dc7448feec0"/>
+			</rectangle>
+			<rectangle radius="10">
+				<reportElement x="28" y="3" width="73" height="22" uuid="67aa6970-6144-44e9-8e08-6707d7441d35"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<rectangle radius="10">
+				<reportElement x="455" y="5" width="50" height="32" uuid="9c95573a-1d64-4077-b9bb-8f6dca7d258d"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="455" y="5" width="50" height="20" uuid="59142bce-bd6e-4385-9305-a6a1a3c146e4"/>
+				<box topPadding="6"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Signature]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="28" y="5" width="73" height="20" uuid="cdc45c93-e060-4ed4-84f1-862a239864b7"/>
+				<box topPadding="6"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Commentaires]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="144" width="555" height="20" uuid="3674efb9-0ae0-4334-a2bf-22c7fc99e9f9"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="6"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="28" y="25" width="387" height="42" forecolor="#CCCCCC" uuid="1986f4a3-2a6e-4edc-845c-3ff0fb63bcd6"/>
+				<box leftPadding="0" rightPadding="6"/>
+				<textElement textAlignment="Left">
+					<font size="6"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="65" y="95" width="472" height="15" forecolor="#CCCCCC" uuid="829bff83-b4bf-442e-8c35-72a7a9e29940"/>
+				<box topPadding="1" leftPadding="0" rightPadding="6"/>
+				<textElement textAlignment="Left">
+					<font size="6"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="15" y="121" width="524" height="23" uuid="ee058d34-3f10-472d-b477-274690bed64d"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adresse}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+</jasperReport>

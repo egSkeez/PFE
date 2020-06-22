@@ -1,0 +1,95 @@
+<!-- Upload -->	
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	
+	
+<!-- Popup success upload -->	
+<rich:modalPanel id="msgPanal6" autosized="true" height="90" width="300">
+	<f:facet name="header">
+		<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+			<rich:spacer width="2" />
+			<h:outputText value="#{msg.labelInfo}" styleClass="xtePopupInformationTextHeader" />
+		</h:panelGrid>
+	</f:facet>
+	<f:facet name="controls">
+		<h:panelGroup>
+			<h:graphicImage value="../framGraphique/images/closePopup.png" width="15" height="15" id="hidelink6" />
+				<rich:componentControl for="msgPanal6" attachTo="hidelink6" operation="hide" event="onclick" />
+		</h:panelGroup>
+	</f:facet>
+	<h:form>
+		<table align="center">
+			<tr>
+				<td align="left">
+					<h:graphicImage value="../framGraphique/images/information.png" />
+				</td>
+				<td align="center" colspan="2">
+					<h:outputText styleClass="xtePopupInformationText" value="#{msg.successScan}" />
+				</td>
+			</tr>		
+		</table>
+		<table align="center">
+			<tr>
+				<td align="center">
+					<a4j:commandButton value="#{msg.buttonOk}"
+							oncomplete="Richfaces.hideModalPanel('msgPanal6');" type="submit"
+							ajaxSingle="true" styleClass="submitButton"
+							reRender="data,scroller,formulaireUtilisateur,scan" />
+				</td>
+			</tr>
+		</table>
+	</h:form>
+</rich:modalPanel> 
+		
+<!-- Popup success upload -->
+		
+<!-- Popup failed upload -->	
+
+<rich:modalPanel id="msgPanal4"	autosized="true" height="90" width="300">
+	<f:facet name="header">
+		<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+			<rich:spacer width="2" />
+			<h:outputText value="#{msg.labelError}"	styleClass="xtePopupInformationTextHeader" />
+		</h:panelGrid>
+	</f:facet>
+	<f:facet name="controls">
+ 		<h:panelGroup>
+			<h:graphicImage value="../framGraphique/images/closePopup.png" width="15" height="15" id="hidelink4" />
+			<rich:componentControl for="msgPanal4" attachTo="hidelink4" operation="hide" event="onclick" />
+		</h:panelGroup>
+	</f:facet>
+	<h:form>
+		<table align="center">
+			<tr>
+				<td align="left"><h:graphicImage value="../framGraphique/images/erreur.png" alt="confirm" />
+				</td>
+				<td align="center" colspan="2">				
+					<h:outputText styleClass="xtePopupInformationText" value="#{msg.failScan}" />
+				</td>
+			</tr>
+		</table>
+		<table align="center">
+			<tr>
+				<td align="center">	<a4j:commandButton value="#{msg.buttonOk}"
+							oncomplete="Richfaces.hideModalPanel('msgPanal4');" type="submit"
+							ajaxSingle="true" styleClass="submitButton" />
+				</td>
+			</tr>
+		</table>
+	</h:form>
+</rich:modalPanel> 
+	
+
+
+
+<!-- Popup failed upload -->
+
+
+</ui:composition>
+
+<!-- Upload -->				         

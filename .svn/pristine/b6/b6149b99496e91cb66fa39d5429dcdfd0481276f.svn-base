@@ -1,0 +1,3795 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import org.richfaces.component.UIPanelMenu;
+import org.richfaces.component.html.HtmlTree;
+import org.richfaces.event.NodeSelectedEvent;
+import org.richfaces.model.TreeNode;
+import org.richfaces.model.TreeNodeImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.ListeDestinatairesModel;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RecherchePmModel;
+import xtensus.beans.utils.RecherchePpModel;
+import xtensus.beans.utils.RechercheUnitModel;
+import xtensus.beans.utils.RechercheUserModel;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Gouvernerat;
+import xtensus.entity.Pays;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Variables;
+import xtensus.entity.Ville;
+import xtensus.ldap.business.LdapFunction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Group;
+import xtensus.ldap.model.ItemSelected;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class TreeBean {
+
+	private ApplicationManager appMgr;
+	private TreeNodeImpl<String> stationNodesResult;
+	private List<Person> listUsers;
+	private List<Object> listCheckSelectedNode;
+	private List<Object> listSelectedObject;
+	private List<ItemSelected> listSelectedItem;
+	private List<Person> listSelectedPerson;
+	private List<Pp> listPP;
+	private List<Pm> listPM;
+	private DataModel listItems;
+	private String name;
+	private String surname;
+	private String path;
+	private long records = 0;
+	private String expediteur;
+	private String destinataire;
+	private Integer idExpediteur;
+	private List<String> listDestinataire;
+	private UIPanelMenu panelMenu = null;
+
+	// Recherche avancée
+	private RechercheUserModel rechercheUserModel;
+	private RechercheUnitModel rechercheUnitModel;
+	private RecherchePpModel recherchePpModel;
+	private RecherchePmModel recherchePmModel;
+	private DataModel dataModelUser;
+	private DataModel dataModelUnit;
+	private DataModel dataModelPp;
+	private DataModel dataModelPm;
+	private List<RechercheUserModel> listUser;
+	private List<RechercheUnitModel> listUnit;
+	private List<RecherchePpModel> listPp;
+	private List<RecherchePmModel> listPm;
+	private String typeIntervenant;
+	private boolean showUserForm;
+	private boolean showUnitForm;
+	private boolean showPpForm;
+	private boolean showPmForm;
+	private long recordsUser = 0;
+	private long recordsUnit = 0;
+	private long recordsPp = 0;
+	private long recordsPm = 0;
+	private boolean openedSTPannel;
+	private LdapOperation ldapOperation;
+	private boolean status;
+	private List<Gouvernerat> listGourvernorat;
+	private List<Pays> listPays;
+	private List<Ville> listVille;
+	private boolean status1;
+
+	@Autowired
+	private VariableGlobale vb;
+	private int index;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean showAvertPanel;
+
+	private ItemSelected selectedDestinataire;
+	private Boolean showResponsibleResponseColumn;
+
+	// **
+	// @Autowired
+	// CourrierAjoutBean courrierAjout;
+	// **
+
+	@Autowired
+	public TreeBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		rechercheUserModel = new RechercheUserModel();
+		rechercheUnitModel = new RechercheUnitModel();
+		recherchePpModel = new RecherchePpModel();
+		recherchePmModel = new RecherchePmModel();
+		dataModelUser = new ListDataModel();
+		dataModelUnit = new ListDataModel();
+		dataModelPp = new ListDataModel();
+		dataModelPm = new ListDataModel();
+		listUser = new ArrayList<RechercheUserModel>();
+		listUnit = new ArrayList<RechercheUnitModel>();
+		listPp = new ArrayList<RecherchePpModel>();
+		listPm = new ArrayList<RecherchePmModel>();
+		ldapOperation = new LdapOperation();
+		listGourvernorat = new ArrayList<Gouvernerat>();
+		listPays = new ArrayList<Pays>();
+		listVille = new ArrayList<Ville>();
+
+		listSelectedItem = new ArrayList<ItemSelected>();
+		listSelectedPerson = new ArrayList<Person>();
+		listItems = new ListDataModel();
+		listCheckSelectedNode = new ArrayList<Object>();
+		listSelectedObject = new ArrayList<Object>();
+		listUsers = new ArrayList<Person>();
+		stationNodesResult = new TreeNodeImpl<String>();
+		try {
+			if (vb != null && vb.getRechercheMulticritere() != null) {
+				expediteur = vb.getRechercheMulticritere().getExpediteur();
+				idExpediteur = vb.getRechercheMulticritere().getIdExpediteur();
+				destinataire = vb.getRechercheMulticritere().getDestinataire();
+				listDestinataire = vb.getRechercheMulticritere()
+						.getListIdDestinataire();
+			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@PostConstruct
+	public void init() {
+		try {
+			System.out.println("Dans PostConstruct TreeBean");
+			if (vb.getCopyListSelectedUnit() != null)
+				System.out.println("AH : vb.getCopyListSelectedUnit() :  "
+						+ vb.getCopyListSelectedUnit().size());
+			if (vb.getCopyListSelectedPerson() != null)
+				System.out.println("AH : vb.getCopyListSelectedPerson() :  "
+						+ vb.getCopyListSelectedPerson().size());
+
+			if (vb.getCopyListPP() != null)
+				System.out.println("vb.getCopyListPP() :   "
+						+ vb.getCopyListPP().size());
+			if (vb.getCopyListPM() != null)
+				System.out.println("vb.getCopyListPM() :   "
+						+ vb.getCopyListPM().size());
+
+			// C *
+			if (vb.getRedirect().equals("rediretFromCADestArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCADestDepToListSender")
+					|| vb.getRedirect().equals("rediretFromCAToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMDestDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMDestArrToListSender")) {
+				System.out
+						.println("AH : 4 **** recupération de la liste des dest***********************");
+
+				showResponsibleResponseColumn = true;
+			}
+
+			typeIntervenant = vb.getTypeIntervenant();
+			
+			if (typeIntervenant.equals("utilisateur")) {
+				showUnitForm = false;
+				showUserForm = true;
+				showPpForm = false;
+				showPmForm = false;
+			} else if (typeIntervenant.equals("unite")) {
+				showUnitForm = true;
+				showUserForm = false;
+				showPpForm = false;
+				showPmForm = false;
+			} else if (typeIntervenant.equals("pp")) {
+				showUnitForm = false;
+				showUserForm = false;
+				showPpForm = true;
+				showPmForm = false;
+			} else {
+				showUnitForm = false;
+				showUserForm = false;
+				showPpForm = false;
+				showPmForm = true;
+			}
+			rechercheUserModel = vb.getRechercheUserModel();
+			rechercheUnitModel = vb.getRechercheUnitModel();
+			recherchePpModel = vb.getRecherchePpModel();
+			recherchePmModel = vb.getRecherchePmModel();
+			listUser = vb.getListUser();
+			listUnit = vb.getListUnit();
+			listPp = vb.getListPp();
+			listPm = vb.getListPm();
+			openedSTPannel = vb.isOpenedSTPannel();
+			dataModelUser.setWrappedData(listUser);
+			dataModelUnit.setWrappedData(listUnit);
+			dataModelPp.setWrappedData(listPp);
+			dataModelPm.setWrappedData(listPm);
+			listGourvernorat = appMgr.getList(Gouvernerat.class);
+			listPays = appMgr.getList(Pays.class);
+			listVille = appMgr.getList(Ville.class);
+
+			listPP = appMgr.getList(Pp.class);
+			listPM = appMgr.getList(Pm.class);
+			listSelectedItem = vb.getListSelectedItem();
+			listItems.setWrappedData(listSelectedItem);
+			name = vb.getPerson().getNom();
+			surname = vb.getPerson().getPrenom();
+			listUsers = vb.getCopyLdapListUser();
+
+			if (vb.getPerson().isBoc()) {
+				System.out.println("[AH] ========= vb.getPerson().isBoc()");
+				System.out.println("arrivé du " + vb.getRedirect());
+				// rediretFromCAExpArrToListSender : Arrivée exped
+				if (vb.getRedirect().equals("rediretFromCAExpArrToListSender")
+
+						|| vb.getRedirect().equals(
+								"rediretFromCADestDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCMExpArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCMDestDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTExpArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTDestDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCADestDepToListSenderValise")) {
+
+					BOC centralBoc = new BOC();
+					centralBoc = vb.getCentralBoc();
+
+					// centralBoc = vb.getPerson().getAssociatedBOC();
+					System.out.println("AH AH AH : centralBoc :" + centralBoc);
+					// AH : si la personne connectée appartien au BO
+					// Cetntral====================================
+					int sizeArboresence = 0;
+					if (centralBoc.getTypeBOC().equals("Central")) {
+						System.out.println("C'est un BO Central");
+						// AH : La liste des Destinataires et des Expéditeur est
+						// la même ==> on charge toute l'arborescence
+
+						centralBoc = new BOC();
+						centralBoc = vb.getCentralBoc();
+
+						System.out.println("afficher l'arborescence de 3333"
+								+ centralBoc);
+						LdapFunction ldapFunction = new LdapFunction();
+						ldapFunction.ldapData = new ArrayList<Object>();
+						ldapFunction.fillData(centralBoc, "0");
+						vb.setCopyLdapData(ldapFunction.ldapData);
+						index = 1;
+						int i = 0;
+						System.out.println("######### stationNodesResult 1== "
+								+ stationNodesResult);
+						laodAllStructureAH(stationNodesResult, centralBoc, 0);
+						if (centralBoc.getListChildBOCsBOC() != null)
+							sizeArboresence += centralBoc.getListChildBOCsBOC()
+									.size();
+						if (centralBoc.getListDirectionsChildBOC() != null)
+							sizeArboresence += centralBoc
+									.getListDirectionsChildBOC().size();
+					}
+
+					else if (centralBoc.getTypeBOC().equals("Secondaire")) {
+						System.out.println("AH AH AH 2018-10-03");
+						// AH : AH : si la personne connectée appartien à un BO
+						// Secondaire ====================================
+						BOC centralBocPrincipal = new BOC();
+
+						centralBocPrincipal = vb.getCentralBoc();
+						LdapFunction ldapFunction = new LdapFunction();
+						// AH : Le BO Centrale a des BO Secondaires
+						if (centralBocPrincipal.getListChildBOCsBOC() != null
+								&& centralBocPrincipal.getListChildBOCsBOC()
+										.size() > 0) {
+
+							for (int i = 0; i < centralBocPrincipal
+									.getListChildBOCsBOC().size(); i++) {
+								// AH : Chargement du ième BO Secondaire du LDAP
+								BOC nvcentralBoc = centralBocPrincipal
+										.getListChildBOCsBOC().get(i);
+								ldapFunction = new LdapFunction();
+								ldapFunction.ldapData = new ArrayList<Object>();
+								ldapFunction.fillData(nvcentralBoc, "0");
+								vb.setCopyLdapData(ldapFunction.ldapData);
+								index = 1;
+								System.out
+										.println("######### stationNodesResult 2== "
+												+ stationNodesResult);
+								// AH : création de Tree de ce BO
+								laodAllStructure(stationNodesResult,
+										centralBocPrincipal
+												.getListChildBOCsBOC().get(i),
+										i + 1);
+
+							}
+						}
+
+					} else {
+						// AH : AH : si la personne connectée n'appartien pas à
+						// un BO
+						// ==> c'est un membre d'une Unité
+						// ====================================
+						System.out
+								.println("[AH] =========== NOT===== centralBoc.getTypeBOC().equals(Secondaire)");
+						stationNodesResult.setData(centralBoc.getNameBOC());
+						System.out.println("######### stationNodesResult 3== "
+								+ stationNodesResult);
+						stationNodesResult.addChild(0, stationNodesResult);
+						System.out.println("######### stationNodesResult 4== "
+								+ stationNodesResult);
+						TreeNodeImpl<String> child1;
+						if (centralBoc.getListChildBOCsBOC() != null) {
+
+							LdapFunction ldapFunction = new LdapFunction();
+							ldapFunction.ldapData = new ArrayList<Object>();
+
+							Integer size = centralBoc.getListChildBOCsBOC()
+									.size();
+							System.out.println(size);
+							sizeArboresence += size;
+							for (int i = 0; i < centralBoc
+									.getListChildBOCsBOC().size(); i++) {
+
+								child1 = new TreeNodeImpl<String>();
+								child1.setData(centralBoc.getListChildBOCsBOC()
+										.get(i).getNameBOC());
+								stationNodesResult.addChild(i, child1);
+								System.out.println("############## "
+										+ stationNodesResult.getChild(i)
+												.getData());
+								ldapFunction.fillData(centralBoc
+										.getListChildBOCsBOC().get(i), size
+										.toString());
+								vb.setCopyLdapData(ldapFunction.ldapData);
+								System.out.println("index avant :" + index);
+								index = 1;
+								System.out.println("index aprés :" + index);
+								laodAllStructure(stationNodesResult, centralBoc
+										.getListChildBOCsBOC().get(i),
+										centralBoc.getListChildBOCsBOC().size());
+
+							}
+						}
+
+					}
+					index++;
+					loadListPpPm(sizeArboresence);
+
+				} else if (vb.getRedirect().equals(
+						"rediretFromCAExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromPDFToListSender2")
+						|| vb.getRedirect().equals(
+								"rediretFromCADestArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCMExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCMDestArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTDestArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTMFDestArrToListSender")) {
+
+					// Test si Central ou secondaire
+					BOC centralBoc = new BOC();
+					centralBoc = vb.getPerson().getAssociatedBOC();
+					// centralBoc=vb.getCentralBoc();
+					// AH : si la personne connectée appartien au BO
+					// Cetntral====================================
+					if (centralBoc.getTypeBOC().equals("Central")) {
+						System.out
+								.println("cas Courrier Ajout arrivée par BOCT destinataire");
+						// BOC centralBoc = new BOC();
+
+						// centralBoc = vb.getCentralBoc();
+						// centralBoc = vb.getNoeudEncours();
+						System.out.println("afficher l'arborescence de 222"
+								+ centralBoc);
+						LdapFunction ldapFunction = new LdapFunction();
+						ldapFunction.ldapData = new ArrayList<Object>();
+						ldapFunction.fillData(centralBoc, "0");
+						vb.setCopyLdapData(ldapFunction.ldapData);
+						index = 1;
+						// Charger toute l'arborecsnce
+						laodAllStructureAH(stationNodesResult, centralBoc, 0);
+
+					} else if (centralBoc.getTypeBOC().equals("Secondaire")) {
+						System.out
+								.println("cas Courrier Ajout arrivée par BOS destinataire");
+						System.out
+								.println("[AH] centralBoc.getTypeBOC().equals(Secondaire)");
+						// AH : Chargement des données du BO du LDAP
+						// LdapFunction ldapFunction = new LdapFunction();
+						// ldapFunction.ldapData = new ArrayList<Object>();
+						// ldapFunction.fillData(centralBoc, "0");
+						// vb.setCopyLdapData(ldapFunction.ldapData);
+						index = 0;
+						// AH : Création du Tree
+						// AH 2019-09-01
+						// /AAAAA
+						laodAllStructure(stationNodesResult, centralBoc, 0);
+
+						// laodAllStructureAH(stationNodesResult,
+						// ldapFunction.ldapData.get(0), 0);
+					}
+					// laodAllStructure(stationNodesResult,
+					// ldapFunction.ldapData, 0);
+				} else if (vb.getRedirect().equals(
+						"rediretFromCRMExpToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCRMDestToListSender")) {
+									
+					System.out.println("---------");
+					
+					BOC centralBoc = new BOC();
+					centralBoc = vb.getCentralBoc();
+					
+						int sizeArboresence = 0;
+						// AH : La liste des Destinataires et des Expéditeur est
+						// la même ==> on charge toute l'arborescence
+
+						centralBoc = new BOC();
+						centralBoc = vb.getCentralBoc();
+
+						System.out.println("afficher l'arborescence de 3333"
+								+ centralBoc);
+						LdapFunction ldapFunction = new LdapFunction();
+						ldapFunction.ldapData = new ArrayList<Object>();
+						ldapFunction.fillData(centralBoc, "0");
+						vb.setCopyLdapData(ldapFunction.ldapData);
+						index = 1;
+						int i = 0;
+						System.out.println("######### stationNodesResult 1== "
+								+ stationNodesResult);
+						laodAllStructureAH(stationNodesResult, centralBoc, 0);
+						if (centralBoc.getListChildBOCsBOC() != null)
+							sizeArboresence += centralBoc.getListChildBOCsBOC()
+									.size();
+						if (centralBoc.getListDirectionsChildBOC() != null)
+							sizeArboresence += centralBoc
+									.getListDirectionsChildBOC().size();
+									index++;
+					loadListPpPm(sizeArboresence);
+					//loadListPpPm(0);
+				//	LdapFunction ldapFunction = new LdapFunction();
+				//	ldapFunction.ldapData = new ArrayList<Object>();
+				//	ldapFunction.fillData(centralBoc, "0");
+				//	vb.setCopyLdapData(ldapFunction.ldapData);
+				//	index = 1;
+				//	laodAllStructure(stationNodesResult,
+				//			ldapFunction.ldapData.get(0), 1);
+				}
+			} 
+			else {
+				// AH : c'est un membre d'une Unité Resposable, secrétaire ou
+				// Agent
+
+				if (vb.getRedirect().equals("rediretFromCAToListSender")) {
+					// [JS]: Affichage de tous l'arboresence
+					BOC centralBoc = new BOC();
+					centralBoc = vb.getCentralBoc();
+					System.out.println("Name Boc Centrale :"
+							+ centralBoc.getNameBOC());
+					System.out.println("ID Boc Cenrale "
+							+ centralBoc.getIdBOC());
+
+					// centralBoc = new BOC();
+					// centralBoc = vb.getCentralBoc();
+
+					// System.out.println("afficher l'arborescence de 3333"
+					// + centralBoc);
+					LdapFunction ldapFunction = new LdapFunction();
+					ldapFunction.ldapData = new ArrayList<Object>();
+					ldapFunction.fillData(centralBoc, "0");
+					vb.setCopyLdapData(ldapFunction.ldapData);
+					index = 1;
+					int i = 0;
+					laodAllStructureAH(stationNodesResult, centralBoc, 0);
+					int sizeArboresence = 0;
+					if (centralBoc.getListChildBOCsBOC() != null)
+						sizeArboresence += centralBoc.getListChildBOCsBOC()
+								.size();
+					if (centralBoc.getListDirectionsChildBOC() != null)
+						sizeArboresence += centralBoc
+								.getListDirectionsChildBOC().size();
+
+					index++;
+					loadListPpPm(sizeArboresence);
+				} else {
+
+					System.out
+							.println("AH : TreeBean : c'est un membre d'une Unité Resposable, secrétaire ou Agent");
+					System.out
+							.println("AH : Appel à la méthode identifyModel******* ");
+					System.out.println("JS==>" + vb.getPerson());
+					identifyModel(vb.getPerson());
+				}
+			}
+
+			// **
+
+			if (vb.getRedirect().equals("rediretFromCAExpArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCAExpDepToListSender")
+					|| vb.getRedirect().equals("rediretFromPDFToListSender2")) {
+				listSelectedItem.clear();
+				vb.setCopyListSelectedObjectExp(new ArrayList<Object>());
+			}
+
+			// **
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<SelectItem> getSelectItemsGouvernorat() {
+		List<SelectItem> selectItemsGouvernorat = new ArrayList<SelectItem>();
+		selectItemsGouvernorat.add(new SelectItem(""));
+		for (int j = 0; j <= listGourvernorat.size() - 1; j++) {
+			selectItemsGouvernorat.add(new SelectItem(listGourvernorat.get(j)
+					.getGouverneratLibelle()));
+		}
+
+		return selectItemsGouvernorat;
+	}
+
+	public List<SelectItem> getSelectItemsVille() {
+		List<SelectItem> selectItemsVille = new ArrayList<SelectItem>();
+		selectItemsVille.add(new SelectItem(""));
+		for (int j = 0; j <= listVille.size() - 1; j++) {
+			selectItemsVille
+					.add(new SelectItem(listVille.get(j).getVilleNom()));
+		}
+
+		return selectItemsVille;
+	}
+
+	public List<SelectItem> getSelectItemsPays() {
+		List<SelectItem> selectItemsPays = new ArrayList<SelectItem>();
+		selectItemsPays.add(new SelectItem(""));
+		for (int j = 0; j <= listPays.size() - 1; j++) {
+			selectItemsPays
+					.add(new SelectItem(listPays.get(j).getPaysLibelle()));
+		}
+
+		return selectItemsPays;
+	}
+
+	public void eventChooseTypeIntervenant(ActionEvent actionEvent) {
+		if (typeIntervenant.equals("utilisateur")) {
+			vb.setTypeIntervenant(typeIntervenant);
+			showUnitForm = false;
+			showUserForm = true;
+			showPpForm = false;
+			showPmForm = false;
+			reset();
+		} else if (typeIntervenant.equals("unite")) {
+			vb.setTypeIntervenant(typeIntervenant);
+			showUnitForm = true;
+			showUserForm = false;
+			showPpForm = false;
+			showPmForm = false;
+			reset();
+		} else if (typeIntervenant.equals("pp")) {
+			vb.setTypeIntervenant(typeIntervenant);
+			showUnitForm = false;
+			showUserForm = false;
+			showPpForm = true;
+			showPmForm = false;
+			reset();
+		} else {
+			vb.setTypeIntervenant(typeIntervenant);
+			showUnitForm = false;
+			showUserForm = false;
+			showPpForm = false;
+			showPmForm = true;
+			reset();
+		}
+
+	}
+
+	public void search() {
+		try {
+		if (typeIntervenant.equals("utilisateur")) {
+			vb.setRechercheUserModel(rechercheUserModel);
+			listUser = ldapOperation.getListUserByCriteria(rechercheUserModel);
+			dataModelUser.setWrappedData(listUser);
+			System.out.println("-Search User");
+			LogClass logClass = new LogClass();
+			logClass.addTrack("recherche",
+					"Evénement de log de recherche d'utilisateur",
+					vb.getPerson(), "INFO", appMgr);
+		} else if (typeIntervenant.equals("unite")) {
+			System.out.println("+Search Unit");
+			vb.setRechercheUnitModel(rechercheUnitModel);
+			listUnit = ldapOperation.getListUnitByCriteria(rechercheUnitModel);
+			dataModelUnit.setWrappedData(listUnit);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("recherche",
+					"Evénement de log de recherche d'unité", vb.getPerson(),
+					"INFO", appMgr);
+		} else if (typeIntervenant.equals("pp")) {
+			vb.setRecherchePpModel(recherchePpModel);
+			List<Expdestexterne> listExpDestExterne = new ArrayList<Expdestexterne>();
+			listExpDestExterne = appMgr.getListExpeDestExterneByCriteria(
+					recherchePpModel.getNomPp(),
+					recherchePpModel.getPrenomPp(),
+					recherchePpModel.getTelephonePp(),
+					recherchePpModel.getMailPp(),
+					recherchePpModel.getAdressePp(),
+					recherchePpModel.getCodePostalPp(),
+					recherchePpModel.getVillePp(),
+					recherchePpModel.getPaysPp(), recherchePpModel.getFaxPp(),
+					recherchePpModel.getGouvernoratPp());
+			List<Integer> list = new ArrayList<Integer>();
+			for (Expdestexterne expDestExterne : listExpDestExterne) {
+				list.add(expDestExterne.getIdExpDestExterne());
+			}
+			List<Pp> listPps = appMgr.getListPpByCriteria(recherchePpModel,
+					list);
+			listPp = getListPpFromlistExpDestExterne(listPps);
+			dataModelPp.setWrappedData(listPp);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("recherche",
+					"Evénement de log de recherche de personnes physiques",
+					vb.getPerson(), "INFO", appMgr);
+		} else if (typeIntervenant.equals("pm")) {
+			vb.setRecherchePmModel(recherchePmModel);
+			List<Expdestexterne> listExpDestExterne = new ArrayList<Expdestexterne>();
+			listExpDestExterne = appMgr.getListExpeDestExterneByCriteria(
+					recherchePmModel.getRaisonSocialePm(), "",
+					recherchePmModel.getTelephonePm(),
+					recherchePmModel.getMailPm(),
+					recherchePmModel.getAdressePm(),
+					recherchePmModel.getCodePostalPm(),
+					recherchePmModel.getVillePm(),
+					recherchePmModel.getPaysPm(), recherchePmModel.getFaxPm(),
+					recherchePmModel.getGouvernoratPm());
+			List<Integer> list = new ArrayList<Integer>();
+			for (Expdestexterne expDestExterne : listExpDestExterne) {
+				list.add(expDestExterne.getIdExpDestExterne());
+			}
+			List<Pm> listPms = appMgr.getListPmByCriteria(recherchePmModel,
+					list);
+			listPm = getListPmFromlistExpDestExterne(listPms);
+			dataModelPm.setWrappedData(listPm);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("recherche",
+					"Evénement de log de recherche de personnes morales",
+					vb.getPerson(), "INFO", appMgr);
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+		}
+	}
+
+	private List<RecherchePmModel> getListPmFromlistExpDestExterne(
+			List<Pm> listPm) {
+		List<RecherchePmModel> listPmModel = new ArrayList<RecherchePmModel>();
+		Expdestexterne expDestExterne;
+		RecherchePmModel recherchePmModel;
+		for (Pm pm : listPm) {
+			recherchePmModel = new RecherchePmModel();
+			expDestExterne = new Expdestexterne();
+			expDestExterne = appMgr.getExpediteurById(
+					pm.getExpdestexterne().getIdExpDestExterne()).get(0);
+			recherchePmModel.setIdPm(pm.getPmid());
+			recherchePmModel.setMatriculeFiscalePm(pm.getPmmatriculeFiscal());
+			recherchePmModel.setAffiliationCNSSPm(pm.getPmaffiliationCnss());
+			recherchePmModel.setRegistreCommercePm(pm.getRegistreCommerce());
+			recherchePmModel.setRaisonSocialePm(expDestExterne
+					.getExpDestExterneNom());
+			recherchePmModel.setTelephonePm(expDestExterne
+					.getExpDestExterneTelephone());
+			recherchePmModel.setFaxPm(expDestExterne.getExpDestExterneFax());
+			recherchePmModel.setMailPm(expDestExterne.getExpDestExterneMail());
+			recherchePmModel.setAdressePm(expDestExterne
+					.getExpDestExterneAdresse());
+			recherchePmModel.setPaysPm(expDestExterne.getExpDestExternePays());
+			recherchePmModel
+					.setVillePm(expDestExterne.getExpDestExterneVille());
+			recherchePmModel.setGouvernoratPm(expDestExterne
+					.getExpDestExterneGouvernerat());
+			recherchePmModel.setCodePostalPm(expDestExterne
+					.getExpDestExterneCodePostale());
+			listPmModel.add(recherchePmModel);
+		}
+		return listPmModel;
+	}
+
+	private List<RecherchePpModel> getListPpFromlistExpDestExterne(
+			List<Pp> listPpe) {
+		List<RecherchePpModel> listPpModel = new ArrayList<RecherchePpModel>();
+		Expdestexterne expDestExterne;
+		RecherchePpModel recherchePpModel;
+		for (Pp pp : listPpe) {
+			recherchePpModel = new RecherchePpModel();
+			expDestExterne = new Expdestexterne();
+			expDestExterne = appMgr.getExpediteurById(
+					pp.getExpdestexterne().getIdExpDestExterne()).get(0);
+			recherchePpModel.setIdPp(pp.getPpid());
+			recherchePpModel.setCinPp(String.valueOf(pp.getCin()));
+			recherchePpModel.setTelephonePortablePp(String.valueOf(pp
+					.getPpnumPortable()));
+			recherchePpModel.setPrenomPp(expDestExterne
+					.getExpDestExternePrenom());
+			recherchePpModel.setNomPp(expDestExterne.getExpDestExterneNom());
+			recherchePpModel.setTelephonePp(expDestExterne
+					.getExpDestExterneTelephone());
+			recherchePpModel.setFaxPp(expDestExterne.getExpDestExterneFax());
+			recherchePpModel.setMailPp(expDestExterne.getExpDestExterneMail());
+			recherchePpModel.setAdressePp(expDestExterne
+					.getExpDestExterneAdresse());
+			recherchePpModel.setPaysPp(expDestExterne.getExpDestExternePays());
+			recherchePpModel
+					.setVillePp(expDestExterne.getExpDestExterneVille());
+			recherchePpModel.setGouvernoratPp(expDestExterne
+					.getExpDestExterneGouvernerat());
+			recherchePpModel.setCodePostalPp(expDestExterne
+					.getExpDestExterneCodePostale());
+			listPpModel.add(recherchePpModel);
+		}
+		return listPpModel;
+	}
+
+	public void reset() {
+		openedSTPannel = false;
+		vb.setOpenedSTPannel(openedSTPannel);
+		rechercheUnitModel = new RechercheUnitModel();
+		vb.setRechercheUnitModel(rechercheUnitModel);
+		rechercheUserModel = new RechercheUserModel();
+		vb.setRechercheUserModel(rechercheUserModel);
+		recherchePpModel = new RecherchePpModel();
+		vb.setRecherchePpModel(recherchePpModel);
+		recherchePmModel = new RecherchePmModel();
+		vb.setRecherchePmModel(recherchePmModel);
+		listUser = new ArrayList<RechercheUserModel>();
+		vb.setListUser(listUser);
+		listUnit = new ArrayList<RechercheUnitModel>();
+		vb.setListUnit(listUnit);
+		listPp = new ArrayList<RecherchePpModel>();
+		vb.setListPp(listPp);
+		listPm = new ArrayList<RecherchePmModel>();
+		vb.setListPm(listPm);
+		dataModelUser.setWrappedData(listUser);
+		dataModelUnit.setWrappedData(listUnit);
+		dataModelPp.setWrappedData(listPp);
+		dataModelPm.setWrappedData(listPm);
+	}
+
+	public void getSelectedUser() {
+		RechercheUserModel rechercheUserModel = new RechercheUserModel();
+		rechercheUserModel = (RechercheUserModel) dataModelUser.getRowData();
+		vb.setListUser(listUser);
+		vb.setOpenedSTPannel(true);
+		vb.setIdUser(Integer.parseInt(rechercheUserModel.getIdUser()));
+		vb.setRedirectUser("redirectFromARMToDetailsUser");
+	}
+
+	public void getSelectedUnit() {
+		RechercheUnitModel rechercheUnitModel = new RechercheUnitModel();
+		rechercheUnitModel = (RechercheUnitModel) dataModelUnit.getRowData();
+		vb.setListUnit(listUnit);
+		vb.setOpenedSTPannel(true);
+		vb.setIdUnit(Integer.parseInt(rechercheUnitModel.getIdUnit()));
+	}
+
+	public void getSelectedPp() {
+		RecherchePpModel recherchePpModel = new RecherchePpModel();
+		recherchePpModel = (RecherchePpModel) dataModelPp.getRowData();
+		vb.setListPp(listPp);
+		vb.setOpenedSTPannel(true);
+		vb.setRecherchePpModelForDetails(recherchePpModel);
+	}
+
+	public void getSelectedPm() {
+		RecherchePmModel recherchePmModel = new RecherchePmModel();
+		recherchePmModel = (RecherchePmModel) dataModelPm.getRowData();
+		vb.setListPm(listPm);
+		vb.setOpenedSTPannel(true);
+		vb.setRecherchePmModelForDetails(recherchePmModel);
+	}
+
+	public void affectUser() {
+		status = false;
+		RechercheUserModel rechercheUserModel = new RechercheUserModel();
+		rechercheUserModel = (RechercheUserModel) dataModelUser.getRowData();
+		ItemSelected itemSelected;
+		boolean findPerson = false;
+		for (Object object : listCheckSelectedNode) {
+			if (object instanceof Person
+					&& ((Person) object).getId() == Integer
+							.parseInt(rechercheUserModel.getIdUser())) {
+				findPerson = true;
+				itemSelected = new ItemSelected();
+				Person person = (Person) object;
+				itemSelected.setItemSelectedId(person.getId());
+				itemSelected.setItemSelectedName(person.getCn());
+				itemSelected.setSelectedObject(person);
+				itemSelected.setRechercheUserModel(rechercheUserModel);
+				itemSelected.setFromSearch(true);
+				listSelectedItem.add(itemSelected);
+				// ** propre
+				vb.getCopyListSelectedObjectExp().add(object);
+				// ** Fin propre
+				vb.getCopyListSelectedObject().add(object);
+				vb.getCopyListSelectedPerson().add(person);
+				vb.getCopyListSelectedPersonNotif().add(person);
+				break;
+			}
+		}
+		if (findPerson) {
+			listUser.remove(rechercheUserModel);
+			dataModelUser.setWrappedData(listUser);
+		} else {
+			status = true;
+		}
+	}
+
+	public void affectUnit() {
+		status = false;
+		RechercheUnitModel rechercheUnitModel = new RechercheUnitModel();
+		rechercheUnitModel = (RechercheUnitModel) dataModelUnit.getRowData();
+		ItemSelected itemSelected;
+		boolean findUnit = false;
+		for (Object object : listCheckSelectedNode) {
+			if (object instanceof Unit
+					&& ((Unit) object).getIdUnit() == Integer
+							.parseInt(rechercheUnitModel.getIdUnit())) {
+				findUnit = true;
+				itemSelected = new ItemSelected();
+				Unit unit = (Unit) object;
+				itemSelected.setItemSelectedId(unit.getIdUnit());
+				itemSelected.setItemSelectedName(unit.getNameUnit());
+				itemSelected.setSelectedObject(unit);
+				itemSelected.setRechercheUnitModel(rechercheUnitModel);
+				itemSelected.setFromSearch(true);
+				listSelectedItem.add(itemSelected);
+				// ** propre
+				vb.getCopyListSelectedObjectExp().add(object);
+				// ** Fin propre
+				vb.getCopyListSelectedObject().add(object);
+				vb.getCopyListSelectedUnit().add(unit);
+				vb.getCopyListSelectedUnitNotif().add(unit);
+				break;
+			}
+		}
+		if (findUnit) {
+			listUnit.remove(rechercheUnitModel);
+			dataModelUnit.setWrappedData(listUnit);
+		} else {
+			status = true;
+		}
+	}
+
+	public void affectPp() {
+		RecherchePpModel recherchePpModel = new RecherchePpModel();
+		recherchePpModel = (RecherchePpModel) dataModelPp.getRowData();
+		ItemSelected itemSelected;
+		for (Object object : listCheckSelectedNode) {
+			if (object instanceof Pp
+					&& ((Pp) object).getPpid() == recherchePpModel.getIdPp()) {
+				itemSelected = new ItemSelected();
+				Pp pp = (Pp) object;
+				itemSelected.setItemSelectedId(pp.getExpdestexterne()
+						.getIdExpDestExterne());
+				itemSelected.setItemSelectedName(pp.getExpdestexterne()
+						.getExpDestExterneNom());
+				itemSelected.setSelectedObject(pp);
+				itemSelected.setRecherchePpModel(recherchePpModel);
+				itemSelected.setFromSearch(true);
+				listSelectedItem.add(itemSelected);
+				// ** propre
+				vb.getCopyListSelectedObjectExp().add(object);
+				// ** Fin propre
+				vb.getCopyListSelectedObject().add(object);
+				vb.getCopyListPP().add(pp);
+				vb.getCopyListPPNotif().add(pp);
+				break;
+			}
+		}
+		listPp.remove(recherchePpModel);
+		dataModelPp.setWrappedData(listPp);
+	}
+
+	public void affectPm() {
+		RecherchePmModel recherchePmModel = new RecherchePmModel();
+		recherchePmModel = (RecherchePmModel) dataModelPm.getRowData();
+		ItemSelected itemSelected;
+		for (Object object : listCheckSelectedNode) {
+			if (object instanceof Pm
+					&& ((Pm) object).getPmid() == recherchePmModel.getIdPm()) {
+				itemSelected = new ItemSelected();
+				Pm pm = (Pm) object;
+				itemSelected.setItemSelectedId(pm.getExpdestexterne()
+						.getIdExpDestExterne());
+				itemSelected.setItemSelectedName(pm.getExpdestexterne()
+						.getExpDestExterneNom());
+				itemSelected.setSelectedObject(pm);
+				itemSelected.setRecherchePmModel(recherchePmModel);
+				itemSelected.setFromSearch(true);
+				listSelectedItem.add(itemSelected);
+				// ** propre
+				vb.getCopyListSelectedObjectExp().add(object);
+				// ** Fin propre
+				vb.getCopyListSelectedObject().add(object);
+				vb.getCopyListPM().add(pm);
+				vb.getCopyListPMNotif().add(pm);
+				break;
+			}
+		}
+		listPm.remove(recherchePmModel);
+		dataModelPm.setWrappedData(listPm);
+	}
+
+	
+	
+	private void laodAllStructureAH(TreeNodeImpl<String> node,
+			Object objetEnCours, int orderFils) {
+
+		BOC boc = null;
+		Unit direction = null;
+		int childSize = 0;
+		if (objetEnCours instanceof BOC) {
+			boc = (BOC) objetEnCours;
+		} else if (objetEnCours instanceof Unit) {
+
+			direction = (Unit) objetEnCours;
+
+		}
+
+		List<Unit> listDirections = new ArrayList<Unit>();
+		List<BOC> listBOSecondaires = new ArrayList<BOC>();
+		List<Unit> listDirectons = new ArrayList<Unit>();
+		List<BOC> listBODirections = new ArrayList<BOC>();
+
+		if (boc != null) {
+			System.out.println(" En cours : " + boc.getNameBOC());
+			listBOSecondaires = boc.getListChildBOCsBOC();
+			listDirections = boc.getListDirectionsChildBOC();
+
+			int listBOSecondairesSize = 0;
+			int listDirectionsSize = 0;
+
+			if (boc.getListChildBOCsBOC() != null)
+				listBOSecondairesSize = boc.getListChildBOCsBOC().size();
+
+			if (boc.getListDirectionsChildBOC() != null)
+				listDirectionsSize = boc.getListDirectionsChildBOC().size();
+
+			childSize = listBOSecondairesSize + listDirectionsSize;
+
+		} else if (direction != null) {
+			System.out.println(" En cours : " + direction.getNameUnit());
+			listBODirections = direction.getListBOChildUnit();
+			listDirectons = direction.getListUnitsChildUnit();
+
+			int listBOSecondairesSize = 0;
+			int listDirectionsSize = 0;
+
+			if (direction.getListUnitsChildUnit() != null)
+				listDirectionsSize = direction.getListUnitsChildUnit().size();
+
+			if (direction.getListBOChildUnit() != null)
+				listBOSecondairesSize = direction.getListBOChildUnit().size();
+
+			childSize = listBOSecondairesSize + listDirectionsSize;
+		}
+
+		TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+
+		if (boc != null) {
+			// Créatio noeud
+
+			System.out.println("noeud BO : " + boc.getNameBOC());
+			child.setData(boc.getNameBOC());
+			listCheckSelectedNode.add(boc.getNameBOC());
+			listCheckSelectedNode.add(boc);
+			// listNewStructure.add(boc);
+			node.addChild(orderFils, child);
+			System.out.println("création du " + boc.getNameBOC() + " sous "
+					+ node.getData() + " à l'order " + orderFils + "\n");
+		}
+		if (direction != null) {// création de noeud
+								// TreeNodeImpl<String> child = new
+								// TreeNodeImpl<String>();
+			System.out.println("noeud Unité : " + direction.getNameUnit());
+			child.setData(direction.getNameUnit().trim());
+			listCheckSelectedNode.add(direction.getNameUnit().trim());
+			listCheckSelectedNode.add(direction);
+			// listNewStructure.add(direction);
+			node.addChild(orderFils, child);
+			System.out.println("création du " + direction.getNameUnit()
+					+ " sous " + node.getData() + " à l'order " + orderFils
+					+ "\n");
+
+			TreeNodeImpl<String> child1 = new TreeNodeImpl<String>();
+
+			// Responsable
+
+			try {
+				child1.setData("Responsable : "
+						+ direction.getResponsibleUnit().getCn());
+				System.out.println("check Responsable : "
+						+ direction.getResponsibleUnit().getCn() + " , "
+						+ direction.getNameUnit());
+				listCheckSelectedNode.add("Responsable : "
+						+ direction.getResponsibleUnit().getCn());
+				listCheckSelectedNode.add(direction.getResponsibleUnit());
+			} catch (NullPointerException e) {
+				child1.setData("Responsable : Pas encore affecté.");
+			}
+			child.addChild(0, child1);
+			// Secretaite
+			// [JS] Début =============================
+			Variables variable = new Variables();
+			variable = appMgr.listVariablesByLibelle(
+					"affichage_secretaire_dans_liste_destinataire").get(0);
+			System.out.println("Valeur Variable Global :"
+					+ variable.getVaraiablesValeur());
+			TreeNodeImpl<String> child2 = new TreeNodeImpl<String>();
+			if (variable.getVaraiablesValeur().equals("Oui")) {
+				// [JS] Fin ========================
+				try {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData("Secrétaire : "
+							+ direction.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add("Secrétaire : "
+							+ direction.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add(direction.getSecretaryUnit());
+
+				} catch (NullPointerException e) {
+					child2.setData("Secrétaire : Pas encore affectée.");
+				}
+				child.addChild(1, child2);
+			}
+			// Membres
+			// [JS] Début =============================
+			Variables variable1 = new Variables();
+			variable1 = appMgr.listVariablesByLibelle(
+					"affichage_agent_dans_liste_destinataire").get(0);
+			System.out.println("Valeur Variable Global :"
+					+ variable1.getVaraiablesValeur());
+			TreeNodeImpl<String> child3 = new TreeNodeImpl<String>();
+			if (variable1.getVaraiablesValeur().equals("Oui")) {
+
+				child3.setData("Membres courants ");
+				child.addChild(2, child3);
+				TreeNodeImpl<String> child4 = new TreeNodeImpl<String>();
+				if (!direction.getMembersUnit().isEmpty()) {
+					for (int i = 0; i < direction.getMembersUnit().size(); i++) {
+
+						child4.setData("Agent : "
+								+ direction.getMembersUnit().get(i).getCn());
+						listCheckSelectedNode.add("Agent : "
+								+ direction.getMembersUnit().get(i).getCn());
+						listCheckSelectedNode.add(direction.getMembersUnit()
+								.get(i));
+						child3.addChild(i, child4);
+					}
+				} else {
+					child4 = new TreeNodeImpl<String>();
+					child4.setData("Aucun agent affecté");
+					child3.addChild(0, child4);
+				}
+			}
+			// child1 = new TreeNodeImpl<String>();
+			// child1.setData("Sous-Unités ");
+			// child.addChild(3, child1);
+			// if (!direction.getListUnitsChildUnit().isEmpty()) {
+			// for (int i = 0; i < direction.getListUnitsChildUnit().size();
+			// i++) {
+			// child2 = new TreeNodeImpl<String>();
+			// index++;
+			// laodAllStructureAH(child1,
+			// direction.getListUnitsChildUnit().get(i), i);
+			// }
+			// } else {
+			// child2 = new TreeNodeImpl<String>();
+			// child2.setData("Pas de sous-unités");
+			// child1.addChild(0, child2);
+			// }
+		}
+
+		System.out.println("childSize = " + childSize);
+		for (int i = 0; i < childSize; i++) {
+			System.out.println("i= " + i);
+			if (boc != null) {
+				int j = 0;
+				if (boc.getListChildBOCsBOC() != null) {
+					for (j = 0; j < boc.getListChildBOCsBOC().size(); j++) {
+
+						// laodAllStructure avec boc en cours
+						laodAllStructureAH(child, boc.getListChildBOCsBOC()
+								.get(j), j + 3);
+
+					}
+				}
+				if (boc.getListDirectionsChildBOC() != null) {
+					for (int k = 0, h = j; k < boc.getListDirectionsChildBOC()
+							.size(); k++, h++) {
+						laodAllStructureAH(child, boc
+								.getListDirectionsChildBOC().get(k), h);
+					}
+				}
+			}
+			if (direction != null) {
+				System.out.println("---------tt------");
+				int j2 = 0;
+				if (direction.getListBOChildUnit() != null) {
+					for (j2 = 0; j2 < direction.getListBOChildUnit().size(); j2++) {
+						// laodAllStructure avec boc en cours
+						laodAllStructureAH(child, direction
+								.getListBOChildUnit().get(j2), j2 + 3);
+					}
+				}
+
+				if (direction.getListUnitsChildUnit() != null) {
+					for (int k2 = 0, l = j2; k2 < direction
+							.getListUnitsChildUnit().size(); k2++, l++) {
+						laodAllStructureAH(child, direction
+								.getListUnitsChildUnit().get(k2), l);
+					}
+				}
+			}
+		}
+
+	}
+
+	private void laodAllStructure(TreeNodeImpl<String> node,
+			Object noeudEnCours, int identifier) {
+		System.out.println("DANS laodAllStructure");
+		System.out.println("index =  " + index);
+		System.out.println("identifier  " + identifier);
+		// if (listLdapStructure!=null && listLdapStructure.size()>=0) {
+		// System.out.println("listLdapStructure.size()  =  "+listLdapStructure.size());
+		// }
+		if (noeudEnCours != null && noeudEnCours instanceof Unit) {
+
+			TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+			TreeNodeImpl<String> child1 = new TreeNodeImpl<String>();
+			TreeNodeImpl<String> child2;
+			Unit direction = (Unit) noeudEnCours;
+			System.out.println("<<<<<<<< AH : Noeud encours Unité : "
+					+ direction.getNameUnit());
+
+			child.setData(direction.getNameUnit());
+			listCheckSelectedNode.add(direction.getNameUnit());
+			listCheckSelectedNode.add(direction);
+			node.addChild(identifier, child);
+			// Responsable
+			try {
+				child1.setData("Responsable : "
+						+ direction.getResponsibleUnit().getCn());
+				System.out.println("check Responsable : "
+						+ direction.getResponsibleUnit().getCn() + " , "
+						+ direction.getNameUnit());
+				listCheckSelectedNode.add("Responsable : "
+						+ direction.getResponsibleUnit().getCn());
+				listCheckSelectedNode.add(direction.getResponsibleUnit());
+			} catch (NullPointerException e) {
+				child1.setData("Responsable : Pas encore affecté.");
+			}
+			child.addChild(0, child1);
+			// Secretaite
+			// [JS] Début =============================
+			Variables variable = new Variables();
+			variable = appMgr.listVariablesByLibelle(
+					"affichage_secretaire_dans_liste_destinataire").get(0);
+			System.out.println("Valeur Variable Global :"
+					+ variable.getVaraiablesValeur());
+			if (variable.getVaraiablesValeur().equals("Oui")) {
+				// [JS] Fin ========================
+				try {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Secrétaire : "
+							+ direction.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add("Secrétaire : "
+							+ direction.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add(direction.getSecretaryUnit());
+
+				} catch (NullPointerException e) {
+					child1.setData("Secrétaire : Pas encore affectée.");
+				}
+				child.addChild(1, child1);
+			}
+			// Membres
+			// [JS] Début =============================
+			Variables variable1 = new Variables();
+			variable1 = appMgr.listVariablesByLibelle(
+					"affichage_agent_dans_liste_destinataire").get(0);
+			System.out.println("Valeur Variable Global :"
+					+ variable1.getVaraiablesValeur());
+			if (variable1.getVaraiablesValeur().equals("Oui")) {
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Membres courants ");
+				child.addChild(2, child1);
+				if (!direction.getMembersUnit().isEmpty()) {
+					for (int i = 0; i < direction.getMembersUnit().size(); i++) {
+						child2 = new TreeNodeImpl<String>();
+						child2.setData("Agent : "
+								+ direction.getMembersUnit().get(i).getCn());
+						listCheckSelectedNode.add("Agent : "
+								+ direction.getMembersUnit().get(i).getCn());
+						listCheckSelectedNode.add(direction.getMembersUnit()
+								.get(i));
+						child1.addChild(i, child2);
+					}
+				} else {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData("Aucun agent affecté");
+					child1.addChild(0, child2);
+				}
+			}
+			child1 = new TreeNodeImpl<String>();
+			child1.setData("Sous-Unités ");
+			child.addChild(3, child1);
+			if (!direction.getListUnitsChildUnit().isEmpty()) {
+				for (int i = 0; i < direction.getListUnitsChildUnit().size(); i++) {
+					child2 = new TreeNodeImpl<String>();
+					index++;
+					laodAllStructure(child1, direction.getListUnitsChildUnit()
+							.get(i), i);
+					// child1.addChild(i, child2);
+				}
+			} else {
+				child2 = new TreeNodeImpl<String>();
+				child2.setData("Pas de sous-unités");
+				child1.addChild(0, child2);
+			}
+		}// AH : Si le noeud est un BOC
+		else if (noeudEnCours != null && noeudEnCours instanceof BOC) {
+			System.out.println("Ce n'est pas une Unité, c'est un BOC ");
+			TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+			BOC boc = (BOC) noeudEnCours;
+			child.setData(boc.getNameBOC());
+			listCheckSelectedNode.add(boc.getNameBOC());
+			listCheckSelectedNode.add(boc);
+			// listNewStructure.add(boc);
+			node.addChild(0, child);
+			TreeNodeImpl<String> child1;
+			if (boc.getListDirectionsChildBOC() != null) {
+				for (int i = 0; i < boc.getListDirectionsChildBOC().size(); i++) {
+					System.out
+							.println(">>>>>>>>>>>>>>>>>> AH : C'est un BOC Child :"
+									+ boc.getListDirectionsChildBOC().get(i));
+					child1 = new TreeNodeImpl<String>();
+					child1.setData(boc.getListDirectionsChildBOC().get(i)
+							.getNameUnit());
+					listCheckSelectedNode.add(boc.getListDirectionsChildBOC()
+							.get(i).getNameUnit());
+					listCheckSelectedNode.add(boc.getListDirectionsChildBOC()
+							.get(i));
+					// listNewStructure
+					// .add(boc.getListDirectionsChildBOC().get(i));
+					index++;
+
+					laodAllStructure(child1, boc.getListDirectionsChildBOC()
+							.get(i), i);
+					child.addChild(i, child1);
+				}
+			}
+
+		}
+	}
+
+	private void loadListPpPm(int o) {
+		TreeNodeImpl<String> child;
+		TreeNodeImpl<String> child1;
+		child = new TreeNodeImpl<String>();
+		child.setData("Liste PP & PM ");
+		stationNodesResult.addChild(o, child);
+		child1 = new TreeNodeImpl<String>();
+		TreeNodeImpl<String> child2;
+		child1.setData("Personnes Physiques ");
+		for (int j = 0; j < listPP.size(); j++) {
+			child2 = new TreeNodeImpl<String>();
+			child2.setData(listPP.get(j).getExpdestexterne()
+					.getExpDestExterneNom()
+					+ " "
+					+ listPP.get(j).getExpdestexterne()
+							.getExpDestExternePrenom());
+			listCheckSelectedNode.add(listPP.get(j).getExpdestexterne()
+					.getExpDestExterneNom()
+					+ " "
+					+ listPP.get(j).getExpdestexterne()
+							.getExpDestExternePrenom());
+			listCheckSelectedNode.add(listPP.get(j));
+			child1.addChild(j, child2);
+		}
+		child.addChild(0, child1);
+		child1 = new TreeNodeImpl<String>();
+		child1.setData("Personnes Morales ");
+		for (int j = 0; j < listPM.size(); j++) {
+			child2 = new TreeNodeImpl<String>();
+			child2.setData(listPM.get(j).getExpdestexterne()
+					.getExpDestExterneNom());
+			listCheckSelectedNode.add(listPM.get(j).getExpdestexterne()
+					.getExpDestExterneNom());
+			listCheckSelectedNode.add(listPM.get(j));
+			child1.addChild(j, child2);
+		}
+		child.addChild(1, child1);
+
+	}
+
+	private void identifyModel(Person person) {
+		int i = 0;
+		boolean find = false;
+		/**** Recherche User ****/
+		do {
+			if (person.getId() == listUsers.get(i).getId()) {
+				person = listUsers.get(i);
+				find = true;
+			} else {
+				i++;
+			}
+		} while (!find);
+		if (listUsers.get(i).isSecretary()) {
+			if (appMgr.listVariablesById(15).get(0).getVaraiablesValeur()
+					.equals("Oui")) {
+				System.out
+						.println("AH : C'est une Secrétaire : Variable à OUI **************************");
+				BOC centralBoc = new BOC();
+				centralBoc = vb.getCentralBoc();
+				// AH : Lignes joutées par AH le 05/04/2018
+				// AH : Chercher le Boc Associé à l'Unité à laquelle appritien
+				// le personne connecté
+				Unit unite = vb.getPerson().getAssociatedDirection();
+				while (unite.getAssociatedBOC() == null) {
+					unite = unite.getAssociatedUnit();
+				}
+				BOC boc = unite.getAssociatedBOC();
+				// [JS] Ajoutée le 2019-08-06 afficher tous les directions
+				if (centralBoc.getTypeBOC().equals("Central")) {
+					// =========================================
+					// AH : Chargement des données du BO du LDAP
+					LdapFunction ldapFunction = new LdapFunction();
+					ldapFunction.ldapData = new ArrayList<Object>();
+					ldapFunction.fillData(centralBoc, "0");
+					vb.setCopyLdapData(ldapFunction.ldapData);
+					index = 1;
+					laodAllStructureAH(stationNodesResult, centralBoc, 0);
+					/*
+					 * if (centralBoc.getListChildBOCsBOC() != null &&
+					 * centralBoc.getListChildBOCsBOC().size() > 0) {
+					 * 
+					 * for (int j = 0; j < centralBoc
+					 * .getListChildBOCsBOC().size(); j++) {
+					 * 
+					 * BOC nvcentralBoc = centralBoc
+					 * .getListChildBOCsBOC().get(j); ldapFunction = new
+					 * LdapFunction(); ldapFunction.ldapData = new
+					 * ArrayList<Object>(); ldapFunction.fillData(nvcentralBoc,
+					 * "0"); vb.setCopyLdapData(ldapFunction.ldapData); index =
+					 * 1; laodAllStructure(stationNodesResult, centralBoc
+					 * .getListChildBOCsBOC().get(j), j + 1); } }
+					 */
+
+				}
+			} else {
+				System.out
+						.println("AH : C'est une Secrétaire : Variable à NON **************************");
+
+				loadTreeForSecretary(listUsers.get(i));
+			}
+		} else if (listUsers.get(i).isResponsable()) {
+
+			if (appMgr.listVariablesById(16).get(0).getVaraiablesValeur()
+					.equals("Oui")) {
+				System.out
+						.println("AH : C'est un Responsable : Variable à OUI **************************");
+				BOC centralBoc = new BOC();
+				centralBoc = vb.getCentralBoc();
+				// [JS] : Lignes ajoutées par JS le 2019-08-06
+				// [JS] : Afficher tous les directions
+				System.out.println("Name Boc Centrale :"
+						+ centralBoc.getNameBOC());
+				System.out.println("ID Boc Cenrale " + centralBoc.getIdBOC());
+
+				if (centralBoc.getTypeBOC().equals("Central")) {
+
+					// AH : Lignes joutées par AH le 05/04/2018
+					// AH : Chercher le Boc Associé à l'Unité à laquelle
+					// appartien
+					// le personne connecté
+					Unit unite = vb.getPerson().getAssociatedDirection();
+					while (unite.getAssociatedBOC() == null) {
+						unite = unite.getAssociatedUnit();
+					}
+					BOC boc = unite.getAssociatedBOC();
+					// =========================================
+					// AH : Chargement des données du BO du LDAP
+					LdapFunction ldapFunction = new LdapFunction();
+					ldapFunction.ldapData = new ArrayList<Object>();
+					ldapFunction.fillData(centralBoc, "0");
+					vb.setCopyLdapData(ldapFunction.ldapData);
+					index = 1;
+					laodAllStructureAH(stationNodesResult, centralBoc, 0);
+					/*
+					 * if (centralBoc.getListChildBOCsBOC() != null &&
+					 * centralBoc.getListChildBOCsBOC().size() > 0) {
+					 * 
+					 * for (int j = 0; j < centralBoc
+					 * .getListChildBOCsBOC().size(); j++) {
+					 * 
+					 * System.out.println("dans lle nv if"); BOC nvcentralBoc =
+					 * centralBoc .getListChildBOCsBOC().get(j); ldapFunction =
+					 * new LdapFunction(); ldapFunction.ldapData = new
+					 * ArrayList<Object>(); ldapFunction.fillData(nvcentralBoc,
+					 * "0"); vb.setCopyLdapData(ldapFunction.ldapData); index =
+					 * 1; laodAllStructure(stationNodesResult, centralBoc
+					 * .getListChildBOCsBOC().get(j), j + 1);
+					 * 
+					 * }
+					 * 
+					 * System.out.println("************ index= " + index); }
+					 */
+					// AH : Création du Tree
+					// laodAllStructure(stationNodesResult,
+					// ldapFunction.ldapData, 1);
+					// loadListPpPm();
+				}
+			} else {
+				System.out
+						.println("AH : C'est un Responsable : Variable à NON **************************");
+				loadTreeForResponsable(listUsers.get(i));
+			}
+		} else if (listUsers.get(i).isAgent()) {
+			if (appMgr.listVariablesById(17).get(0).getVaraiablesValeur()
+					.equals("Oui")) {
+				System.out
+						.println("AH : C'est un Agent : Variable à OUI **************************");
+				BOC centralBoc = new BOC();
+				centralBoc = vb.getCentralBoc();
+				// AH : Lignes joutées par AH le 05/04/2018
+				// AH : Chercher le Boc Associé à l'Unité à laquelle appritien
+				// le personne connecté
+				Unit unite = vb.getPerson().getAssociatedDirection();
+				while (unite.getAssociatedBOC() == null) {
+					unite = unite.getAssociatedUnit();
+				}
+				BOC boc = unite.getAssociatedBOC();
+				laodAllStructureAH(stationNodesResult, centralBoc, 0);
+				// =========================================
+				// AH : Chargement des données du BO du LDAP
+				if (centralBoc.getTypeBOC().equals("Central")) {
+
+					LdapFunction ldapFunction = new LdapFunction();
+					ldapFunction.ldapData = new ArrayList<Object>();
+					ldapFunction.fillData(centralBoc, "0");
+					vb.setCopyLdapData(ldapFunction.ldapData);
+					index = 1;
+					/*
+					 * //[JS] : Ajoutée le 2019-08-06 : Afficher tous les
+					 * directions sauf les externes if
+					 * (centralBoc.getListChildBOCsBOC() != null &&
+					 * centralBoc.getListChildBOCsBOC().size() > 0) {
+					 * 
+					 * for (int j = 0; j < centralBoc
+					 * .getListChildBOCsBOC().size(); j++) {
+					 * 
+					 * BOC nvcentralBoc = centralBoc
+					 * .getListChildBOCsBOC().get(j); ldapFunction = new
+					 * LdapFunction(); ldapFunction.ldapData = new
+					 * ArrayList<Object>(); ldapFunction.fillData(nvcentralBoc,
+					 * "0"); vb.setCopyLdapData(ldapFunction.ldapData); index =
+					 * 1; laodAllStructure(stationNodesResult, centralBoc
+					 * .getListChildBOCsBOC().get(j), j + 1);
+					 * 
+					 * }
+					 * 
+					 * System.out.println("************ index= " + index); }
+					 */
+
+					// laodAllStructure(stationNodesResult,
+					// ldapFunction.ldapData, 1);
+					// loadListPpPm();
+				}
+			} else {
+				System.out
+						.println("AH : C'est un Agent : Variable à NON **************************");
+				loadTreeForAgent(listUsers.get(i));
+			}
+		} else {
+			System.out.println("il y'a un probléme !!!!!!!");
+		}
+
+	}
+
+	private void loadTreeForAgent(Person person) {
+		List<Group> listGroup;
+		List<Group> listGroupCopy;
+		List<Person> listMembers;
+		Group group;
+		TreeNodeImpl<String> child;
+		if (person.getAssociatedDirection() != null) {
+			child = new TreeNodeImpl<String>();
+			child.setData("Unité Courante : "
+					+ person.getAssociatedDirection().getNameUnit());
+			listCheckSelectedNode.add("Unité Courante : "
+					+ person.getAssociatedDirection().getNameUnit());
+			listCheckSelectedNode.add(person.getAssociatedDirection());
+			stationNodesResult.addChild(0, child);
+			TreeNodeImpl<String> child1;
+			child1 = new TreeNodeImpl<String>();
+			try {
+				child1.setData("Responsable : "
+						+ person.getAssociatedDirection().getResponsibleUnit()
+								.getCn());
+				listCheckSelectedNode.add("Responsable : "
+						+ person.getAssociatedDirection().getResponsibleUnit()
+								.getCn());
+				listCheckSelectedNode.add(person.getAssociatedDirection()
+						.getResponsibleUnit());
+			} catch (NullPointerException e) {
+				child1.setData("Responsable : Pas encore affecté.");
+			}
+			child.addChild(0, child1);
+			System.out
+					.println("JS :affichage_secretaire_dans_liste_destinataire");
+			if (appMgr.listVariablesById(19).get(0).getVaraiablesValeur()
+					.equals("Oui")) {
+
+				child1 = new TreeNodeImpl<String>();
+				try {
+					child1.setData("Secrétaire : "
+							+ person.getAssociatedDirection()
+									.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add("Secrétaire : "
+							+ person.getAssociatedDirection()
+									.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add(person.getAssociatedDirection()
+							.getSecretaryUnit());
+				} catch (NullPointerException e) {
+					child1.setData("Secrétaire : Pas encore affectée.");
+				}
+				child.addChild(1, child1);
+			}
+			child1 = new TreeNodeImpl<String>();
+			System.out.println("JS :affichage_agent_dans_liste_destinataire");
+			TreeNodeImpl<String> child2;
+			if (appMgr.listVariablesById(20).get(0).getVaraiablesValeur()
+					.equals("Oui")) {
+
+				child1.setData("Membres Courants ");
+
+				if (!person.getAssociatedDirection().getMembersUnit().isEmpty()) {
+					for (int j = 0; j < person.getAssociatedDirection()
+							.getMembersUnit().size(); j++) {
+						if (person.getId() != person.getAssociatedDirection()
+								.getMembersUnit().get(j).getId()) {
+							child2 = new TreeNodeImpl<String>();
+							child2.setData("Agent : "
+									+ person.getAssociatedDirection()
+											.getMembersUnit().get(j).getCn());
+							listCheckSelectedNode.add("Agent : "
+									+ person.getAssociatedDirection()
+											.getMembersUnit().get(j).getCn());
+							listCheckSelectedNode.add(person
+									.getAssociatedDirection().getMembersUnit()
+									.get(j));
+							child1.addChild(j + 2, child2);
+						}
+					}
+				} else {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData("Aucun agent affecté.");
+					child1.addChild(0, child2);
+				}
+
+				child.addChild(2, child1);
+
+			}
+			// [JS]
+			// TreeNodeImpl<String> child2;
+			if (!vb.getRedirect().equals("rediretFromDTToListSender")) {
+				child = new TreeNodeImpl<String>();
+				child.setData("Liste PP & PM ");
+				stationNodesResult.addChild(1, child);
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Personnes Physiques ");
+				for (int j = 0; j < listPP.size(); j++) {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData(listPP.get(j).getExpdestexterne()
+							.getExpDestExterneNom()
+							+ " "
+							+ listPP.get(j).getExpdestexterne()
+									.getExpDestExternePrenom());
+					listCheckSelectedNode.add(listPP.get(j).getExpdestexterne()
+							.getExpDestExterneNom()
+							+ " "
+							+ listPP.get(j).getExpdestexterne()
+									.getExpDestExternePrenom());
+					listCheckSelectedNode.add(listPP.get(j));
+					child1.addChild(j, child2);
+				}
+				child.addChild(0, child1);
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Personnes Morales ");
+				for (int j = 0; j < listPM.size(); j++) {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData(listPM.get(j).getExpdestexterne()
+							.getExpDestExterneNom());
+					listCheckSelectedNode.add(listPM.get(j).getExpdestexterne()
+							.getExpDestExterneNom());
+					listCheckSelectedNode.add(listPM.get(j));
+					child1.addChild(j, child2);
+				}
+				child.addChild(1, child1);
+			}
+
+			child = new TreeNodeImpl<String>();
+			child.setData("Groupes Courants ");
+			stationNodesResult.addChild(2, child);
+			listGroupCopy = new ArrayList<Group>();
+			listGroupCopy = vb.getCopyLdapListGroup();
+			listGroup = new ArrayList<Group>();
+			for (int j = 0; j < listGroupCopy.size(); j++) {
+				group = new Group();
+				listMembers = new ArrayList<Person>();
+				group = listGroupCopy.get(j);
+				listMembers = group.getListUser();
+				int k = 0;
+				boolean findPerson = false;
+				if (!listMembers.isEmpty()) {
+					do {
+						if (person.getId() == listMembers.get(k).getId()) {
+							listGroup.add(group);
+							findPerson = true;
+						} else {
+							k++;
+						}
+					} while (!findPerson && k < listMembers.size());
+				}
+			}
+			if (listGroup.size() > 0) {
+				for (int j = 0; j < listGroup.size(); j++) {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Groupe : " + listGroup.get(j).getCn());
+					listCheckSelectedNode.add(("Groupe : " + listGroup.get(j)
+							.getCn()));
+					listCheckSelectedNode.add(listGroup.get(j));
+					for (int j2 = 0; j2 < listGroup.get(j).getListUser().size(); j2++) {
+						if (person.getId() != listGroup.get(j).getListUser()
+								.get(j2).getId()) {
+							child2 = new TreeNodeImpl<String>();
+							child2.setData("Membre : "
+									+ listGroup.get(j).getListUser().get(j2)
+											.getCn());
+							listCheckSelectedNode.add(("Membre : " + listGroup
+									.get(j).getListUser().get(j2).getCn()));
+							listCheckSelectedNode.add(listGroup.get(j)
+									.getListUser().get(j2));
+							child1.addChild(j2, child2);
+						}
+					}
+					child.addChild(j, child1);
+				}
+			} else {
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Vous n'appartenez à aucun groupe.");
+				child.addChild(0, child1);
+			}
+		}
+		if (person.getAssociatedBOC() != null) {
+			System.out.println("c'est un agent de BOC");
+			if (person.getAssociatedBOC().getTypeBOC().equals("Central")) {
+				TreeNodeImpl<String> child1;
+				child = new TreeNodeImpl<String>();
+				child.setData("Bureau d'Ordre Courant : "
+						+ person.getAssociatedBOC().getNameBOC());
+				listCheckSelectedNode.add("Bureau d'Ordre Courant : "
+						+ person.getAssociatedBOC().getNameBOC());
+				listCheckSelectedNode.add(person.getAssociatedBOC());
+				stationNodesResult.addChild(0, child);
+				if (!person.getAssociatedBOC().getMembersBOC().isEmpty()
+						&& person.getAssociatedBOC().getMembersBOC().size() != 1) {
+					for (int j = 0; j < person.getAssociatedBOC()
+							.getMembersBOC().size(); j++) {
+						if (person.getAssociatedBOC().getMembersBOC().get(j)
+								.getId() != vb.getPerson().getId()) {
+							child1 = new TreeNodeImpl<String>();
+							child1.setData("Membre : "
+									+ person.getAssociatedBOC().getMembersBOC()
+											.get(j).getCn());
+							listCheckSelectedNode.add("Membre : "
+									+ person.getAssociatedBOC().getMembersBOC()
+											.get(j).getCn());
+							listCheckSelectedNode.add(person.getAssociatedBOC()
+									.getMembersBOC().get(j));
+							child.addChild(j, child1);
+						}
+					}
+				} else {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Cet utilisateur est le seul membre de cet bureau d'ordre.");
+					child.addChild(0, child1);
+				}
+				child = new TreeNodeImpl<String>();
+				child.setData("Bureau(x) d'Ordre(s) Secondaire(s)");
+				stationNodesResult.addChild(1, child);
+				TreeNodeImpl<String> child2;
+				for (int j = 0; j < person.getAssociatedBOC()
+						.getListChildBOCsBOC().size(); j++) {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData(person.getAssociatedBOC()
+							.getListChildBOCsBOC().get(j).getNameBOC());
+					listCheckSelectedNode.add(person.getAssociatedBOC()
+							.getListChildBOCsBOC().get(j).getNameBOC());
+					listCheckSelectedNode.add(person.getAssociatedBOC()
+							.getListChildBOCsBOC().get(j));
+					child.addChild(j, child1);
+				}
+
+				if (!vb.getRedirect().equals("rediretFromDTToListSender")) {
+					child = new TreeNodeImpl<String>();
+					child.setData("Liste PP & PM ");
+					stationNodesResult.addChild(2, child);
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Personnes Physiques ");
+					for (int j = 0; j < listPP.size(); j++) {
+						child2 = new TreeNodeImpl<String>();
+						child2.setData(listPP.get(j).getExpdestexterne()
+								.getExpDestExterneNom()
+								+ " "
+								+ listPP.get(j).getExpdestexterne()
+										.getExpDestExternePrenom());
+						listCheckSelectedNode.add(listPP.get(j)
+								.getExpdestexterne().getExpDestExterneNom()
+								+ " "
+								+ listPP.get(j).getExpdestexterne()
+										.getExpDestExternePrenom());
+						listCheckSelectedNode.add(listPP.get(j));
+						child1.addChild(j, child2);
+					}
+					child.addChild(0, child1);
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Personnes Morales ");
+					for (int j = 0; j < listPM.size(); j++) {
+						child2 = new TreeNodeImpl<String>();
+						child2.setData(listPM.get(j).getExpdestexterne()
+								.getExpDestExterneNom()
+								+ " "
+								+ listPP.get(j).getExpdestexterne()
+										.getExpDestExternePrenom());
+						listCheckSelectedNode.add(listPM.get(j)
+								.getExpdestexterne().getExpDestExterneNom()
+								+ " "
+								+ listPP.get(j).getExpdestexterne()
+										.getExpDestExternePrenom());
+						listCheckSelectedNode.add(listPM.get(j));
+						child1.addChild(j, child2);
+					}
+					child.addChild(1, child1);
+				}
+
+				// child = new TreeNodeImpl<String>();
+				// child.setData("Groupes Courants ");
+				// stationNodesResult.addChild(3, child);
+				// listGroupCopy = new ArrayList<Group>();
+				// listGroupCopy = vb.getCopyLdapListGroup();
+				// listGroup = new ArrayList<Group>();
+				// for (int j = 0; j < listGroupCopy.size(); j++) {
+				// group = new Group();
+				// listMembers = new ArrayList<Person>();
+				// group = listGroupCopy.get(j);
+				// listMembers = group.getListUser();
+				// int k = 0;
+				// boolean findPerson = false;
+				// if (!listMembers.isEmpty()) {
+				// do {
+				// if (person.getId() == listMembers.get(k).getId()) {
+				// listGroup.add(group);
+				// findPerson = true;
+				// } else {
+				// k++;
+				// }
+				// } while (!findPerson && k < listMembers.size());
+				// }
+				// }
+				// if (listGroup.size() > 0) {
+				// for (int j = 0; j < listGroup.size(); j++) {
+				// child1 = new TreeNodeImpl<String>();
+				// child1.setData("Groupe : " + listGroup.get(j).getCn());
+				// listCheckSelectedNode.add(("Groupe : " + listGroup.get(
+				// j).getCn()));
+				// listCheckSelectedNode.add(listGroup.get(j));
+				// for (int j2 = 0; j2 < listGroup.get(j).getListUser()
+				// .size(); j2++) {
+				// if (person.getId() != listGroup.get(j)
+				// .getListUser().get(j2).getId()) {
+				// child2 = new TreeNodeImpl<String>();
+				// child2.setData("Membre : "
+				// + listGroup.get(j).getListUser()
+				// .get(j2).getCn());
+				// listCheckSelectedNode
+				// .add(("Membre : " + listGroup.get(j)
+				// .getListUser().get(j2).getCn()));
+				// listCheckSelectedNode.add(listGroup.get(j)
+				// .getListUser().get(j2));
+				// child1.addChild(j2, child2);
+				// }
+				// }
+				// child.addChild(j, child1);
+				// }
+				// } else {
+				// child1 = new TreeNodeImpl<String>();
+				// child1.setData("Vous n'appartenez é aucun groupe.");
+				// child.addChild(0, child1);
+				// }
+			} else {
+				child = new TreeNodeImpl<String>();
+				child.setData("Bureau d'Ordre Courant : "
+						+ person.getAssociatedBOC().getNameBOC());
+				listCheckSelectedNode.add("Bureau d'Ordre Courant : "
+						+ person.getAssociatedBOC().getNameBOC());
+				listCheckSelectedNode.add(person.getAssociatedBOC());
+				stationNodesResult.addChild(0, child);
+				TreeNodeImpl<String> child1;
+				child = new TreeNodeImpl<String>();
+				child.setData("Bureau d'Ordre Central : "
+						+ person.getAssociatedBOC().getAssociatedBOC()
+								.getNameBOC());
+				listCheckSelectedNode.add("Bureau d'Ordre Central : "
+						+ person.getAssociatedBOC().getAssociatedBOC()
+								.getNameBOC());
+				listCheckSelectedNode.add(person.getAssociatedBOC()
+						.getAssociatedBOC());
+				stationNodesResult.addChild(1, child);
+				child = new TreeNodeImpl<String>();
+				child.setData("Bureau(x) d'Ordre(s) Voisin(s) ");
+				stationNodesResult.addChild(2, child);
+				TreeNodeImpl<String> child2;
+				for (int j = 0; j < person.getAssociatedBOC()
+						.getListAdjoiningBOCsBOC().size(); j++) {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData(person.getAssociatedBOC()
+							.getListAdjoiningBOCsBOC().get(j).getNameBOC());
+					listCheckSelectedNode.add(person.getAssociatedBOC()
+							.getListAdjoiningBOCsBOC().get(j).getNameBOC());
+					listCheckSelectedNode.add(person.getAssociatedBOC()
+							.getListAdjoiningBOCsBOC().get(j));
+					child.addChild(j, child1);
+				}
+
+				if (!vb.getRedirect().equals("rediretFromDTToListSender")) {
+					child = new TreeNodeImpl<String>();
+					child.setData("Liste PP & PM ");
+					stationNodesResult.addChild(3, child);
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Personnes Physiques ");
+					for (int j = 0; j < listPP.size(); j++) {
+						child2 = new TreeNodeImpl<String>();
+						child2.setData(listPP.get(j).getExpdestexterne()
+								.getExpDestExterneNom()
+								+ " "
+								+ listPP.get(j).getExpdestexterne()
+										.getExpDestExternePrenom());
+						listCheckSelectedNode.add(listPP.get(j)
+								.getExpdestexterne().getExpDestExterneNom()
+								+ " "
+								+ listPP.get(j).getExpdestexterne()
+										.getExpDestExternePrenom());
+						listCheckSelectedNode.add(listPP.get(j));
+						child1.addChild(j, child2);
+					}
+					child.addChild(0, child1);
+					child1 = new TreeNodeImpl<String>();
+					child1.setData("Personnes Morales ");
+					for (int j = 0; j < listPM.size(); j++) {
+						child2 = new TreeNodeImpl<String>();
+						child2.setData(listPM.get(j).getExpdestexterne()
+								.getExpDestExterneNom());
+						listCheckSelectedNode.add(listPM.get(j)
+								.getExpdestexterne().getExpDestExterneNom());
+						listCheckSelectedNode.add(listPM.get(j));
+						child1.addChild(j, child2);
+					}
+					child.addChild(1, child1);
+				}
+
+				// child = new TreeNodeImpl<String>();
+				// child.setData("Groupes Courants ");
+				// stationNodesResult.addChild(4, child);
+				// listGroupCopy = new ArrayList<Group>();
+				// listGroupCopy = vb.getCopyLdapListGroup();
+				// listGroup = new ArrayList<Group>();
+				// for (int j = 0; j < listGroupCopy.size(); j++) {
+				// group = new Group();
+				// listMembers = new ArrayList<Person>();
+				// group = listGroupCopy.get(j);
+				// listMembers = group.getListUser();
+				// int k = 0;
+				// boolean findPerson = false;
+				// if (!listMembers.isEmpty()) {
+				// do {
+				// if (person.getId() == listMembers.get(k).getId()) {
+				// listGroup.add(group);
+				// findPerson = true;
+				// } else {
+				// k++;
+				// }
+				// } while (!findPerson && k < listMembers.size());
+				// }
+				// }
+				// if (listGroup.size() > 0) {
+				// for (int j = 0; j < listGroup.size(); j++) {
+				// child1 = new TreeNodeImpl<String>();
+				// child1.setData("Groupe : " + listGroup.get(j).getCn());
+				// listCheckSelectedNode.add(("Groupe : " + listGroup.get(
+				// j).getCn()));
+				// listCheckSelectedNode.add(listGroup.get(j));
+				// for (int j2 = 0; j2 < listGroup.get(j).getListUser()
+				// .size(); j2++) {
+				// if (person.getId() != listGroup.get(j)
+				// .getListUser().get(j2).getId()) {
+				// child2 = new TreeNodeImpl<String>();
+				// child2.setData("Membre : "
+				// + listGroup.get(j).getListUser()
+				// .get(j2).getCn());
+				// listCheckSelectedNode
+				// .add(("Membre : " + listGroup.get(j)
+				// .getListUser().get(j2).getCn()));
+				// listCheckSelectedNode.add(listGroup.get(j)
+				// .getListUser().get(j2));
+				// child1.addChild(j2, child2);
+				// }
+				// }
+				// child.addChild(j, child1);
+				// }
+				// } else {
+				// child1 = new TreeNodeImpl<String>();
+				// child1.setData("Vous n'appartenez é aucun groupe.");
+				// child.addChild(0, child1);
+				// }
+			}
+		}
+	}
+
+	private void loadTreeForResponsable(Person person) {
+		// List<Group> listGroup;
+		// List<Group> listGroupCopy;
+		// List<Person> listMembers;
+		// Group group;
+		if (person.getAssociatedDirection() != null) {
+
+			TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+
+			// [JS] constitution Noeud 1 :Direction
+			child.setData("Unité Courante : "
+					+ person.getAssociatedDirection().getNameUnit());
+			listCheckSelectedNode.add("Unité Courante : "
+					+ person.getAssociatedDirection().getNameUnit());
+			listCheckSelectedNode.add(person.getAssociatedDirection());
+			stationNodesResult.addChild(0, child);
+
+			TreeNodeImpl<String> child1;
+			child1 = new TreeNodeImpl<String>();
+
+			if (vb.getRedirect().equals("rediretFromCRMExpToListSender")) {
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Moi : " + vb.getPerson().getCn());
+				listCheckSelectedNode.add("Moi : " + vb.getPerson().getCn());
+				listCheckSelectedNode.add(vb.getPerson());
+				child.addChild(0, child1);
+			}
+
+			// [JS] Début =============================
+			Variables v = new Variables();
+			v = appMgr.listVariablesByLibelle(
+					"affichage_secretaire_dans_liste_destinataire").get(0);
+			System.out.println("Valeur de VG :" + v.getVaraiablesValeur());
+			if (v.getVaraiablesValeur().equals("Oui")) {
+				// [JS] constitution sous Noeud Secrétaire sous Noeaud Parent
+				// Direction
+				child1 = new TreeNodeImpl<String>();
+				try {
+					child1.setData("Secrétaire : "
+							+ person.getAssociatedDirection()
+									.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add("Secrétaire : "
+							+ person.getAssociatedDirection()
+									.getSecretaryUnit().getCn());
+					listCheckSelectedNode.add(person.getAssociatedDirection()
+							.getSecretaryUnit());
+				} catch (NullPointerException e) {
+					child1.setData("Secrétaire : Pas encore affectée.");
+				}
+				child.addChild(1, child1);
+			}
+			// [JS] constitution sous Noeud Membres Courants sous Noeaud Parent
+			// Direction
+			child1 = new TreeNodeImpl<String>();
+			child1.setData("Membres Courants ");
+			TreeNodeImpl<String> child3;
+
+			// [JS] Début =============================
+			Variables v1 = new Variables();
+			v1 = appMgr.listVariablesByLibelle(
+					"affichage_agent_dans_liste_destinataire").get(0);
+			System.out.println("Valeur de VG :" + v1.getVaraiablesValeur());
+			if (v1.getVaraiablesValeur().equals("Oui")) {
+				// if(appMgr.listVariablesById(20).get(0).getVaraiablesValeur().equals("Oui"))
+
+				if (!person.getAssociatedDirection().getMembersUnit().isEmpty()) {
+					for (int j = 0; j < person.getAssociatedDirection()
+							.getMembersUnit().size(); j++) {
+						child3 = new TreeNodeImpl<String>();
+						child3.setData("Agent : "
+								+ person.getAssociatedDirection()
+										.getMembersUnit().get(j).getCn());
+						listCheckSelectedNode.add(("Agent : " + person
+								.getAssociatedDirection().getMembersUnit()
+								.get(j).getCn()));
+						listCheckSelectedNode.add(person
+								.getAssociatedDirection().getMembersUnit()
+								.get(j));
+						child1.addChild(j, child3);
+					}
+				} else {
+					child3 = new TreeNodeImpl<String>();
+					child3.setData("Aucun agent affecté.");
+					child1.addChild(0, child3);
+				}
+
+				child.addChild(2, child1);
+			}
+			// [JS] constitution Noeud 2 :Unité
+			child = new TreeNodeImpl<String>();
+			child.setData("Sous-Unités ");
+			stationNodesResult.addChild(1, child);
+			if (!person.getAssociatedDirection().getListUnitsChildUnit()
+					.isEmpty()) {
+				for (int j = 0; j < person.getAssociatedDirection()
+						.getListUnitsChildUnit().size(); j++) {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData(person.getAssociatedDirection()
+							.getListUnitsChildUnit().get(j).getNameUnit());
+					listCheckSelectedNode.add((person.getAssociatedDirection()
+							.getListUnitsChildUnit().get(j).getNameUnit()));
+					listCheckSelectedNode.add(person.getAssociatedDirection()
+							.getListUnitsChildUnit().get(j));
+					TreeNodeImpl<String> child2 = new TreeNodeImpl<String>();
+					try {
+						child2.setData("Responsable : "
+								+ person.getAssociatedDirection()
+										.getListUnitsChildUnit().get(j)
+										.getResponsibleUnit().getCn());
+						listCheckSelectedNode.add(("Responsable : " + person
+								.getAssociatedDirection()
+								.getListUnitsChildUnit().get(j)
+								.getResponsibleUnit().getCn()));
+						listCheckSelectedNode.add(person
+								.getAssociatedDirection()
+								.getListUnitsChildUnit().get(j)
+								.getResponsibleUnit());
+					} catch (NullPointerException e) {
+						child2.setData("Responsable : Pas encore affecté.");
+					}
+					child1.addChild(0, child2);
+					child.addChild(j, child1);
+				}
+			} else {
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Pas de Sous-Unités ");
+				child.addChild(0, child1);
+			}
+			child = new TreeNodeImpl<String>();
+			child.setData("Unités Voisines ");
+			stationNodesResult.addChild(2, child);
+			if (!person.getAssociatedDirection().getListAdjoiningUnitsUnit()
+					.isEmpty()) {
+				for (int j = 0; j < person.getAssociatedDirection()
+						.getListAdjoiningUnitsUnit().size(); j++) {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData(person.getAssociatedDirection()
+							.getListAdjoiningUnitsUnit().get(j).getNameUnit());
+					listCheckSelectedNode.add((person.getAssociatedDirection()
+							.getListAdjoiningUnitsUnit().get(j).getNameUnit()));
+					listCheckSelectedNode.add(person.getAssociatedDirection()
+							.getListAdjoiningUnitsUnit().get(j));
+					TreeNodeImpl<String> child2 = new TreeNodeImpl<String>();
+					child2.setData("Responsable : "
+							+ person.getAssociatedDirection()
+									.getListAdjoiningUnitsUnit().get(j)
+									.getResponsibleUnit().getCn());
+					listCheckSelectedNode.add(("Responsable : " + person
+							.getAssociatedDirection()
+							.getListAdjoiningUnitsUnit().get(j)
+							.getResponsibleUnit().getCn()));
+					listCheckSelectedNode.add(person.getAssociatedDirection()
+							.getListAdjoiningUnitsUnit().get(j)
+							.getResponsibleUnit());
+					System.out.println("petit test 1 : "
+							+ person.getAssociatedDirection()
+									.getListAdjoiningUnitsUnit().get(j)
+									.getResponsibleUnit().getCn());
+					System.out.println("petit test 2 : "
+							+ person.getAssociatedDirection()
+									.getListAdjoiningUnitsUnit().get(j)
+									.getResponsibleUnit()
+									.getAssociatedDirection());
+					child1.addChild(0, child2);
+					child.addChild(j, child1);
+				}
+			} else {
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Pas d'Unité(s) Voisine(s)");
+				child.addChild(0, child1);
+			}
+			child = new TreeNodeImpl<String>();
+			if (person.getAssociatedDirection().getAssociatedUnit() != null) {
+				child.setData("Unité Supérieure : "
+						+ person.getAssociatedDirection().getAssociatedUnit()
+								.getNameUnit());
+				listCheckSelectedNode.add(("Unité Supérieure : " + person
+						.getAssociatedDirection().getAssociatedUnit()
+						.getNameUnit()));
+				listCheckSelectedNode.add(person.getAssociatedDirection()
+						.getAssociatedUnit());
+				stationNodesResult.addChild(3, child);
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Responsable : "
+						+ person.getAssociatedDirection().getAssociatedUnit()
+								.getResponsibleUnit().getCn());
+				listCheckSelectedNode.add(("Responsable : " + person
+						.getAssociatedDirection().getAssociatedUnit()
+						.getResponsibleUnit().getCn()));
+				listCheckSelectedNode.add(person.getAssociatedDirection()
+						.getAssociatedUnit().getResponsibleUnit());
+				child.addChild(0, child1);
+			} else {
+				child.setData("Bureau d'ordre Associé : "
+						+ person.getAssociatedDirection().getAssociatedBOC()
+								.getNameBOC());
+				listCheckSelectedNode.add(("Bureau d'ordre Associé : " + person
+						.getAssociatedDirection().getAssociatedBOC()
+						.getNameBOC()));
+				listCheckSelectedNode.add(person.getAssociatedDirection()
+						.getAssociatedBOC());
+				stationNodesResult.addChild(3, child);
+				child1 = new TreeNodeImpl<String>();
+				if (person.getAssociatedDirection().getAssociatedBOC()
+						.getTypeBOC().equals("Central")) {
+					child1.setData("Bureau d'ordre central");
+				} else {
+					child1.setData("Bureau d'ordre secondaire");
+				}
+				child.addChild(0, child1);
+			}
+			TreeNodeImpl<String> child2;
+			if (!vb.getRedirect().equals("rediretFromDTToListSender")) {
+				child = new TreeNodeImpl<String>();
+				child.setData("Liste PP & PM ");
+				stationNodesResult.addChild(4, child);
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Personnes Physiques ");
+				for (int j = 0; j < listPP.size(); j++) {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData(listPP.get(j).getExpdestexterne()
+							.getExpDestExterneNom()
+							+ " "
+							+ listPP.get(j).getExpdestexterne()
+									.getExpDestExternePrenom());
+					listCheckSelectedNode.add(listPP.get(j).getExpdestexterne()
+							.getExpDestExterneNom()
+							+ " "
+							+ listPP.get(j).getExpdestexterne()
+									.getExpDestExternePrenom());
+					listCheckSelectedNode.add(listPP.get(j));
+					child1.addChild(j, child2);
+				}
+				child.addChild(0, child1);
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Personnes Morales ");
+				for (int j = 0; j < listPM.size(); j++) {
+					child2 = new TreeNodeImpl<String>();
+					child2.setData(listPM.get(j).getExpdestexterne()
+							.getExpDestExterneNom());
+					listCheckSelectedNode.add(listPM.get(j).getExpdestexterne()
+							.getExpDestExterneNom());
+					listCheckSelectedNode.add(listPM.get(j));
+					child1.addChild(j, child2);
+				}
+				child.addChild(1, child1);
+			}
+
+			// child = new TreeNodeImpl<String>();
+			// child.setData("Groupes Courants ");
+			// stationNodesResult.addChild(5, child);
+			// listGroupCopy = new ArrayList<Group>();
+			// listGroupCopy = vb.getCopyLdapListGroup();
+			// listGroup = new ArrayList<Group>();
+			// for (int j = 0; j < listGroupCopy.size(); j++) {
+			// group = new Group();
+			// listMembers = new ArrayList<Person>();
+			// group = listGroupCopy.get(j);
+			// listMembers = group.getListUser();
+			// int k = 0;
+			// boolean findPerson = false;
+			// if (!listMembers.isEmpty()) {
+			// do {
+			// if (person.getId() == listMembers.get(k).getId()) {
+			// listGroup.add(group);
+			// findPerson = true;
+			// } else {
+			// k++;
+			// }
+			// } while (!findPerson && k < listMembers.size());
+			// }
+			// }
+			// if (listGroup.size() > 0) {
+			// for (int j = 0; j < listGroup.size(); j++) {
+			// child1 = new TreeNodeImpl<String>();
+			// child1.setData("Groupe : " + listGroup.get(j).getCn());
+			// listCheckSelectedNode.add(("Groupe : " + listGroup.get(j)
+			// .getCn()));
+			// listCheckSelectedNode.add(listGroup.get(j));
+			// // TreeNodeImpl<String> child2;
+			// for (int j2 = 0; j2 < listGroup.get(j).getListUser().size();
+			// j2++) {
+			// if (person.getId() != listGroup.get(j).getListUser()
+			// .get(j2).getId()) {
+			// child2 = new TreeNodeImpl<String>();
+			// child2.setData("Membre : "
+			// + listGroup.get(j).getListUser().get(j2)
+			// .getCn());
+			// listCheckSelectedNode.add(("Membre : " + listGroup
+			// .get(j).getListUser().get(j2).getCn()));
+			// listCheckSelectedNode.add(listGroup.get(j)
+			// .getListUser().get(j2));
+			// child1.addChild(j2, child2);
+			// }
+			// }
+			// child.addChild(j, child1);
+			// }
+			// } else {
+			// child1 = new TreeNodeImpl<String>();
+			// child1.setData("Vous n'appartenez à aucun groupe.");
+			// child.addChild(0, child1);
+			// }
+		}
+
+	}
+
+	private void loadTreeForSecretary(Person person) {
+
+		// List<Group> listGroup;
+		// List<Group> listGroupCopy;
+		// List<Person> listMembers;
+		// Group group;
+		TreeNodeImpl<String> child;
+		TreeNodeImpl<String> child1;
+		if (person.getAssociatedDirection() != null) {
+
+			child = new TreeNodeImpl<String>();
+			child.setData("Unité Courante : "
+					+ person.getAssociatedDirection().getNameUnit());
+			listCheckSelectedNode.add("Unité Courante : "
+					+ person.getAssociatedDirection().getNameUnit());
+			listCheckSelectedNode.add(person.getAssociatedDirection());
+			stationNodesResult.addChild(0, child);
+
+			child1 = new TreeNodeImpl<String>();
+			try {
+				child1.setData("Responsable : "
+						+ person.getAssociatedDirection().getResponsibleUnit()
+								.getCn());
+				listCheckSelectedNode.add("Responsable : "
+						+ person.getAssociatedDirection().getResponsibleUnit()
+								.getCn());
+				listCheckSelectedNode.add(person.getAssociatedDirection()
+						.getResponsibleUnit());
+			} catch (NullPointerException e) {
+				child1.setData("Responsable : Pas encore affecté.");
+			}
+			child.addChild(0, child1);
+			if (vb.getRedirect().equals("rediretFromCRMExpToListSender")) {
+				child1 = new TreeNodeImpl<String>();
+				child1.setData("Moi : " + vb.getPerson().getCn());
+				listCheckSelectedNode.add("Moi : " + vb.getPerson().getCn());
+				listCheckSelectedNode.add(vb.getPerson());
+				child.addChild(1, child1);
+			}
+			TreeNodeImpl<String> child2;
+			child2 = new TreeNodeImpl<String>();
+			System.out.println("[JS] affichage_agent_dans_liste_destinataire");
+
+			if (appMgr.listVariablesById(20).get(0).getVaraiablesValeur()
+					.equals("Oui"))
+
+			{
+				child2.setData("Membres Courants ");
+				TreeNodeImpl<String> child3;
+				if (!person.getAssociatedDirection().getMembersUnit().isEmpty()) {
+					for (int j = 0; j < person.getAssociatedDirection()
+							.getMembersUnit().size(); j++) {
+						child3 = new TreeNodeImpl<String>();
+						child3.setData("Agent : "
+								+ person.getAssociatedDirection()
+										.getMembersUnit().get(j).getCn());
+						listCheckSelectedNode.add("Agent : "
+								+ person.getAssociatedDirection()
+										.getMembersUnit().get(j).getCn());
+						listCheckSelectedNode.add(person
+								.getAssociatedDirection().getMembersUnit()
+								.get(j));
+						child2.addChild(j, child3);
+					}
+				} else {
+					child3 = new TreeNodeImpl<String>();
+					child3.setData("Aucun agent affecté.");
+					child2.addChild(0, child3);
+				}
+				child.addChild(2, child2);
+			}
+		}
+		if (!vb.getRedirect().equals("rediretFromDTToListSender")) {
+			child = new TreeNodeImpl<String>();
+			child.setData("Liste PP & PM ");
+			stationNodesResult.addChild(1, child);
+			child1 = new TreeNodeImpl<String>();
+			TreeNodeImpl<String> child2;
+			child1.setData("Personnes Physiques ");
+			for (int j = 0; j < listPP.size(); j++) {
+				child2 = new TreeNodeImpl<String>();
+				child2.setData(listPP.get(j).getExpdestexterne()
+						.getExpDestExterneNom()
+						+ " "
+						+ listPP.get(j).getExpdestexterne()
+								.getExpDestExternePrenom());
+				listCheckSelectedNode.add(listPP.get(j).getExpdestexterne()
+						.getExpDestExterneNom()
+						+ " "
+						+ listPP.get(j).getExpdestexterne()
+								.getExpDestExternePrenom());
+				listCheckSelectedNode.add(listPP.get(j));
+				child1.addChild(j, child2);
+			}
+			child.addChild(0, child1);
+			child1 = new TreeNodeImpl<String>();
+			child1.setData("Personnes Morales ");
+			for (int j = 0; j < listPM.size(); j++) {
+				child2 = new TreeNodeImpl<String>();
+				child2.setData(listPM.get(j).getExpdestexterne()
+						.getExpDestExterneNom());
+				listCheckSelectedNode.add(listPM.get(j).getExpdestexterne()
+						.getExpDestExterneNom());
+				listCheckSelectedNode.add(listPM.get(j));
+				child1.addChild(j, child2);
+			}
+			child.addChild(1, child1);
+		}
+
+		// TreeNodeImpl<String> child3 = new TreeNodeImpl<String>();
+		// child3.setData("Groupes Courants ");
+		// stationNodesResult.addChild(2, child3);
+		// listGroupCopy = new ArrayList<Group>();
+		// listGroupCopy = vb.getCopyLdapListGroup();
+		// listGroup = new ArrayList<Group>();
+		// for (int j = 0; j < listGroupCopy.size(); j++) {
+		// group = new Group();
+		// listMembers = new ArrayList<Person>();
+		// group = listGroupCopy.get(j);
+		// listMembers = group.getListUser();
+		// int k = 0;
+		// boolean findPerson = false;
+		// if (!listMembers.isEmpty()) {
+		// do {
+		// if (person.getId() == listMembers.get(k).getId()) {
+		// listGroup.add(group);
+		// findPerson = true;
+		// } else {
+		// k++;
+		// }
+		// } while (!findPerson && k < listMembers.size());
+		// }
+		// }
+		// if (listGroup.size() > 0) {
+		// TreeNodeImpl<String> child4;
+		// for (int j = 0; j < listGroup.size(); j++) {
+		// child4 = new TreeNodeImpl<String>();
+		// child4.setData("Groupe : " + listGroup.get(j).getCn());
+		// listCheckSelectedNode.add("Groupe : "
+		// + listGroup.get(j).getCn());
+		// listCheckSelectedNode.add(listGroup.get(j));
+		// TreeNodeImpl<String> child5;
+		// for (int j2 = 0; j2 < listGroup.get(j).getListUser().size(); j2++) {
+		// if (person.getId() != listGroup.get(j).getListUser()
+		// .get(j2).getId()) {
+		// child5 = new TreeNodeImpl<String>();
+		// child5.setData("Membre : "
+		// + listGroup.get(j).getListUser().get(j2)
+		// .getCn());
+		// listCheckSelectedNode.add("Membre : "
+		// + listGroup.get(j).getListUser().get(j2)
+		// .getCn());
+		// listCheckSelectedNode.add(listGroup.get(j)
+		// .getListUser().get(j2));
+		// child4.addChild(j2, child5);
+		// }
+		// }
+		// child3.addChild(j, child4);
+		// }
+		// } else {
+		// TreeNodeImpl<String> child4;
+		// child4 = new TreeNodeImpl<String>();
+		// child4.setData("Vous n'appartenez à aucun groupe.");
+		// child3.addChild(0, child4);
+		// }
+	}
+
+	public void getSelectedNode(NodeSelectedEvent event) {
+		HtmlTree tree = (HtmlTree) event.getComponent();
+		String rowData = tree.getRowData().toString();
+		System.out.println("########## vb.getListSelectedItem() size(() == "
+				+ vb.getListSelectedItem().size());
+		if (vb.getListSelectedItem() != null) {
+			listSelectedItem = vb.getListSelectedItem();
+		}
+
+		int j = 0;
+		Object object = new Object();
+		String checkRowData;
+		Object selectedObject = new Object();
+		boolean findModel = false;
+		System.out.println("########## listCheckSelectedNode() size(() == "
+				+ listCheckSelectedNode.size());
+		if (!listCheckSelectedNode.isEmpty()) {
+
+			do {
+				object = listCheckSelectedNode.get(j);
+
+				if (object instanceof String) {
+					checkRowData = (String) object;
+					if (checkRowData.equals(rowData)) {
+						findModel = true;
+						selectedObject = listCheckSelectedNode.get(j + 1);
+//						System.out.println("########## selectedObject == "
+//								+ selectedObject);
+						int listItemsRowCount = listItems.getRowCount();
+						if (vb.getRedirect().equals(
+								"rediretFromCAExpArrToListSender")
+
+								|| vb.getRedirect().equals(
+										"rediretFromCAExpDepToListSender")
+								|| vb.getRedirect().equals(
+										"rediretFromPDFToListSender2")
+								|| vb.getRedirect().equals(
+										"rediretFromCMExpArrToListSender")
+								|| vb.getRedirect().equals(
+										"rediretFromCMExpDepToListSender")
+								|| vb.getRedirect().equals(
+										"rediretFromCTExpArrToListSender")
+								|| vb.getRedirect().equals(
+										"rediretFromCTExpDepToListSender")) {
+
+							System.out.println("########## Dans 1 ##########");
+							if(vb.getCopyListSelectedObjectExp()!=null && vb.getCopyListSelectedObjectExp().size()>0)
+								
+								vb.getCopyListSelectedObjectExp().clear();
+							vb.getCopyListSelectedObjectExp().add(
+										selectedObject);
+							
+						} else if (vb.getRedirect().equals(
+								"rediretFromCRMExpToListSender")
+								|| vb.getRedirect()
+										.equals("rediretFromCADestDepToListSenderValise")) {
+							System.out.println("########## Dans 2 ##########");
+							if (listItemsRowCount == 0) {
+								vb.setCopyListSelectedObjectExp(new ArrayList<Object>());
+								vb.getCopyListSelectedObjectExp().add(
+										selectedObject);
+							} else {
+								showAvertPanel = true;
+								message = messageSource.getMessage(
+										"msgAvertMaxUnExpediteur",
+										new Object[] {}, lm.createLocal());
+								return;
+							}
+
+						} else if (vb.getRedirect().equals(
+								"rediretFromCRMDestToListSender")) { // KH
+							System.out.println("########## Dans 3 ##########");
+							if (listItemsRowCount == 0) {
+								vb.setCopyListSelectedObject(new ArrayList<Object>()); // KH
+								vb.getCopyListSelectedObject().add(
+										selectedObject); // KH
+							} else {
+								showAvertPanel = true;
+								message = messageSource.getMessage(
+										"msgAvertMaxUnDestinataire",
+										new Object[] {}, lm.createLocal());
+								return;
+							}
+						} else {
+							System.out.println("########## Dans 4 ##########");
+							vb.getCopyListSelectedObject().add(selectedObject);
+						}
+						ItemSelected itemSelected = new ItemSelected();
+						if (selectedObject instanceof BOC) {
+							// BOC boc = (BOC) selectedObject;
+							// itemSelected.setItemSelectedId(boc.getIdBOC());
+							// itemSelected.setItemSelectedName(boc.getNameBOC());
+							// itemSelected.setSelectedObject(boc);
+							// listSelectedItem.add(itemSelected);
+							// if (!vb.getRedirect().equals(
+							// "rediretFromCAExpArrToListSender")
+							// && !vb.getRedirect().equals(
+							// "rediretFromCAExpDepToListSender")
+							// && !vb.getRedirect().equals(
+							// "rediretFromCMExpArrToListSender")
+							// && !vb.getRedirect().equals(
+							// "rediretFromCMExpDepToListSender")
+							// && !vb.getRedirect().equals(
+							// "rediretFromCTExpArrToListSender")
+							// && !vb.getRedirect().equals(
+							// "rediretFromCTExpDepToListSender")) {
+							// vb.getCopyListSelectedBoc().add(boc);
+							// }
+						} else if (selectedObject instanceof Unit) {
+							System.out.println("########## Dans 5 ##########");
+							Unit direction = (Unit) selectedObject;
+							// //////////KBS///////////////
+							boolean exist = false;
+							for (ItemSelected selectedItem : listSelectedItem) {
+								System.out.println("²²²²²²"
+										+ selectedItem.getItemSelectedName());
+								if (direction.getNameUnit().equals(selectedItem.getItemSelectedName())) {
+									exist = true;
+									break;
+								}
+							}
+							if (!exist) {
+								itemSelected.setItemSelectedId(direction
+										.getIdUnit());
+								itemSelected.setItemSelectedName(direction
+										.getNameUnit());
+								itemSelected.setSelectedObject(direction);
+
+								listSelectedItem.add(itemSelected);
+								System.out
+										.println("########## listSelectedItem size 1== "
+												+ listSelectedItem.size());
+							}
+							// ////////////////////////////
+							if (!vb.getRedirect().equals(
+									"rediretFromCAExpArrToListSender")
+
+									&& !vb.getRedirect().equals(
+											"rediretFromCAExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromPDFToListSender2")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpDepToListSender")) {
+								System.out
+										.println("C'est l'ajout de l'unité à la liste lors de transfert");
+								vb.getCopyListSelectedUnit().add(direction);
+								vb.getCopyListSelectedUnitNotif()
+										.add(direction);
+							}
+						} else if (selectedObject instanceof Person) {
+							System.out.println("########## Dans 6 ##########");
+							Person person = (Person) selectedObject;
+							System.out
+									.println("########## person == " + person);
+							// //////////KBS///////////////
+							System.out
+									.println("########## listSelectedItem size 0== "
+											+ listSelectedItem.size());
+							System.out
+									.println("########## listSelectedItem.contains(person)== "
+											+ listSelectedItem.contains(person));
+							System.out
+									.println("########## not listSelectedItem.contains(person)== "
+											+ !listSelectedItem
+													.contains(person));
+							boolean exist = false;
+							for (ItemSelected selectedItem : listSelectedItem) {
+								System.out.println("²²²²²²"
+										+ selectedItem.getItemSelectedName());
+								if (person.getCn().equals(
+										selectedItem.getItemSelectedName())) {
+									exist = true;
+									break;
+								}
+							}
+							if (!exist) {
+								itemSelected.setItemSelectedId(person.getId());
+								itemSelected
+										.setItemSelectedName(person.getCn());
+								itemSelected.setSelectedObject(person);
+								listSelectedItem.add(itemSelected);
+								System.out
+										.println("########## listSelectedItem size 2== "
+												+ listSelectedItem.size());
+							}
+							// ////////////////////////////
+							if (!vb.getRedirect().equals(
+									"rediretFromCAExpArrToListSender")
+
+									&& !vb.getRedirect().equals(
+											"rediretFromCAExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromPDFToListSender2")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpDepToListSender")) {
+								vb.getCopyListSelectedPerson().add(person);
+								vb.getCopyListSelectedPersonNotif().add(person);
+							}
+						} else if (selectedObject instanceof Pp) {
+							System.out.println("########## Dans 7 ##########");
+							Pp pp = (Pp) selectedObject;
+							vb.setCourrierRefOriginal(true);
+							// //////////KBS///////////////
+							boolean exist = false;
+							for (ItemSelected selectedItem : listSelectedItem) {
+								System.out.println("²²²²²²"
+										+ selectedItem.getItemSelectedName());
+								if ((pp.getExpdestexterne().getExpDestExterneNom()+ " "+ pp.getExpdestexterne().getExpDestExternePrenom())
+										.equals(selectedItem.getItemSelectedName())) {
+									exist = true;
+									break;
+								}
+							}
+							if (!exist) {
+								itemSelected.setItemSelectedId(pp.getExpdestexterne().getIdExpDestExterne());
+								itemSelected.setItemSelectedName(pp.getExpdestexterne().getExpDestExterneNom()+ " "+ pp.getExpdestexterne().getExpDestExternePrenom());
+								itemSelected.setSelectedObject(pp);
+								listSelectedItem.add(itemSelected);
+								System.out
+										.println("########## listSelectedItem size 3== "
+												+ listSelectedItem.size());
+							}
+							// ////////////////////////////
+							if (!vb.getRedirect().equals(
+									"rediretFromCAExpArrToListSender")
+
+									&& !vb.getRedirect().equals(
+											"rediretFromCAExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromPDFToListSender2")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpDepToListSender")) {
+
+								vb.getCopyListPP().add(pp);
+								vb.getCopyListPPNotif().add(pp);
+							}
+						} else if (selectedObject instanceof Pm) {
+							System.out.println("########## Dans 8 ##########");
+							Pm pm = (Pm) selectedObject;
+							vb.setCourrierRefOriginal(true);
+							// //////////KBS///////////////
+							boolean exist = false;
+							for (ItemSelected selectedItem : listSelectedItem) {
+								System.out.println("²²²²²²"
+										+ selectedItem.getItemSelectedName());
+								if (pm.getExpdestexterne().getExpDestExterneNom().equals(selectedItem.getItemSelectedName())) {
+									exist = true;
+									break;
+								}
+							}
+							if (!exist) {
+								itemSelected.setItemSelectedId(pm.getExpdestexterne().getIdExpDestExterne());
+								itemSelected.setItemSelectedName(pm.getExpdestexterne().getExpDestExterneNom());
+								itemSelected.setSelectedObject(pm);
+
+								listSelectedItem.add(itemSelected);
+								System.out
+										.println("########## listSelectedItem size 4== "
+												+ listSelectedItem.size());
+							}
+							// ////////////////////////////
+							if (!vb.getRedirect().equals(
+									"rediretFromCAExpArrToListSender")
+
+									&& !vb.getRedirect().equals(
+											"rediretFromCAExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromPDFToListSender2")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCMExpDepToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpArrToListSender")
+									&& !vb.getRedirect().equals(
+											"rediretFromCTExpDepToListSender")) {
+								vb.getCopyListPM().add(pm);
+								vb.getCopyListPMNotif().add(pm);
+							}
+						}
+						// else {
+						// Group group = (Group) selectedObject;
+						// itemSelected.setItemSelectedId(group.getId());
+						// itemSelected.setItemSelectedName(group.getCn());
+						// listSelectedItem.add(itemSelected);
+						// if (!vb.getRedirect().equals(
+						// "rediretFromCAExpArrToListSender")
+						// && !vb.getRedirect().equals(
+						// "rediretFromCAExpDepToListSender")
+						// && !vb.getRedirect().equals(
+						// "rediretFromCMExpArrToListSender")
+						// && !vb.getRedirect().equals(
+						// "rediretFromCMExpDepToListSender")
+						// && !vb.getRedirect().equals(
+						// "rediretFromCTExpArrToListSender")
+						// && !vb.getRedirect().equals(
+						// "rediretFromCTExpDepToListSender")) {
+						// for (int i = 0; i < group.getListUser().size(); i++)
+						// {
+						// if (group.getListUser().get(i).getId() != vb
+						// .getPerson().getId()) {
+						// vb.getCopyListSelectedPerson().add(
+						// group.getListUser().get(i));
+						// vb.getCopyListSelectedPersonNotif().add(
+						// group.getListUser().get(i));
+						// }
+						// }
+						// }
+						// }
+
+					}
+				}
+				j++;
+			} while (!findModel && j < listCheckSelectedNode.size());
+			System.out.println("########## listSelectedItem size 5 == "
+					+ listSelectedItem.size());
+			try {
+				listItems.setWrappedData(listSelectedItem);
+				if (vb.getRedirect().equals("rediretFromCAExpArrToListSender")
+
+						|| vb.getRedirect().equals(
+								"rediretFromCAExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromPDFToListSender2")
+						|| vb.getRedirect().equals(
+								"rediretFromCMExpArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCMExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTExpArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTExpDepToListSender")) {
+					vb.setListSelectedItem(new ArrayList<ItemSelected>());
+				} else {
+					vb.setListSelectedItem(listSelectedItem);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("ErreurChargementListSelectedItem");
+			}
+		}
+	}
+
+	public String validatechoiceDestinataire() {
+		System.out.println("DANS validatechoiceDestinataire ");
+		if (listSelectedItem.isEmpty()) {
+			status1 = true;
+			return null;
+		} else {
+
+			// vb.setExpNom("");
+			String listDest = "";
+			List<String> listDestId = new ArrayList<String>();
+			int lastIndex = 0;
+			vb.setOpenedSTPannel(false);
+			vb.setTypeIntervenant("utilisateur");
+			vb.setRechercheUnitModel(new RechercheUnitModel());
+			vb.setRechercheUserModel(new RechercheUserModel());
+			vb.setListUser(new ArrayList<RechercheUserModel>());
+			vb.setListUnit(new ArrayList<RechercheUnitModel>());
+			if (vb.getRedirect().equals("rediretFromCAExpArrToListSender")
+
+					|| vb.getRedirect().equals(
+							"rediretFromCAExpDepToListSender")
+					|| vb.getRedirect().equals("rediretFromPDFToListSender2")
+					|| vb.getRedirect().equals(
+							"rediretFromCMExpArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMExpDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCTExpArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCTExpDepToListSender")) {
+				try {
+					if (vb.getCopyListSelectedObjectExp().get(0) instanceof Person) {
+						Person person = (Person) vb
+								.getCopyListSelectedObjectExp().get(0);
+						vb.setExpNom(person.getCn());
+					} else if (vb.getCopyListSelectedObjectExp().get(0) instanceof Unit) {
+						Unit unit = (Unit) vb.getCopyListSelectedObjectExp()
+								.get(0);
+						vb.setExpNom(unit.getNameUnit());
+					} else if (vb.getCopyListSelectedObjectExp().get(0) instanceof Pp) {
+						Pp pp = (Pp) vb.getCopyListSelectedObjectExp().get(0);
+						vb.setExpNom(pp.getExpdestexterne()
+								.getExpDestExterneNom()
+								+ " "
+								+ pp.getExpdestexterne()
+										.getExpDestExternePrenom() + " (PP)");
+					} else if (vb.getCopyListSelectedObjectExp().get(0) instanceof Pm) {
+						Pm pm = (Pm) vb.getCopyListSelectedObjectExp().get(0);
+						vb.setExpNom(pm.getExpdestexterne()
+								.getExpDestExterneNom() + " (PM)");
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				List<ListeDestinatairesModel> listeDestinataire = new ArrayList<ListeDestinatairesModel>();
+
+				for (int i = 0; i < vb.getListSelectedItem().size(); i++) {
+					listDest = listDest
+							+ vb.getListSelectedItem().get(i)
+									.getItemSelectedName() + " / ";
+					ListeDestinatairesModel d = new ListeDestinatairesModel();
+					d.setDestinataireId(vb.getListSelectedItem().get(i)
+							.getItemSelectedId());
+					d.setDestinataireName(vb.getListSelectedItem().get(i)
+							.getItemSelectedName());
+					d.setAffichageAnnotation(true);
+
+					if (vb.getListSelectedItem().get(i).getSelectedObject() instanceof Person) {
+						d.setDestinataireType("Person");
+						Person person = (Person) vb.getListSelectedItem()
+								.get(i).getSelectedObject();
+						if (person.isSecretary()) {
+							listDestId.add("secretary_"
+									+ String.valueOf(person.getId()));
+						} else if (person.isAgent()) {
+							listDestId.add("agent_"
+									+ String.valueOf(person.getId()));
+						} else {
+							listDestId.add("sub_"
+									+ String.valueOf(person.getId()));
+						}
+					} else if (vb.getListSelectedItem().get(i)
+							.getSelectedObject() instanceof Unit) {
+						d.setDestinataireType("Unit");
+						Unit unit = (Unit) vb.getListSelectedItem().get(i)
+								.getSelectedObject();
+						listDestId.add("unit_"
+								+ String.valueOf(unit.getIdUnit()));
+					} else {
+						d.setAffichageAnnotation(false);
+						d.setDestinataireType("Externe");
+						System.out.println("NI Person NI Unit ");
+					}
+					listeDestinataire.add(d);
+					// C*
+					if (vb.getRedirect().equals(
+							"rediretFromCADestArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCADestDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCAToListSender")) {
+						System.out.println("AH : 1 *************");
+						if (vb.getListSelectedItem().get(i)
+								.isResponseResponsible()) {
+
+							if (vb.getListSelectedItem().get(i)
+									.getSelectedObject() instanceof Person) {
+								Person personResponseResponsible = (Person) vb
+										.getCopyListSelectedPerson().get(i);
+								personResponseResponsible
+										.setResponsibleResponse(true);
+
+							}
+							if (vb.getListSelectedItem().get(i)
+									.getSelectedObject() instanceof Unit) {
+								Unit unitResponseResponsible = (Unit) vb
+										.getCopyListSelectedUnit().get(i);
+								unitResponseResponsible
+										.setResponsibleResponse(true);
+							}
+						}
+
+					}
+					// C*
+				}
+				lastIndex = listDest.lastIndexOf("/");
+				vb.setDestNom(listDest.substring(0, lastIndex));
+
+				vb.setListeDestinataire(listeDestinataire);
+				System.out.println("mise à jour de la liste des destinataire");
+			}
+			System.out.println("verif DestNom : " + vb.getDestNom());
+			status1 = false;
+
+			if (vb.getRedirect().equals("rediretFromCRMDestToListSenderValise")
+					|| vb.getRedirect().equals(
+							"rediretFromCADestDepToListSenderValise"))
+				return "rediretFromListSenderToValise";
+
+			else if (vb.getRedirect().equals("rediretFromCMToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMExpArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMExpDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMDestDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCMDestArrToListSender")) {
+				return "rediretFromListSenderToCM";
+			} else if (vb.getRedirect().equals("rediretFromPDFToListSender2")) {
+				return "rediretFromPDFToListSender2";
+			} else if (vb.getRedirect().equals(
+					"rediretFromCTMFDestArrToListSender")) {
+				return "rediretFromListSenderToCTMF";
+			} else if (vb.getRedirect().equals("rediretFromCAToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCAExpArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCAExpDepToListSender")
+					|| vb.getRedirect().equals("rediretFromPDFToListSender2")
+					|| vb.getRedirect().equals(
+							"rediretFromCADestDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCADestArrToListSender")) {
+				System.out.println("AH : 2 **************");
+				// vb.setRedirect("rediretFromListSenderToCA");//**
+				return "rediretFromListSenderToCA";
+			} else if (vb.getRedirect().equals("rediretFromCTToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCTExpArrToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCTExpDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCTDestDepToListSender")
+					|| vb.getRedirect().equals(
+							"rediretFromCTDestArrToListSender")) {
+				return "rediretFromListSenderToCT";
+			} else if (vb.getRedirect().equals("rediretFromDTToListSender")) {
+				return "rediretFromListSenderToDT";
+			} else if (vb.getRedirect()
+					.equals("rediretFromCRMDestToListSender")
+					|| vb.getRedirect().equals("rediretFromCRMExpToListSender")) {
+				if (vb.getRedirect().equals("rediretFromCRMDestToListSender")) {
+					vb.getRechercheMulticritere().setDestinataire(
+							listDest.substring(0, lastIndex));
+					vb.getRechercheMulticritere().setListIdDestinataire(
+							listDestId);
+					vb.getRechercheMulticritere()
+							.getListIdDestinataire()
+							.add(String.valueOf(vb.getListSelectedItem().get(0)
+									.getItemSelectedId()));
+					vb.setListSelectedItem(new ArrayList<ItemSelected>());
+				} else {
+					vb.getRechercheMulticritere().setExpediteur(
+							listDest.substring(0, lastIndex));
+					vb.getRechercheMulticritere()
+							.setIdExpediteur(
+									vb.getListSelectedItem().get(0)
+											.getItemSelectedId());
+					// appMgr.getExpediteurById(vb.getListSelectedItem().get(0).getItemSelectedId());
+					vb.setListSelectedItem(new ArrayList<ItemSelected>());
+				}
+				return "rediretFromListSenderToCRM";
+			} else if(vb.getRedirect().equals("rediretFromDPToListSender")){
+				return "rediretFromListSenderToDP";
+			}
+			else 
+				return null;
+
+		}
+
+	}
+
+	public String retour() {
+		if (vb.getRedirect().equals("rediretFromPDFToListSender2"))
+			return "rediretFromPDFToListSender2";
+		if (vb.getRedirect().equals("rediretFromCMToListSender")
+				|| vb.getRedirect().equals("rediretFromCMExpArrToListSender")
+				|| vb.getRedirect().equals("rediretFromCMExpDepToListSender")
+				|| vb.getRedirect().equals("rediretFromCMDestDepToListSender")
+				|| vb.getRedirect().equals("rediretFromCMDestArrToListSender")) {
+			return "rediretFromListSenderToCM";
+		} else if (vb.getRedirect()
+				.equals("rediretFromCTMFDestArrToListSender")) {
+			return "rediretFromListSenderToCTMF";
+		} else if (vb.getRedirect().equals("rediretFromCAToListSender")
+				|| vb.getRedirect().equals("rediretFromCAExpArrToListSender")
+				|| vb.getRedirect().equals("rediretFromCAExpDepToListSender")
+				|| vb.getRedirect().equals("rediretFromCADestDepToListSender")
+				|| vb.getRedirect().equals("rediretFromCADestArrToListSender")) {
+			System.out.println("AH : 3 *************************");
+			// vb.setRedirect("rediretFromListSenderToCA");//**
+			return "rediretFromListSenderToCA";
+		} else if (vb.getRedirect().equals("rediretFromCTToListSender")
+				|| vb.getRedirect().equals("rediretFromCTExpArrToListSender")
+				|| vb.getRedirect().equals("rediretFromCTExpDepToListSender")
+				|| vb.getRedirect().equals("rediretFromCTDestDepToListSender")
+				|| vb.getRedirect().equals("rediretFromCTDestArrToListSender")) {
+			return "rediretFromListSenderToCT";
+		} else if (vb.getRedirect().equals("rediretFromDTToListSender")) {
+			return "rediretFromListSenderToDT";
+		} else if (vb.getRedirect().equals("rediretFromCRMDestToListSender")
+				|| vb.getRedirect().equals("rediretFromCRMExpToListSender")) {
+			vb.getRechercheMulticritere().setDestinataire(destinataire);
+			vb.getRechercheMulticritere().setListIdDestinataire(
+					listDestinataire);
+			vb.getRechercheMulticritere().setExpediteur(expediteur);
+			vb.getRechercheMulticritere().setIdExpediteur(idExpediteur);
+			vb.setListSelectedItem(new ArrayList<ItemSelected>());
+			return "rediretFromListSenderToCRM";
+		} else  if(vb.getRedirect().equals("rediretFromDPToListSender")){
+			return "rediretFromListSenderToDP";
+		}
+		else 
+			return null;
+	}
+
+	public void getDeleteSelectionRow() {
+		ItemSelected itemSelected = new ItemSelected();
+		String nameItem;
+		int idItem;
+		int i = 0;
+		boolean findItem = false;
+		try {
+			itemSelected = (ItemSelected) listItems.getRowData();
+			nameItem = itemSelected.getItemSelectedName();
+			Object object = new Object();
+			System.out.println("*******SelectionSucces*********");
+			
+			do {
+				if (vb.getRedirect().equals("rediretFromCAExpArrToListSender")
+
+						|| vb.getRedirect().equals(
+								"rediretFromCAExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromPDFToListSender2")
+						|| vb.getRedirect().equals(
+								"rediretFromCMExpArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCMExpDepToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTExpArrToListSender")
+						|| vb.getRedirect().equals(
+								"rediretFromCTExpDepToListSender")) {
+					object = vb.getCopyListSelectedObjectExp().get(i);
+				} else {
+					System.out.println("vb.getCopyListSelectedObject() "+vb.getCopyListSelectedObject().size());
+					System.out.println("######### i ########### "+i);
+					object = vb.getCopyListSelectedObject().get(i);
+					System.out.println(object instanceof BOC);
+					System.out.println(object instanceof Person);
+					System.out.println(object instanceof Pp);
+					System.out.println(object instanceof Pm);
+					System.out.println("=====================js =====================");
+					System.out.println("=========================PP=================================");
+					if(object instanceof Pp){
+					System.out.println(object instanceof Pp);
+					System.out.println(((Pp) object).getExpdestexterne().getExpDestExterneNom()+" "+((Pp) object).getExpdestexterne().getExpDestExternePrenom());
+					System.out.println(nameItem);
+					System.out.println("========================================================");
+					}
+					if(object instanceof Pm){
+						System.out.println(object instanceof Pm);
+						System.out.println(((Pm) object).getExpdestexterne().getExpDestExterneNom());
+						System.out.println(nameItem);
+						System.out.println("========================================================");
+					}
+
+//					System.out.println("===========================PM=============================");
+//					System.out.println(object instanceof Pm);
+//					System.out.println(((Pm) object).getExpdestexterne().getExpDestExterneNom());
+//					System.out.println(nameItem);
+//					System.out.println("========================================================");
+
+				}
+				if (object instanceof BOC
+						&& ((BOC) object).getNameBOC().equals(nameItem)) {
+					BOC boc = (BOC) object;
+					System.out.println("verif NameBOC : " + boc.getNameBOC());
+					vb.getCopyListSelectedBoc().remove(boc);
+					// for (int j = 0; j < boc.getMembersBOC().size(); j++) {
+					// vb.getCopyListSelectedPerson().remove(boc.getMembersBOC().get(j));
+					// }
+					findItem = true;
+					if (vb.getRedirect().equals(
+							"rediretFromCAExpArrToListSender")
+
+							|| vb.getRedirect().equals(
+									"rediretFromCAExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromPDFToListSender2")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpDepToListSender")) {
+						vb.getCopyListSelectedObjectExp().remove(i);
+					} else {
+						vb.getCopyListSelectedObject().remove(i);
+					}
+				} else if (object instanceof Unit
+						&& ((Unit) object).getNameUnit().equals(nameItem)) {
+					Unit direction = (Unit) object;
+					System.out.println("verif NameUnit : "
+							+ direction.getNameUnit());
+					listSelectedItem.remove(itemSelected);
+					vb.getCopyListSelectedUnit().remove(direction);
+					vb.getCopyListSelectedUnitNotif().remove(direction);
+					if (itemSelected.isFromSearch()) {
+						listUnit.add(itemSelected.getRechercheUnitModel());
+						dataModelUnit.setWrappedData(listUnit);
+					}
+					// vb.getCopyListSelectedPerson().remove(direction.getResponsibleUnit());
+					// vb.getCopyListSelectedPerson().remove(direction.getSecretaryUnit());
+					findItem = true;
+					if (vb.getRedirect().equals(
+							"rediretFromCAExpArrToListSender")
+
+							|| vb.getRedirect().equals(
+									"rediretFromCAExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromPDFToListSender2")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpDepToListSender")) {
+						vb.getCopyListSelectedObjectExp().remove(i);
+					} else {
+						vb.getCopyListSelectedObject().remove(i);
+					}
+				} else if (object instanceof Person
+						&& ((Person) object).getCn().equals(nameItem)) {
+					Person person = (Person) object;
+					System.out.println("verif NamePerson : " + person.getCn());
+					listSelectedItem.remove(itemSelected);
+					vb.getCopyListSelectedPerson().remove(person);
+					vb.getCopyListSelectedPersonNotif().remove(person);
+					if (itemSelected.isFromSearch()) {
+						listUser.add(itemSelected.getRechercheUserModel());
+						dataModelUser.setWrappedData(listUser);
+					}
+					findItem = true;
+					if (vb.getRedirect().equals(
+							"rediretFromCAExpArrToListSender")
+
+							|| vb.getRedirect().equals(
+									"rediretFromCAExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromPDFToListSender2")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpDepToListSender")) {
+						vb.getCopyListSelectedObjectExp().remove(i);
+					} else {
+						vb.getCopyListSelectedObject().remove(i);
+					}
+				} else if (object instanceof Pp
+						&& (((Pp) object).getExpdestexterne().getExpDestExterneNom()+" "+((Pp) object).getExpdestexterne().getExpDestExternePrenom()).equals(nameItem)) {
+					System.out.println("Objet =====> "+object);
+					Pp pp = (Pp) object;
+					System.out.println("itemSelected "+itemSelected);
+					listSelectedItem.remove(itemSelected);
+					vb.getCopyListPP().remove(pp);
+					vb.getCopyListPPNotif().remove(pp);
+					if (itemSelected.isFromSearch()) {
+						listPp.add(itemSelected.getRecherchePpModel());
+						dataModelPp.setWrappedData(listPp);
+					}
+					findItem = true;
+					if (vb.getRedirect().equals(
+							"rediretFromCAExpArrToListSender")
+
+							|| vb.getRedirect().equals(
+									"rediretFromCAExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromPDFToListSender2")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpDepToListSender")) {
+						vb.getCopyListSelectedObjectExp().remove(i);
+					} else {
+						vb.getCopyListSelectedObject().remove(i);
+					}
+				} else if (object instanceof Pm
+						&& ((Pm) object).getExpdestexterne()
+								.getExpDestExterneNom().equals(nameItem)) {
+					Pm pm = (Pm) object;
+					
+					System.out.println("help meeeeeeeeeeeeeeeeeeeeeeee");
+					listSelectedItem.remove(itemSelected);
+					vb.getCopyListPM().remove(pm);
+					vb.getCopyListPMNotif().remove(pm);
+					if (itemSelected.isFromSearch()) {
+						listPm.add(itemSelected.getRecherchePmModel());
+						dataModelPm.setWrappedData(listPm);
+					}
+					findItem = true;
+					if (vb.getRedirect().equals(
+							"rediretFromCAExpArrToListSender")
+
+							|| vb.getRedirect().equals(
+									"rediretFromCAExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromPDFToListSender2")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCMExpDepToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpArrToListSender")
+							|| vb.getRedirect().equals(
+									"rediretFromCTExpDepToListSender")) {
+						vb.getCopyListSelectedObjectExp().remove(i);
+					} else {
+						vb.getCopyListSelectedObject().remove(i);
+					}
+				} else if (vb.getCopyListSelectedObject().get(i) instanceof Group
+						&& ((Group) vb.getCopyListSelectedObject().get(i))
+								.getCn().equals(nameItem)) {
+					Group group = (Group) vb.getCopyListSelectedObject().get(i);
+					listSelectedItem.remove(itemSelected);
+					for (int j = 0; j < group.getListUser().size(); j++) {
+						if (group.getListUser().get(j).getId() != vb
+								.getPerson().getId()) {
+							vb.getCopyListSelectedPerson().remove(
+									group.getListUser().get(j));
+							vb.getCopyListSelectedPersonNotif().remove(
+									group.getListUser().get(j));
+						}
+					}
+					findItem = true;
+					vb.getCopyListSelectedObject().remove(i);
+				}
+				i++;
+			} while (!findItem && i < vb.getCopyListSelectedObject().size());
+			listItems.setWrappedData(listSelectedItem);
+			// vb.setCopyListSelectedPerson(listSelectedPerson);
+			vb.setListSelectedItem(listSelectedItem);
+			showAvertPanel = false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+	}
+
+	public void getSelectedRow(ActionEvent event) {
+		selectedDestinataire = (ItemSelected) listItems.getRowData();
+	}
+
+	public void enableOrDisableAllOtherCheckBox() {
+		for (ItemSelected itemSelected : listSelectedItem) {
+			if (itemSelected.isResponseResponsible()
+					&& itemSelected.getItemSelectedId() != selectedDestinataire
+							.getItemSelectedId()) {
+				// set other selecti
+				itemSelected.setResponseResponsible(false);
+			}
+		}
+
+		// disable strategie
+		// if(selectedDestinataire.isResponseResponsible()){
+		// for (ItemSelected itemSelected : listSelectedItem) {
+		// if(itemSelected.getItemSelectedId() !=
+		// selectedDestinataire.getItemSelectedId()){
+		// // set disable to true
+		// itemSelected.setDisableResponseResponsible(true);
+		// }
+		// }
+		// }else{
+		// for (ItemSelected itemSelected : listSelectedItem) {
+		// // set disable to false
+		// itemSelected.setDisableResponseResponsible(false);
+		// }
+		// }
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listItems == null && listItems.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<ItemSelected>) listItems.getWrappedData()).size();
+		return records;
+	}
+
+	public TreeNodeImpl<String> getStationNodesResult() {
+		return stationNodesResult;
+	}
+
+	public void setStationNodesResult(TreeNodeImpl<String> stationNodesResult) {
+		this.stationNodesResult = stationNodesResult;
+	}
+
+	public List<Person> getListUsers() {
+		return listUsers;
+	}
+
+	public void setListUsers(List<Person> listUsers) {
+		this.listUsers = listUsers;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setListCheckSelectedNode(List<Object> listCheckSelectedNode) {
+		this.listCheckSelectedNode = listCheckSelectedNode;
+	}
+
+	public List<Object> getListCheckSelectedNode() {
+		return listCheckSelectedNode;
+	}
+
+	public void setListSelectedObject(List<Object> listSelectedObject) {
+		this.listSelectedObject = listSelectedObject;
+	}
+
+	public List<Object> getListSelectedObject() {
+		return listSelectedObject;
+	}
+
+	public void setListSelectedItem(List<ItemSelected> listSelectedItem) {
+		this.listSelectedItem = listSelectedItem;
+	}
+
+	public List<ItemSelected> getListSelectedItem() {
+		return listSelectedItem;
+	}
+
+	public void setListItems(DataModel listItems) {
+		this.listItems = listItems;
+	}
+
+	public DataModel getListItems() {
+		return listItems;
+	}
+
+	public void setListSelectedPerson(List<Person> listSelectedPerson) {
+		this.listSelectedPerson = listSelectedPerson;
+	}
+
+	public List<Person> getListSelectedPerson() {
+		return listSelectedPerson;
+	}
+
+	public void setListPP(List<Pp> listPP) {
+		this.listPP = listPP;
+	}
+
+	public List<Pp> getListPP() {
+		return listPP;
+	}
+
+	public void setListPM(List<Pm> listPM) {
+		this.listPM = listPM;
+	}
+
+	public List<Pm> getListPM() {
+		return listPM;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public String getExpediteur() {
+		return expediteur;
+	}
+
+	public void setDestinataire(String destinataire) {
+		this.destinataire = destinataire;
+	}
+
+	public String getDestinataire() {
+		return destinataire;
+	}
+
+	public void setIdExpediteur(Integer idExpediteur) {
+		this.idExpediteur = idExpediteur;
+	}
+
+	public Integer getIdExpediteur() {
+		return idExpediteur;
+	}
+
+	public void setListDestinataire(List<String> listDestinataire) {
+		this.listDestinataire = listDestinataire;
+	}
+
+	public List<String> getListDestinataire() {
+		return listDestinataire;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public UIPanelMenu getPanelMenu() {
+		return panelMenu;
+	}
+
+	public void setPanelMenu(UIPanelMenu panelMenu) {
+		this.panelMenu = panelMenu;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsUnit() {
+		if (dataModelUnit == null && dataModelUnit.getWrappedData() == null)
+			recordsUnit = 0;
+		else
+			recordsUnit = ((List<RechercheUnitModel>) dataModelUnit
+					.getWrappedData()).size();
+		return recordsUnit;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsUser() {
+		if (dataModelUser == null && dataModelUser.getWrappedData() == null)
+			recordsUser = 0;
+		else
+			recordsUser = ((List<RechercheUserModel>) dataModelUser
+					.getWrappedData()).size();
+		return recordsUser;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsPp() {
+		if (dataModelPp == null && dataModelPp.getWrappedData() == null)
+			recordsPp = 0;
+		else
+			recordsPp = ((List<RecherchePpModel>) dataModelPp.getWrappedData())
+					.size();
+		return recordsPp;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsPm() {
+		if (dataModelPm == null && dataModelPm.getWrappedData() == null)
+			recordsPm = 0;
+		else
+			recordsPm = ((List<RecherchePmModel>) dataModelPm.getWrappedData())
+					.size();
+		return recordsPm;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setRechercheUserModel(RechercheUserModel rechercheUserModel) {
+		this.rechercheUserModel = rechercheUserModel;
+	}
+
+	public RechercheUserModel getRechercheUserModel() {
+		return rechercheUserModel;
+	}
+
+	public void setTypeIntervenant(String typeIntervenant) {
+		this.typeIntervenant = typeIntervenant;
+	}
+
+	public String getTypeIntervenant() {
+		return typeIntervenant;
+	}
+
+	public void setShowUserForm(boolean showUserForm) {
+		this.showUserForm = showUserForm;
+	}
+
+	public boolean isShowUserForm() {
+		return showUserForm;
+	}
+
+	public void setShowUnitForm(boolean showUnitForm) {
+		this.showUnitForm = showUnitForm;
+	}
+
+	public boolean isShowUnitForm() {
+		return showUnitForm;
+	}
+
+	public void setRechercheUnitModel(RechercheUnitModel rechercheUnitModel) {
+		this.rechercheUnitModel = rechercheUnitModel;
+	}
+
+	public RechercheUnitModel getRechercheUnitModel() {
+		return rechercheUnitModel;
+	}
+
+	public void setDataModelUser(DataModel dataModelUser) {
+		this.dataModelUser = dataModelUser;
+	}
+
+	public DataModel getDataModelUser() {
+		return dataModelUser;
+	}
+
+	public void setDataModelUnit(DataModel dataModelUnit) {
+		this.dataModelUnit = dataModelUnit;
+	}
+
+	public DataModel getDataModelUnit() {
+		return dataModelUnit;
+	}
+
+	public void setListUser(List<RechercheUserModel> listUser) {
+		this.listUser = listUser;
+	}
+
+	public List<RechercheUserModel> getListUser() {
+		return listUser;
+	}
+
+	public void setListUnit(List<RechercheUnitModel> listUnit) {
+		this.listUnit = listUnit;
+	}
+
+	public List<RechercheUnitModel> getListUnit() {
+		return listUnit;
+	}
+
+	public void setRecordsUser(long recordsUser) {
+		this.recordsUser = recordsUser;
+	}
+
+	public void setRecordsPp(long recordsPp) {
+		this.recordsPp = recordsPp;
+	}
+
+	public void setRecordsPm(long recordsPm) {
+		this.recordsPm = recordsPm;
+	}
+
+	public void setRecordsUnit(long recordsUnit) {
+		this.recordsUnit = recordsUnit;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setOpenedSTPannel(boolean openedSTPannel) {
+		this.openedSTPannel = openedSTPannel;
+	}
+
+	public boolean isOpenedSTPannel() {
+		return openedSTPannel;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public void setShowPpForm(boolean showPpForm) {
+		this.showPpForm = showPpForm;
+	}
+
+	public boolean isShowPpForm() {
+		return showPpForm;
+	}
+
+	public void setShowPmForm(boolean showPmForm) {
+		this.showPmForm = showPmForm;
+	}
+
+	public boolean isShowPmForm() {
+		return showPmForm;
+	}
+
+	public void setListGourvernorat(List<Gouvernerat> listGourvernorat) {
+		this.listGourvernorat = listGourvernorat;
+	}
+
+	public List<Gouvernerat> getListGourvernorat() {
+		return listGourvernorat;
+	}
+
+	public void setListPays(List<Pays> listPays) {
+		this.listPays = listPays;
+	}
+
+	public List<Pays> getListPays() {
+		return listPays;
+	}
+
+	public void setListVille(List<Ville> listVille) {
+		this.listVille = listVille;
+	}
+
+	public List<Ville> getListVille() {
+		return listVille;
+	}
+
+	public void setRecherchePpModel(RecherchePpModel recherchePpModel) {
+		this.recherchePpModel = recherchePpModel;
+	}
+
+	public RecherchePpModel getRecherchePpModel() {
+		return recherchePpModel;
+	}
+
+	public void setRecherchePmModel(RecherchePmModel recherchePmModel) {
+		this.recherchePmModel = recherchePmModel;
+	}
+
+	public RecherchePmModel getRecherchePmModel() {
+		return recherchePmModel;
+	}
+
+	public void setDataModelPp(DataModel dataModelPp) {
+		this.dataModelPp = dataModelPp;
+	}
+
+	public DataModel getDataModelPp() {
+		return dataModelPp;
+	}
+
+	public void setDataModelPm(DataModel dataModelPm) {
+		this.dataModelPm = dataModelPm;
+	}
+
+	public DataModel getDataModelPm() {
+		return dataModelPm;
+	}
+
+	public void setListPp(List<RecherchePpModel> listPp) {
+		this.listPp = listPp;
+	}
+
+	public List<RecherchePpModel> getListPp() {
+		return listPp;
+	}
+
+	public void setListPm(List<RecherchePmModel> listPm) {
+		this.listPm = listPm;
+	}
+
+	public List<RecherchePmModel> getListPm() {
+		return listPm;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public ItemSelected getSelectedDestinataire() {
+		return selectedDestinataire;
+	}
+
+	public void setSelectedDestinataire(ItemSelected selectedDestinataire) {
+		this.selectedDestinataire = selectedDestinataire;
+	}
+
+	public boolean isShowAvertPanel() {
+		return showAvertPanel;
+	}
+
+	public void setShowAvertPanel(boolean showAvertPanel) {
+		this.showAvertPanel = showAvertPanel;
+	}
+
+	public void setShowResponsibleResponseColumn(
+			Boolean showResponsibleResponseColumn) {
+		this.showResponsibleResponseColumn = showResponsibleResponseColumn;
+	}
+
+	public Boolean getShowResponsibleResponseColumn() {
+		return showResponsibleResponseColumn;
+	}
+
+}

@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+
+<head>
+<title>Consulter contact</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<!-- *********************************** -->
+					<table align="center" id="t1" style="width: 100%;">
+						<tr>
+							<td id="content"><rich:panel styleClass="rich-panel">
+									<h:form>
+										<rich:spacer height="10px" />
+										<div align="left">
+											<a4j:commandLink
+												action="#{personnePhysiqueConsultationBean.retourNbrPP}">
+												<h:graphicImage
+													value="../framGraphique/images/icone-previous.gif" />
+
+											</a4j:commandLink>
+											<rich:toolTip for="retour" value="#{msg.Retour}" />
+										</div>
+									</h:form>
+								</rich:panel> <rich:spacer height="10px" /> <rich:panel
+									styleClass="rich-panel">
+									<f:facet name="header">
+										<h:panelGrid columns="1" styleClass="xtePanelGrid">
+											<h:outputText value="#{msg.ConsultExpfacet}"
+												styleClass="xteEnregistrementLabelOutput" />
+										</h:panelGrid>
+									</f:facet>
+									<rich:spacer height="10px" />
+									<h:form>
+
+										<a4j:keepAlive beanName="personnePhysiqueConsultationBean" />
+										<table align="center" class="frameTableClient"
+											style="width: 100%;">
+
+											<tr>
+												<td width="50%" valign="top"><h:panelGrid columns="2">
+
+														<h:outputText value="#{msg.ContactPrenomNomRaisonSociale}"
+															styleClass="xteDetailLabel" style=" width :100px;" />
+														<h:outputText
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.nom}"
+															style=" width :100px;" styleClass="xteDetailLabelOutput" />
+														<h:outputText value="#{msg.ContactAdresse}"
+															styleClass="xteDetailLabel" />
+														<h:column />
+														<h:column>
+															<rich:spacer width="30px" />
+															<h:outputText value="#{msg.ContactRue}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:outputText id="adr"
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.adresse}"
+															styleClass="xteDetailLabelOutput" />
+														<h:column>
+															<rich:spacer width="30px" />
+															<h:outputText value="#{msg.ContactCode}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:outputText id="code"
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.codePostal}"
+															styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+														<h:column>
+															<rich:spacer width="30px" />
+															<h:outputText value="#{msg.ContactVille}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:outputText id="ville"
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.ville}"
+															styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+														<h:column>
+															<rich:spacer width="30px" />
+															<h:outputText value="#{msg.ContactPays}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:outputText id="pays"
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.pays}"
+															styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+
+													</h:panelGrid>
+												</td>
+												<td width="50%" valign="top"><h:panelGrid columns="2">
+
+														<h:outputText value="#{msg.ContactType}"
+															styleClass="xteDetailLabel" />
+														<h:outputText
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.type}"
+															styleClass="xteDetailLabelOutput" />
+														<h:outputText value="#{msg.ContactCIN}"
+															styleClass="xteDetailLabel" />
+														<h:outputText
+															value="#{personnePhysiqueConsultationBean.vb.pp.cin}"
+															style=" width :100px;" styleClass="xteDetailLabelOutput" />
+
+														<h:outputText value="#{msg.ContactPortable}"
+															styleClass="xteDetailLabel" />
+														<h:outputText
+															value="#{personnePhysiqueConsultationBean.vb.pp.numPortable}"
+															styleClass="xteDetailLabelOutput" />
+														<h:outputText value="#{msg.ContactTele}"
+															styleClass="xteDetailLabel" />
+														<h:outputText id="no"
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.telephone}"
+															styleClass="xteDetailLabelOutput" />
+														<h:outputText value="#{msg.Contactfax}"
+															styleClass="xteDetailLabel" />
+														<h:outputText
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.fax}"
+															style=" width : 200px;" styleClass="xteDetailLabelOutput" />
+
+														<h:outputText value="#{msg.ContactMail}"
+															styleClass="xteDetailLabel" style=" width :100px;" />
+														<h:outputText
+															value="#{personnePhysiqueConsultationBean.vb.pp.expdestexterne.mail}"
+															style=" width :100px;" styleClass="xteDetailLabelOutput" />
+													</h:panelGrid>
+												</td>
+											</tr>
+										</table>
+
+
+									</h:form>
+								</rich:panel>
+							</td>
+						</tr>
+					</table>
+
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+
+</ui:composition>

@@ -1,0 +1,43 @@
+package xtensus.beans.utils;
+
+public class RapportSociete {
+	private String societeRepublique;
+	private String societeVille;
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String uniteConnecte;
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+	public String getSocieteVille() {
+		return societeVille;
+	}
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+	public String getSocieteNom() {
+		return societeNom;
+	}
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+	public void setUniteConnecte(String uniteConnecte) {
+		this.uniteConnecte = uniteConnecte;
+	}
+	public String getUniteConnecte() {
+		return uniteConnecte;
+	}
+	
+	
+	
+	
+}

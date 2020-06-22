@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-04-18T08:40:55 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Etat_Suivi_Reclamations" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b9e79e06-d95c-49d7-b9fc-beadcf23f401">
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="listeSociete" class="java.util.List">
+		<fieldDescription><![CDATA[listeSociete]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="190" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="10" width="530" height="100" uuid="878831a5-d722-423c-8fe6-d269ca2cca3a"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete_Ar.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="280" y="120" width="160" height="30" uuid="84c9d9be-2977-4c74-b014-43dffdea9222"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[سجل تسجيل العرائض على مستوى]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="125" splitType="Stretch"/>
+	</detail>
+</jasperReport>

@@ -1,0 +1,11 @@
+DataBase.driver=com.mysql.jdbc.Driver
+DataBase.url=jdbc\:mysql\://localhost\:3306/xtegbosonedetest09
+DataBase.username=root
+DataBase.password=root
+DataBase.initialPoolSize=5
+DataBase.minPoolSize=5
+DataBase.maxPoolSize=50
+DataBase.testConnectionOnCheckout=true
+DataBase.sauvegardeUrl=C:/GBO/SQLServerBackups/GBO_BD_BackUp_file
+DataBase.sauvegardeUrlExtension=.Bak
+Archive.sauvegardeUrl=C:/GBO/ArchiveFiles

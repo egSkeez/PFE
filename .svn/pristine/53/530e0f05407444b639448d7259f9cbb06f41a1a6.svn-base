@@ -1,0 +1,72 @@
+package xtensus.beans.common.GBO;
+
+import java.util.Date;
+
+import xtensus.entity.Courrier;
+
+public class RpportCourrierArriveeExterne {
+	private Courrier courrier;
+	private Date dateReception;
+	private int num;
+	private int numeroOrdre;
+	private String listeDestinataire;
+	private Date dateRecep;
+	private String expediteurNom;
+	private String reference;
+	private String objet;
+	public Courrier getCourrier() {
+		return courrier;
+	}
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+	public Date getDateReception() {
+		return dateReception;
+	}
+	public void setDateReception(Date dateReception) {
+		this.dateReception = dateReception;
+	}
+	public int getNum() {
+		return num;
+	}
+	public void setNum(int num) {
+		this.num = num;
+	}
+	public int getNumeroOrdre() {
+		return numeroOrdre;
+	}
+	public void setNumeroOrdre(int numeroOrdre) {
+		this.numeroOrdre = numeroOrdre;
+	}
+	public String getListeDestinataire() {
+		return listeDestinataire;
+	}
+	public void setListeDestinataire(String listeDestinataire) {
+		this.listeDestinataire = listeDestinataire;
+	}
+	public Date getDateRecep() {
+		return dateRecep;
+	}
+	public void setDateRecep(Date dateRecep) {
+		this.dateRecep = dateRecep;
+	}
+	public String getExpediteurNom() {
+		return expediteurNom;
+	}
+	public void setExpediteurNom(String expediteurNom) {
+		this.expediteurNom = expediteurNom;
+	}
+	public String getReference() {
+		return reference;
+	}
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+	public String getObjet() {
+		return objet;
+	}
+	public void setObjet(String objet) {
+		this.objet = objet;
+	}
+	
+}

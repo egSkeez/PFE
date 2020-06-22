@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-03-19T18:11:02 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourriersListes_Urgence2" columnCount="3" pageWidth="555" pageHeight="825" columnWidth="181" leftMargin="5" rightMargin="5" topMargin="0" bottomMargin="5" uuid="b39a98ae-43a0-45dd-a188-a3efcc292621">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="nombre" class="java.lang.Long">
+		<fieldDescription><![CDATA[nombre]]></fieldDescription>
+	</field>
+	<field name="urgenceLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[urgenceLibelle]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="39" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="9" width="510" height="21" uuid="6dd107be-5281-4026-93ba-1454570f6df8"/>
+				<textElement markup="html">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{urgenceLibelle}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,1001 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Script</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <style type="text/css">
+
+    td {
+    height: 20px;
+}
+  </style>
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			
+			<div>
+			<h:form id="formRecherche">
+							<rich:spacer width="2px" height="10px" />
+							
+							
+							<table width="100%">
+								<tr>
+									<td width="50%" style="vertical-align: top;">
+										<table width="100%">
+											
+											<tr><td>
+											<h:outputText value="ID courrier : "
+												styleClass="xteDetailLabel" /></td>
+											<td>
+											<h:inputText id="ref" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierReference}">
+												<a4j:support id="refSupp" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue2}" />
+											</h:inputText></td></tr>
+											<tr><td>
+											<h:outputText value="Ref courrier : "
+												styleClass="xteDetailLabel" /></td>
+											<td>
+											<h:inputText id="ref2" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierObjet}">
+												<a4j:support id="refSuppll" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue2}" />
+											</h:inputText></td></tr>
+											
+											
+											
+															
+											
+											
+											
+											
+										</table>
+									</td>
+									<td width="50%" style="vertical-align: top;">
+									
+									</td>
+								</tr>
+							</table>
+							<a4j:keepAlive beanName="courrierRechercheMultiCriteresBean"
+								ajaxOnly="true" />
+							<div align="center">
+								<a4j:commandButton
+														value="Rechercher" type="submit"
+									process="ajaxStatus" styleClass="submitButton"
+									status="ajaxStatus"
+									oncomplete="document.location.href='courrierDetails.jsf'" >
+										
+									</a4j:commandButton>
+								<rich:spacer width="5" />
+								
+							</div>
+							<rich:spacer height="10" />
+							<div align="left">
+								
+							</div>
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+
+							
+
+						</h:form>
+		<form id="contenuTab" >	
+			<table id="tableList1" class="table table-hover" style="width: 23%;font-size:12px" border="1">    
+
+    <tbody >
+
+        <a4j:repeat id="it" value="#{couriierCompletBeans.listCritereEvaluationsDM}" var="item">
+           <ui:fragment >
+           <tr> <td > <h:outputText style="font-size:15px; color:blue  " value="Table Courrier :"  /> </td> </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="id :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"  value="#{item.courrier.idCourrier}"  /><br></br>
+            
+           </td>
+          </tr>
+          <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="transmission :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"  value="#{item.courrier.transmission.transmissionLibelle}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="nature :"  /></td>                                                                                               
+           <td>
+            <h:outputText  style="font-size:10px"  value="#{item.courrier.nature.natureLibelle}"  /><br></br>
+            
+           </td>
+          </tr>
+        
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="urgence :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.urgence.urgenceLibelle}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="confidentialite :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.confidentialite.confidentialiteLibelle}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierNecessiteReponse :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierNecessiteReponse}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateReponse :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateReponse}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px;" value="courrierReferenceCorrespondant :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierReferenceCorrespondant}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierCommentaire :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierCommentaire}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierObjet :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierObjet}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateReception :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateReception}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierCircuit :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierCircuit}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="keywords :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.keywords}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateSysteme :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateSysteme}"  /><br></br>
+            
+           </td>
+          </tr>
+          <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateReponseSysteme :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateReponseSysteme}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierSupprime :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierSupprime}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDelegueId :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDelegueId}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierSupprimeDelegueId :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierSupprimeDelegueId}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierSupprimeDate :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierSupprimeDate}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierCommentaireAr :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierCommentaireAr}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierObjetAr :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierObjetAr}"  /><br></br>
+            
+           </td>
+          </tr>
+              <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="etages :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.etages.etagesLibelle}"  /><br></br>
+            
+           </td>
+          </tr>
+             <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierEtatActuelleWorkflow :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierEtatActuelleWorkflow}"  /><br></br>
+            
+           </td>
+          </tr>
+             <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierflagArchive :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierflagArchive}"  /><br></br>
+            
+           </td>
+          </tr>
+             <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateClassement :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateClassement}"  /><br></br>
+            
+           </td>
+          </tr>
+             <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateArchivage :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateArchivage}"  /><br></br>
+            
+           </td>
+          </tr>
+          <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierDateReceptionReelle :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierDateReceptionReelle}"  /><br></br>
+            
+           </td>
+          </tr>
+             <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierType :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierType}"  /><br></br>
+            
+           </td>
+          </tr>
+             <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierTypeOrdre :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierTypeOrdre}"  /><br></br>
+            
+           </td>
+          </tr>
+           
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierOldNum :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierOldNum}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierOldDateOper :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierOldDateOper}"  /><br></br>
+            
+           </td>
+          </tr>
+           <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="courrierOldIntt :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{item.courrier.courrierOldIntt}"  /><br></br>
+            
+           </td>
+          </tr>
+      
+          
+</ui:fragment>
+        </a4j:repeat>
+
+    </tbody>
+
+</table>
+<table class="table table-hover" border=" solid black" style="width: auto"> 
+
+    <tbody >
+<td>
+<table border="1px solid black">
+  <tr> <td> <h:outputText style="font-size:15px; color:blue  " value="Table Transaction:"  /> </td> </tr>
+ <tr> <td>
+          <h:outputText style="font-size:10px" value="transactionId :"  /></td>                                                                                               
+           </tr> 
+           <tr><td>
+          <h:outputText style="font-size:10px" value="expdestId :"  /></td>                                                                                               
+           </tr>
+           <tr>
+             <td>
+          <h:outputText style="font-size:10px" value="dossierId :"  /></td> </tr>
+          <tr><td>
+          <h:outputText style="font-size:10px" value="idUtilisateur :"  /></td> </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="etatLibelle :"  /></td></tr>
+          <tr><td>
+          <h:outputText style="font-size:10px" value="transactionDateTransaction :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionCommentaire :"  /></td>  
+          </tr>
+          <tr><td>
+          <h:outputText style="font-size:10px" value="transactionDateReponse :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionDelegueId :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionSupprimer :"  /></td> </tr>
+          <tr><td>
+          <h:outputText style="font-size:10px" value="transactionSupprimerDate :"  /></td>  </tr> 
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionOrdre :"  /></td> </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionSupprimerDelegueId :"  /></td></tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="transactionAccuseReception :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionDateConsultation :"  /></td>  </tr>
+    
+        <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionTypeIntervenant :"  /></td>  
+          </tr> 
+          <tr>              <td>
+          <h:outputText style="font-size:10px" value="transactionDestinationReelle :"  /></td> </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionIdIntervenant :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionCommentaireAnnotation :"  /></td></tr>
+           <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionDateConsultation :"  /></td>  </tr>
+           <tr><td>
+          <h:outputText style="font-size:10px" value="transactionFirst :"  /></td> </tr>
+           </table>
+  </td>
+        <a4j:repeat value="#{couriierCompletBeans.listCritereEvaluationsDMListTr}" var="trs">
+<td>
+<table border="1">
+          <tr>
+                                                                                                   
+           <td >
+            <h:outputText style="font-size:10px;  " value="  "  />
+            </td>
+           
+          </tr>
+          <tr>
+              <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionId}"  />
+            
+           </td>
+          </tr>
+          <tr>
+             <td>  
+            <h:outputText style="font-size:10px"   value="#{trs.expdest.idExpDest}"  />
+            
+           </td>
+          </tr>
+          
+          <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.dossier.dossierId}"  />
+            
+           </td>
+          </tr>
+          <tr>
+                                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.idUtilisateur}"  />
+            
+           </td>
+          </tr>
+
+         
+           <tr>
+                                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.etat.etatLibelle}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionDateTransaction}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionCommentaire}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionDateReponse}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionDelegueId}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                              
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionSupprimer}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionSupprimerDate}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionSupprimerDelegueId}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                              
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionOrdre}"  />
+            
+           </td>
+          </tr>
+           <tr>
+                                                                                                          
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionAccuseReception}"  />
+            
+           </td>
+          </tr>
+           
+          
+           
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionDateConsultation}"  />
+            
+           </td>
+          </tr>
+          <tr>
+                                                                                              
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionDestinationReelle.transactionDestinationReelleId}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionTypeIntervenant}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionIdIntervenant}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionCommentaireAnnotation}"  />
+            
+           </td>
+          </tr>
+           
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionDateConsultation}"  />
+            
+           </td>
+          </tr>
+         <tr>
+                                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trs.transactionFirst}"  />
+            
+           </td>
+          </tr>
+</table></td>
+        </a4j:repeat>
+
+    </tbody>
+
+</table>
+<table class="table table-hover" border=" solid black" style="width: auto"> 
+
+    <tbody >
+<td>
+<table border="1px solid black">
+           <tr> <td> <h:outputText style="font-size:15px; color:blue  " value="Table Expdest :"  /> </td> </tr>
+           <tr>        <td>
+          <h:outputText style="font-size:10px" value="idExpDest :"  /></td>   </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="typeExpDest :"  /></td> </tr>
+          <tr>   <td>
+          <h:outputText style="font-size:10px" value="idExpDestLdap :"  /></td>  </tr>
+          <tr>
+          <td>
+          <h:outputText style="font-size:10px" value="IdExpdestexterne :"  /></td>   </tr>
+           </table>
+
+</td>
+ 
+        <a4j:repeat value="#{couriierCompletBeans.listCritereEvaluationsDMListTrExpDestTest}" var="expdest">
+<td>
+<table border="1">
+   <tr>
+                                                                                                   
+           <td >
+            <h:outputText style="font-size:10px;  " value="  "  />
+            </td>
+           
+          </tr>
+            <tr>
+                                                                                                   
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdest.idExpDest}"  />
+            </td>
+           
+          </tr>
+            <tr>
+                                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdest.typeExpDest}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                         
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdest.idExpDestLdap}"  />
+            
+           </td>
+          </tr>
+          
+            <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value=" #{expdest.expdestexterne.idExpDestExterne}"  />
+            
+           </td>
+          </tr>
+          
+          </table></td>
+        </a4j:repeat>
+
+    </tbody>
+
+</table>
+<table class="table table-hover" border=" solid black" style="width: auto"> 
+
+    <tbody >
+<td>
+<table border="1px solid black">
+     <tr> <td> <h:outputText style="font-size:15px; color:blue  " value="Table TransactionDest :"  /> </td> </tr>
+           <tr>     <td>
+          <h:outputText style="font-size:10px" value="idExpDest :"  /></td>     </tr>
+          <tr><td>
+          <h:outputText style="font-size:10px" value="idTransaction :"  /></td> </tr>
+         <tr> <td>
+          <h:outputText style="font-size:10px" value="transactionDestTypeIntervenant :"  /></td>    </tr> 
+          <tr><td>
+          <h:outputText style="font-size:10px" value="transactionDestIdIntervenant :"  /></td>       </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionDestDateConsultation :"  /></td>    </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionDestDateTransfert :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="transactionDestDateReponse :"  /></td>    </tr>
+           </table>
+
+</td>
+
+        <a4j:repeat value="#{couriierCompletBeans.listCritereEvaluationsDMTr}" var="tr">
+      <td>
+<table border="1">
+<tr> <td> <h:outputText style="font-size:15px;color:blue  " value=" "  /> </td> </tr>
+      <tr>
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.id.idExpDest}"  />
+            
+           </td>
+          </tr>
+            <tr>
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.id.idTransaction}"  />
+            
+           </td>
+          </tr>
+            <tr>
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.transactionDestTypeIntervenant}"  />
+            
+           </td>
+          </tr>
+          <tr>
+                                                                                                       
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.transactionDestIdIntervenant}"  />
+            
+           </td>
+          </tr>
+          <tr>
+                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.transactionDestDateConsultation}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.transactionDestDateTransfert}"  />
+            
+           </td>
+          </tr> 
+           <tr>
+                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{tr.transactionDestDateReponse}"  />
+            
+           </td>
+          </tr>
+            </table></td>
+        </a4j:repeat>
+    </tbody>
+</table>
+<table class="table table-hover" border=" solid black" style="width: auto"> 
+
+    <tbody >
+<td>
+<table border="1px solid black">
+           <tr> <td> <h:outputText style="font-size:15px; color:blue  " value="Table ExpDestExterne :"  /> </td> </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="idExpDestExterne :"  /></td>                                                                                               
+          </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="typeUtilisateurLibelle :"  /></td>   </tr>
+          <tr>  <td>
+          <h:outputText style="font-size:10px" value="expDestExterneNom :"  /></td> </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="expDestExternePrenom :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneTelephone :"  /></td>  </tr>
+          <tr>  <td>
+          <h:outputText style="font-size:10px" value="expDestExterneMail :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneAdresse :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneCodePostale :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneVille :"  /></td>   </tr>
+          <tr><td>
+          <h:outputText style="font-size:10px" value="expDestExternePays :"  /></td>      </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="expDestExterneFax :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneSupprimer :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneNomAr :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExternePrenomAr :"  /></td>   </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="expDestExterneAdresseAr :"  /></td>  </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="expDestExterneVilleAr :"  /></td>  </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExternePaysAr :"  /></td>  </tr>
+          <tr> <td>
+          <h:outputText style="font-size:10px" value="expDestExterneGouvernerat :"  /></td>   </tr>
+          <tr>               <td>
+          <h:outputText style="font-size:10px" value="expDestExterneLdapUID :"  /></td>  </tr>
+                    </table>
+</td>
+        <a4j:repeat value="#{couriierCompletBeans.listCritereEvaluationsDMExpDestExterne}" var="expdestEx">
+           
+<td>
+<table border="1">
+          <tr> <td> <h:outputText style="font-size:15px;width:90px; color:blue " value="           "  />  </td></tr> 
+            <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.idExpDestExterne}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                          
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.typeutilisateur.typeUtilisateurLibelle}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneNom}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExternePrenom}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneTelephone}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                         
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneMail}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneAdresse}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneCodePostale}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneVille}"  />
+            
+           </td>
+           </tr>
+            <tr>
+                                                                                                        
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExternePays}"  />
+            
+           </td>
+           </tr>
+            <tr>
+                                                                                                          
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneFax}"  />
+            
+           </td>
+           </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneSupprimer}"  />
+            
+           </td>
+           </tr>
+            <tr>
+                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneNomAr}"  />
+            
+           </td>
+           </tr>
+            <tr>
+                                                                                            
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExternePrenomAr}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneAdresseAr}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                           
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneVilleAr}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExternePaysAr}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                                          
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneGouvernerat}"  />
+            
+           </td>
+          </tr>
+            <tr>
+                                                                                             
+           <td>
+            <h:outputText style="font-size:10px"   value="#{expdestEx.expDestExterneLdapUID}"  />
+            
+           </td>
+          </tr>
+          
+
+</table></td>
+        </a4j:repeat>
+
+    </tbody>
+
+</table>
+<table class="table table-hover" style="width: auto;font-size:12px" border="1"> 
+
+    <tbody >
+
+        <a4j:repeat value="#{couriierCompletBeans.listCritereEvaluationsDMTrReel}" var="trReel">
+
+           <tr> <td> <h:outputText style="font-size:15px;width:390px; color:blue  " value="Table TransactionDestReelle :"  /> </td> </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="transactionDestinationReelleId :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trReel.transactionDestinationReelleId}"  />
+            
+           </td>
+          </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value="transactionDestinationReelleIdDestinataire :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trReel.transactionDestinationReelleIdDestinataire}"  />
+            
+           </td>
+          </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value=" transactionDestinationReelleDateTraitement :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trReel.transactionDestinationReelleDateTraitement}"  />
+            
+           </td>
+          </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value=" transactionDestinationReelleDateReception :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trReel.transactionDestinationReelleDateReception}"  />
+            
+           </td>
+          </tr>
+            <tr>
+               <td>
+          <h:outputText style="font-size:10px" value=" transactionDestinationReelleTypeDestinataire :"  /></td>                                                                                               
+           <td>
+            <h:outputText style="font-size:10px"   value="#{trReel.transactionDestinationReelleTypeDestinataire}"  />
+            
+           </td>
+          </tr>
+
+        </a4j:repeat>
+
+    </tbody>
+
+</table>
+
+</form>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

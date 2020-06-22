@@ -1,0 +1,148 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Entite;
+
+public class StatistiqueNecessitantReponse extends Entite {
+	/***** Necessitnat de reponse *****/
+	private int necessitnatReponseTotal;
+	private int necessitnatReponseAujourdhui;
+	private int necessitnatReponseSemaine;
+	private int necessitnatReponseMois;
+	private String necessitnatReponseTotalLibelle;
+	private String necessitnatReponseAujourdhuiLibelle;
+	private String necessitnatReponseSemaineLibelle;
+	private String necessitnatReponseMoisLibelle;
+
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private String pathJasper;
+	private String user;
+
+	public String getNecessitnatReponseTotalLibelle() {
+		return necessitnatReponseTotalLibelle;
+	}
+
+	public void setNecessitnatReponseTotalLibelle(
+			String necessitnatReponseTotalLibelle) {
+		this.necessitnatReponseTotalLibelle = necessitnatReponseTotalLibelle;
+	}
+
+	public String getNecessitnatReponseAujourdhuiLibelle() {
+		return necessitnatReponseAujourdhuiLibelle;
+	}
+
+	public void setNecessitnatReponseAujourdhuiLibelle(
+			String necessitnatReponseAujourdhuiLibelle) {
+		this.necessitnatReponseAujourdhuiLibelle = necessitnatReponseAujourdhuiLibelle;
+	}
+
+	public String getNecessitnatReponseSemaineLibelle() {
+		return necessitnatReponseSemaineLibelle;
+	}
+
+	public void setNecessitnatReponseSemaineLibelle(
+			String necessitnatReponseSemaineLibelle) {
+		this.necessitnatReponseSemaineLibelle = necessitnatReponseSemaineLibelle;
+	}
+
+	public String getNecessitnatReponseMoisLibelle() {
+		return necessitnatReponseMoisLibelle;
+	}
+
+	public void setNecessitnatReponseMoisLibelle(
+			String necessitnatReponseMoisLibelle) {
+		this.necessitnatReponseMoisLibelle = necessitnatReponseMoisLibelle;
+	}
+
+	public String getSocieteNom() {
+		return societeNom;
+	}
+
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+
+	public String getSocieteVille() {
+		return societeVille;
+	}
+
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public String getPathJasper() {
+		return pathJasper;
+	}
+
+	public void setPathJasper(String pathJasper) {
+		this.pathJasper = pathJasper;
+	}
+
+	public int getNecessitnatReponseTotal() {
+		return necessitnatReponseTotal;
+	}
+
+	public void setNecessitnatReponseTotal(int necessitnatReponseTotal) {
+		this.necessitnatReponseTotal = necessitnatReponseTotal;
+	}
+
+	public int getNecessitnatReponseAujourdhui() {
+		return necessitnatReponseAujourdhui;
+	}
+
+	public void setNecessitnatReponseAujourdhui(int necessitnatReponseAujourdhui) {
+		this.necessitnatReponseAujourdhui = necessitnatReponseAujourdhui;
+	}
+
+	public int getNecessitnatReponseSemaine() {
+		return necessitnatReponseSemaine;
+	}
+
+	public void setNecessitnatReponseSemaine(int necessitnatReponseSemaine) {
+		this.necessitnatReponseSemaine = necessitnatReponseSemaine;
+	}
+
+	public int getNecessitnatReponseMois() {
+		return necessitnatReponseMois;
+	}
+
+	public void setNecessitnatReponseMois(int necessitnatReponseMois) {
+		this.necessitnatReponseMois = necessitnatReponseMois;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+}

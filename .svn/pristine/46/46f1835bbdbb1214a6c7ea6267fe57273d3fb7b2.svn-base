@@ -1,0 +1,439 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierConsulterInformations;
+import xtensus.beans.utils.StatistiqueCourrier;
+import xtensus.beans.utils.StatistiqueNecessitantReponse;
+import xtensus.beans.utils.StatistiqueQualificationCourrier;
+import xtensus.entity.Courrier;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component()
+@Scope("request")
+public class StatistiqueCourrierBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	public boolean statusAide;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private CourrierConsultationBean consultationBean;
+	private StatistiqueCourrier statistiqueCourrier;
+
+	@Autowired
+	private CourrierRelanceBean courrierRelanceBean;
+
+	@Autowired
+	public StatistiqueCourrierBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+
+		System.out
+				.println("*************Bean StatistiqueCourrierBean Injecte***************");
+	}
+
+	// Fiche Courrier Franéais
+	public void printStatistiquePDF() {
+		/***** Courrier ********/
+		int courrierArrivee = 0;
+		int courrierDepart = 0;
+		float pourcentageCourrierArrivee = 0;
+		float pourcentageCourrierDepart = 0;
+		int courrierTotal = 0;
+		int courrierNouveaux = 0;
+		int courrierAValider = 0;
+
+		try {
+			List<StatistiqueCourrier> rapportStatistique = new ArrayList<StatistiqueCourrier>();
+			StatistiqueCourrier rapport = new StatistiqueCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+//			int courrierArriveeJour = consultationBean
+//					.getListCourriersRecusJour().size();
+//			int courrierDepartJour = consultationBean
+//					.getListCourriersEnvoyesJour().size();
+//			courrierArrivee = consultationBean.getListCourriersRecus().size()
+//					+ courrierArriveeJour;
+//			rapport.setCourrierArrivee(courrierArrivee);
+//			courrierDepart = consultationBean.getListCourriersEnvoyes().size()
+//					+ courrierDepartJour;
+//			rapport.setCourrierDepart(courrierDepart);
+//			courrierNouveaux = courrierArriveeJour;
+//			rapport.setCourrierNouveaux(courrierNouveaux);
+//			courrierTotal = courrierArrivee + courrierDepart;
+//			rapport.setCourrierTotal(courrierTotal);
+//			if (courrierTotal != 0) {
+//				pourcentageCourrierArrivee = (courrierArrivee * 100)
+//						/ courrierTotal;
+//				pourcentageCourrierDepart = (courrierDepart * 100)
+//						/ courrierTotal;
+//			} else {
+//				pourcentageCourrierArrivee = 0;
+//				pourcentageCourrierDepart = 0;
+//			}
+//			rapport.setPourcentageCourrierArrivee(pourcentageCourrierArrivee);
+//			rapport.setPourcentageCourrierDepart(pourcentageCourrierDepart);
+//			courrierAValider = (consultationBean
+//					.getListCourriersRecusAvalider().size() + consultationBean
+//					.getListCourriersRecusJourAvalider().size());
+			rapport.setCourrierAValider(courrierAValider);
+			rapport.setCourrierArriveeLibelle(courrierArrivee
+					+ " Courriers Arrivés");
+			rapport.setCourrierDepartLibelle(courrierDepart
+					+ " Courriers Envoyés");
+			rapport.setCourrierNouveauxLibelle(courrierNouveaux
+					+ " Nouveaux Courriers");
+			rapport.setCourrierAValiderLibelle(courrierAValider
+					+ " Courriers A Valider");
+			rapport.setCourrierTotalLibelle(courrierTotal + " Total");
+			rapport.setPourcentageCourrierArriveeLibelle(pourcentageCourrierArrivee
+					+ " % Courriers Arrivés");
+			rapport.setPourcentageCourrierDepartLibelle(pourcentageCourrierDepart
+					+ " % Courriers Envoyés");
+			/*************************************/
+			rapport.setCourrierTotalAValider(5);
+			rapport.setCourrierTotalAValiderLibelle("5 Total A Valider");
+			rapport.setCourrierRefuser(2);
+			rapport.setCourrierRefuserLibelle("2 Courriers Refusés");
+			rapport.setCourrierValider(3);
+			rapport.setCourrierValiderLibelle("3 Courriers Validés");
+			/*************************************/
+			String chartTitre_1 = "Courriers Arrivés/Départs (Barre)";
+			String chartTitre_2 = "Courriers Validés/Refusés (Barre)";
+			String chartTitre_3 = "Courriers Arrivés/Départs (Cercle)";
+			String chartTitre_4 = "Courriers Validés/Refusés (Cercle)";
+			rapport.setChartTitre_1(chartTitre_1);
+			rapport.setChartTitre_2(chartTitre_2);
+			rapport.setChartTitre_3(chartTitre_3);
+			rapport.setChartTitre_4(chartTitre_4);
+			rapport.setUser(vb.getPerson().getPrenom() + " "
+					+ vb.getPerson().getNom());
+			rapportStatistique.add(rapport);
+			export.exportToPDF(rapportStatistique, "Statistique",
+					"StatistiqueCourrier");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	// Fiche Courrier Franéais
+	public void printStatistiquePDF_3() {
+		/***** Courrier ********/
+//		int courrierArrivee = 0;
+//		int courrierDepart = 0;
+//		int courrierTotal = 0;
+//		int countConfdentialite = 0;
+//		int countUrgence = 0;
+
+		try {
+//			List<StatistiqueQualificationCourrier> rapportStatistique = new ArrayList<StatistiqueQualificationCourrier>();
+			StatistiqueQualificationCourrier rapport = new StatistiqueQualificationCourrier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+//			int courrierArriveeJour = consultationBean
+//					.getListCourriersRecusJour().size();
+//			int courrierDepartJour = consultationBean
+//					.getListCourriersEnvoyesJour().size();
+//			courrierArrivee = consultationBean.getListCourriersRecus().size()
+//					+ courrierArriveeJour;
+//			rapport.setCourrierArrivee(courrierArrivee);
+//			courrierDepart = consultationBean.getListCourriersEnvoyes().size()
+//					+ courrierDepartJour;
+//			rapport.setCourrierDepart(courrierDepart);
+//			courrierTotal = courrierArrivee + courrierDepart;
+//			rapport.setCourrierTotal(courrierTotal);
+//			rapport.setCourrierArriveeLibelle("Courriers Arrivés");
+//			rapport.setCourrierDepartLibelle("Courriers Envoyés");
+//			rapport.setCourrierTotalLibelle("Total");
+//			List<StatistiqueConfidentialite> statistiqueConfidentialites = new ArrayList<StatistiqueConfidentialite>();
+//			List<StatistiqueUrgence> statistiqueUrgences = new ArrayList<StatistiqueUrgence>();
+//			/*************** Urgence ************/
+//			List<Urgence> urgences = new ArrayList<Urgence>();
+//			urgences = appMgr.listUrgenceByOrdre();
+//			for (Urgence u : urgences) {
+//				int refU = u.getUrgenceId();
+//				countUrgence = statiqtiqueUrgence(
+//						consultationBean.getListCourriersRecus(), refU)
+//						+ statiqtiqueUrgence(
+//								consultationBean.getListCourriersRecusJour(),
+//								refU);
+//				StatistiqueUrgence su = new StatistiqueUrgence(countUrgence, u);
+//				statistiqueUrgences.add(su);
+//
+//			}
+//			rapport.setStatistiqueUrgences(statistiqueUrgences);
+//			rapport.setStatistiqueUrgence(statistiqueUrgences.get(0));
+//			/*************** Confidentialite ************/
+//			List<Confidentialite> confidentialites = new ArrayList<Confidentialite>();
+//			confidentialites = appMgr.ConfidentialiteByOrdre();
+//			for (Confidentialite c : confidentialites) {
+//				int refC = c.getConfidentialiteId();
+//				countConfdentialite = statiqtiqueConfidentialite(
+//						consultationBean.getListCourriersRecus(), refC)
+//						+ statiqtiqueConfidentialite(
+//								consultationBean.getListCourriersRecusJour(),
+//								refC);
+//				StatistiqueConfidentialite sc = new StatistiqueConfidentialite(
+//						countConfdentialite, c);
+//				statistiqueConfidentialites.add(sc);
+//
+//			}
+//			rapport.setStatistiqueConfidentialites(statistiqueConfidentialites);
+//			rapport.setStatistiqueConfidentialite(statistiqueConfidentialites
+//					.get(0));
+//			rapport.setUser(vb.getPerson().getPrenom() + " "
+//					+ vb.getPerson().getNom());
+//			rapportStatistique.add(rapport);
+//			export.exportToPDF(rapportStatistique, "Statistique_3",
+//					"StatistiqueCourrier_3");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	public int statiqtiqueUrgence(List<CourrierConsulterInformations> list,
+			int idUrgence) {
+		int res = 0;
+		for (CourrierConsulterInformations cci : list) {
+			Courrier cr = new Courrier();
+			cr = cci.getCourrier();
+			int ref = cr.getUrgence().getUrgenceId();
+			if (ref == idUrgence) {
+				res++;
+			}
+		}
+		return res;
+	}
+
+	public int statiqtiqueConfidentialite(
+			List<CourrierConsulterInformations> list, int idConfidentialite) {
+		int res = 0;
+		for (CourrierConsulterInformations cci : list) {
+			Courrier cr = new Courrier();
+			cr = cci.getCourrier();
+			int ref = cr.getConfidentialite().getConfidentialiteId();
+			if (ref == idConfidentialite) {
+				res++;
+			}
+		}
+		return res;
+	}
+
+	/*************** Necessitnat de reponse ************/
+	int necessitnatReponseTotal = 0;
+	int necessitnatReponseAujourdhui = 0;
+	int necessitnatReponseSemaine = 0;
+	int necessitnatReponseMois = 0;
+
+	// Fiche Courrier Franéais
+	public void printStatistiquePDF_4() {
+		necessitnatReponseTotal = 0;
+		necessitnatReponseAujourdhui = 0;
+		necessitnatReponseSemaine = 0;
+		necessitnatReponseMois = 0;
+		try {
+			List<StatistiqueNecessitantReponse> rapportStatistique = new ArrayList<StatistiqueNecessitantReponse>();
+			StatistiqueNecessitantReponse rapport = new StatistiqueNecessitantReponse();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+			courrierRelanceBean.loadAll();
+			necessitnatReponseTotal = courrierRelanceBean
+					.getNecessitnatReponseTotal();
+			courrierRelanceBean.loadDayMinus();
+			necessitnatReponseAujourdhui = courrierRelanceBean
+					.getNecessitnatReponseAujourdhui();
+			courrierRelanceBean.loadWeekMinus();
+			necessitnatReponseSemaine = courrierRelanceBean
+					.getNecessitnatReponseSemaine();
+			courrierRelanceBean.loadOutOfDate();
+			necessitnatReponseMois = courrierRelanceBean
+					.getNecessitnatReponseMois();
+
+			rapport.setNecessitnatReponseAujourdhui(necessitnatReponseAujourdhui);
+			rapport.setNecessitnatReponseAujourdhuiLibelle(necessitnatReponseAujourdhui
+					+ " Demain");
+			rapport.setNecessitnatReponseMois(necessitnatReponseMois);
+			rapport.setNecessitnatReponseMoisLibelle(necessitnatReponseMois
+					+ " Dépasse delais");
+			rapport.setNecessitnatReponseSemaine(necessitnatReponseSemaine);
+			rapport.setNecessitnatReponseSemaineLibelle(necessitnatReponseSemaine
+					+ " Cette semaine");
+			rapport.setNecessitnatReponseTotal(necessitnatReponseTotal);
+			rapport.setNecessitnatReponseTotalLibelle("Total :");
+			rapport.setUser(vb.getPerson().getPrenom() + " "
+					+ vb.getPerson().getNom());
+			rapportStatistique.add(rapport);
+			export.exportToPDF(rapportStatistique, "Statistique_4",
+					"StatistiqueCourrier_4");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public void statiqtiqueCourrierNecessitantReponce(
+			List<CourrierConsulterInformations> list) {
+		necessitnatReponseTotal = 0;
+		necessitnatReponseAujourdhui = 0;
+		necessitnatReponseSemaine = 0;
+		necessitnatReponseMois = 0;
+		Date d = new Date();
+		for (CourrierConsulterInformations cci : list) {
+			Courrier cr = new Courrier();
+			cr = cci.getCourrier();
+			if (cr.getCourrierNecessiteReponse().equals("Oui")) {
+				necessitnatReponseTotal++;
+				if (d.equals(cr.getCourrierDateReponse())) {
+					necessitnatReponseAujourdhui++;
+				}
+				Calendar c1 = Calendar.getInstance();
+				c1.setTime(d);
+				int NumeroSemaineActuelle = c1.get(c1.WEEK_OF_YEAR);
+				Calendar c2 = Calendar.getInstance();
+				c2.setTime(cr.getCourrierDateReponse());
+				int NumeroSemaine = c2.get(c2.WEEK_OF_YEAR);
+				if (NumeroSemaineActuelle == NumeroSemaine) {
+					necessitnatReponseSemaine++;
+				}
+				int mois = cr.getCourrierDateReponse().getMonth() + 1;
+				int moisActuelle = d.getMonth() + 1;
+				if (mois == moisActuelle) {
+					necessitnatReponseMois++;
+				}
+			}
+		}
+	}
+
+	/*********** Getters && Setters *****************/
+
+	public boolean isStatusAide() {
+		return statusAide;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public void setStatusAide(boolean statusAide) {
+		this.statusAide = statusAide;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public CourrierConsultationBean getConsultationBean() {
+		return consultationBean;
+	}
+
+	public void setConsultationBean(CourrierConsultationBean consultationBean) {
+		this.consultationBean = consultationBean;
+	}
+
+	public void setStatistiqueCourrier(StatistiqueCourrier statistiqueCourrier) {
+		this.statistiqueCourrier = statistiqueCourrier;
+	}
+
+	public StatistiqueCourrier getStatistiqueCourrier() {
+		return statistiqueCourrier;
+	}
+
+	public void setCourrierRelanceBean(CourrierRelanceBean courrierRelanceBean) {
+		this.courrierRelanceBean = courrierRelanceBean;
+	}
+
+	public CourrierRelanceBean getCourrierRelanceBean() {
+		return courrierRelanceBean;
+	}
+
+}

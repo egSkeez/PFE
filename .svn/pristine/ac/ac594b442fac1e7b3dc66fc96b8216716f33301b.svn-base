@@ -1,0 +1,4889 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+import javax.naming.Binding;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+import org.jfree.chart.block.CenterArrangement;
+import org.richfaces.component.html.HtmlTree;
+import org.richfaces.event.NodeSelectedEvent;
+import org.richfaces.model.TreeNodeImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+//import xtensus.beans.common.GBO0.u;
+import xtensus.beans.utils.ConnexionLdap;
+import xtensus.entity.Unite;
+import xtensus.ldap.business.LdapFunction;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.BOC;
+import xtensus.ldap.model.Unit;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class UniteBocGestionBean {
+
+	@Autowired
+	private ApplicationManager appMgr;
+	public final String CONTEXT_UNIT = "ou=SubUnits,o=XteUnits,dc=xtensus,dc=com";
+	public final String CONTEXT_BOC = "ou=OrderOffices,o=XteUnits,dc=xtensus,dc=com";
+	public final String CONTEXT_USER = "o=XteUsers,dc=xtensus,dc=com";
+	public final String CONTEXT_GROUP = "o=XteGroups,dc=xtensus,dc=com";
+	private TreeNodeImpl<String> stationNodes;
+	private TreeNodeImpl<String> stationNodesPrincipal;
+	public ConnexionLdap connexionLdap;
+	private List<Person> listdirectionmembers;
+	private List<Person> copyLdapListUser;
+	private List<Person> copyLdapListAllUser;
+	private List<Person> listotherusers;
+	private List<Person> listcurrentmembers;
+	private List<BOC> listadjoiningsbocs;
+	private List<Object> listCopyLdapData;
+	private List<Object> listCheckSelectedNode;
+	private List<Object> listNewStructure;
+	private DataModel listDirectionMember;
+	private DataModel listOtherUser;
+	private DataModel listCurrentMember;
+	private DataModel listAdjoiningBOC;
+	private Object selectedObject;
+	private BOC boc;
+	private BOC centralBoc;
+	private BOC selectedBoc;
+	private BOC bos;
+	private Unit direction;
+	private Unit copyDirection;
+	private Unit newDirection;
+	private BOC newBoc;
+	private Person person;
+	private String showHierarchicStructureForm;
+	private String showUnitPanelForm;
+	private String showDetailsUnitForm;
+	private String showDetailsMemberUnitForm;
+	private String showDetailsMemberBOCForm;
+	private String showAddUnitForm;
+	private String showAddBOCForm;
+	private String showAffectationUnitForm;
+	private String showListBOCsForm;
+	private String showAffectationBOCForm;
+	private String showButtonAddUnit;
+	private String showButtonUpdateUnit;
+	private String showButtonValidate;
+	private String operationForComponentControl;
+	private String unitTitle;
+	private String associatedUnit;
+	private String associatedBoc;
+	private boolean affichageRattachement;
+	private String showbuttonValidate;
+	private String copyNameUnit;
+	private String typeRole;
+	private String itemDisabledDirector;
+	private String itemDisabledSecretary;
+	private String unitNameLabel;
+	private String unitReference;
+	private String unitName;
+	private String unitShortName;
+	private String unitDescription;
+	private String pathUser;
+	private String pathUnit;
+	// private String titleSelectedUnit;
+	private String heightExtendableDataTable;
+	private String selectedUnit;
+	private String typeBOC;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private boolean status4;
+	private boolean status5;
+	private boolean status6;
+	private boolean status7;
+	private boolean status8;
+	private boolean status9;
+	private boolean status10;
+	private boolean status20;
+	private boolean status30;
+	private boolean status31;
+	private boolean status32;
+	private boolean status33;
+	private boolean status34;
+	private boolean status35;
+	private boolean status40;
+	private boolean status50;
+	private boolean status60;
+	private boolean status70;
+	private boolean status80;
+	private boolean status90;
+	private boolean noDirector;
+	private boolean noSecretary;
+	private boolean clicked;
+	private boolean inUpdateBo;
+	private int records;
+	private int recordsOtherUser;
+	private int recordsCurrentMember;
+	private int recordsAdjoiningBoc;
+	private int maxDirectionId;
+	private int maxServiceId;
+	private int maxBocId;
+	private int selectedIndex;
+	private int newSelectedIndex;
+	private int nextIndexForAddingUnit;
+	private int heightExtendableDataTableNumber;
+	private int index;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	@Autowired
+	private VariableGlobale vb;
+	private Hashtable<String, String> hashtable;
+
+	// AH : Pour la gestion du niveau d’organigramme et les structures parentes
+	private String selectedAssociatedUnit;
+	private List<SelectItem> selectItemsUnits;
+	private boolean refreshPage;// prend True si on modifier la hirarchie pour
+								// refraichir la page
+	private List<String> listNomUniteAEliminer;
+	private boolean affichageListeRattachement;
+	private String selectedAssociatedUnitrattachement;
+	private String selectedAssociatedUnitrattachementCopi;
+	private boolean showModif;
+
+	// AH : Fin Pour la gestion du niveau d’organigramme et les structures
+	// parentes
+	public UniteBocGestionBean() {
+		hashtable = new Hashtable<String, String>();
+		try {
+			hashtable = ConnexionLdap.getConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		stationNodes = new TreeNodeImpl<String>();
+		stationNodesPrincipal = new TreeNodeImpl<String>();
+		listAdjoiningBOC = new ListDataModel();
+		selectedIndex = 0;
+		nextIndexForAddingUnit = 0;
+		showHierarchicStructureForm = "none";
+		showUnitPanelForm = "none";
+		showDetailsUnitForm = "none";
+		showDetailsMemberUnitForm = "none";
+		showDetailsMemberBOCForm = "none";
+		showAddUnitForm = "none";
+		showAddBOCForm = "none";
+		showAffectationUnitForm = "none";
+		showListBOCsForm = "none";
+		showAffectationBOCForm = "none";
+		showButtonAddUnit = "none";
+		showButtonUpdateUnit = "none";
+		showButtonValidate = "true";
+		itemDisabledDirector = "false";
+		itemDisabledSecretary = "false";
+		maxDirectionId = 0;
+		maxBocId = 0;
+		newSelectedIndex = 0;
+		unitTitle = "";
+	}
+
+	@SuppressWarnings("rawtypes")
+	@PostConstruct
+	public void init() {
+		System.out.println("Dans UniteBocGestionBean PostConstruct");
+		showHierarchicStructureForm = "none";
+		showUnitPanelForm = "none";
+		showDetailsUnitForm = "none";
+		showDetailsMemberUnitForm = "none";
+		showDetailsMemberBOCForm = "none";
+		showAddUnitForm = "none";
+		showAddBOCForm = "none";
+		showAffectationUnitForm = "none";
+		showListBOCsForm = "none";
+		showAffectationBOCForm = "none";
+		showButtonAddUnit = "none";
+		showButtonUpdateUnit = "none";
+		showbuttonValidate = "none";
+		unitNameLabel = "Nom direction";
+		operationForComponentControl = "menu";
+		listdirectionmembers = new ArrayList<Person>();
+		copyLdapListUser = new ArrayList<Person>();
+		copyLdapListAllUser = new ArrayList<Person>();
+		listotherusers = new ArrayList<Person>();
+		listcurrentmembers = new ArrayList<Person>();
+		listCheckSelectedNode = new ArrayList<Object>();
+		listNewStructure = new ArrayList<Object>();
+		listAdjoiningBOC = new ListDataModel();
+		listDirectionMember = new ListDataModel();
+		listCurrentMember = new ListDataModel();
+		listOtherUser = new ListDataModel();
+		affichageRattachement = false;
+
+		final LdapFunction ldapFunction = new LdapFunction();
+		ldapFunction.getDataFromDirectory();
+		vb.setCopyLdapData(ldapFunction.ldapData);
+		vb.setCentralBoc(ldapFunction.centralBoc);
+		vb.setCentralBoc(ldapFunction.centralBoc);
+		vb.setListTousBos(ldapFunction.listTousBos);
+		vb.setListTousUnit(ldapFunction.listTousUnit);
+		try {
+			DirContext dirContext;
+			int currentId = 0;
+			dirContext = new InitialDirContext(hashtable);
+			NamingEnumeration e = dirContext.listBindings(CONTEXT_UNIT);
+			while (e.hasMore()) {
+				Binding b = (Binding) e.next();
+				currentId = Integer.parseInt(dirContext
+						.getAttributes(b.getNameInNamespace())
+						.get("departmentNumber").get(0).toString());
+				if (currentId > maxDirectionId) {
+					maxDirectionId = currentId;
+				}
+			}
+			currentId = 0;
+			String copyNameBOC = "";
+			e = dirContext.listBindings(CONTEXT_BOC);
+			while (e.hasMore()) {
+				Binding b = (Binding) e.next();
+				copyNameBOC = dirContext.getAttributes(b.getNameInNamespace())
+						.get("cn").get(0).toString();
+			}
+			e = dirContext
+					.listBindings("cn=" + copyNameBOC + "," + CONTEXT_BOC);
+			while (e.hasMore()) {
+				Binding b = (Binding) e.next();
+				currentId = Integer.parseInt(dirContext
+						.getAttributes(b.getNameInNamespace())
+						.get("departmentNumber").get(0).toString());
+				if (currentId > maxBocId) {
+					maxBocId = currentId;
+				}
+			}
+			dirContext.close();
+			listDirectionMember.setWrappedData(listdirectionmembers);
+			listCurrentMember.setWrappedData(new ArrayList<Person>());
+			listAdjoiningBOC.setWrappedData(new ArrayList<BOC>());
+			listOtherUser.setWrappedData(new ArrayList<Person>());
+			centralBoc = new BOC();
+			centralBoc = vb.getCentralBoc();
+
+			// LdapFunction l= new LdapFunction();
+			// l.getLdapBOC();
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+		copyLdapListUser = vb.getCopyLdapListUser();
+		copyLdapListAllUser = vb.getCopyLdapListAllUser();
+		listotherusers = vb.getCopyLdapListOtherUser();
+		fillFirstTree();
+		selectItemsUnits = new ArrayList<SelectItem>();
+	}
+
+	public void fillFirstTree() {
+		TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+		child.setData(centralBoc.getNameBOC());
+		stationNodesPrincipal.addChild(0, child);
+		TreeNodeImpl<String> child1;
+
+		if (centralBoc.getListChildBOCsBOC() != null) {
+			// System.out.println("liste des fils de BOCT");
+			for (int i = 0; i < centralBoc.getListChildBOCsBOC().size(); i++) {
+				// System.out.println(centralBoc.getListChildBOCsBOC().get(i).getNameBOC());
+				child1 = new TreeNodeImpl<String>();
+				child1.setData(centralBoc.getListChildBOCsBOC().get(i)
+						.getNameBOC());
+				child.addChild(i, child1);
+			}
+		}
+	}
+
+	private void fillTree(TreeNodeImpl<String> node, Object objetEnCours,
+			int orderFils) {
+
+		BOC boc = null;
+		Unit direction = null;
+		int childSize = 0;
+		if (objetEnCours instanceof BOC) {
+			boc = (BOC) objetEnCours;
+		} else if (objetEnCours instanceof Unit) {
+
+			direction = (Unit) objetEnCours;
+
+		}
+
+		List<Unit> listDirections = new ArrayList<Unit>();
+		List<BOC> listBOSecondaires = new ArrayList<BOC>();
+		List<Unit> listDirectons = new ArrayList<Unit>();
+		List<BOC> listBODirections = new ArrayList<BOC>();
+
+		if (boc != null) {
+			// System.out.println(" En cours : "+boc.getNameBOC());
+			listBOSecondaires = boc.getListChildBOCsBOC();
+			listDirections = boc.getListDirectionsChildBOC();
+
+			int listBOSecondairesSize = 0;
+			int listDirectionsSize = 0;
+
+			if (boc.getListChildBOCsBOC() != null)
+				listBOSecondairesSize = boc.getListChildBOCsBOC().size();
+
+			if (boc.getListDirectionsChildBOC() != null)
+				listDirectionsSize = boc.getListDirectionsChildBOC().size();
+
+			childSize = listBOSecondairesSize + listDirectionsSize;
+
+		} else if (direction != null) {
+			// System.out.println(" En cours : "+direction.getNameUnit());
+			listBODirections = direction.getListBOChildUnit();
+			listDirectons = direction.getListUnitsChildUnit();
+
+			int listBOSecondairesSize = 0;
+			int listDirectionsSize = 0;
+
+			if (direction.getListUnitsChildUnit() != null)
+				listDirectionsSize = direction.getListUnitsChildUnit().size();
+
+			if (direction.getListBOChildUnit() != null)
+				listBOSecondairesSize = direction.getListBOChildUnit().size();
+
+			childSize = listBOSecondairesSize + listDirectionsSize;
+		}
+
+		TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+
+		if (boc != null) {
+			// Créatio noeud
+
+			// System.out.println("noeud BO : "+boc);
+			child.setData(boc.getNameBOC());
+			listCheckSelectedNode.add(boc.getNameBOC());
+			listCheckSelectedNode.add(boc);
+			listNewStructure.add(boc);
+			node.addChild(orderFils, child);
+			// System.out.println("création du "+boc.getNameBOC()+" sous "+node.getData()+" à l'order "+
+			// orderFils+"\n");
+		}
+		if (direction != null) {// création de noeud
+								// TreeNodeImpl<String> child = new
+								// TreeNodeImpl<String>();
+			// System.out.println("noeud Unité : "+direction.getNameUnit());
+			child.setData(direction.getNameUnit());
+			listCheckSelectedNode.add(direction.getNameUnit());
+			listCheckSelectedNode.add(direction);
+			listNewStructure.add(direction);
+			node.addChild(orderFils, child);
+			// System.out.println("création du "+direction.getNameUnit()+" sous "+node.getData()+" à l'order "+
+			// orderFils+"\n");
+		}
+
+		// System.out.println("childSize = "+childSize);
+		for (int i = 0; i < childSize; i++) {
+			// System.out.println("i= "+i);
+			if (boc != null) {
+				int j = 0;
+				if (boc.getListChildBOCsBOC() != null) {
+					for (j = 0; j < boc.getListChildBOCsBOC().size(); j++) {
+
+						// fillTree avec boc en cours
+						fillTree(child, boc.getListChildBOCsBOC().get(j), j);
+
+					}
+				}
+				if (boc.getListDirectionsChildBOC() != null) {
+					for (int k = 0, h = j; k < boc.getListDirectionsChildBOC()
+							.size(); k++, h++) {
+						fillTree(child, boc.getListDirectionsChildBOC().get(k),
+								h);
+					}
+				}
+			}
+			if (direction != null) {
+				int j2 = 0;
+				if (direction.getListBOChildUnit() != null) {
+					for (j2 = 0; j2 < direction.getListBOChildUnit().size(); j2++) {
+						// fillTree avec boc en cours
+						fillTree(child, direction.getListBOChildUnit().get(j2),
+								j2);
+					}
+				}
+
+				if (direction.getListUnitsChildUnit() != null) {
+					for (int k2 = 0, l = j2; k2 < direction
+							.getListUnitsChildUnit().size(); k2++, l++) {
+						fillTree(child,
+								direction.getListUnitsChildUnit().get(k2), l);
+					}
+				}
+			}
+		}
+
+	}
+
+	private void newTree(TreeNodeImpl<String> node) {
+		System.out.println("DANS newTree : ");
+		// System.out.println("index = " + index + " et unité = "
+		// + listNewStructure.get(index));
+		if (listNewStructure.get(index) instanceof BOC) {
+			TreeNodeImpl<String> child = new TreeNodeImpl<String>();
+			BOC boc = (BOC) listNewStructure.get(index);
+			child.setData(boc.getNameBOC());
+			listCheckSelectedNode.add(boc.getNameBOC());
+			listCheckSelectedNode.add(boc);
+			// System.out.println("c'est l'ajout de la noeud  : " +
+			// boc.getNameBOC() +" à l'indexe = " + index);
+			node.addChild(0, child);
+			TreeNodeImpl<String> child1;
+			if (boc.getListDirectionsChildBOC() != null) {
+				for (int i = 0; i < boc.getListDirectionsChildBOC().size(); i++) {
+					child1 = new TreeNodeImpl<String>();
+					child1.setData(boc.getListDirectionsChildBOC().get(i)
+							.getNameUnit());
+					listCheckSelectedNode.add(boc.getListDirectionsChildBOC()
+							.get(i).getNameUnit());
+					listCheckSelectedNode.add(boc.getListDirectionsChildBOC()
+							.get(i));
+					index++;
+					newTree(child1);
+					child.addChild(i, child1);
+				}
+			}
+		}
+		if (listNewStructure.get(index) instanceof Unit) {
+			TreeNodeImpl<String> child;
+			Unit direction = (Unit) listNewStructure.get(index);
+			if (!direction.getListUnitsChildUnit().isEmpty()
+					|| direction.getListUnitsChildUnit() != null) {
+				for (int i = 0; i < direction.getListUnitsChildUnit().size(); i++) {
+					child = new TreeNodeImpl<String>();
+					child.setData(direction.getListUnitsChildUnit().get(i)
+							.getNameUnit());
+					listCheckSelectedNode.add(direction.getListUnitsChildUnit()
+							.get(i).getNameUnit());
+					listCheckSelectedNode.add(direction.getListUnitsChildUnit()
+							.get(i));
+					index++;
+					newTree(child);
+					// System.out.println(" -------- c'est l'ajout de la noeud  : "
+					// + direction.getListUnitsChildUnit().get(i)
+					// .getNameUnit() +" à l'indexe = " + i);
+					node.addChild(i, child);
+				}
+			}
+		}
+	}
+
+	public void getSelectedNodeForPrincipalTree(NodeSelectedEvent event) {
+		showHierarchicStructureForm = "none";
+		showUnitPanelForm = "none";
+		showDetailsUnitForm = "none";
+		showDetailsMemberUnitForm = "none";
+		showDetailsMemberBOCForm = "none";
+		showAddUnitForm = "none";
+		showAddBOCForm = "none";
+		showAffectationUnitForm = "none";
+		showListBOCsForm = "none";
+		showAffectationBOCForm = "none";
+		showButtonAddUnit = "none";
+		showButtonUpdateUnit = "none";
+		showbuttonValidate = "none";
+		// System.out.println("<<<<<<<<<<<dans l'evenement1");
+		HtmlTree tree = (HtmlTree) event.getComponent();
+		String rowData = tree.getRowData().toString();
+		// System.out.println("check RowData  : " + rowData);
+		int j = 0;
+		selectedBoc = new BOC();
+		boolean findBoc = false;
+		if (rowData.equals(centralBoc.getNameBOC())) {
+			selectedBoc = centralBoc;
+		} else {
+			do {
+				if (rowData.equals(centralBoc.getListChildBOCsBOC().get(j)
+						.getNameBOC())) {
+					selectedBoc = centralBoc.getListChildBOCsBOC().get(j);
+					findBoc = true;
+				} else {
+					j++;
+				}
+			} while (!findBoc && j < centralBoc.getListChildBOCsBOC().size());
+		}
+		// System.out.println("test : " + selectedBoc);
+		LdapFunction ldapFunction = new LdapFunction();
+		ldapFunction.ldapData = new ArrayList<Object>();
+		ldapFunction.fillData(selectedBoc, "0");
+		// ldapFunction.fillData(centralBoc, "0");
+		vb.setCopyLdapData(ldapFunction.ldapData);
+		showHierarchicStructureForm = "inline";
+		stationNodes = new TreeNodeImpl<String>();
+		index = 0;
+		// System.out.println("AH TEST TEST");
+		// for (int i = 0; selectedBoc != null
+		// && i < selectedBoc.getListDirectionsChildBOC().size(); i++) {
+		// if (selectedBoc.getListDirectionsChildBOC().get(i) instanceof Unit)
+		// System.out.println(((Unit) selectedBoc
+		// .getListDirectionsChildBOC().get(i)).getNameUnit());
+		// // if(vb.getCopyLdapData().get(i) instanceof BOC)
+		// //
+		// System.out.println(((BOC)vb.getCopyLdapData().get(i)).getNameBOC());
+		// }
+
+		// List<Object> listLdapStructureBoc = new ArrayList<Object>();
+		// listLdapStructureBoc.add(selectedBoc);
+		// fillTree(stationNodes, listLdapStructureBoc);
+		// System.out.println( "contenu vb.getCopyLdapData() :");
+		// int k=0;
+		// for(Object ob:vb.getCopyLdapData()){
+		// if(ob instanceof BOC){
+		// System.out.println(k+" )"+((BOC) ob).getNameBOC());
+		// k++;
+		// }
+		//
+		// else {
+		// System.out.println(k+" )"+((Unit)ob).getShortNameUnit()+" " +
+		// ((Unit)ob).getNameUnit());
+		// k++;
+		// }
+		//
+		//
+		// }
+
+		fillTree(stationNodes, vb.getCopyLdapData().get(0), 0);
+		LogClass logClass = new LogClass();
+		logClass.addTrack(
+				"consultation",
+				"Evénement de log de consultation du bureau d'ordre "
+						+ selectedBoc.getIdBOC() + "-"
+						+ selectedBoc.getNameBOC(), vb.getPerson(), "INFO",
+				appMgr);
+		System.out.println("Fin ");
+	}
+
+	public void getSelectedNode(NodeSelectedEvent event) {
+
+		// System.out.println("<<<<<<<<<<<dans l'evenement");
+		HtmlTree tree = (HtmlTree) event.getComponent();
+		String rowData = tree.getRowData().toString();
+		// System.out.println("check RowData  : " + rowData);
+		int j = 0;
+		String checkRowData;
+		Object object;
+		selectedObject = new Object();
+		boolean findModel = false;
+		do {
+			object = listCheckSelectedNode.get(j);
+			if (object instanceof String) {
+				checkRowData = (String) object;
+				// System.out.println("noeud sélectionné "+checkRowData);
+				if (checkRowData.equals(rowData)) {
+					findModel = true;
+					selectedIndex = j / 2;
+					newSelectedIndex = selectedIndex;
+					selectedObject = listCheckSelectedNode.get(j + 1);
+
+				}
+			}
+			j++;
+		} while (!findModel && j < listCheckSelectedNode.size());
+		// System.out.println("l'index est : " + selectedIndex);
+		identifyModel(selectedObject);
+
+		// AH : Initialisation de la liste des Unité à utiliser si nou voulon
+		// modifier la hierarchie
+		// List<Unit> unites = vb.getCopyLdapListUnit();
+		// selectedAssociatedUnitrattachement
+		List<Unit> unites = vb.getListTousUnit();
+		// La liste des noms = abrevriation des Unité dans LDAP
+		refreshPage = false;
+		selectItemsUnits = new ArrayList<SelectItem>();
+
+		List<Unit> listUniteAEliminer = new ArrayList<Unit>();
+		listNomUniteAEliminer = new ArrayList<String>();
+
+		selectedAssociatedUnitrattachementCopi = "";
+		if (selectedObject instanceof Unit) {
+			System.out.println("##### Dans Structure");
+			showModif = false;
+			Unit u = (Unit) selectedObject;
+			// listUniteAEliminer.add(u);
+			// listNomUniteAEliminer.add(u.getNameUnit());
+			selectedAssociatedUnit = u.getNameUnit().trim();
+			if (u.getAssociatedUnit() != null) {
+				selectedAssociatedUnitrattachement = u.getAssociatedUnit()
+						.getNameUnit().trim();
+				selectedAssociatedUnitrattachementCopi = u.getAssociatedUnit()
+						.getNameUnit().trim();
+			}
+			if (u.getAssociatedBOC() != null) {
+				selectedAssociatedUnitrattachement = u.getAssociatedBOC()
+						.getNameBOC();
+				selectedAssociatedUnitrattachementCopi = u.getAssociatedBOC()
+						.getNameBOC();
+			}
+			getListeSousUnite(u, listUniteAEliminer);
+			
+		}
+
+		BOC bocCentrale = vb.getCentralBoc();
+		List<BOC> listBOC = new ArrayList<BOC>();
+
+		if (bocCentrale != null) {
+			listBOC.add(bocCentrale);
+			for (int k = 0; bocCentrale.getListChildBOCsBOC() != null
+					&& k < bocCentrale.getListChildBOCsBOC().size(); k++) {
+
+				listBOC.add(bocCentrale.getListChildBOCsBOC().get(k));
+			}
+
+		}
+
+		if (selectedObject instanceof BOC) {
+			BOC u = (BOC) selectedObject;
+			System.out.println("##### Dans BOC");
+			showModif = true;
+			// selectedAssociatedUnit = u.getNameUnit();
+			if (u.getAssociatedDirection() != null)
+				selectedAssociatedUnitrattachement = u.getAssociatedDirection()
+						.getNameUnit().trim();
+
+			if (u.getAssociatedBOC() != null)
+				selectedAssociatedUnitrattachement = u.getAssociatedBOC()
+						.getNameBOC();
+
+			// listUniteAEliminer.add(u);
+			// listNomUniteAEliminer.add(u.getNameUnit());
+			// System.out.println("selectedObject instanceof BOC  ");
+			// selectedAssociatedBoc = u.getNameBOC();
+
+		}
+		for (Unit unite : unites) {
+			if (listNomUniteAEliminer.contains(unite.getNameUnit().trim())) {
+				continue;
+			}
+			selectItemsUnits.add(new SelectItem(unite.getNameUnit().trim()));
+		}
+
+		List<BOC> listeBOS = vb.getListTousBos();
+		for (BOC bos : listeBOS) {
+			if (listNomUniteAEliminer.contains(bos.getNameBOC())) {
+				continue;
+			}
+			selectItemsUnits.add(new SelectItem(bos.getNameBOC()));
+		}
+
+		// AH - FIN :Initialisation de la liste des Unité à utiliser si nous
+		// voulons modifier la hierarchie
+
+	}
+
+	private void getListeSousUnite(Unit u, List<Unit> listUnitChild) {
+
+		List<Unit> listeFils = u.getListUnitsChildUnit();
+		for (Unit unit : listeFils) {
+			// System.out.println("S-U : " + unit.getNameUnit());
+			listUnitChild.add(unit);
+			listNomUniteAEliminer.add(unit.getNameUnit().trim());
+			getListeSousUnite(unit, listUnitChild);
+		}
+	}
+
+	public void identifyModel(Object selectedObject) {
+		if (selectedObject instanceof BOC) {
+
+			clicked = false;
+			boc = (BOC) selectedObject;
+			// System.out.println("AH : C'est un BO :: " + boc);
+			unitTitle = messageSource.getMessage("consultationBO",
+					new Object[] {}, lm.createLocal());
+			showUnitPanelForm = "inline";
+			showDetailsUnitForm = "inline";
+			showDetailsMemberUnitForm = "none";
+			showDetailsMemberBOCForm = "inline";
+			showAddUnitForm = "none";
+			showAddBOCForm = "none";
+			showAffectationUnitForm = "none";
+			showAffectationBOCForm = "none";
+			showButtonAddUnit = "none";
+			showButtonUpdateUnit = "none";
+			unitNameLabel = "Nom bureau d'ordre";
+			unitName = boc.getNameBOC();
+			unitShortName = boc.getShortNameBOC();
+			
+			unitReference = String.valueOf(boc.getIdBOC());
+			unitDescription = boc.getDescriptionBOC();
+			copyNameUnit = unitName;
+			vb.setBoc(boc);
+			listcurrentmembers = new ArrayList<Person>();
+			listadjoiningsbocs = new ArrayList<BOC>();
+			listcurrentmembers = boc.getMembersBOC();
+			// System.out.println("listcurrentmembers size "+listcurrentmembers.size());
+			try {
+				showButtonValidate = "true";
+				if (boc.getTypeBOC().equals("Central")) {
+					pathUnit = "cn=" + copyNameUnit + "," + CONTEXT_BOC;
+					// System.out.println("verif path : " + pathUnit);
+					affichageRattachement = false;
+					associatedBoc = messageSource.getMessage("aucunBO",
+							new Object[] {}, lm.createLocal());
+					associatedUnit = messageSource.getMessage("aucunUnite",
+							new Object[] {}, lm.createLocal());
+					showListBOCsForm = "inline";
+					listadjoiningsbocs = boc.getListChildBOCsBOC();
+					listAdjoiningBOC.setWrappedData(listadjoiningsbocs);
+				} else {
+					// System.out.println("c'est un Boc Secondaire");
+					if (boc.getAssociatedBOC() != null)
+						pathUnit = "cn=" + copyNameUnit + "," + "cn="
+								+ boc.getAssociatedBOC().getNameBOC() + ","
+								+ CONTEXT_BOC;
+					if (boc.getAssociatedDirection() != null)
+						pathUnit = "cn=" + copyNameUnit + "," + CONTEXT_BOC;
+					// System.out.println("verif path : " + pathUnit);
+					// associatedUnit = boc.getAssociatedBOC().getNameBOC();
+					// AH : On vérife si son père est un BO ou Unité
+					affichageRattachement = false;
+					associatedUnit = "";
+					associatedBoc = "";
+					if (boc.getAssociatedDirection() != null) {
+						associatedUnit = boc.getAssociatedDirection()
+								.getNameUnit();
+						// Chercher le BO associé
+						// BOC bocAssocie =
+						// getBocAssocieByUnit(direction.getAssociatedUnit());
+						// associatedBoc=bocAssocie.getNameBOC();
+						// r
+					}
+					if (boc.getAssociatedBOC() != null) {
+						associatedBoc = boc.getAssociatedBOC().getNameBOC();
+						// r
+					}
+				}
+				listCurrentMember.setWrappedData(listcurrentmembers);
+				listOtherUser.setWrappedData(vb.getCopyLdapListOtherUser());
+				LogClass logClass = new LogClass();
+				logClass.addTrack("consultation",
+						"Evénement de log de consultation du bureau d'ordre "
+								+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+						vb.getPerson(), "INFO", appMgr);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Erreur de chargement");
+			}
+		}
+		if (selectedObject instanceof Unit) {
+			heightExtendableDataTableNumber = 52;
+			heightExtendableDataTable = "";
+			clicked = false;
+			noDirector = true;
+			noSecretary = true;
+			itemDisabledDirector = "false";
+			itemDisabledSecretary = "false";
+			direction = (Unit) selectedObject;
+			unitNameLabel = messageSource.getMessage("unitName",
+					new Object[] {}, lm.createLocal());
+			unitName = direction.getNameUnit();
+
+			unitShortName = direction.getShortNameUnit();
+			unitReference = String.valueOf(direction.getIdUnit());
+			unitDescription = direction.getDescriptionUnit();
+			copyNameUnit = unitName;
+			// System.out.println("!!!!!!!!!! DANS copyNameUnit : : "+copyNameUnit);
+
+			pathUnit = "cn=" + copyNameUnit + "," + CONTEXT_UNIT;
+			// System.out.println("check pathUnit : " + pathUnit);
+			// System.out.println("unitName : " + unitName);
+
+			vb.setDirection(direction);
+			unitTitle = messageSource.getMessage("consultationUnit",
+					new Object[] {}, lm.createLocal());
+			listcurrentmembers = new ArrayList<Person>();
+			listCurrentMember = new ListDataModel();
+			affichageRattachement = true;
+			associatedUnit = "";
+			associatedBoc = "";
+			if (direction.getAssociatedUnit() != null) {
+				associatedUnit = direction.getAssociatedUnit().getNameUnit();
+				// Chercher le BO associé
+				BOC bocAssocie = getBocAssocieByUnit(direction
+						.getAssociatedUnit());
+				associatedBoc = bocAssocie.getNameBOC();
+			}
+			if (direction.getAssociatedBOC() != null) {
+				associatedBoc = direction.getAssociatedBOC().getNameBOC();
+				// Chercher la direction Associée
+				Unit uniteAssocie = getUniteAssocieByBoc(direction
+						.getAssociatedBOC());
+				associatedUnit = uniteAssocie.getNameUnit();
+			}
+			showUnitPanelForm = "inline";
+			showDetailsUnitForm = "inline";
+			showDetailsMemberUnitForm = "inline";
+			showDetailsMemberBOCForm = "none";
+			showAddUnitForm = "none";
+			showAddBOCForm = "none";
+			showAffectationUnitForm = "none";
+			showListBOCsForm = "none";
+			showAffectationBOCForm = "none";
+			showButtonAddUnit = "none";
+			showButtonUpdateUnit = "none";
+			operationForComponentControl = "menu";
+			if (direction.getResponsibleUnit() != null) {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 54;
+				noDirector = false;
+				itemDisabledDirector = "true";
+				listcurrentmembers.add(direction.getResponsibleUnit());
+			}
+			if (direction.getSecretaryUnit() != null) {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 54;
+				noSecretary = false;
+				itemDisabledSecretary = "true";
+				listcurrentmembers.add(direction.getSecretaryUnit());
+			}
+			if (!noDirector && !noSecretary) {
+				operationForComponentControl = "menuo";
+			}
+			if (!direction.getMembersUnit().isEmpty()) {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 23;
+				listdirectionmembers = direction.getMembersUnit();
+				for (int i = 0; i < direction.getMembersUnit().size(); i++) {
+					listcurrentmembers.add(direction.getMembersUnit().get(i));
+				}
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber
+						+ direction.getMembersUnit().size() * 31;
+			}
+			if (listcurrentmembers.isEmpty()) {
+				heightExtendableDataTableNumber = 75;
+			}
+			heightExtendableDataTable = String
+					.valueOf(heightExtendableDataTableNumber);
+			try {
+				showButtonValidate = "true";
+				listCurrentMember.setWrappedData(listcurrentmembers);
+				listOtherUser.setWrappedData(vb.getCopyLdapListOtherUser());
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Erreur de chargement");
+			}
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"consultation",
+					"Evénement de log de consultation de l'unité "
+							+ direction.getIdUnit() + "-"
+							+ direction.getNameUnit(), vb.getPerson(), "INFO",
+					appMgr);
+		}
+		try {
+			showButtonValidate = "true";
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(vb.getCopyLdapListOtherUser());
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Erreur de chargement");
+		}
+	}
+
+	public Unit getUniteAssocieByBoc(BOC associatedBOC) {
+		Unit uniteAssociee = new Unit();
+		;
+		if (associatedBOC.getAssociatedBOC() != null) {
+			getUniteAssocieByBoc(associatedBOC.getAssociatedBOC());
+
+		} else if (associatedBOC.getAssociatedDirection() != null) {
+			uniteAssociee = associatedBOC.getAssociatedDirection();
+
+		} else {
+			System.out
+					.println("DANS else BO.getAssociatedUnit() != null && BO.getAssociatedBOC()!=null ");
+		}
+		return uniteAssociee;
+	}
+
+	public BOC getBocAssocieByUnit(Unit unit) {
+		BOC bocAssocie = new BOC();
+		;
+		if (unit.getAssociatedUnit() != null) {
+			getBocAssocieByUnit(unit.getAssociatedUnit());
+
+		} else if (unit.getAssociatedBOC() != null) {
+			bocAssocie = unit.getAssociatedBOC();
+
+		} else {
+			System.out
+					.println("DANS else unit.getAssociatedUnit() != null && unit.getAssociatedBOC()!=null ");
+		}
+		return bocAssocie;
+	}
+
+	public void loadAddUnitInterface() {
+		unitTitle = messageSource.getMessage("ajoutSousUnite", new Object[] {},
+				lm.createLocal());
+		showUnitPanelForm = "inline";
+		showDetailsUnitForm = "none";
+		showDetailsMemberUnitForm = "none";
+		showDetailsMemberBOCForm = "none";
+		showAffectationUnitForm = "none";
+		showListBOCsForm = "none";
+		showAffectationBOCForm = "none";
+		showButtonAddUnit = "inline";
+		showButtonUpdateUnit = "none";
+		affichageListeRattachement = false;
+		if (selectedObject instanceof Unit) {
+			showAddUnitForm = "inline";
+			showAddBOCForm = "none";
+			unitName = "";
+			unitShortName = "";
+			unitDescription = "";
+			unitNameLabel = messageSource.getMessage("unitName",
+					new Object[] {}, lm.createLocal());
+
+		} else {
+			BOC boc = new BOC();
+			boc = (BOC) selectedObject;
+			if (boc.getTypeBOC().equals("Central")) {
+				showAddUnitForm = "none";
+				showAddBOCForm = "inline";
+				selectedUnit = "Sous-unité";
+				unitName = "";
+				unitShortName = "";
+				unitDescription = "";
+				unitNameLabel = messageSource.getMessage("unitName",
+						new Object[] {}, lm.createLocal());
+
+			} else {
+				selectedUnit = "Sous-unité";
+				showAddUnitForm = "inline";
+				showAddBOCForm = "none";
+				unitName = "";
+				unitShortName = "";
+				unitDescription = "";
+				unitNameLabel = messageSource.getMessage("unitName",
+						new Object[] {}, lm.createLocal());
+			}
+		}
+		unitTitle = messageSource.getMessage("ajoutBO", new Object[] {},
+				lm.createLocal());
+		unitNameLabel = messageSource.getMessage("boName", new Object[] {},
+				lm.createLocal());
+	}
+
+	public void loadUpdateUnitInterface() {
+		showUnitPanelForm = "inline";
+		showDetailsUnitForm = "none";
+		showDetailsMemberUnitForm = "none";
+		showDetailsMemberBOCForm = "none";
+		showAddUnitForm = "inline";
+		showAddBOCForm = "none";
+		showAffectationUnitForm = "none";
+		showListBOCsForm = "none";
+		showAffectationBOCForm = "none";
+		showButtonAddUnit = "none";
+		showButtonUpdateUnit = "inline";
+		affichageListeRattachement = true;
+		// chargement de la Structure ou BO d'attachement
+		if (selectedObject instanceof Unit) {
+			unitTitle = messageSource.getMessage("modificationUnite",
+					new Object[] {}, lm.createLocal());
+			unitName = vb.getDirection().getNameUnit();
+			unitShortName = vb.getDirection().getShortNameUnit();
+			unitDescription = vb.getDirection().getDescriptionUnit();
+			if (vb.getDirection().getAssociatedBOC() != null)
+				vb.getDirection().getAssociatedBOC();
+			if (vb.getDirection().getAssociatedUnit() != null)
+				vb.getDirection().getAssociatedUnit();
+			unitNameLabel = messageSource.getMessage("unitName",
+					new Object[] {}, lm.createLocal());
+
+		} else {
+			unitTitle = messageSource.getMessage("modificationBO",
+					new Object[] {}, lm.createLocal());
+			unitName = vb.getBoc().getNameBOC();
+			unitShortName = vb.getBoc().getShortNameBOC();
+			unitDescription = vb.getBoc().getDescriptionBOC();
+			unitNameLabel = messageSource.getMessage("boName", new Object[] {},
+					lm.createLocal());
+		}
+
+	}
+
+	public void loadAffectUnitInterface() {
+		showUnitPanelForm = "inline";
+		showDetailsUnitForm = "inline";
+		showAddUnitForm = "none";
+		showAddBOCForm = "none";
+		showButtonAddUnit = "none";
+		showButtonUpdateUnit = "none";
+		newSelectedIndex = selectedIndex;
+		if (selectedObject instanceof Unit) {
+			unitTitle = messageSource.getMessage("consultationUnit",
+					new Object[] {}, lm.createLocal());
+			if (!clicked) {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 23;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+				showDetailsMemberUnitForm = "none";
+				showDetailsMemberBOCForm = "none";
+				showListBOCsForm = "none";
+				showAffectationUnitForm = "inline";
+				showAffectationBOCForm = "none";
+				showButtonValidate = "true";
+				clicked = true;
+			} else {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber - 23;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+				showDetailsMemberUnitForm = "inline";
+				showDetailsMemberBOCForm = "none";
+				showListBOCsForm = "none";
+				showAffectationUnitForm = "none";
+				showAffectationBOCForm = "none";
+				showButtonValidate = "true";
+				clicked = false;
+			}
+		} else {
+			unitTitle = messageSource.getMessage("consultationBO",
+					new Object[] {}, lm.createLocal());
+			if (!clicked) {
+				showDetailsMemberUnitForm = "none";
+				showDetailsMemberBOCForm = "none";
+				showListBOCsForm = "none";
+				showAffectationUnitForm = "none";
+				showAffectationBOCForm = "inline";
+				showButtonValidate = "true";
+				clicked = true;
+			} else {
+				showDetailsMemberUnitForm = "none";
+				showDetailsMemberBOCForm = "inline";
+				showListBOCsForm = "inline";
+				showAffectationUnitForm = "none";
+				showAffectationBOCForm = "none";
+				showButtonValidate = "true";
+				clicked = false;
+			}
+		}
+	}
+
+	public void cancel() {
+		identifyModel(selectedObject);
+	}
+
+	public void eventChooseUnitBoc(ActionEvent evt) {
+		// System.out.println("eventChooseUnitBoc " + selectedUnit);
+
+		if (selectedUnit.equals("Sous-unité")) {
+			unitName = "";
+			unitDescription = "";
+			unitTitle = messageSource.getMessage("ajoutSousUnite",
+					new Object[] {}, lm.createLocal());
+			unitNameLabel = messageSource.getMessage("unitName",
+					new Object[] {}, lm.createLocal());
+			copyNameUnit = vb.getBoc().getNameBOC();
+		}
+		if (selectedUnit.equals("Bureau d'ordre")) {
+			unitName = "";
+			unitDescription = "";
+			unitTitle = messageSource.getMessage("ajoutBO", new Object[] {},
+					lm.createLocal());
+			unitNameLabel = messageSource.getMessage("boName", new Object[] {},
+					lm.createLocal());
+			// if(){
+			// copyNameUnit = vb.getBoc().getAssociatedBOC().getNameBOC();
+			// }
+		}
+	}
+
+	public void eventChooseRole(ActionEvent evt) {
+		DirContext dirContext;
+		Unit copyDirection = new Unit();
+		copyDirection = vb.getDirection();
+		showButtonValidate = "false";
+		if (typeRole.equals("Directeur")) {
+			try {
+				itemDisabledDirector = "true";
+				noDirector = false;
+				if (listcurrentmembers.isEmpty()) {
+					heightExtendableDataTableNumber = 75;
+				}
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 54;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("manager", pathUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+						attributes);
+				dirContext.close();
+				// System.out.println("liste primaire size : "+
+				// listotherusers.size());
+				listotherusers.remove(person);
+				person.setResponsable(true);
+				person.setTitle("1.Directeur");
+				person.setAssociatedDirection(vb.getDirection());
+				copyDirection.setResponsibleUnit(person);
+				vb.setDirection(copyDirection);
+				listNewStructure.set(newSelectedIndex, vb.getDirection());
+				listcurrentmembers.add(person);
+				copyLdapListUser.add(person);
+				vb.setCopyLdapListOtherUser(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				listCurrentMember.setWrappedData(listcurrentmembers);
+				listOtherUser.setWrappedData(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				vb.setCopyLdapListOtherUser(listotherusers);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Erreur d'affectation");
+			}
+			// System.out.println(person.getCn() +
+			// " est affecté comme directeur");
+		} else if (typeRole.equals("Secrétaire")) {
+			try {
+				itemDisabledSecretary = "true";
+				noSecretary = false;
+				if (listcurrentmembers.isEmpty()) {
+					heightExtendableDataTableNumber = 75;
+				}
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 54;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("secretary", pathUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+						attributes);
+				dirContext.close();
+				// System.out.println("liste primaire size : "+
+				// listotherusers.size());
+				listotherusers.remove(person);
+				person.setSecretary(true);
+				person.setTitle("2.Secrétaire");
+				person.setAssociatedDirection(vb.getDirection());
+				copyDirection.setSecretaryUnit(person);
+				vb.setDirection(copyDirection);
+				listNewStructure.set(newSelectedIndex, vb.getDirection());
+				// System.out.println("liste secondaire size : "+
+				// listotherusers.size());
+				listcurrentmembers.add(person);
+				copyLdapListUser.add(person);
+				vb.setCopyLdapListOtherUser(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				listCurrentMember.setWrappedData(listcurrentmembers);
+				listOtherUser.setWrappedData(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				vb.setCopyLdapListOtherUser(listotherusers);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Erreur d'affectation");
+			}
+			// System.out
+			// .println(person.getCn() + " est affecté comme secrétaire");
+		} else {
+			if (listcurrentmembers.isEmpty()) {
+				heightExtendableDataTableNumber = 75;
+			}
+			heightExtendableDataTableNumber = heightExtendableDataTableNumber + 31;
+			listotherusers.remove(person);
+			person.setAgent(true);
+			person.setTitle("3.Agent");
+			person.setAssociatedDirection(vb.getDirection());
+			if (!listcurrentmembers.isEmpty()) {
+				int i = 0;
+				boolean findPerson = false;
+				do {
+					if (listcurrentmembers.get(i).getTitle().equals("3.Agent")) {
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < listcurrentmembers.size());
+
+				if (findPerson) {
+					heightExtendableDataTable = String
+							.valueOf(heightExtendableDataTableNumber);
+				} else {
+					heightExtendableDataTableNumber = heightExtendableDataTableNumber + 23;
+					heightExtendableDataTable = String
+							.valueOf(heightExtendableDataTableNumber);
+				}
+			} else {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 23;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+			}
+			listcurrentmembers.add(person);
+			copyLdapListUser.add(person);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+		}
+	}
+
+	public void save() {
+		status1 = false;
+		status2 = false;
+		status3 = false;
+		if (selectedObject instanceof Unit) {
+			// System.out.println("AH>>>>>>>>>>> : le noeud sélectionné Unit");
+			// à ajouter le test si c'est Bo ou sous unité
+			DirContext dirContext;
+			Unit copyDirection = new Unit();
+			copyDirection = vb.getDirection();
+			Attribute ObjectClass = new BasicAttribute("objectClass");
+			ObjectClass.add("top");
+			ObjectClass.add("applicationProcess");
+			ObjectClass.add("extensibleObject");
+			try {
+				dirContext = new InitialDirContext(hashtable);
+				if (selectedUnit.equals("Sous-unité")) {
+					newDirection = new Unit();
+					maxDirectionId++;
+					String entryDN = "cn=" + unitName + "," + CONTEXT_UNIT;
+					// System.out.println("7/ entryDN " + entryDN);
+					BasicAttributes entry = new BasicAttributes();
+					entry.put(ObjectClass);
+					entry.put("cn", unitName);
+					entry.put("l", unitShortName);
+					newDirection.setNameUnit(unitName);
+					newDirection.setShortNameUnit(unitShortName);
+					entry.put("departmentNumber",
+							String.valueOf(maxDirectionId));
+					newDirection.setIdUnit(maxDirectionId);
+					entry.put("associatedName",
+							"cn=" + copyDirection.getNameUnit() + ","
+									+ CONTEXT_UNIT);
+					// System.out.println("associatedName : cn=" +
+					// copyDirection.getNameUnit() + ","
+					// + CONTEXT_UNIT);
+					if (unitDescription.equals("")) {
+						entry.put("description", " ");
+						newDirection.setDescriptionUnit(" ");
+					} else {
+						entry.put("description", unitDescription);
+						newDirection.setDescriptionUnit(unitDescription);
+					}
+					dirContext.createSubcontext(entryDN, entry);
+					status1 = true;
+					setMessage(messageSource.getMessage(
+							"confirmAjoutAskForAddingMembers", new Object[] {},
+							lm.createLocal()));
+					dirContext.close();
+					copyNameUnit = unitName;
+					pathUnit = "cn=" + copyNameUnit + "," + CONTEXT_UNIT;
+					// System.out.println("8/ pathUnit  " + pathUnit);
+					newDirection.setListAdjoiningUnitsUnit(copyDirection
+							.getListUnitsChildUnit());
+					List<Unit> listNewDirectionsChildDirection = new ArrayList<Unit>();
+					listNewDirectionsChildDirection = copyDirection
+							.getListUnitsChildUnit();
+					listNewDirectionsChildDirection.add(newDirection);
+					copyDirection
+							.setListUnitsChildUnit(listNewDirectionsChildDirection);
+					newDirection.setAssociatedUnit(copyDirection);
+					vb.setDirection(copyDirection);
+					selectedObject = vb.getDirection();
+					listNewStructure.set(selectedIndex, copyDirection);
+					if (copyDirection.getListUnitsChildUnit().size() == 1) {
+						newSelectedIndex = selectedIndex + 1;
+					} else {
+						Unit lastUnit = new Unit();
+						lastUnit = copyDirection.getListUnitsChildUnit()
+								.get(copyDirection.getListUnitsChildUnit()
+										.size() - 2);
+						int lastUnitIndex = selectedIndex;
+						int i = 0;
+						boolean findUnit = false;
+						do {
+							if (listNewStructure.get(i) instanceof Unit) {
+								Unit unit = new Unit();
+								unit = (Unit) listNewStructure.get(i);
+								if (unit.getNameUnit().equals(
+										lastUnit.getNameUnit())) {
+									findUnit = true;
+									lastUnitIndex = i;
+								} else {
+									i++;
+								}
+							} else {
+								i++;
+							}
+						} while (!findUnit && i < listNewStructure.size());
+						// System.out.println("verif lastIndexUnit : " +
+						// lastUnitIndex);
+						// System.out.println("verif lastUnit : "+
+						// lastUnit.getNameUnit());
+						nextIndexForAddingUnit = 0;
+						getNextIndexForAddingUnit(lastUnit);
+						// System.out.println("verif nextIndexForAddingUnit : "+
+						// nextIndexForAddingUnit);
+						if (nextIndexForAddingUnit == 0) {
+							newSelectedIndex = lastUnitIndex + 1;
+						} else {
+							newSelectedIndex = lastUnitIndex
+									+ nextIndexForAddingUnit + 1;
+						}
+					}
+					listNewStructure.add(newSelectedIndex, newDirection);
+					// System.out.println("verif newSelectedIndex : "+
+					// newSelectedIndex);
+					stationNodes = new TreeNodeImpl<String>();
+					index = 0;
+					listCheckSelectedNode = new ArrayList<Object>();
+					newTree(stationNodes);
+					LogClass logClass = new LogClass();
+					logClass.addTrack("ajout",
+							"Evénement de log d'ajout de l'unité "
+									+ newDirection.getIdUnit() + "-"
+									+ newDirection.getNameUnit(),
+							vb.getPerson(), "INFO", appMgr);
+					// System.out.println("direction ajouté avec succés");
+				}
+
+				if (selectedUnit.equals("Bureau d'ordre")) {
+					// ajouté AH 2019-09-09
+					newBoc = new BOC();
+					maxBocId++;
+					BOC copyBoc = vb.getCentralBoc();
+					// String entryDN = "cn=" + copyDirection.getNameUnit() +
+					// "," + CONTEXT_BOC;
+					String entryDN = "cn=" + unitName + "," + "cn="
+							+ copyBoc.getNameBOC() + "," + CONTEXT_BOC;
+					// System.out.println("5/ entryDN  " + entryDN);
+					BasicAttributes entry = new BasicAttributes();
+					entry.put(ObjectClass);
+					entry.put("cn", unitName);
+					entry.put("l", unitShortName);
+					newBoc.setShortNameBOC(unitShortName);
+					newBoc.setNameBOC(unitName);
+					entry.put("departmentNumber", String.valueOf(maxBocId));
+					newBoc.setIdBOC(maxBocId);
+					entry.put("associatedName",
+							"cn=" + copyDirection.getNameUnit() + ","
+									+ CONTEXT_BOC);
+					if (unitDescription.equals("")) {
+						entry.put("description", " ");
+						newBoc.setDescriptionBOC(" ");
+					} else {
+						entry.put("description", unitDescription);
+						newBoc.setDescriptionBOC(unitDescription);
+					}
+					dirContext.createSubcontext(entryDN, entry);
+					status1 = true;
+					status3 = true;
+					setMessage(messageSource.getMessage(
+							"confirmAjoutAskForAddingMembers", new Object[] {},
+							lm.createLocal()));
+					dirContext.close();
+					copyNameUnit = unitName;
+					List<BOC> listNewBOCsChildBOC = new ArrayList<BOC>();
+					// newBoc.setAssociatedBOC(copyBoc);
+					newBoc.setAssociatedDirection(copyDirection);
+					newBoc.setTypeBOC("Secondaire");
+					listNewBOCsChildBOC = copyDirection.getListBOChildUnit();
+					listNewBOCsChildBOC.add(newBoc);
+					copyDirection.setListBOChildUnit(listNewBOCsChildBOC);
+					// centralBoc.setListChildBOCsBOC(listNewBOCsChildBOC);
+					// stationNodesPrincipal = new TreeNodeImpl<String>();
+					// fillFirstTree();
+					// listadjoiningsbocs.add(newBoc);
+					vb.setBoc(newBoc);
+					selectedObject = vb.getBoc();
+					listNewStructure.set(selectedIndex, newBoc);
+					// listAdjoiningBOC.setWrappedData(listadjoiningsbocs);
+					LogClass logClass = new LogClass();
+					logClass.addTrack(
+							"ajout",
+							"Evénement de log d'ajout du bureau d'ordre "
+									+ newBoc.getIdBOC() + "-"
+									+ newBoc.getNameBOC(), vb.getPerson(),
+							"INFO", appMgr);
+					// System.out.println("BO ajouté avec succés");
+				}
+
+				init();
+
+			} catch (NamingException e) {
+				setMessage(messageSource.getMessage("erreurInsertUniteBO",
+						new Object[] {}, lm.createLocal()));
+				status2 = true;
+				System.err.println("Add Groupe:error adding entry," + e);
+				e.printStackTrace();
+			}
+
+		} else {
+			// System.out.println("AH>>>>>>>>>>> : le noeud sélectionné BO");
+			DirContext dirContext;
+			BOC copyBoc = new BOC();
+			copyBoc = vb.getBoc();
+			Attribute ObjectClass = new BasicAttribute("objectClass");
+			ObjectClass.add("top");
+			ObjectClass.add("applicationProcess");
+			ObjectClass.add("extensibleObject");
+			try {
+				dirContext = new InitialDirContext(hashtable);
+				if (selectedUnit.equals("Sous-unité")) {
+					newDirection = new Unit();
+					maxDirectionId++;
+					String entryDN = "cn=" + unitName + "," + CONTEXT_UNIT;
+					// System.out.println("6/ entryDN  " + entryDN);
+					BasicAttributes entry = new BasicAttributes();
+					entry.put(ObjectClass);
+
+					entry.put("cn", unitName);
+					entry.put("l", unitShortName);
+
+					newDirection.setNameUnit(unitName);
+					newDirection.setShortNameUnit(unitShortName);
+					entry.put("departmentNumber",
+							String.valueOf(maxDirectionId));
+					newDirection.setIdUnit(maxDirectionId);
+					if (copyBoc.getTypeBOC().equals("Central")) {
+						entry.put("associatedName", "cn=" + copyNameUnit + ","
+								+ CONTEXT_BOC);
+						// System.out.println( "------------ > IF  cn=" +
+						// copyNameUnit + ","
+						// + CONTEXT_BOC);
+					} else {
+						// System.out.println("---------------> ELSE  cn=" +
+						// copyNameUnit + ","
+						// + "cn="
+						// + copyBoc.getAssociatedBOC().getNameBOC() + ","
+						// + CONTEXT_BOC);
+						entry.put("associatedName", "cn=" + copyNameUnit
+								+ ",cn=Bureau d'Ordre Central,"
+
+								+ CONTEXT_BOC);
+
+						// entry.put("associatedName", "cn=" + UniteMere
+						// + ",cn=Bureau d'Ordre Central," + CONTEXT_BOC);
+					}
+
+					if (unitDescription.equals("")) {
+						entry.put("description", " ");
+						newDirection.setDescriptionUnit(" ");
+					} else {
+						entry.put("description", unitDescription);
+						newDirection.setDescriptionUnit(unitDescription);
+					}
+					dirContext.createSubcontext(entryDN, entry);
+					status1 = true;
+					
+					setMessage(messageSource.getMessage(
+							"confirmAjoutAskForAddingMembers", new Object[] {},
+							lm.createLocal()));
+					dirContext.close();
+					copyNameUnit = unitName;
+					pathUnit = "cn=" + copyNameUnit + "," + CONTEXT_UNIT;
+					// System.out.println("9/ pathUnit  " + pathUnit);
+					newDirection.setListAdjoiningUnitsUnit(copyBoc
+							.getListDirectionsChildBOC());
+					List<Unit> listNewDirectionsChildDirection = new ArrayList<Unit>();
+					listNewDirectionsChildDirection = copyBoc
+							.getListDirectionsChildBOC();
+					listNewDirectionsChildDirection.add(newDirection);
+					copyBoc.setListDirectionsChildBOC(listNewDirectionsChildDirection);
+					// copyDirectionAdd = copyDirection;
+					newDirection.setAssociatedBOC(copyBoc);
+					vb.setBoc(copyBoc);
+					selectedObject = vb.getBoc();
+					listNewStructure.set(selectedIndex, copyBoc);
+					listNewStructure.add(newDirection);
+					// vb.setDirection(newDirection);
+					stationNodes = new TreeNodeImpl<String>();
+					index = 0;
+					listCheckSelectedNode = new ArrayList<Object>();
+					newTree(stationNodes);
+					LogClass logClass = new LogClass();
+					logClass.addTrack("ajout",
+							"Evénement de log d'ajout de l'unité "
+									+ newDirection.getIdUnit() + "-"
+									+ newDirection.getNameUnit(),
+							vb.getPerson(), "INFO", appMgr);
+					// System.out.println("direction ajouté avec succés");
+				}
+				if (selectedUnit.equals("Bureau d'ordre")) {
+					newBoc = new BOC();
+					maxBocId++;
+					String entryDN = "cn=" + unitName + "," + "cn="
+							+ centralBoc.getNameBOC() + "," + CONTEXT_BOC;
+					// System.out.println("5/ entryDN  " + entryDN);
+					BasicAttributes entry = new BasicAttributes();
+					entry.put(ObjectClass);
+					entry.put("cn", unitName);
+					newBoc.setNameBOC(unitName);
+					entry.put("l", unitShortName);
+					entry.put("departmentNumber", String.valueOf(maxBocId));
+					newBoc.setIdBOC(maxBocId);
+					entry.put("associatedName", "cn=" + copyBoc.getNameBOC()
+							+ ",cn=" + centralBoc.getNameBOC() + ","
+							+ CONTEXT_BOC);
+					if (unitDescription.equals("")) {
+						entry.put("description", " ");
+						newBoc.setDescriptionBOC(" ");
+					} else {
+						entry.put("description", unitDescription);
+						newBoc.setDescriptionBOC(unitDescription);
+					}
+					dirContext.createSubcontext(entryDN, entry);
+					status3 = true;
+					setMessage(messageSource.getMessage("confirmAjout",
+							new Object[] {}, lm.createLocal()));
+					dirContext.close();
+					copyNameUnit = unitName;
+					List<BOC> listNewBOCsChildBOC = new ArrayList<BOC>();
+					newBoc.setAssociatedBOC(copyBoc);
+					listNewBOCsChildBOC = centralBoc.getListChildBOCsBOC();
+					listNewBOCsChildBOC.add(newBoc);
+					centralBoc.setListChildBOCsBOC(listNewBOCsChildBOC);
+					stationNodesPrincipal = new TreeNodeImpl<String>();
+					fillFirstTree();
+					// listadjoiningsbocs.add(newBoc);
+					vb.setBoc(copyBoc);
+					selectedObject = vb.getBoc();
+					listNewStructure.set(selectedIndex, copyBoc);
+					// listAdjoiningBOC.setWrappedData(listadjoiningsbocs);
+					LogClass logClass = new LogClass();
+					logClass.addTrack(
+							"ajout",
+							"Evénement de log d'ajout du bureau d'ordre "
+									+ newBoc.getIdBOC() + "-"
+									+ newBoc.getNameBOC(), vb.getPerson(),
+							"INFO", appMgr);
+					// System.out.println("BO ajouté avec succés");
+				}
+				init();
+			} catch (NamingException e) {
+				setMessage(messageSource.getMessage("erreurInsertUniteBO",
+						new Object[] {}, lm.createLocal()));
+				status2 = true;
+				System.err.println("Add Groupe:error adding entry," + e);
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void getNextIndexForAddingUnit(Unit unit) {
+		if (!unit.getListUnitsChildUnit().isEmpty()) {
+			nextIndexForAddingUnit++;
+			for (int i = 0; i < unit.getListUnitsChildUnit().size(); i++) {
+				getNextIndexForAddingUnit(unit.getListUnitsChildUnit().get(i));
+			}
+		}
+	}
+
+	public void initializeSave() {
+		status1 = false;
+		status2 = false;
+		status3 = false;
+
+		try {
+			if (selectedObject instanceof Unit) {
+
+				identifyModel(vb.getDirection());
+			} else {
+
+				identifyModel(vb.getBoc());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void loadListOtherUser() {
+		showButtonValidate = "true";
+		listcurrentmembers = new ArrayList<Person>();
+		heightExtendableDataTableNumber = 98;
+		heightExtendableDataTable = String
+				.valueOf(heightExtendableDataTableNumber);
+		if (selectedObject instanceof Unit) {
+			vb.setDirection(newDirection);
+			showAffectationUnitForm = "inline";
+			showAffectationBOCForm = "none";
+			noDirector = true;
+			noSecretary = true;
+			itemDisabledDirector = "false";
+			itemDisabledSecretary = "false";
+		} else {
+			vb.setBoc(newBoc);
+			showAffectationUnitForm = "none";
+			showAffectationBOCForm = "inline";
+		}
+
+		try {
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(vb.getCopyLdapListOtherUser());
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("ErreurDeChargementTable");
+		}
+	}
+
+	public void affectResponsable() {
+		// System.out.println("dans affect Rresponsable");
+		DirContext dirContext;
+		Unit copyDirection = new Unit();
+		copyDirection = vb.getDirection();
+		showButtonValidate = "false";
+		try {
+			// person = new Person();
+			// person = (Person) listOtherUser.getRowData();
+			// System.out.println("responsible selected is : " +
+			// person.getCn());
+			// pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			itemDisabledDirector = "true";
+			noDirector = false;
+
+			// System.out.println("listcurrentmembers : " + listcurrentmembers);
+			if (listcurrentmembers.isEmpty()) {
+				heightExtendableDataTableNumber = 75;
+			}
+			heightExtendableDataTableNumber = heightExtendableDataTableNumber + 54;
+			heightExtendableDataTable = String
+					.valueOf(heightExtendableDataTableNumber);
+
+			// System.out.println("heightExtendableDataTableNumber : "
+			// + heightExtendableDataTableNumber);
+			// System.out.println("heightExtendableDataTable : "
+			// + heightExtendableDataTable);
+
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("manager", pathUser);
+			attributes.put(attribut);
+			String pathUnit2 = "مصلحة مراقبة التصرف";
+
+			// System.out.println(" pathUnit " + pathUnit);
+			// System.out.println(" pathUnit2 " + pathUnit2);
+
+			byte[] pathUnit3 = pathUnit.getBytes("UTF-8");
+			// System.out.println(" pathUnit3 " + pathUnit3);
+
+			// String outString = new String(pathUnit.getBytes("UTF-8"),
+			// "ISO-8859-1");
+			// for (int i = 0; i < pathUnit.length(); ++i) {
+			// System.out.printf("%x ", (int) pathUnit.charAt(i));
+			// }
+
+			dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+					attributes);
+
+			dirContext.close();
+			// CCCC
+			// System.out
+			// .println("liste primaire size : " + listotherusers.size());
+			listotherusers.remove(person);
+			person.setResponsable(true);
+			person.setTitle("1.Responsable");
+			person.setAssociatedDirection(vb.getDirection());
+			copyDirection.setResponsibleUnit(person);
+			vb.setDirection(copyDirection);
+			listNewStructure.set(newSelectedIndex, vb.getDirection());
+			listcurrentmembers.add(person);
+			copyLdapListUser.add(person);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation des membres à l'unité "
+							+ vb.getDirection().getIdUnit() + "-"
+							+ vb.getDirection().getNameUnit(), vb.getPerson(),
+					"INFO", appMgr);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Erreur d'affectation responsable");
+		}
+		// System.out.println(person.getCn() + " est affecté comme directeur");
+	}
+
+	public void affectSecretary() {
+		// System.out.println("dans affect Secretary");
+		DirContext dirContext;
+		Unit copyDirection = new Unit();
+		copyDirection = vb.getDirection();
+		showButtonValidate = "false";
+		try {
+			// person = new Person();
+			// person = (Person) listOtherUser.getRowData();
+			// System.out.println("secretary selected is : " + person.getCn());
+			// pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			itemDisabledSecretary = "true";
+			noSecretary = false;
+			if (listcurrentmembers.isEmpty()) {
+				heightExtendableDataTableNumber = 75;
+			}
+			heightExtendableDataTableNumber = heightExtendableDataTableNumber + 54;
+			heightExtendableDataTable = String
+					.valueOf(heightExtendableDataTableNumber);
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("secretary", pathUser);
+			attributes.put(attribut);
+			dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+					attributes);
+			dirContext.close();
+			// System.out
+			// .println("liste primaire size : " + listotherusers.size());
+			listotherusers.remove(person);
+			person.setSecretary(true);
+			person.setTitle("2.Secrétaire");
+			person.setAssociatedDirection(vb.getDirection());
+			copyDirection.setSecretaryUnit(person);
+			vb.setDirection(copyDirection);
+			listNewStructure.set(newSelectedIndex, vb.getDirection());
+			// System.out.println("liste secondaire size : "
+			// + listotherusers.size());
+			listcurrentmembers.add(person);
+			copyLdapListUser.add(person);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation des membres à l'unité "
+							+ vb.getDirection().getIdUnit() + "-"
+							+ vb.getDirection().getNameUnit(), vb.getPerson(),
+					"INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Erreur d'affectation secretary");
+		}
+		// System.out.println(person.getCn() + " est affecté comme secrétaire");
+	}
+
+	// AAAA
+	public void affectAgent() {
+		// System.out.println("dans affect Agent");
+		try {
+			// person = new Person();
+			// person = (Person) listOtherUser.getRowData();
+			// System.out.println("agent selected is : " + person.getCn());
+			// pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			DirContext dirContext;
+			Unit copyDirection = new Unit();
+			copyDirection = vb.getDirection();
+			showButtonValidate = "false";
+			if (listcurrentmembers.isEmpty()) {
+				heightExtendableDataTableNumber = 75;
+			}
+			heightExtendableDataTableNumber = heightExtendableDataTableNumber + 31;
+			listotherusers.remove(person);
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("member", pathUser);
+			attributes.put(attribut);
+
+			dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+					attributes);
+			dirContext.close();
+			person.setAgent(true);
+			person.setTitle("3.Agent");
+			person.setAssociatedDirection(vb.getDirection());
+			List<Person> copyListMembers = new ArrayList<Person>();
+			copyListMembers = copyDirection.getMembersUnit();
+			copyListMembers.add(person);
+			copyDirection.setMembersUnit(copyListMembers);
+			vb.setDirection(copyDirection);
+			listNewStructure.set(newSelectedIndex, vb.getDirection());
+			if (!listcurrentmembers.isEmpty()) {
+				int i = 0;
+				boolean findPerson = false;
+				do {
+					if (listcurrentmembers.get(i).getTitle().equals("3.Agent")) {
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < listcurrentmembers.size());
+
+				if (findPerson) {
+					heightExtendableDataTable = String
+							.valueOf(heightExtendableDataTableNumber);
+				} else {
+					heightExtendableDataTableNumber = heightExtendableDataTableNumber + 23;
+					heightExtendableDataTable = String
+							.valueOf(heightExtendableDataTableNumber);
+				}
+			} else {
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber + 23;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+			}
+			listcurrentmembers.add(person);
+			copyLdapListUser.add(person);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation des membres à l'unité "
+							+ vb.getDirection().getIdUnit() + "-"
+							+ vb.getDirection().getNameUnit(), vb.getPerson(),
+					"INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("erreur affectation agent");
+		}
+	}
+
+	public void affectAgent(Person person, Unit u) {
+		// System.out.println("dans affect Agent");
+		try {
+
+			// System.out.println("agent selected is : " + person.getCn());
+			pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			DirContext dirContext;
+
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("member", pathUser);
+			attributes.put(attribut);
+			pathUnit = "cn=" + u.getNameUnit() + "," + CONTEXT_UNIT;
+			dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+					attributes);
+			dirContext.close();
+			person.setAgent(true);
+			person.setTitle("3.Agent");
+			person.setAssociatedDirection(u);
+			List<Person> copyListMembers = new ArrayList<Person>();
+			copyListMembers = u.getMembersUnit();
+			copyListMembers.add(person);
+			u.setMembersUnit(copyListMembers);
+			// vb.setDirection(copyDirection);
+
+			// listcurrentmembers.add(person);
+			copyLdapListUser.add(person);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+
+			// u.getMembersUnit().add(person);
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"affectation",
+					"Evénement de log d'affectation des membres à l'unité "
+							+ u.getIdUnit() + "-" + u.getNameUnit(),
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("erreur affectation agent");
+		}
+	}
+
+	// AH : Affectation BOC avec hiérarchie
+	private String operationForComponentControlBoct;
+
+	public String getOperationForComponentControlBoct() {
+		return operationForComponentControlBoct;
+	}
+
+	public void setOperationForComponentControlBoct(
+			String operationForComponentControlBoct) {
+		this.operationForComponentControlBoct = operationForComponentControlBoct;
+	}
+
+	public void affectUserBoct() {
+		// System.out.println("dans affect User dans Boct");
+		person = new Person();
+		person = (Person) listOtherUser.getRowData();
+		pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+		// System.out.println("verif selectedPerson : " + pathUser);
+		// if (!noDirector && !noSecretary) {
+		// operationForComponentControl = "menuo";
+		// affectAgent();
+		// }else{
+		operationForComponentControlBoct = "menuBoc";
+		// }
+
+	}
+
+	public void affectAgentBoct() {
+		// System.out.println("DANS affectAgentBoct");
+		DirContext dirContext;
+		// person = new Person();
+		try {
+			// person = (Person) listOtherUser.getRowData();
+			pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("member", pathUser);
+			attributes.put(attribut);
+
+			if (boc.getTypeBOC().equals("Central"))
+				dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+						attributes);
+			else {
+
+				int posvirgule = pathUnit.indexOf(",");
+				String path = pathUnit.substring(0, posvirgule)
+						+ ",cn=Bureau d'Ordre Central,ou=OrderOffices,o=XteUnits,dc=xtensus,dc=com";
+				dirContext.modifyAttributes(path, DirContext.ADD_ATTRIBUTE,
+						attributes);
+			}
+			dirContext.close();
+			// AAA
+			person.setTitle("2.Agent");
+			listotherusers.remove(person);
+			listcurrentmembers.add(0, person);
+			listOtherUser.setWrappedData(listotherusers);
+
+			copyLdapListUser.add(person);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			vb.setCopyLdapListUser(copyLdapListUser);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation des membres au bureau d'ordre "
+							+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+
+	}
+
+	public void affectResponsableBoct() {
+		System.out.println("DANS affectResponsableBoct");
+		DirContext dirContext;
+		// person = new Person();
+		try {
+			// person = (Person) listOtherUser.getRowData();
+			pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("manager", pathUser);
+			attributes.put(attribut);
+			// System.out.println("pathUnit  ::  "+pathUnit);
+			// si Bureau centrale
+			if (boc.getTypeBOC().equals("Central"))
+				dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+						attributes);
+			else {
+
+				int posvirgule = pathUnit.indexOf(",");
+				String path = pathUnit.substring(0, posvirgule)
+						+ ",cn=Bureau d'Ordre Central,ou=OrderOffices,o=XteUnits,dc=xtensus,dc=com";
+				dirContext.modifyAttributes(path, DirContext.ADD_ATTRIBUTE,
+						attributes);
+			}
+			dirContext.close();
+			person.setTitle("1.Responsable");
+			listotherusers.remove(person);
+			listcurrentmembers.add(0, person);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation des membres au bureau d'ordre "
+							+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+
+	}
+
+	// ==========================================================
+
+	public void affectUser() {
+		System.out.println("dans affect User");
+		person = new Person();
+		person = (Person) listOtherUser.getRowData();
+		pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+		// System.out.println("verif selectedPerson : " + pathUser);
+		if (!noDirector && !noSecretary) {
+			operationForComponentControl = "menuo";
+			affectAgent();
+		} else {
+			operationForComponentControl = "menu";
+		}
+		// System.out.println(operationForComponentControl);
+		// System.out.println("fin affect User");
+
+	}
+
+	public void desaffectUser() {
+		// System.out.println("ds desaffect");
+		DirContext dirContext;
+		person = new Person();
+		Unit copyDirection = new Unit();
+		copyDirection = vb.getDirection();
+		try {
+			showButtonValidate = "false";
+			person = (Person) listCurrentMember.getRowData();
+			pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			// System.out.println("person selected");
+			if (person.getTitle().equals("1.Responsable")) {
+				itemDisabledDirector = "false";
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber - 54;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+				noDirector = true;
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("manager", pathUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathUnit,
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.close();
+				copyDirection.setResponsibleUnit(null);
+				vb.setDirection(copyDirection);
+				listNewStructure.set(newSelectedIndex, vb.getDirection());
+				listcurrentmembers.remove(person);
+				listotherusers.add(person);
+				copyLdapListUser.remove(person);
+				vb.setCopyLdapListOtherUser(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				// System.out.println(person.getCn()
+				// + " a été désaffecté comme directeur");
+			} else if (person.getTitle().equals("2.Secrétaire")) {
+				noSecretary = true;
+				itemDisabledSecretary = "false";
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber - 54;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("secretary", pathUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathUnit,
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.close();
+				copyDirection.setSecretaryUnit(null);
+				vb.setDirection(copyDirection);
+				listNewStructure.set(newSelectedIndex, vb.getDirection());
+				listcurrentmembers.remove(person);
+				listotherusers.add(person);
+				copyLdapListUser.remove(person);
+				vb.setCopyLdapListOtherUser(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				// System.out.println(person.getCn()
+				// + " a été désaffecté comme secrétaire");
+			} else {
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("member", pathUser);
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathUnit,
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.close();
+				List<Person> copyListMembers = new ArrayList<Person>();
+				copyListMembers = copyDirection.getMembersUnit();
+				copyListMembers.remove(person);
+				copyDirection.setMembersUnit(copyListMembers);
+				vb.setDirection(copyDirection);
+				listNewStructure.set(newSelectedIndex, vb.getDirection());
+				listcurrentmembers.remove(person);
+				heightExtendableDataTableNumber = heightExtendableDataTableNumber - 31;
+				listotherusers.add(person);
+				copyLdapListUser.remove(person);
+				vb.setCopyLdapListOtherUser(listotherusers);
+				vb.setCopyLdapListUser(copyLdapListUser);
+				int i = 0;
+				boolean findPerson = false;
+				do {
+					if (listcurrentmembers.get(i).getTitle().equals("3.Agent")) {
+						findPerson = true;
+					} else {
+						i++;
+					}
+				} while (!findPerson && i < listcurrentmembers.size());
+				if (findPerson) {
+					heightExtendableDataTable = String
+							.valueOf(heightExtendableDataTableNumber);
+				} else {
+					heightExtendableDataTableNumber = heightExtendableDataTableNumber - 23;
+					heightExtendableDataTable = String
+							.valueOf(heightExtendableDataTableNumber);
+				}
+			}
+
+			if (listcurrentmembers.isEmpty()) {
+				heightExtendableDataTableNumber = 98;
+				heightExtendableDataTable = String
+						.valueOf(heightExtendableDataTableNumber);
+			}
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"affectation",
+					"Evénement de log de désaffectation des membres de l'unité "
+							+ direction.getIdUnit() + "-"
+							+ direction.getNameUnit(), vb.getPerson(), "INFO",
+					appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("ErreurDeSelection");
+		}
+
+	}
+
+	public void affectUserBoc() {
+		// System.out.println("person selected");
+		DirContext dirContext;
+		person = new Person();
+		try {
+			person = (Person) listOtherUser.getRowData();
+			pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+			dirContext = new InitialDirContext(hashtable);
+			Attributes attributes = new BasicAttributes(true);
+			Attribute attribut = new BasicAttribute("member", pathUser);
+			attributes.put(attribut);
+			dirContext.modifyAttributes(pathUnit, DirContext.ADD_ATTRIBUTE,
+					attributes);
+			dirContext.close();
+			listotherusers.remove(person);
+			listcurrentmembers.add(0, person);
+			listCurrentMember.setWrappedData(listcurrentmembers);
+			listOtherUser.setWrappedData(listotherusers);
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation",
+					"Evénement de log d'affectation des membres au bureau d'ordre "
+							+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+					vb.getPerson(), "INFO", appMgr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		// System.out.println("c'est bon");
+	}
+
+	public void desaffectUserBoc() {
+		// System.out.println("person selected");
+		DirContext dirContext;
+		person = new Person();
+		try {
+			person = (Person) listCurrentMember.getRowData();
+			pathUser = "cn=" + person.getCn() + "," + CONTEXT_USER;
+
+			if (person.getTitle().equals("1.Responsable")) {
+
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("manager", pathUser);
+				attributes.put(attribut);
+				// System.out.println("desaffectUserBoc resp : pathUnit "+pathUnit);
+
+				if (boc.getTypeBOC().equals("Central"))
+					dirContext.modifyAttributes(pathUnit,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+				else {
+
+					int posvirgule = pathUnit.indexOf(",");
+					String path = pathUnit.substring(0, posvirgule)
+							+ ",cn=Bureau d'Ordre Central,ou=OrderOffices,o=XteUnits,dc=xtensus,dc=com";
+					dirContext.modifyAttributes(path,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+				}
+
+				// dirContext.modifyAttributes(pathUnit,
+				// DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.close();
+				listotherusers.add(0, person);
+				listcurrentmembers.remove(person);
+				listCurrentMember.setWrappedData(listcurrentmembers);
+				listOtherUser.setWrappedData(listotherusers);
+				LogClass logClass = new LogClass();
+				logClass.addTrack("affectation",
+						"Evénement de log de désaffectation des membres du bureau d'ordre "
+								+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+						vb.getPerson(), "INFO", appMgr);
+
+			} else {
+
+				dirContext = new InitialDirContext(hashtable);
+				Attributes attributes = new BasicAttributes(true);
+				Attribute attribut = new BasicAttribute("member", pathUser);
+				attributes.put(attribut);
+				// System.out.println("desaffectUserBoc agent : pathUnit "+pathUnit);
+
+				if (boc.getTypeBOC().equals("Central"))
+					dirContext.modifyAttributes(pathUnit,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+				else {
+
+					int posvirgule = pathUnit.indexOf(",");
+					String path = pathUnit.substring(0, posvirgule)
+							+ ",cn=Bureau d'Ordre Central,ou=OrderOffices,o=XteUnits,dc=xtensus,dc=com";
+					dirContext.modifyAttributes(path,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+				}
+
+				// dirContext.modifyAttributes(pathUnit,
+				// DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.close();
+				listotherusers.add(0, person);
+				listcurrentmembers.remove(person);
+				listCurrentMember.setWrappedData(listcurrentmembers);
+				listOtherUser.setWrappedData(listotherusers);
+				LogClass logClass = new LogClass();
+				logClass.addTrack("affectation",
+						"Evénement de log de désaffectation des membres du bureau d'ordre "
+								+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+						vb.getPerson(), "INFO", appMgr);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		// System.out.println("c'est bon");
+	}
+
+	public void validAffectationBoc() {
+		// System.out.println("###validAffectationBoc###");
+		status1 = false;
+		status2 = false;
+		DirContext dirContext;
+		String copyUser;
+		LdapFunction ldapFunction = new LdapFunction();
+		List<Person> copyListUser = new ArrayList<Person>();
+		copyListUser = ldapFunction.getLdapListMembers("member", pathUnit);
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			if (!copyListUser.isEmpty()) {
+				for (int i = 0; i < copyListUser.size(); i++) {
+					copyUser = "cn=" + copyListUser.get(i).getCn() + ","
+							+ CONTEXT_USER;
+					Attributes attributes = new BasicAttributes(true);
+					Attribute attribut = new BasicAttribute("member", copyUser);
+					attributes.put(attribut);
+					dirContext.modifyAttributes(pathUnit,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+					// System.out.println(copyListUser.get(i).getCn()
+					// + " est supprimé");
+				}
+
+			}
+			if (!listcurrentmembers.isEmpty()) {
+				for (int i = 0; i < listcurrentmembers.size(); i++) {
+					copyUser = "cn=" + listcurrentmembers.get(i).getCn() + ","
+							+ CONTEXT_USER;
+					Attributes attributes = new BasicAttributes(true);
+					Attribute attribut = new BasicAttribute("member", copyUser);
+					attributes.put(attribut);
+					dirContext.modifyAttributes(pathUnit,
+							DirContext.ADD_ATTRIBUTE, attributes);
+					// System.out.println(listcurrentmembers.get(i).getCn()
+					// + " ajouté avecn succès");
+				}
+			}
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmAffectation",
+					new Object[] {}, lm.createLocal()));
+			showButtonValidate = "true";
+			dirContext.close();
+		} catch (NamingException e) {
+			System.out.println("erreur de suppression");
+			status2 = true;
+			setMessage(messageSource.getMessage("ErreurAffectation",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("Erreur lors de l'accés au serveur LDAP¨" + e);
+			e.printStackTrace();
+		}
+	}
+
+	public void validAffectation() {
+		status1 = false;
+		status2 = false;
+		// System.out.println("no Directeur est : " + noDirector);
+		// System.out.println("no Secrétaire est : " + noSecretary);
+		if (noDirector) {
+			noSecretary = false;
+			setMessage(messageSource.getMessage("noDirectorAffected",
+					new Object[] {}, lm.createLocal()));
+		} else if (noSecretary) {
+			setMessage(messageSource.getMessage("noSecretaryAffected",
+					new Object[] {}, lm.createLocal()));
+		} else {
+			otherChanceToValideAffectation();
+		}
+	}
+
+	public void otherChanceToValideAffectation() {
+		DirContext dirContext;
+		String copyUser;
+		LdapFunction ldapFunction = new LdapFunction();
+		List<Person> copyListMember = new ArrayList<Person>();
+		copyListMember = ldapFunction.getLdapListMembers("member", pathUnit);
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			if (!copyListMember.isEmpty()) {
+				// System.out.println("dans la suppression");
+				// System.out.println("la longueur de la liste est :"
+				// + copyListMember.size());
+				for (int i = 0; i < copyListMember.size(); i++) {
+					copyUser = "cn=" + copyListMember.get(i).getCn() + ","
+							+ CONTEXT_USER;
+					Attributes attributes = new BasicAttributes(true);
+					Attribute attribut = new BasicAttribute("member", copyUser);
+					attributes.put(attribut);
+					dirContext.modifyAttributes(pathUnit,
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+					// System.out.println(copyListMember.get(i).getCn()
+					// + " est supprimé");
+				}
+
+			}
+			List<Person> copyListMembers = new ArrayList<Person>();
+			if (!listcurrentmembers.isEmpty()) {
+				// System.out.println("dans l'ajout");
+				// System.out.println("la longueur de la liste est :"
+				// + listcurrentmembers.size());
+				for (int i = 0; i < listcurrentmembers.size(); i++) {
+					if (listcurrentmembers.get(i).getTitle().equals("3.Agent")) {
+						copyListMembers.add(listcurrentmembers.get(i));
+						copyUser = "cn=" + listcurrentmembers.get(i).getCn()
+								+ "," + CONTEXT_USER;
+						Attributes attributes = new BasicAttributes(true);
+						Attribute attribut = new BasicAttribute("member",
+								copyUser);
+						attributes.put(attribut);
+						dirContext.modifyAttributes(pathUnit,
+								DirContext.ADD_ATTRIBUTE, attributes);
+					}
+				}
+			}
+			if (selectedObject instanceof Unit) {
+				Unit copyDirection = new Unit();
+				copyDirection = vb.getDirection();
+				copyDirection.setMembersUnit(copyListMembers);
+				vb.setDirection(copyDirection);
+				listNewStructure.set(newSelectedIndex, vb.getDirection());
+				vb.setDirection(direction);
+			} else {
+				BOC copyBoc = new BOC();
+				copyBoc = vb.getBoc();
+				copyBoc.setMembersBOC(copyListMembers);
+				vb.setBoc(copyBoc);
+				listNewStructure.set(newSelectedIndex, vb.getBoc());
+				vb.setBoc(boc);
+			}
+
+			status1 = true;
+			// System.out.println("succès Affectation");
+			dirContext.close();
+		} catch (NamingException e) {
+			// System.out.println("erreur de suppression");
+			status2 = true;
+			setMessage(messageSource.getMessage("ErreurAffectation",
+					new Object[] {}, lm.createLocal()));
+			// System.out.println("Erreur lors de l'accés au serveur LDAP¨" +
+			// e);
+			e.printStackTrace();
+		}
+	}
+
+	public void initializeAffect() {
+		status1 = false;
+		status2 = false;
+		noDirector = false;
+		noSecretary = false;
+		if (selectedObject instanceof Unit) {
+			identifyModel(vb.getDirection());
+		} else {
+			identifyModel(vb.getBoc());
+		}
+	}
+
+	public void firstInitializeAffectation() {
+		status1 = false;
+		status2 = false;
+		status3 = false;
+		noDirector = false;
+		noSecretary = false;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void updateDirection() {
+		DirContext dirContext;
+		String newPathDirection;
+		String pathDirection;
+		status1 = false;
+		status2 = false;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			pathDirection = "cn=" + direction.getNameUnit() + ","
+					+ CONTEXT_UNIT;
+			Attributes attributes = new BasicAttributes(true);
+			attributes.put("cn", direction.getNameUnit());
+			if (direction.getDescriptionUnit().toString().equals("")) {
+				attributes.put("description", " ");
+			} else {
+				attributes.put("description", direction.getDescriptionUnit());
+			}
+			if (direction.getNameUnit().equals(copyNameUnit)) {
+				newPathDirection = "cn=" + direction.getNameUnit() + ","
+						+ CONTEXT_UNIT;
+				dirContext.modifyAttributes(pathDirection,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+			} else {
+				newPathDirection = "cn=" + direction.getNameUnit() + ","
+						+ CONTEXT_UNIT;
+				pathDirection = "cn=" + copyNameUnit + "," + CONTEXT_UNIT;
+				dirContext.rename(pathDirection, newPathDirection);
+				dirContext.modifyAttributes(newPathDirection,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+				attributes = new BasicAttributes(true);
+				attributes.put("associatedName", pathDirection);
+				Attributes newAttributes = new BasicAttributes(true);
+				newAttributes.put("associatedName", newPathDirection);
+				NamingEnumeration e = dirContext.search(CONTEXT_UNIT,
+						attributes);
+				while (e.hasMore()) {
+					// System.out.println("dans la boucle");
+					Binding b = (Binding) e.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, newAttributes);
+
+				}
+				// e = dirContext.search(CONTEXT_SERVICE, attributes);
+				// while (e.hasMore()) {
+				// System.out.println("dans la boucle");
+				// Binding b = (Binding) e.next();
+				// dirContext.modifyAttributes(b.getNameInNamespace(),
+				// DirContext.REMOVE_ATTRIBUTE, attributes);
+				// dirContext.modifyAttributes(b.getNameInNamespace(),
+				// DirContext.ADD_ATTRIBUTE, newAttributes);
+				//
+				// }
+				status1 = true;
+				setMessage(messageSource.getMessage("confirmUpdate",
+						new Object[] {}, lm.createLocal()));
+				// System.out.println(getMessage());
+				// System.out.println("sucees de modif");
+
+			}
+
+			vb.setDirection(direction);
+			copyNameUnit = vb.getDirection().getNameUnit();
+			dirContext.close();
+		} catch (NamingException e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+			System.err.println("Erreur lors de l'acces au serveur LDAP" + e);
+			e.printStackTrace();
+		}
+		listNewStructure.set(selectedIndex, (Object) vb.getDirection());
+		stationNodes = new TreeNodeImpl<String>();
+		index = 0;
+		listCheckSelectedNode = new ArrayList<Object>();
+		newTree(stationNodes);
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void update() {
+		status1 = false;
+		status2 = false;
+		// System.out.println("Dans update");
+		if (selectedObject instanceof Unit) {
+			// System.out.println("######### Modification Unité");
+			DirContext dirContext;
+			String newPathDirection;
+			String pathDirection;
+			Unit newU = (Unit) selectedObject;
+			try {
+				dirContext = new InitialDirContext(hashtable);
+
+				pathDirection = "cn=" + unitName + "," + CONTEXT_UNIT;
+				Attributes attributes = new BasicAttributes(true);
+				attributes.put("cn", unitName);
+				if (unitDescription.toString().equals("")) {
+					attributes.put("description", " ");
+				} else {
+					attributes.put("description", unitDescription);
+				}
+				if (unitShortName.equals("")) {
+					attributes.put("l", " ");
+				} else {
+					attributes.put("l", unitShortName);
+				}
+				// AH : Tester si l'associated direction a changé
+				if (!associatedUnit.equals(selectedAssociatedUnit)) {
+					// Ah : Mettre à jour l'associatedName du noeud selectionné
+					// System.out.println("associatedUnit  "+associatedUnit);
+					// System.out.println("selectedAssociatedUnit   "+selectedAssociatedUnit);
+
+					String newAssociatedName = "";
+
+					if (newU.getAssociatedBOC() != null)
+						newAssociatedName = "cn="
+								+ newU.getAssociatedBOC().getNameBOC()
+								+ ",cn=Bureau d'Ordre Central," + CONTEXT_BOC;
+
+					// si non
+					if (newU.getAssociatedUnit() != null)
+						newAssociatedName = "cn="
+								+ newU.getAssociatedUnit().getNameUnit() + ","
+								+ CONTEXT_UNIT;
+
+					attributes.put("associatedName", newAssociatedName);
+					LdapOperation ldapOperation = new LdapOperation();
+					Unit unit = ldapOperation
+							.getUnitByName(selectedAssociatedUnit.trim());
+					// System.out.println("vvvvvvvvv "+unit);
+					// direction.setAssociatedUnit(unit);
+				}
+
+				// Refresh de tout l'LDAP
+
+				// LdapOperation ldapOperation= new LdapOperation();
+				// Unit unit =
+				// ldapOperation.getUnitByName(selectedAssociatedUnit);
+				// System.out.println(unit);
+				// direction.setAssociatedUnit(unit);
+
+				if (unitName.equals(copyNameUnit)) {
+					// System.out.println("unitName.equals(copyNameUnit)");
+					// AH : le cas ou le nom n'est pas changé
+
+					newPathDirection = "ff";
+					// tester si bocAssocier!=null
+					if (newU.getAssociatedBOC() != null)
+						newPathDirection = "cn=" + unitName
+								+ ",cn=Bureau d'Ordre Central," + CONTEXT_BOC;
+
+					// si non
+					if (newU.getAssociatedUnit() != null)
+						newPathDirection = "cn=" + unitName + ","
+								+ CONTEXT_UNIT;
+					// System.out
+					// .println("newPathDirection : " + newPathDirection);
+					dirContext.modifyAttributes(pathDirection,
+							DirContext.REPLACE_ATTRIBUTE, attributes);
+				} else {
+					newPathDirection = "cn=" + unitName + "," + CONTEXT_UNIT;
+					pathDirection = "cn=" + copyNameUnit + "," + CONTEXT_UNIT;
+					dirContext.rename(pathDirection, newPathDirection);
+					dirContext.modifyAttributes(newPathDirection,
+							DirContext.REPLACE_ATTRIBUTE, attributes);
+					attributes = new BasicAttributes(true);
+					attributes.put("associatedName", pathDirection);
+					Attributes newAttributes = new BasicAttributes(true);
+					newAttributes.put("associatedName", newPathDirection);
+					NamingEnumeration e = dirContext.search(CONTEXT_UNIT,
+							attributes);
+					while (e.hasMore()) {
+						// System.out.println("dans la boucle");
+						Binding b = (Binding) e.next();
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.REMOVE_ATTRIBUTE, attributes);
+						dirContext.modifyAttributes(b.getNameInNamespace(),
+								DirContext.ADD_ATTRIBUTE, newAttributes);
+
+					}
+				}
+				status1 = true;
+				setMessage(messageSource.getMessage("confirmUpdate",
+						new Object[] {}, lm.createLocal()));
+				// System.out.println(getMessage());
+				// System.out.println("sucees de modif");
+				direction.setNameUnit(unitName);
+				direction.setShortNameUnit(unitShortName);
+				direction.setDescriptionUnit(unitDescription);
+
+				LogClass logClass = new LogClass();
+				logClass.addTrack("modification",
+						"Evénement de log de modification de l'unité "
+								+ direction.getIdUnit() + "-" + copyNameUnit,
+						vb.getPerson(), "INFO", appMgr);
+				vb.setDirection(direction);
+				copyNameUnit = vb.getDirection().getNameUnit();
+				selectedObject = vb.getDirection();
+				dirContext.close();
+			} catch (NamingException e) {
+				status2 = true;
+				setMessage(messageSource.getMessage("erreurUpdate",
+						new Object[] {}, lm.createLocal()));
+				System.err
+						.println("Erreur lors de l'acces au serveur LDAP" + e);
+				e.printStackTrace();
+			}
+			listNewStructure.set(selectedIndex, (Object) vb.getDirection());
+			stationNodes = new TreeNodeImpl<String>();
+			index = 0;
+			listCheckSelectedNode = new ArrayList<Object>();
+			newTree(stationNodes);
+			if (!associatedUnit.equals(selectedAssociatedUnit)) {
+				refreshPage = true;
+				// System.out.println("L'arborecence va changer ");
+				LdapFunction ldapFunction = new LdapFunction();
+				ldapFunction.getDataFromDirectory();
+				vb.setCopyLdapData(ldapFunction.ldapData);
+				vb.setCentralBoc(ldapFunction.centralBoc);
+				// ff
+			}
+		}
+
+		if (selectedObject instanceof BOC) {
+			BOC bb = (BOC) selectedObject;
+			// System.out.println("BBBBBBBBBBB "+bb);
+			// System.out.println("Dans BOCUpdate");
+			DirContext dirContext;
+			String newPathService;
+			String pathService;
+			try {
+
+				dirContext = new InitialDirContext(hashtable);
+				// System.out.println("1 Dans BOCUpdate");
+				if (bb.getTypeBOC().equals("Central")) {
+					// System.out.println("Dans pathService Central");
+					pathService = "cn=" + unitName + "," + CONTEXT_BOC;
+				} else {
+					pathService = "cn=" + unitName + ",cn="
+							+ centralBoc.getNameBOC() + "," + CONTEXT_BOC;
+					// System.out.println("Dans pathService Secondaire");
+				}
+				// System.out.println("2Dans BOCUpdate");
+				Attributes attributes = new BasicAttributes(true);
+				attributes.put("cn", unitName);
+				if (unitDescription.toString().equals("")) {
+					attributes.put("description", " ");
+				} else {
+					attributes.put("description", unitDescription);
+				}
+				if (unitShortName.equals("")) {
+					attributes.put("l", " ");
+				} else {
+					attributes.put("l", unitShortName);
+				}
+				// System.out.println("33Dans BOCUpdate");
+				if (unitName.equals(copyNameUnit)) {
+					newPathService = "cn=" + unitName + "," + CONTEXT_BOC;
+					dirContext.modifyAttributes(pathService,
+							DirContext.REPLACE_ATTRIBUTE, attributes);
+					if (bb.getTypeBOC().equals("Central")) {
+						centralBoc.setNameBOC(unitName);
+						centralBoc.setDescriptionBOC(unitDescription);
+					} else {
+						// System.out.println(" 4 Dans BOCUpdate");
+						int i = 0;
+						boolean finbBoc = false;
+						// do {
+						// System.out.println("### 1"+centralBoc.getListChildBOCsBOC().get(i).getIdBOC());
+						// System.out.println("### 2"+selectedBoc.getIdBOC());
+						// if (centralBoc.getListChildBOCsBOC().get(i)
+						// .getIdBOC() == selectedBoc.getIdBOC()) {
+						// centralBoc.getListChildBOCsBOC().get(i)
+						// .setNameBOC(unitName);
+						// centralBoc.getListChildBOCsBOC().get(i)
+						// .setDescriptionBOC(unitDescription);
+						// } else {
+						// i++;
+						// }
+						// } while (!finbBoc
+						// && i < centralBoc.getListChildBOCsBOC().size());
+					}
+					// System.out.println(" 66 Dans BOCUpdate");
+				} else {
+					// System.out.println("After Validate pathService");
+					if (bb.getTypeBOC().equals("Central")) {
+						newPathService = "cn=" + unitName + "," + CONTEXT_BOC;
+						pathService = "cn=" + copyNameUnit + "," + CONTEXT_BOC;
+						centralBoc.setNameBOC(unitName);
+						centralBoc.setShortNameBOC(unitShortName);
+
+						centralBoc.setDescriptionBOC(unitDescription);
+					} else {
+						// System.out.println(" 77Dans BOCUpdate");
+						// System.out.println("Dans Rename");
+						newPathService = "cn=" + unitName + ",cn="
+								+ centralBoc.getNameBOC() + "," + CONTEXT_BOC;
+						pathService = "cn=" + copyNameUnit + ",cn="
+								+ centralBoc.getNameBOC() + "," + CONTEXT_BOC;
+						int i = 0;
+						boolean finbBoc = false;
+						do {
+							if (centralBoc.getListChildBOCsBOC().get(i)
+									.getIdBOC() == selectedBoc.getIdBOC()) {
+								centralBoc.getListChildBOCsBOC().get(i)
+										.setNameBOC(unitName);
+								centralBoc.getListChildBOCsBOC().get(i)
+										.setShortNameBOC(unitShortName);
+								centralBoc.getListChildBOCsBOC().get(i)
+										.setDescriptionBOC(unitDescription);
+								finbBoc = true;
+							} else {
+								i++;
+							}
+						} while (!finbBoc
+								&& i < centralBoc.getListChildBOCsBOC().size());
+						System.out.println("Modify centalBoc");
+					}
+					// System.out.println("begin Update for rename");
+					dirContext.rename(pathService, newPathService);
+					dirContext.modifyAttributes(newPathService,
+							DirContext.REPLACE_ATTRIBUTE, attributes);
+					// System.out.println(" 55 Dans BOCUpdate");
+					// System.out.println("end Update for rename");
+					attributes = new BasicAttributes(true);
+					attributes.put("associatedName", pathService);
+					Attributes newAttributes = new BasicAttributes(true);
+					newAttributes.put("associatedName", newPathService);
+					NamingEnumeration e;
+					if (vb.getBoc().getTypeBOC().equals("Central")) {
+						e = dirContext.search("cn=" + vb.getBoc().getNameBOC()
+								+ "," + CONTEXT_BOC, attributes);
+						while (e.hasMore()) {
+							Binding b = (Binding) e.next();
+							dirContext.modifyAttributes(b.getNameInNamespace(),
+									DirContext.REMOVE_ATTRIBUTE, attributes);
+							dirContext.modifyAttributes(b.getNameInNamespace(),
+									DirContext.ADD_ATTRIBUTE, newAttributes);
+						}
+						e = dirContext.listBindings(CONTEXT_UNIT);
+						String associatedUnit;
+						String newAssociatedUnit;
+						while (e.hasMore()) {
+							Binding b = (Binding) e.next();
+							associatedUnit = dirContext
+									.getAttributes(b.getNameInNamespace())
+									.get("associatedName").get(0).toString();
+							// System.out.println(associatedUnit);
+							int indexOfCom;
+							String firstCN;
+							if (associatedUnit.contains(copyNameUnit)) {
+								indexOfCom = associatedUnit.indexOf(",");
+								// System.out.println("       verif indexCom : "
+								// + indexOfCom);
+								firstCN = associatedUnit.substring(0,
+										indexOfCom);
+								// System.out.println("       verif firstCN : "
+								// + firstCN);
+								if (firstCN.contains(copyNameUnit)) {
+									newAssociatedUnit = newPathService;
+								} else {
+									newAssociatedUnit = firstCN + ","
+											+ newPathService;
+								}
+								// System.out.println("       verif NewAssUnit : "
+								// + newAssociatedUnit);
+								attributes = new BasicAttributes(true);
+								attributes.put("associatedName",
+										newAssociatedUnit);
+								dirContext.modifyAttributes(
+										b.getNameInNamespace(),
+										DirContext.REPLACE_ATTRIBUTE,
+										attributes);
+							}
+						}
+					} else {
+						e = dirContext.search(CONTEXT_UNIT, attributes);
+						while (e.hasMore()) {
+							Binding b = (Binding) e.next();
+							dirContext.modifyAttributes(b.getNameInNamespace(),
+									DirContext.REMOVE_ATTRIBUTE, attributes);
+							dirContext.modifyAttributes(b.getNameInNamespace(),
+									DirContext.ADD_ATTRIBUTE, newAttributes);
+
+						}
+					}
+				}
+				LogClass logClass = new LogClass();
+				logClass.addTrack("modification",
+						"Evénement de log de modification du bureau d'ordre "
+								+ boc.getIdBOC() + "-" + copyNameUnit,
+						vb.getPerson(), "INFO", appMgr);
+				// System.out.println("1er pas dans la modification");
+				if (inUpdateBo) {
+					// System.out.println("c'est bon dans inUpdate");
+					BOC copyBoc = new BOC();
+					copyBoc = vb.getBoc();
+					List<BOC> listAdjoiningBOCs = new ArrayList<BOC>();
+					listAdjoiningBOCs = copyBoc.getListAdjoiningBOCsBOC();
+					bos.setNameBOC(unitName);
+					bos.setShortNameBOC(unitShortName);
+					bos.setDescriptionBOC(unitDescription);
+					boolean findBOS = false;
+					int i = 0;
+					do {
+						if (listAdjoiningBOCs.get(i).getIdBOC() == bos
+								.getIdBOC()) {
+							listAdjoiningBOCs.set(i, bos);
+							findBOS = true;
+						} else {
+							i++;
+						}
+					} while (!findBOS && i < listAdjoiningBOCs.size());
+					copyBoc.setListAdjoiningBOCsBOC(listAdjoiningBOCs);
+					// System.out.println("la nouvelle liste est : "
+					// + copyBoc.getListAdjoiningBOCsBOC());
+					listNewStructure.set(selectedIndex, copyBoc);
+					vb.setBoc(copyBoc);
+					selectedObject = vb.getBoc();
+					inUpdateBo = false;
+					// System.out.println(inUpdateBo);
+
+				} else {
+					boc.setNameBOC(unitName);
+					boc.setShortNameBOC(unitShortName);
+					boc.setDescriptionBOC(unitDescription);
+					vb.setBoc(boc);
+					selectedObject = vb.getBoc();
+					copyNameUnit = vb.getBoc().getNameBOC();
+					listNewStructure.set(selectedIndex, (Object) vb.getBoc());
+					stationNodes = new TreeNodeImpl<String>();
+					index = 0;
+					listCheckSelectedNode = new ArrayList<Object>();
+					newTree(stationNodes);
+				}
+				stationNodesPrincipal = new TreeNodeImpl<String>();
+				fillFirstTree();
+				status1 = true;
+				setMessage(messageSource.getMessage("confirmUpdate",
+						new Object[] {}, lm.createLocal()));
+				// System.out.println(getMessage());
+				// System.out.println("sucees de modif");
+				dirContext.close();
+
+			} catch (NamingException e) {
+				status2 = true;
+				setMessage(messageSource.getMessage("erreurUpdate",
+						new Object[] {}, lm.createLocal()));
+				System.err
+						.println("Erreur lors de l'acces au serveur LDAP" + e);
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void updateBoc() {
+		DirContext dirContext;
+		String newPathService;
+		String pathService;
+		status70 = false;
+		status80 = false;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			pathService = "cn=" + boc.getNameBOC() + "," + CONTEXT_BOC;
+			Attributes attributes = new BasicAttributes(true);
+			attributes.put("cn", boc.getNameBOC());
+			if (boc.getDescriptionBOC().toString().equals("")) {
+				attributes.put("description", " ");
+			} else {
+				attributes.put("description", boc.getDescriptionBOC());
+			}
+			if (boc.getNameBOC().equals(copyNameUnit)) {
+				newPathService = "cn=" + boc.getNameBOC() + "," + CONTEXT_BOC;
+				dirContext.modifyAttributes(pathService,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+			} else {
+				newPathService = "cn=" + boc.getNameBOC() + "," + CONTEXT_BOC;
+				pathService = "cn=" + copyNameUnit + "," + CONTEXT_BOC;
+				dirContext.rename(pathService, newPathService);
+				dirContext.modifyAttributes(newPathService,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+				attributes = new BasicAttributes(true);
+				attributes.put("associatedName", pathService);
+				Attributes newAttributes = new BasicAttributes(true);
+				newAttributes.put("associatedName", newPathService);
+				NamingEnumeration e = dirContext
+						.search(CONTEXT_BOC, attributes);
+				while (e.hasMore()) {
+					Binding b = (Binding) e.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, newAttributes);
+
+				}
+				e = dirContext.search(CONTEXT_UNIT, attributes);
+				while (e.hasMore()) {
+					Binding b = (Binding) e.next();
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.REMOVE_ATTRIBUTE, attributes);
+					dirContext.modifyAttributes(b.getNameInNamespace(),
+							DirContext.ADD_ATTRIBUTE, newAttributes);
+
+				}
+
+			}
+			vb.setBoc(boc);
+			copyNameUnit = vb.getBoc().getNameBOC();
+			// System.out.println("la nouvelle valeure est : " + copyNameUnit);
+			listNewStructure.set(selectedIndex, (Object) vb.getBoc());
+			stationNodes = new TreeNodeImpl<String>();
+			index = 0;
+			listCheckSelectedNode = new ArrayList<Object>();
+			newTree(stationNodes);
+			status70 = true;
+			setMessage(messageSource.getMessage("confirmUpdate",
+					new Object[] {}, lm.createLocal()));
+			// System.out.println(getMessage());
+			// System.out.println("sucees de modif");
+			dirContext.close();
+		} catch (NamingException e) {
+			status80 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+			System.err.println("Erreur lors de l'acces au serveur LDAP" + e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public void updateBos() {
+		DirContext dirContext;
+		BOC copyBoc = new BOC();
+		copyBoc = vb.getBoc();
+		String newPathService;
+		String pathService;
+		status34 = false;
+		status35 = false;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			pathService = "cn=" + bos.getNameBOC() + "," + CONTEXT_BOC;
+			Attributes attributes = new BasicAttributes(true);
+			attributes.put("cn", bos.getNameBOC());
+			if (bos.getDescriptionBOC().toString().equals("")) {
+				attributes.put("description", " ");
+			} else {
+				attributes.put("description", bos.getDescriptionBOC());
+			}
+			if (bos.getNameBOC().equals(copyNameUnit)) {
+				newPathService = "cn=" + bos.getNameBOC() + "," + CONTEXT_BOC;
+				dirContext.modifyAttributes(pathService,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+			} else {
+				newPathService = "cn=" + bos.getNameBOC() + "," + CONTEXT_BOC;
+				pathService = "cn=" + copyNameUnit + "," + CONTEXT_BOC;
+				dirContext.rename(pathService, newPathService);
+				dirContext.modifyAttributes(newPathService,
+						DirContext.REPLACE_ATTRIBUTE, attributes);
+			}
+			List<BOC> listAdjoiningBOCs = new ArrayList<BOC>();
+			listAdjoiningBOCs = copyBoc.getListAdjoiningBOCsBOC();
+			boolean findBOS = false;
+			int i = 0;
+			do {
+				if (listAdjoiningBOCs.get(i).getIdBOC() == bos.getIdBOC()) {
+					listAdjoiningBOCs.set(i, bos);
+					findBOS = true;
+				}
+			} while (!findBOS && i < listAdjoiningBOCs.size());
+			bos.setListAdjoiningBOCsBOC(listAdjoiningBOCs);
+			listNewStructure.set(selectedIndex, bos);
+			vb.setBoc(bos);
+			copyNameUnit = vb.getBoc().getNameBOC();
+			status34 = true;
+			setMessage(messageSource.getMessage("confirmUpdate",
+					new Object[] {}, lm.createLocal()));
+			// System.out.println(getMessage());
+			// System.out.println("sucees de modif");
+			dirContext.close();
+		} catch (NamingException e) {
+			status35 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+			System.err.println("Erreur lors de l'acces au serveur LDAP" + e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public void initializeUpdate() {
+		status1 = false;
+		status2 = false;
+		if (selectedObject instanceof Unit) {
+			identifyModel(vb.getDirection());
+		} else {
+			identifyModel(vb.getBoc());
+		}
+	}
+
+	public void initializeUpdateBoc() {
+		status70 = false;
+		status80 = false;
+	}
+
+	public void initializeUpdateBos() {
+		status34 = false;
+		status35 = false;
+		identifyModel(vb.getBoc());
+	}
+
+	public void getDeleteDirection() {
+		status3 = true;
+		setMessage(messageSource.getMessage("confirmDeleteUnits",
+				new Object[] {}, lm.createLocal()));
+		if (vb.getDirection().getListUnitsChildUnit().isEmpty()) {
+			status3 = false;
+			setMessage(messageSource.getMessage("confirmDeleteDirection",
+					new Object[] {}, lm.createLocal()));
+		}
+
+	}
+
+	public void getDeleteBoc() {
+		status31 = true;
+		setMessage(messageSource.getMessage("confirmDeleteBocUnits",
+				new Object[] {}, lm.createLocal()));
+		if (vb.getBoc().getListDirectionsChildBOC().isEmpty()) {
+			status31 = false;
+			setMessage(messageSource.getMessage("confirmDeleteBO",
+					new Object[] {}, lm.createLocal()));
+		}
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void deleteBoc() {
+		DirContext dirContext;
+		String pathBOC = "cn=" + vb.getBoc().getNameBOC() + "," + CONTEXT_BOC;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			NamingEnumeration e = dirContext.listBindings(CONTEXT_BOC);
+			while (e.hasMore()) {
+				Binding b = (Binding) e.next();
+				if (b.getNameInNamespace().equals(pathBOC)) {
+					dirContext.unbind(b.getNameInNamespace());
+				}
+			}
+			e = dirContext.listBindings(CONTEXT_UNIT);
+			while (e.hasMore()) {
+				Binding b = (Binding) e.next();
+				dirContext.unbind(b.getNameInNamespace());
+			}
+			// e = dirContext.listBindings(CONTEXT_SERVICE);
+			// while (e.hasMore()) {
+			// Binding b = (Binding) e.next();
+			// dirContext.unbind(b.getNameInNamespace());
+			// }
+			dirContext.close();
+			listNewStructure = new ArrayList<Object>();
+			copyLdapListUser = new ArrayList<Person>();
+			listotherusers = copyLdapListAllUser;
+			vb.setCopyLdapListUser(copyLdapListUser);
+			vb.setCopyLdapListOtherUser(listotherusers);
+			stationNodes = new TreeNodeImpl<String>();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Erreuuuur Delete BOC");
+		}
+
+	}
+
+	public void deleteBos() {
+		DirContext dirContext;
+		BOC copyBOC = new BOC();
+		// System.out.println("Dans deleteBos");
+		status1 = false;
+		status2 = false;
+		copyBOC = vb.getBoc();
+		List<BOC> listAdjoiningBOCs = new ArrayList<BOC>();
+		listAdjoiningBOCs = copyBOC.getListAdjoiningBOCsBOC();
+		String pathBOS = "cn=" + bos.getNameBOC() + "," + CONTEXT_BOC;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			dirContext.unbind(pathBOS);
+			dirContext.close();
+			boolean findBOS = false;
+			int i = 0;
+			do {
+				if (listAdjoiningBOCs.get(i).getIdBOC() == bos.getIdBOC()) {
+					listAdjoiningBOCs.remove(i);
+					findBOS = true;
+				} else {
+					i++;
+				}
+			} while (!findBOS && i < listAdjoiningBOCs.size());
+			copyBOC.setListAdjoiningBOCsBOC(listAdjoiningBOCs);
+			listNewStructure.set(selectedIndex, (Object) copyBOC);
+			listadjoiningsbocs.remove(bos);
+			listAdjoiningBOC.setWrappedData(listadjoiningsbocs);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmSuppression",
+					new Object[] {}, lm.createLocal()));
+			// System.out.println("*******Suppression terminée******");
+		} catch (Exception e) {
+			e.printStackTrace();
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurSuppression",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("Erreuuuur Delete BOC");
+		}
+	}
+
+	public void getDeleteUnit() {
+		status1 = false;
+		status2 = false;
+		status3 = false;
+		if (selectedObject instanceof Unit) {
+			Unit unit = new Unit();
+			unit = (Unit) selectedObject;
+			if (unit.getListUnitsChildUnit().isEmpty()) {
+				if (unit.getResponsibleUnit() == null
+						&& unit.getSecretaryUnit() == null
+						&& unit.getMembersUnit().isEmpty()) {
+					status1 = true;
+					setMessage(messageSource.getMessage("confirmDeleteUnit",
+							new Object[] {}, lm.createLocal()));
+				} else {
+					status2 = true;
+					setMessage(messageSource.getMessage("confirmDeleteUnits",
+							new Object[] {}, lm.createLocal()));
+				}
+			} else {
+				status3 = true;
+				setMessage(messageSource.getMessage("confirmDeleteSubUnits",
+						new Object[] {}, lm.createLocal()));
+			}
+		} else {
+			BOC boc = new BOC();
+			boc = (BOC) selectedObject;
+			if (boc.getListDirectionsChildBOC().isEmpty()) {
+				if (boc.getMembersBOC().isEmpty()) {
+					status1 = true;
+					setMessage(messageSource.getMessage("confirmDeleteBO",
+							new Object[] {}, lm.createLocal()));
+				} else {
+					status2 = true;
+					setMessage(messageSource.getMessage("confirmDeleteBOCs",
+							new Object[] {}, lm.createLocal()));
+				}
+			} else {
+				status3 = true;
+				setMessage(messageSource.getMessage("confirmDeleteBocUnits",
+						new Object[] {}, lm.createLocal()));
+			}
+		}
+
+	}
+
+	public void deleteUnit() {
+		BOC associatedBOC;
+		Unit associatedDirection;
+		DirContext dirContext;
+		String pathUnit;
+		List<Unit> copyListChildBOC = new ArrayList<Unit>();
+		List<Unit> copyListChildDirection = new ArrayList<Unit>();
+		listNewStructure.remove((Object) selectedObject);
+		if (selectedObject instanceof Unit) {
+			Unit unit = new Unit();
+			unit = (Unit) vb.getDirection();
+			if (unit.getResponsibleUnit() != null) {
+				copyLdapListUser.remove(unit.getResponsibleUnit());
+				listotherusers.add(unit.getResponsibleUnit());
+			}
+			if (unit.getSecretaryUnit() != null) {
+				copyLdapListUser.remove(unit.getSecretaryUnit());
+				listotherusers.add(unit.getSecretaryUnit());
+			}
+			if (!unit.getMembersUnit().isEmpty()) {
+				for (int s = 0; s < unit.getMembersUnit().size(); s++) {
+					copyLdapListUser.remove(unit.getMembersUnit().get(s));
+					listotherusers.add(unit.getMembersUnit().get(s));
+				}
+			}
+			if (unit.getAssociatedBOC() != null) {
+				associatedBOC = new BOC();
+				associatedBOC = unit.getAssociatedBOC();
+				copyListChildBOC = associatedBOC.getListDirectionsChildBOC();
+				int j = 0;
+				boolean findDirection = false;
+				do {
+					if (copyListChildBOC.get(j).getIdUnit() == unit.getIdUnit()) {
+						copyListChildBOC.remove(j);
+						findDirection = true;
+					} else {
+						j++;
+					}
+				} while (!findDirection && j < copyListChildBOC.size());
+				associatedBOC.setListDirectionsChildBOC(copyListChildBOC);
+				listNewStructure.set(0, associatedBOC);
+			}
+			if (unit.getAssociatedUnit() != null) {
+				associatedDirection = new Unit();
+				associatedDirection = unit.getAssociatedUnit();
+				copyListChildDirection = associatedDirection
+						.getListUnitsChildUnit();
+				int j = 0;
+				boolean findDirection = false;
+				do {
+					if (copyListChildDirection.get(j).getIdUnit() == unit
+							.getIdUnit()) {
+						copyListChildDirection.remove(j);
+						findDirection = true;
+					} else {
+						j++;
+					}
+				} while (!findDirection && j < copyListChildDirection.size());
+				associatedDirection
+						.setListUnitsChildUnit(copyListChildDirection);
+				int i = 0;
+				Unit copyAssociatedDirection = new Unit();
+				findDirection = false;
+				do {
+					if (listNewStructure.get(i) instanceof Unit) {
+						copyAssociatedDirection = (Unit) listNewStructure
+								.get(i);
+						if (copyAssociatedDirection.getIdUnit() == associatedDirection
+								.getIdUnit()) {
+							listNewStructure.set(i, associatedDirection);
+							findDirection = true;
+						} else {
+							i++;
+						}
+					} else {
+						i++;
+					}
+				} while (!findDirection && i < listNewStructure.size());
+			}
+			pathUnit = "cn=" + unit.getNameUnit() + "," + CONTEXT_UNIT;
+			// System.out.println("10/ pathUnit  " + pathUnit);
+			try {
+				dirContext = new InitialDirContext(hashtable);
+				dirContext.unbind(pathUnit);
+				dirContext.close();
+				LogClass logClass = new LogClass();
+				logClass.addTrack(
+						"suppression",
+						"Evénement de log de suppression de l'unité "
+								+ unit.getIdUnit() + "-" + unit.getNameUnit(),
+						vb.getPerson(), "INFO", appMgr);
+			} catch (NamingException e) {
+				System.out.println("Erreur lors de l'accés au serveur LDAP¨"
+						+ e);
+				e.printStackTrace();
+			}
+			System.out.println("*******Suppression terminée******");
+		} else {
+			BOC boc = new BOC();
+			boc = (BOC) vb.getBoc();
+			if (!boc.getMembersBOC().isEmpty()) {
+				for (int s = 0; s < boc.getMembersBOC().size(); s++) {
+					copyLdapListUser.remove(boc.getMembersBOC().get(s));
+					listotherusers.add(boc.getMembersBOC().get(s));
+				}
+			}
+			if (boc.getTypeBOC().equals("Central")) {
+				pathUnit = "cn=" + boc.getNameBOC() + "," + CONTEXT_BOC;
+				// System.out.println("check path for Delete : " + pathUnit);
+			} else {
+				pathUnit = "cn=" + boc.getNameBOC() + "," + "cn="
+						+ boc.getAssociatedBOC().getNameBOC() + ","
+						+ CONTEXT_BOC;
+				// System.out.println("check path for Delete : " + pathUnit);
+				stationNodesPrincipal = new TreeNodeImpl<String>();
+				List<BOC> copyListChildBoc = new ArrayList<BOC>();
+				copyListChildBoc = centralBoc.getListChildBOCsBOC();
+				copyListChildBoc.remove(boc);
+				centralBoc.setListChildBOCsBOC(copyListChildBoc);
+				fillFirstTree();
+			}
+			try {
+				dirContext = new InitialDirContext(hashtable);
+				dirContext.unbind(pathUnit);
+				dirContext.close();
+				LogClass logClass = new LogClass();
+				logClass.addTrack("suppression",
+						"Evénement de log de suppression du bureau d'ordre "
+								+ boc.getIdBOC() + "-" + boc.getNameBOC(),
+						vb.getPerson(), "INFO", appMgr);
+			} catch (NamingException e) {
+				System.out.println("Erreur lors de l'accés au serveur LDAP¨"
+						+ e);
+				e.printStackTrace();
+			}
+			System.out.println("*******Suppression terminée******");
+		}
+		vb.setCopyLdapListUser(copyLdapListUser);
+		vb.setCopyLdapListOtherUser(listotherusers);
+	}
+
+	public void afterDelete() {
+		status1 = false;
+		status2 = false;
+		status3 = false;
+		showUnitPanelForm = "none";
+		showDetailsUnitForm = "none";
+		showDetailsMemberUnitForm = "none";
+		showDetailsMemberBOCForm = "none";
+		showAddUnitForm = "none";
+		showAddBOCForm = "none";
+		showAffectationUnitForm = "none";
+		showListBOCsForm = "none";
+		showAffectationBOCForm = "none";
+		showButtonAddUnit = "none";
+		showButtonUpdateUnit = "none";
+		stationNodes = new TreeNodeImpl<String>();
+		listCheckSelectedNode = new ArrayList<Object>();
+		index = 0;
+		newTree(stationNodes);
+	}
+
+	public void getSelectedRowForDelete() {
+		try {
+			bos = new BOC();
+			bos = (BOC) listAdjoiningBOC.getRowData();
+			// System.out.println("person Selected");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("ErreurDeSelection");
+		}
+	}
+
+	public void getSelectedRowForUpdate() {
+		try {
+			bos = new BOC();
+			bos = (BOC) listAdjoiningBOC.getRowData();
+			showUnitPanelForm = "inline";
+			showDetailsMemberUnitForm = "none";
+			showDetailsMemberBOCForm = "none";
+			showDetailsUnitForm = "none";
+			showAddUnitForm = "inline";
+			showAddBOCForm = "none";
+			showAffectationUnitForm = "none";
+			showListBOCsForm = "inline";
+			showAffectationBOCForm = "none";
+			showButtonAddUnit = "none";
+			showButtonUpdateUnit = "inline";
+			unitName = bos.getNameBOC();
+			copyNameUnit = bos.getNameBOC();
+			unitDescription = bos.getDescriptionBOC();
+			unitNameLabel = messageSource.getMessage("boName", new Object[] {},
+					lm.createLocal());
+			unitTitle = messageSource.getMessage("modificationBO",
+					new Object[] {}, lm.createLocal());
+			inUpdateBo = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("ErreurDeSelection");
+		}
+	}
+
+	public void delete(Unit direction) {
+		listNewStructure.remove((Object) direction);
+		if (direction.getResponsibleUnit() != null) {
+			copyLdapListUser.remove(direction.getResponsibleUnit());
+			listotherusers.add(direction.getResponsibleUnit());
+		}
+		if (direction.getSecretaryUnit() != null) {
+			copyLdapListUser.remove(direction.getSecretaryUnit());
+			listotherusers.add(direction.getSecretaryUnit());
+		}
+		if (!direction.getMembersUnit().isEmpty()) {
+			for (int s = 0; s < direction.getMembersUnit().size(); s++) {
+				copyLdapListUser.remove(direction.getMembersUnit().get(s));
+				listotherusers.add(direction.getMembersUnit().get(s));
+			}
+		}
+		vb.setCopyLdapListUser(copyLdapListUser);
+		vb.setCopyLdapListOtherUser(listotherusers);
+		Unit associatedDirection;
+		BOC associatedBOC;
+		List<Unit> copyListChildBOC = new ArrayList<Unit>();
+		List<Unit> copyListChildDirection = new ArrayList<Unit>();
+		if (direction.getAssociatedBOC() != null) {
+			associatedBOC = new BOC();
+			associatedBOC = direction.getAssociatedBOC();
+			copyListChildBOC = associatedBOC.getListDirectionsChildBOC();
+			int j = 0;
+			boolean findDirection = false;
+			do {
+				if (copyListChildBOC.get(j).getIdUnit() == direction
+						.getIdUnit()) {
+					copyListChildBOC.remove(j);
+					findDirection = true;
+				} else {
+					j++;
+				}
+			} while (!findDirection && j < copyListChildBOC.size());
+			associatedBOC.setListDirectionsChildBOC(copyListChildBOC);
+			listNewStructure.set(0, associatedBOC);
+		}
+		if (direction.getAssociatedUnit() != null
+				&& direction == vb.getDirection()) {
+			associatedDirection = new Unit();
+			associatedDirection = direction.getAssociatedUnit();
+			copyListChildDirection = associatedDirection
+					.getListUnitsChildUnit();
+			int j = 0;
+			boolean findDirection = false;
+			do {
+				if (copyListChildDirection.get(j).getIdUnit() == direction
+						.getIdUnit()) {
+					copyListChildDirection.remove(j);
+					findDirection = true;
+				} else {
+					j++;
+				}
+			} while (!findDirection && j < copyListChildDirection.size());
+			associatedDirection.setListUnitsChildUnit(copyListChildDirection);
+			int i = 0;
+			Unit copyAssociatedDirection = new Unit();
+			findDirection = false;
+			do {
+				if (listNewStructure.get(i) instanceof Unit) {
+					copyAssociatedDirection = (Unit) listNewStructure.get(i);
+					if (copyAssociatedDirection.getIdUnit() == associatedDirection
+							.getIdUnit()) {
+						listNewStructure.set(i, associatedDirection);
+						findDirection = true;
+					} else {
+						i++;
+					}
+				} else {
+					i++;
+				}
+			} while (!findDirection && i < listNewStructure.size());
+		}
+
+		DirContext dirContext;
+		String pathDirection;
+		// String pathService;
+		pathDirection = "cn=" + direction.getNameUnit() + "," + CONTEXT_UNIT;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			if (!direction.getListUnitsChildUnit().isEmpty()) {
+				// if (!direction.getListService().isEmpty()) {
+				// for (int i = 0; i < direction.getListService().size(); i++) {
+				// if (direction.getListService().get(i).getChefService() !=
+				// null) {
+				// copyLdapListUser.remove(direction.getListService()
+				// .get(i).getChefService());
+				// listotherusers.add(direction.getListService()
+				// .get(i).getChefService());
+				// }
+				// if (direction.getListService().get(i)
+				// .getSecretaireService() != null) {
+				// copyLdapListUser.remove(direction.getListService()
+				// .get(i).getSecretaireService());
+				// listotherusers.add(direction.getListService()
+				// .get(i).getSecretaireService());
+				// }
+				// if (!direction.getListService().get(i)
+				// .getMembersService().isEmpty()) {
+				// for (int s = 0; s < direction.getListService()
+				// .get(i).getMembersService().size(); s++) {
+				// copyLdapListUser.remove(direction
+				// .getListService().get(i)
+				// .getMembersService().get(s));
+				// listotherusers.add(direction.getListService()
+				// .get(i).getMembersService().get(s));
+				// }
+				// }
+				// vb.setCopyLdapListUser(copyLdapListUser);
+				// vb.setCopyLdapListOtherUser(listotherusers);
+				// listNewStructure.remove((Object) direction
+				// .getListService().get(i));
+				// pathService = "cn="
+				// + direction.getListService().get(i)
+				// .getNameService() + ","
+				// + CONTEXT_SERVICE;
+				// dirContext.unbind(pathService);
+				// }
+				// }
+				if (!direction.getListUnitsChildUnit().isEmpty()) {
+					for (int i = 0; i < direction.getListUnitsChildUnit()
+							.size(); i++) {
+						delete(direction.getListUnitsChildUnit().get(i));
+					}
+				}
+			}
+			dirContext.unbind(pathDirection);
+			dirContext.close();
+		} catch (NamingException e) {
+			System.out.println("Erreur lors de l'accés au serveur LDAP¨" + e);
+			e.printStackTrace();
+		}
+		System.out.println("*******Suppression terminée******");
+	}
+
+	// public void deleteService() {
+	// DirContext dirContext;
+	// Service copyService = new Service();
+	// copyService = vb.getService();
+	// status30 = false;
+	// status40 = false;
+	// listNewStructure.remove((Object) copyService);
+	// if (copyService.getChefService() != null) {
+	// copyLdapListUser.remove(copyService.getChefService());
+	// listotherusers.add(copyService.getChefService());
+	// }
+	// if (copyService.getSecretaireService() != null) {
+	// copyLdapListUser.remove(copyService.getSecretaireService());
+	// listotherusers.add(copyService.getSecretaireService());
+	// }
+	// if (!copyService.getMembersService().isEmpty()) {
+	// for (int s = 0; s < copyService.getMembersService().size(); s++) {
+	// copyLdapListUser.remove(copyService.getMembersService().get(s));
+	// listotherusers.add(copyService.getMembersService().get(s));
+	// }
+	// }
+	// vb.setCopyLdapListUser(copyLdapListUser);
+	// vb.setCopyLdapListOtherUser(listotherusers);
+	// Unit associatedDirection;
+	// List<Service> copyListChildService = new ArrayList<Service>();
+	// if (copyService.getAssociatedDirection() != null) {
+	// associatedDirection = new Unit();
+	// associatedDirection = copyService.getAssociatedDirection();
+	// copyListChildService = associatedDirection.getListService();
+	// int j = 0;
+	// boolean findService = false;
+	// do {
+	// if (copyListChildService.get(j).getIdService() ==
+	// copyService.getIdService()) {
+	// copyListChildService.remove(j);
+	// findService = true;
+	// } else {
+	// j++;
+	// }
+	// } while (!findService && j < copyListChildService.size());
+	// associatedDirection.setListService(copyListChildService);
+	// int i = 0;
+	// Unit copyAssociatedDirection = new Unit();
+	// findService = false;
+	// do {
+	// if (listNewStructure.get(i) instanceof Unit) {
+	// copyAssociatedDirection = (Unit) listNewStructure.get(i);
+	// if (copyAssociatedDirection.getIdDirection() ==
+	// associatedDirection.getIdDirection()) {
+	// listNewStructure.set(i, associatedDirection);
+	// findService = true;
+	// } else {
+	// i++;
+	// }
+	// } else {
+	// i++;
+	// }
+	// } while (!findService && i < listNewStructure.size());
+	// }
+	// try {
+	// dirContext = new InitialDirContext(hashtable);
+	// dirContext.unbind(pathUnit);
+	// dirContext.close();
+	// status30 = true;
+	// setMessage(messageSource.getMessage("confirmSuppression",
+	// new Object[] {}, lm.createLocal()));
+	// System.out.println("*******Suppression terminée******");
+	// } catch (NamingException e) {
+	// status40 = true;
+	// setMessage(messageSource.getMessage("erreurSuppression",
+	// new Object[] {}, lm.createLocal()));
+	// System.out.println("Erreur lors de l'accés au serveur LDAP¨" + e);
+	// e.printStackTrace();
+	// }
+	// }
+
+	public void initializeDeleteBos() {
+		status1 = false;
+		status2 = false;
+		identifyModel(vb.getBoc());
+
+	}
+
+	public void getSelectedRowUser() {
+		Person person = new Person();
+		person = (Person) listCurrentMember.getRowData();
+		vb.setIdUser(person.getId());
+		vb.setRedirectUser("redirectFromDetailsUserToUBC");
+	}
+
+	public void getSelectedRowBOS() {
+		try {
+			bos = new BOC();
+			bos = (BOC) listAdjoiningBOC.getRowData();
+			showUnitPanelForm = "inline";
+			showDetailsUnitForm = "none";
+			showAddUnitForm = "inline";
+			showAddBOCForm = "none";
+			showAffectationUnitForm = "none";
+			showListBOCsForm = "none";
+			showAffectationBOCForm = "none";
+			showButtonAddUnit = "none";
+			showButtonUpdateUnit = "inline";
+			typeBOC = "Secondaire";
+			copyNameUnit = bos.getNameBOC();
+			unitTitle = messageSource.getMessage("consultationBO",
+					new Object[] {}, lm.createLocal());
+			associatedBoc = boc.getAssociatedBOC().getNameBOC();
+			associatedUnit = "BOS";
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			System.out.println("ErreurDeSelection");
+		}
+
+	}
+
+	public List<SelectItem> getSelectItemsT() {
+		List<SelectItem> selectItemsT = new ArrayList<SelectItem>();
+		selectItemsT.add(new SelectItem(""));
+		if (!vb.isSonede())
+			selectItemsT.add(new SelectItem("Sous-unité"));
+		selectItemsT.add(new SelectItem("Bureau d'ordre"));
+		if (vb.isSonede())
+		selectedUnit="Bureau d'ordre";
+		return selectItemsT;
+	}
+
+	public void setStationNodes(TreeNodeImpl<String> stationNodes) {
+		this.stationNodes = stationNodes;
+	}
+
+	public TreeNodeImpl<String> getStationNodes() {
+		return stationNodes;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public void setBoc(BOC boc) {
+		this.boc = boc;
+	}
+
+	public BOC getBoc() {
+		return boc;
+	}
+
+	public void setDirection(Unit direction) {
+		this.direction = direction;
+	}
+
+	public Unit getDirection() {
+		return direction;
+	}
+
+	public void setUnitTitle(String unitTitle) {
+		this.unitTitle = unitTitle;
+	}
+
+	public String getUnitTitle() {
+		return unitTitle;
+	}
+
+	public void setAssociatedUnit(String associatedUnit) {
+		this.associatedUnit = associatedUnit;
+	}
+
+	public String getAssociatedUnit() {
+		return associatedUnit;
+	}
+
+	public void setShowbuttonValidate(String showbuttonValidate) {
+		this.showbuttonValidate = showbuttonValidate;
+	}
+
+	public String getShowbuttonValidate() {
+		return showbuttonValidate;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setListdirectionmembers(List<Person> listdirectionmembers) {
+		this.listdirectionmembers = listdirectionmembers;
+	}
+
+	public List<Person> getListdirectionmembers() {
+		return listdirectionmembers;
+	}
+
+	public void setListDirectionMember(DataModel listDirectionMember) {
+		this.listDirectionMember = listDirectionMember;
+	}
+
+	public DataModel getListDirectionMember() {
+		return listDirectionMember;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listDirectionMember != null
+				&& listDirectionMember.getWrappedData() != null)
+			records = ((List<Person>) listDirectionMember.getWrappedData())
+					.size();
+		else
+			records = 0;
+
+		return records;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsOtherUser() {
+		if (listOtherUser != null && listOtherUser.getWrappedData() != null)
+			recordsOtherUser = ((List<Person>) listOtherUser.getWrappedData())
+					.size();
+		else
+			recordsOtherUser = 0;
+
+		return recordsOtherUser;
+	}
+
+	public void setRecordsOtherUser(int recordsOtherUser) {
+		this.recordsOtherUser = recordsOtherUser;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsCurrentMember() {
+
+		if (listCurrentMember != null
+				&& listCurrentMember.getWrappedData() != null)
+			recordsCurrentMember = ((List<Person>) listCurrentMember
+					.getWrappedData()).size();
+		else
+			recordsCurrentMember = 0;
+
+		return recordsCurrentMember;
+	}
+
+	public void setRecordsCurrentMember(int recordsCurrentMember) {
+		this.recordsCurrentMember = recordsCurrentMember;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsAdjoiningBoc() {
+		if (listAdjoiningBOC != null
+				&& listAdjoiningBOC.getWrappedData() != null)
+			recordsAdjoiningBoc = ((List<BOC>) listAdjoiningBOC
+					.getWrappedData()).size();
+		else
+			recordsAdjoiningBoc = 0;
+
+		return recordsAdjoiningBoc;
+	}
+
+	public void setRecordsAdjoiningBoc(int recordsAdjoiningBoc) {
+		this.recordsAdjoiningBoc = recordsAdjoiningBoc;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setCopyNameUnit(String copyNameUnit) {
+		this.copyNameUnit = copyNameUnit;
+	}
+
+	public String getCopyNameUnit() {
+		return copyNameUnit;
+	}
+
+	public void setListCopyLdapData(List<Object> listCopyLdapData) {
+		this.listCopyLdapData = listCopyLdapData;
+	}
+
+	public List<Object> getListCopyLdapData() {
+		return listCopyLdapData;
+	}
+
+	public void setStatus4(boolean status4) {
+		this.status4 = status4;
+	}
+
+	public boolean isStatus4() {
+		return status4;
+	}
+
+	public void setStatus5(boolean status5) {
+		this.status5 = status5;
+	}
+
+	public boolean isStatus5() {
+		return status5;
+	}
+
+	public void setUnitNameLabel(String unitNameLabel) {
+		this.unitNameLabel = unitNameLabel;
+	}
+
+	public String getUnitNameLabel() {
+		return unitNameLabel;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
+	}
+
+	public String getUnitName() {
+		return unitName;
+	}
+
+	public void setUnitDescription(String unitDescription) {
+		this.unitDescription = unitDescription;
+	}
+
+	public String getUnitDescription() {
+		return unitDescription;
+	}
+
+	public void setMaxDirectionId(int maxDirectionId) {
+		this.maxDirectionId = maxDirectionId;
+	}
+
+	public int getMaxDirectionId() {
+		return maxDirectionId;
+	}
+
+	public void setMaxServiceId(int maxServiceId) {
+		this.maxServiceId = maxServiceId;
+	}
+
+	public int getMaxServiceId() {
+		return maxServiceId;
+	}
+
+	public void setListOtherUser(DataModel listOtherUser) {
+		this.listOtherUser = listOtherUser;
+	}
+
+	public DataModel getListOtherUser() {
+		return listOtherUser;
+	}
+
+	public void setListCurrentMember(DataModel listCurrentMember) {
+		this.listCurrentMember = listCurrentMember;
+	}
+
+	public DataModel getListCurrentMember() {
+		return listCurrentMember;
+	}
+
+	public void setShowButtonValidate(String showButtonValidate) {
+		this.showButtonValidate = showButtonValidate;
+	}
+
+	public String getShowButtonValidate() {
+		return showButtonValidate;
+	}
+
+	public void setStatus6(boolean status6) {
+		this.status6 = status6;
+	}
+
+	public boolean isStatus6() {
+		return status6;
+	}
+
+	public void setStatus7(boolean status7) {
+		this.status7 = status7;
+	}
+
+	public boolean isStatus7() {
+		return status7;
+	}
+
+	public void setCopyLdapListUser(List<Person> copyLdapListUser) {
+		this.copyLdapListUser = copyLdapListUser;
+	}
+
+	public List<Person> getCopyLdapListUser() {
+		return copyLdapListUser;
+	}
+
+	public void setCopyLdapListAllUser(List<Person> copyLdapListAllUser) {
+		this.copyLdapListAllUser = copyLdapListAllUser;
+	}
+
+	public List<Person> getCopyLdapListAllUser() {
+		return copyLdapListAllUser;
+	}
+
+	public void setListotherusers(List<Person> listotherusers) {
+		this.listotherusers = listotherusers;
+	}
+
+	public List<Person> getListotherusers() {
+		return listotherusers;
+	}
+
+	public void setListcurrentmembers(List<Person> listcurrentmembers) {
+		this.listcurrentmembers = listcurrentmembers;
+	}
+
+	public List<Person> getListcurrentmembers() {
+		return listcurrentmembers;
+	}
+
+	public void setTypeRole(String typeRole) {
+		this.typeRole = typeRole;
+	}
+
+	public String getTypeRole() {
+		return typeRole;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setItemDisabledDirector(String itemDisabledDirector) {
+		this.itemDisabledDirector = itemDisabledDirector;
+	}
+
+	public String getItemDisabledDirector() {
+		return itemDisabledDirector;
+	}
+
+	public void setItemDisabledSecretary(String itemDisabledSecretary) {
+		this.itemDisabledSecretary = itemDisabledSecretary;
+	}
+
+	public String getItemDisabledSecretary() {
+		return itemDisabledSecretary;
+	}
+
+	public void setPathUser(String pathUser) {
+		this.pathUser = pathUser;
+	}
+
+	public String getPathUser() {
+		return pathUser;
+	}
+
+	public void setPathUnit(String pathUnit) {
+		this.pathUnit = pathUnit;
+	}
+
+	public String getPathUnit() {
+		return pathUnit;
+	}
+
+	public void setListCheckSelectedNode(List<Object> listCheckSelectedNode) {
+		this.listCheckSelectedNode = listCheckSelectedNode;
+	}
+
+	public List<Object> getListCheckSelectedNode() {
+		return listCheckSelectedNode;
+	}
+
+	public void setListNewStructure(List<Object> listNewStructure) {
+		this.listNewStructure = listNewStructure;
+	}
+
+	public List<Object> getListNewStructure() {
+		return listNewStructure;
+	}
+
+	public void setSelectedIndex(int selectedIndex) {
+		this.selectedIndex = selectedIndex;
+	}
+
+	public int getSelectedIndex() {
+		return selectedIndex;
+	}
+
+	public void setNewDirection(Unit newDirection) {
+		this.newDirection = newDirection;
+	}
+
+	public Unit getNewDirection() {
+		return newDirection;
+	}
+
+	public void setHeightExtendableDataTable(String heightExtendableDataTable) {
+		this.heightExtendableDataTable = heightExtendableDataTable;
+	}
+
+	public String getHeightExtendableDataTable() {
+		return heightExtendableDataTable;
+	}
+
+	public void setStatus8(boolean status8) {
+		this.status8 = status8;
+	}
+
+	public boolean isStatus8() {
+		return status8;
+	}
+
+	public void setStatus9(boolean status9) {
+		this.status9 = status9;
+	}
+
+	public boolean isStatus9() {
+		return status9;
+	}
+
+	public void setNoDirector(boolean noDirector) {
+		this.noDirector = noDirector;
+	}
+
+	public boolean isNoDirector() {
+		return noDirector;
+	}
+
+	public void setNoSecretary(boolean noSecretary) {
+		this.noSecretary = noSecretary;
+	}
+
+	public boolean isNoSecretary() {
+		return noSecretary;
+	}
+
+	public boolean isStatus10() {
+		return status10;
+	}
+
+	public void setStatus10(boolean status10) {
+		this.status10 = status10;
+	}
+
+	public boolean isStatus20() {
+		return status20;
+	}
+
+	public void setStatus20(boolean status20) {
+		this.status20 = status20;
+	}
+
+	public boolean isStatus30() {
+		return status30;
+	}
+
+	public void setStatus30(boolean status30) {
+		this.status30 = status30;
+	}
+
+	public boolean isStatus40() {
+		return status40;
+	}
+
+	public void setStatus40(boolean status40) {
+		this.status40 = status40;
+	}
+
+	public boolean isStatus50() {
+		return status50;
+	}
+
+	public void setStatus50(boolean status50) {
+		this.status50 = status50;
+	}
+
+	public boolean isStatus60() {
+		return status60;
+	}
+
+	public void setStatus60(boolean status60) {
+		this.status60 = status60;
+	}
+
+	public boolean isStatus70() {
+		return status70;
+	}
+
+	public void setStatus70(boolean status70) {
+		this.status70 = status70;
+	}
+
+	public boolean isStatus80() {
+		return status80;
+	}
+
+	public void setStatus80(boolean status80) {
+		this.status80 = status80;
+	}
+
+	public boolean isStatus90() {
+		return status90;
+	}
+
+	public void setStatus90(boolean status90) {
+		this.status90 = status90;
+	}
+
+	public void setListAdjoiningBOC(DataModel listAdjoiningBOC) {
+		this.listAdjoiningBOC = listAdjoiningBOC;
+	}
+
+	public DataModel getListAdjoiningBOC() {
+		return listAdjoiningBOC;
+	}
+
+	public void setListadjoiningsbocs(List<BOC> listadjoiningsbocs) {
+		this.listadjoiningsbocs = listadjoiningsbocs;
+	}
+
+	public List<BOC> getListadjoiningsbocs() {
+		return listadjoiningsbocs;
+	}
+
+	public void setTypeBOC(String typeBOC) {
+		this.typeBOC = typeBOC;
+	}
+
+	public String getTypeBOC() {
+		return typeBOC;
+	}
+
+	public void setSelectedUnit(String selectedUnit) {
+		this.selectedUnit = selectedUnit;
+	}
+
+	public String getSelectedUnit() {
+		return selectedUnit;
+	}
+
+	public void setBos(BOC bos) {
+		this.bos = bos;
+	}
+
+	public BOC getBos() {
+		return bos;
+	}
+
+	public void setNewBoc(BOC newBoc) {
+		this.newBoc = newBoc;
+	}
+
+	public BOC getNewBoc() {
+		return newBoc;
+	}
+
+	public void setMaxBocId(int maxBocId) {
+		this.maxBocId = maxBocId;
+	}
+
+	public int getMaxBocId() {
+		return maxBocId;
+	}
+
+	public void setStatus31(boolean status31) {
+		this.status31 = status31;
+	}
+
+	public boolean isStatus31() {
+		return status31;
+	}
+
+	public void setStatus32(boolean status32) {
+		this.status32 = status32;
+	}
+
+	public boolean isStatus32() {
+		return status32;
+	}
+
+	public void setStatus33(boolean status33) {
+		this.status33 = status33;
+	}
+
+	public boolean isStatus33() {
+		return status33;
+	}
+
+	public void setStatus34(boolean status34) {
+		this.status34 = status34;
+	}
+
+	public boolean isStatus34() {
+		return status34;
+	}
+
+	public void setStatus35(boolean status35) {
+		this.status35 = status35;
+	}
+
+	public boolean isStatus35() {
+		return status35;
+	}
+
+	public void setNewSelectedIndex(int newSelectedIndex) {
+		this.newSelectedIndex = newSelectedIndex;
+	}
+
+	public int getNewSelectedIndex() {
+		return newSelectedIndex;
+	}
+
+	public void setShowUnitPanelForm(String showUnitPanelForm) {
+		this.showUnitPanelForm = showUnitPanelForm;
+	}
+
+	public String getShowUnitPanelForm() {
+		return showUnitPanelForm;
+	}
+
+	public void setShowDetailsUnitForm(String showDetailsUnitForm) {
+		this.showDetailsUnitForm = showDetailsUnitForm;
+	}
+
+	public String getShowDetailsUnitForm() {
+		return showDetailsUnitForm;
+	}
+
+	public void setUnitReference(String unitReference) {
+		this.unitReference = unitReference;
+	}
+
+	public String getUnitReference() {
+		return unitReference;
+	}
+
+	public void setShowAddUnitForm(String showAddUnitForm) {
+		this.showAddUnitForm = showAddUnitForm;
+	}
+
+	public String getShowAddUnitForm() {
+		return showAddUnitForm;
+	}
+
+	public void setShowButtonAddUnit(String showButtonAddUnit) {
+		this.showButtonAddUnit = showButtonAddUnit;
+	}
+
+	public String getShowButtonAddUnit() {
+		return showButtonAddUnit;
+	}
+
+	public void setShowButtonUpdateUnit(String showButtonUpdateUnit) {
+		this.showButtonUpdateUnit = showButtonUpdateUnit;
+	}
+
+	public String getShowButtonUpdateUnit() {
+		return showButtonUpdateUnit;
+	}
+
+	public void setShowAddBOCForm(String showAddBOCForm) {
+		this.showAddBOCForm = showAddBOCForm;
+	}
+
+	public String getShowAddBOCForm() {
+		return showAddBOCForm;
+	}
+
+	public void setShowAffectationUnitForm(String showAffectationUnitForm) {
+		this.showAffectationUnitForm = showAffectationUnitForm;
+	}
+
+	public String getShowAffectationUnitForm() {
+		return showAffectationUnitForm;
+	}
+
+	public void setShowListBOCsForm(String showListBOCsForm) {
+		this.showListBOCsForm = showListBOCsForm;
+	}
+
+	public String getShowListBOCsForm() {
+		return showListBOCsForm;
+	}
+
+	public void setShowAffectationBOCForm(String showAffectationBOCForm) {
+		this.showAffectationBOCForm = showAffectationBOCForm;
+	}
+
+	public String getShowAffectationBOCForm() {
+		return showAffectationBOCForm;
+	}
+
+	public Object getSelectedObject() {
+		return selectedObject;
+	}
+
+	public void setSelectedObject(Object selectedObject) {
+		this.selectedObject = selectedObject;
+	}
+
+	public void setClicked(boolean clicked) {
+		this.clicked = clicked;
+	}
+
+	public boolean isClicked() {
+		return clicked;
+	}
+
+	public boolean isInUpdateBo() {
+		return inUpdateBo;
+	}
+
+	public void setInUpdateBo(boolean inUpdateBo) {
+		this.inUpdateBo = inUpdateBo;
+	}
+
+	public void setCopyDirection(Unit copyDirection) {
+		this.copyDirection = copyDirection;
+	}
+
+	public Unit getCopyDirection() {
+		return copyDirection;
+	}
+
+	public void setShowDetailsMemberUnitForm(String showDetailsMemberUnitForm) {
+		this.showDetailsMemberUnitForm = showDetailsMemberUnitForm;
+	}
+
+	public String getShowDetailsMemberUnitForm() {
+		return showDetailsMemberUnitForm;
+	}
+
+	public void setShowDetailsMemberBOCForm(String showDetailsMemberBOCForm) {
+		this.showDetailsMemberBOCForm = showDetailsMemberBOCForm;
+	}
+
+	public String getShowDetailsMemberBOCForm() {
+		return showDetailsMemberBOCForm;
+	}
+
+	public void setHeightExtendableDataTableNumber(
+			int heightExtendableDataTableNumber) {
+		this.heightExtendableDataTableNumber = heightExtendableDataTableNumber;
+	}
+
+	public int getHeightExtendableDataTableNumber() {
+		return heightExtendableDataTableNumber;
+	}
+
+	public void setStationNodesPrincipal(
+			TreeNodeImpl<String> stationNodesPrincipal) {
+		this.stationNodesPrincipal = stationNodesPrincipal;
+	}
+
+	public TreeNodeImpl<String> getStationNodesPrincipal() {
+		return stationNodesPrincipal;
+	}
+
+	public void setCentralBoc(BOC centralBoc) {
+		this.centralBoc = centralBoc;
+	}
+
+	public BOC getCentralBoc() {
+		return centralBoc;
+	}
+
+	public void setShowHierarchicStructureForm(
+			String showHierarchicStructureForm) {
+		this.showHierarchicStructureForm = showHierarchicStructureForm;
+	}
+
+	public String getShowHierarchicStructureForm() {
+		return showHierarchicStructureForm;
+	}
+
+	public void setNextIndexForAddingUnit(int nextIndexForAddingUnit) {
+		this.nextIndexForAddingUnit = nextIndexForAddingUnit;
+	}
+
+	public int getNextIndexForAddingUnit() {
+		return nextIndexForAddingUnit;
+	}
+
+	public void setSelectedBoc(BOC selectedBoc) {
+		this.selectedBoc = selectedBoc;
+	}
+
+	public BOC getSelectedBoc() {
+		return selectedBoc;
+	}
+
+	public void setOperationForComponentControl(
+			String operationForComponentControl) {
+		this.operationForComponentControl = operationForComponentControl;
+	}
+
+	public String getOperationForComponentControl() {
+		return operationForComponentControl;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setUnitShortName(String unitShortName) {
+		this.unitShortName = unitShortName;
+	}
+
+	public String getUnitShortName() {
+		return unitShortName;
+	}
+
+	public void setHashtable(Hashtable<String, String> hashtable) {
+		this.hashtable = hashtable;
+	}
+
+	public Hashtable<String, String> getHashtable() {
+		return hashtable;
+	}
+
+	// AH : Pour la gestion du niveau d’organigramme et les structures parentes
+
+	public List<SelectItem> getSelectItemsUnits() {
+		return selectItemsUnits;
+	}
+
+	public String getSelectedAssociatedUnit() {
+		return selectedAssociatedUnit;
+	}
+
+	public void setSelectedAssociatedUnit(String selectedAssociatedUnit) {
+		this.selectedAssociatedUnit = selectedAssociatedUnit;
+	}
+
+	public void setSelectItemsUnits(List<SelectItem> selectItemsUnits) {
+		this.selectItemsUnits = selectItemsUnits;
+	}
+
+	public boolean isRefreshPage() {
+		return refreshPage;
+	}
+
+	public void setRefreshPage(boolean refreshPage) {
+		this.refreshPage = refreshPage;
+	}
+
+	// AH :Fin Pour la gestion du niveau d’organigramme et les structures
+	// parentes
+
+	// syncronisation des modification Unité
+	public void updateUnite(Unite unite) {
+		unitName = unite.getUniteNom();
+		unitShortName = unite.getUniteAccronyme();
+		LdapOperation ldapOperation = new LdapOperation();
+		Unit unit = ldapOperation.getUnitByIdUnit(unite.getUniteId());
+		copyNameUnit = unit.getNameUnit();
+		// Modification de l'unite d'id unite.getID
+
+		DirContext dirContext;
+		String newPathDirection;
+		String pathDirection;
+		try {
+			dirContext = new InitialDirContext(hashtable);
+			pathDirection = "cn=" + unitName + "," + CONTEXT_UNIT;
+			Attributes attributes = new BasicAttributes(true);
+			attributes.put("cn", unitName);
+
+			if (unitShortName.equals("")) {
+				attributes.put("l", " ");
+			} else {
+				attributes.put("l", unitShortName);
+			}
+
+			newPathDirection = "cn=" + unitName + "," + CONTEXT_UNIT;
+			pathDirection = "cn=" + copyNameUnit + "," + CONTEXT_UNIT;
+			dirContext.rename(pathDirection, newPathDirection);
+			dirContext.modifyAttributes(newPathDirection,
+					DirContext.REPLACE_ATTRIBUTE, attributes);
+			attributes = new BasicAttributes(true);
+			attributes.put("associatedName", pathDirection);
+			Attributes newAttributes = new BasicAttributes(true);
+			newAttributes.put("associatedName", newPathDirection);
+			NamingEnumeration e = dirContext.search(CONTEXT_UNIT, attributes);
+			while (e.hasMore()) {
+				// System.out.println("dans la boucle");
+				Binding b = (Binding) e.next();
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.ADD_ATTRIBUTE, newAttributes);
+
+			}
+			// System.out.println("sucees de modif");
+
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"modification",
+					"Evénement de log de modification de l'unité "
+							+ unite.getUniteId() + "-" + copyNameUnit,
+					vb.getPerson(), "INFO", appMgr);
+
+			dirContext.close();
+		} catch (NamingException e) {
+
+			System.out.println("Erreur lors de l'acces au serveur LDAP" + e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public void AjoutUnite(Unite unite, String UniteMere) {
+		// System.out.println("Dans save Unité LDAP");
+		List<Unite> unites = vb.getListNouvellesUnites();
+		Unit u = new Unit();
+
+		DirContext dirContext;
+		Attribute ObjectClass = new BasicAttribute("objectClass");
+		ObjectClass.add("top");
+		ObjectClass.add("applicationProcess");
+		ObjectClass.add("extensibleObject");
+
+		try {
+			dirContext = new InitialDirContext(hashtable);
+
+			// String entryDN = "cn=" + u.getUniteNom() + "," +
+			// CONTEXT_UNIT;
+			String entryDN = "cn=" + unite.getUniteNom() + "," + CONTEXT_UNIT;
+
+			BasicAttributes entry = new BasicAttributes();
+			entry.put(ObjectClass);
+			entry.put("cn", unite.getUniteNom());
+
+			if (unite.getUniteAccronyme() != null
+					&& unite.getUniteAccronyme().length() > 0)
+				entry.put("l", unite.getUniteAccronyme());
+			else {
+				entry.put("l", unite.getUniteCodeSonede());
+			}
+			entry.put("departmentNumber", String.valueOf(unite.getUniteId()));
+
+			entry.put("associatedName", "cn=" + UniteMere + "," + CONTEXT_UNIT);
+			entry.put("description", " ");
+
+			dirContext.createSubcontext(entryDN, entry);
+
+			dirContext.close();
+
+			// newDirection.setAssociatedUnit(copyDirection);
+
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout", "Evénement de log d'ajout de l'unité "
+					+ unite.getUniteId() + "-" + unite.getUniteNom(),
+					vb.getPerson(), "INFO", appMgr);
+			// System.out.println("direction ajouté avec succés");
+			u.setIdUnit(unite.getUniteId());
+			u.setNameUnit(unite.getUniteNom());
+			u.setShortNameUnit(unite.getUniteAccronyme());
+			vb.getCopyLdapListUnit().add(u);
+		} catch (NamingException e) {
+
+			e.printStackTrace();
+		}
+
+	}
+
+	public void AjoutUniteSousBOS(Unite unite, String UniteMere) {
+		System.out.println("Dans save Unité LDAP sous BOS");
+		// List<Unite> unites = vb.getListNouvellesUnites();
+		Unit u = new Unit();
+		DirContext dirContext;
+		Attribute ObjectClass = new BasicAttribute("objectClass");
+		ObjectClass.add("top");
+		ObjectClass.add("applicationProcess");
+		ObjectClass.add("extensibleObject");
+
+		try {
+			dirContext = new InitialDirContext(hashtable);
+
+			// String entryDN = "cn=" + u.getUniteNom() + "," +
+			// CONTEXT_UNIT;
+			String entryDN = "cn=" + unite.getUniteNom() + "," + CONTEXT_UNIT;
+
+			BasicAttributes entry = new BasicAttributes();
+			entry.put(ObjectClass);
+			entry.put("cn", unite.getUniteNom());
+			if (unite.getUniteAccronyme() != null
+					&& unite.getUniteAccronyme().length() > 0)
+				entry.put("l", unite.getUniteAccronyme());
+			else {
+				entry.put("l", unite.getUniteCodeSonede());
+			}
+			entry.put("departmentNumber", String.valueOf(unite.getUniteId()));
+
+			if (UniteMere.equals("Bureau d'Ordre Central")) {
+				entry.put("associatedName", "cn=" + UniteMere + ","
+						+ CONTEXT_BOC);
+			} else {
+				entry.put("associatedName", "cn=" + UniteMere
+						+ ",cn=Bureau d'Ordre Central," + CONTEXT_BOC);
+			}
+
+			entry.put("description", " ");
+
+			dirContext.createSubcontext(entryDN, entry);
+
+			dirContext.close();
+
+			// newDirection.setAssociatedUnit(copyDirection);
+
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout", "Evénement de log d'ajout de l'unité "
+					+ unite.getUniteId() + "-" + unite.getUniteNom(),
+					vb.getPerson(), "INFO", appMgr);
+			// System.out.println("direction ajouté avec succés");
+			u.setIdUnit(unite.getUniteId());
+			u.setNameUnit(unite.getUniteNom());
+			u.setShortNameUnit(unite.getUniteAccronyme());
+			vb.getCopyLdapListUnit().add(u);
+		} catch (NamingException e) {
+
+			System.out.println("Add Groupe:error adding entry," + e);
+			e.printStackTrace();
+		}
+
+	}
+
+	public List<String> getListNomUniteAEliminer() {
+		return listNomUniteAEliminer;
+	}
+
+	public void setListNomUniteAEliminer(List<String> listNomUniteAEliminer) {
+		this.listNomUniteAEliminer = listNomUniteAEliminer;
+	}
+
+	public boolean isAffichageListeRattachement() {
+		return affichageListeRattachement;
+	}
+
+	public void setAffichageListeRattachement(boolean affichageListeRattachement) {
+		this.affichageListeRattachement = affichageListeRattachement;
+	}
+
+	public String getAssociatedBoc() {
+		return associatedBoc;
+	}
+
+	public void setAssociatedBoc(String associatedBoc) {
+		this.associatedBoc = associatedBoc;
+	}
+
+	public boolean isAffichageRattachement() {
+		return affichageRattachement;
+	}
+
+	public void setAffichageRattachement(boolean affichageRattachement) {
+		this.affichageRattachement = affichageRattachement;
+	}
+
+	public String getSelectedAssociatedUnitrattachement() {
+		return selectedAssociatedUnitrattachement;
+	}
+
+	public void setSelectedAssociatedUnitrattachement(
+			String selectedAssociatedUnitrattachement) {
+		this.selectedAssociatedUnitrattachement = selectedAssociatedUnitrattachement;
+	}
+
+	public boolean isShowModif() {
+		return showModif;
+	}
+
+	public void setShowModif(boolean showModif) {
+		this.showModif = showModif;
+	}
+
+	public void updateEmplacementUnite(Unit uniteLDAPAModifier,
+			String selectedBocDirecte, String selectedBocDirecteCopy) {
+
+		try {
+			DirContext dirContext;
+
+			Attributes attributes = new BasicAttributes(true);
+
+			attributes.put("cn", uniteLDAPAModifier.getNameUnit());
+			if (uniteLDAPAModifier.getDescriptionUnit().toString().equals("")) {
+				attributes.put("description", " ");
+			} else {
+				attributes.put("description",
+						uniteLDAPAModifier.getDescriptionUnit());
+			}
+			dirContext = new InitialDirContext(hashtable);
+
+			String newPathDirection = "";
+			if (!selectedBocDirecte.equals("Bureau d'Ordre Central")) {
+				newPathDirection = "cn=" + selectedBocDirecte
+						+ ",cn=Bureau d'Ordre Central," + CONTEXT_BOC;
+			} else {
+				newPathDirection = "cn=" + selectedBocDirecte + ","
+						+ CONTEXT_BOC;
+			}
+
+			String pathDirection = "";
+			if (selectedBocDirecteCopy != null
+					&& selectedBocDirecteCopy.equals(""))
+				pathDirection = "cn="
+						+ uniteLDAPAModifier.getAssociatedUnit().getNameUnit()
+								.trim() + "," + CONTEXT_UNIT;
+			if (selectedBocDirecteCopy != null
+					&& !selectedBocDirecteCopy.equals(""))
+				pathDirection = "cn="
+						+ uniteLDAPAModifier.getAssociatedBOC().getNameBOC()
+						+ ",cn=Bureau d'Ordre Central," + CONTEXT_BOC;
+
+			// dirContext.rename(pathDirection, newPathDirection);
+			// dirContext.modifyAttributes(pathDirection,q
+			// DirContext.REMOVE_ATTRIBUTE, attributes);
+			// dirContext.modifyAttributes(newPathDirection,
+			// DirContext.ADD_ATTRIBUTE, attributes);
+
+			attributes = new BasicAttributes(true);
+			attributes.put("associatedName", pathDirection);
+			Attributes newAttributes = new BasicAttributes(true);
+			newAttributes.put("associatedName", newPathDirection);
+			NamingEnumeration e = dirContext.search(CONTEXT_UNIT, attributes);
+			while (e.hasMore()) {
+				// System.out.println("dans la boucle");
+				Binding b = (Binding) e.next();
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.ADD_ATTRIBUTE, newAttributes);
+
+			}
+			NamingEnumeration e2 = dirContext.search(CONTEXT_BOC, attributes);
+			while (e2.hasMore()) {
+				// System.out.println("dans la boucle2");
+				Binding b = (Binding) e2.next();
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.ADD_ATTRIBUTE, newAttributes);
+
+			}
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	public void updateEmplacementUniteSousUnite(Unit uniteLDAPAModifier,
+			String selectedDirecte, String selectedBocDirecteCopy) {
+
+		try {
+			DirContext dirContext;
+
+			Attributes attributes = new BasicAttributes(true);
+
+			attributes.put("cn", uniteLDAPAModifier.getNameUnit());
+			if (uniteLDAPAModifier.getDescriptionUnit().toString().equals("")) {
+				attributes.put("description", " ");
+			} else {
+				attributes.put("description",
+						uniteLDAPAModifier.getDescriptionUnit());
+			}
+			dirContext = new InitialDirContext(hashtable);
+
+			String newPathDirection = "cn=" + selectedDirecte + ","
+					+ CONTEXT_UNIT;
+			// System.out.println("newPathDirection :: "+newPathDirection);
+			String pathDirection = "";
+			if (selectedBocDirecteCopy != null
+					&& selectedBocDirecteCopy.equals("")) {
+				pathDirection = "cn="
+						+ uniteLDAPAModifier.getAssociatedUnit().getNameUnit()
+								.trim() + "," + CONTEXT_UNIT;
+			}
+			if (selectedBocDirecteCopy != null
+					&& !selectedBocDirecteCopy.equals("")) {
+				pathDirection = "cn="
+						+ uniteLDAPAModifier.getAssociatedBOC().getNameBOC()
+						+ ",cn=Bureau d'Ordre Central," + CONTEXT_BOC;
+			}
+
+			attributes = new BasicAttributes(true);
+			attributes.put("associatedName", pathDirection);
+			Attributes newAttributes = new BasicAttributes(true);
+			newAttributes.put("associatedName", newPathDirection);
+			NamingEnumeration e = dirContext.search(CONTEXT_UNIT, attributes);
+			while (e.hasMore()) {
+				// System.out.println("dans la boucle");
+				Binding b = (Binding) e.next();
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.ADD_ATTRIBUTE, newAttributes);
+
+			}
+			NamingEnumeration e2 = dirContext.search(CONTEXT_BOC, attributes);
+			while (e2.hasMore()) {
+				// System.out.println("dans la boucle2");
+				Binding b = (Binding) e2.next();
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.REMOVE_ATTRIBUTE, attributes);
+				dirContext.modifyAttributes(b.getNameInNamespace(),
+						DirContext.ADD_ATTRIBUTE, newAttributes);
+
+			}
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+}

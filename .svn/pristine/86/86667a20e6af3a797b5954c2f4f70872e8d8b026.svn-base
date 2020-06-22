@@ -1,0 +1,112 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportMailBean;
+import xtensus.entity.FaxMail;
+import xtensus.entity.Mail;
+import xtensus.entity.Variables;
+import xtensus.faxmail.beans.MailBean;
+import xtensus.faxmail.utils.MailConnection;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportMailDetails {
+	private ApplicationManager appMgr;
+	private Export export;
+	
+	private Mail mail;
+	
+
+	@Autowired
+	private VariableGlobale vb;
+	
+	@Autowired
+	public RapportMailDetails(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export= export;
+	}
+	
+	public void printMailPDF(){
+		try {
+			mail = vb.getMail();	
+		
+		// Ines
+		//MailConnection mailConnection = new MailConnection();
+		//List<MailBean> listMailBean = mailConnection.getAllMails();
+		
+		//MailBean mailBean = listMailBean.get(0);
+		RapportMailBean rapportMailBean = new RapportMailBean();
+		List<RapportMailBean> listRapportMailBean = new ArrayList<RapportMailBean>();
+		rapportMailBean.setIdMail(mail.getMailId());
+		rapportMailBean.setSubject(mail.getMailSubject());
+		rapportMailBean.setReplyTo(mail.getMailReplyTo());
+		rapportMailBean.setReceivedDate(mail.getMailReceivedDate());
+		rapportMailBean.setFromAddress(mail.getMailFromAddress());
+		rapportMailBean.setToAddress(mail.getMailToAddress());
+		//rapportMailBean.setAttachmentFileList(mailBean.getAttachmentFileList());
+		rapportMailBean.setContent(mail.getMailContent());
+		//societe
+		String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+		.get(0).getSocieteLibelle();
+		rapportMailBean.setSocieteNom(societeNom);
+        String societeOrganismeParent = appMgr
+		.listSocieteByLibelle("Ministere_Nom").get(0)
+		.getSocieteLibelle();
+        rapportMailBean.setSocieteOrganismeParent(societeOrganismeParent);
+        String societeRepublique = appMgr
+		.listSocieteByLibelle("Republique_Nom").get(0)
+		.getSocieteLibelle();
+        rapportMailBean.setSocieteRepublique(societeRepublique);
+        String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+		.get(0).getSocieteLibelle();
+        rapportMailBean.setSocieteVille(societeVille);
+		
+        //rapportMailBean.setPathJasper(vb.getPathJasper());
+		String nomProjet = appMgr.getList(Variables.class).get(0)
+				.getVariablesContenu();
+		rapportMailBean.setNomProjet(nomProjet);
+		
+		listRapportMailBean.add(rapportMailBean);
+		
+		
+		
+		
+		
+		
+	
+		
+		// appel a export
+		export.exportToPDF(listRapportMailBean, "MailFIche",
+		"Fiche_Mail");
+		// Ines
+		
+		
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	
+	
+
+}

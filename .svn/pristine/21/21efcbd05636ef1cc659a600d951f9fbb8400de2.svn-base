@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FichePersonneMorale_ListePersonne" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="ca64ac04-379e-424c-b91d-e4991119ac76">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="expediteur" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expediteur]]></fieldDescription>
+	</field>
+	<field name="expediteur2" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[expediteur2]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="numero" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numero]]></fieldDescription>
+	</field>
+	<field name="path" class="java.lang.String">
+		<fieldDescription><![CDATA[path]]></fieldDescription>
+	</field>
+	<field name="pp" class="xtensus.entity.Pp">
+		<fieldDescription><![CDATA[pp]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="81" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="1fb89e27-01cd-4168-9da2-26e355fa921f" x="10" y="0" width="525" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Liste Personnel]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="323" y="35" width="95" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Numéro cellulaire :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" stretchType="RelativeToBandHeight" x="351" y="50" width="184" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur2}.getExpDestExterneFax()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="24" y="35" width="17" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ID :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="323" y="50" width="28" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fax :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="d804b5b6-75c2-4e81-941f-552db6006e2f" stretchType="RelativeToBandHeight" x="10" y="15" width="525" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero}+") " + $F{expediteur2}.getExpDestExterneNom()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" stretchType="RelativeToBandHeight" x="360" y="65" width="173" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur2}.getExpDestExterneMail()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="24" y="50" width="24" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CIN :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" stretchType="RelativeToBandHeight" x="119" y="65" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur2}.getExpDestExterneTelephone()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="24c21e04-9855-44cf-abed-253f2de0b69e" x="24" y="65" width="95" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Numéro téléphone : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b76aa692-88a7-46bc-b12d-a16b482ed1b0" x="323" y="65" width="37" height="15"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[E-mail : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" stretchType="RelativeToBandHeight" x="41" y="35" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expediteur2}.getIdExpDestExterne()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" stretchType="RelativeToBandHeight" x="51" y="50" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pp}.getCin()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="44d22eff-74e2-4061-8ebb-5697871d300e" stretchType="RelativeToBandHeight" x="418" y="35" width="100" height="15"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pp}.getPpnumPortable()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+</jasperReport>

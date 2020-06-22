@@ -1,0 +1,198 @@
+package xtensus.faxmail.utils;
+
+import gnu.hylafax.HylaFAXClient;
+import gnu.hylafax.HylaFAXClientProtocol;
+import gnu.hylafax.Job;
+import gnu.hylafax.Pagesize;
+import gnu.inet.ftp.FtpClientProtocol;
+import gnu.inet.ftp.ServerResponseException;
+import java.awt.Dimension;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.Vector;
+
+/**
+ * 
+ * @author HB , Xtensus Tunisie
+ * 
+ */
+public class FaxEnvoi {
+
+	public void faxEnvoi() throws Exception, IOException, IOException,
+			ServerResponseException {
+
+		HylaFAXClient client = new HylaFAXClient();
+		/*
+		 * The job
+		 */
+		Job job;
+		/*
+		 * Time when the fax should be sent. Possible values: now or date in
+		 * format YYYYMMDDHHMM. It looks like this value must be in GMT time
+		 * zone. Defaults to now. [OPTIONAL]
+		 */
+		// String sendTime;
+		/*
+		 * Destination string (number) to dial. [REQUIRED]
+		 */
+		String destination = "71960336";
+		/*
+		 * Full pathname of the main (document) file. Document file must be in
+		 * one of the native HylaFAX formats, i.e. Plain Text, PostScript, TIFF
+		 * Class F, or PDF. [REQUIRED unless you use poll option]
+		 */
+		String filename = "C:\\Users\\Administrator\\Desktop\\M004_L015_avance005.pdf";
+		/***
+		 * Recuperation Parametere Connexion
+		 */
+		Properties prop = new Properties();
+		prop.load(new FileInputStream(
+				"C:\\WorkspaceSIGA\\GBO_v1.g\\resources\\mailfax.properties"));
+		/*
+		 * Username of the client. Defaults to anonymous. [MAY BE REQUIRED]
+		 */
+		String user = prop.getProperty("faxuser");
+		/*
+		 * Password of the client. Defaults to anonymous. [MAY BE REQUIRED]
+		 */
+		String password = prop.getProperty("faxpassword");
+		/*
+		 * Hostname of the server. Defaults to localhost. [OPTIONAL]
+		 */
+		String host = prop.getProperty("faxhost");
+		/*
+		 * Connection port of the server. Defaults to 4559. [OPTIONAL]
+		 */
+		int port = Integer.parseInt(prop.getProperty("faxport"));
+		/**/
+		String from = prop.getProperty("faxuser");
+		/*
+		 * Controls the email notification messages from the server. Possible
+		 * values: => "none" - notify if error only, => "done" - notify when
+		 * done, requeue - notify if job is re-queued, done+requeue. Defaults to
+		 * none. [OPTIONAL]
+		 */
+		String notify = "done";
+		/*
+		 * E-mail address of the person to be notified about the status of the
+		 * job. Defaults to user@hostname. [OPTIONAL]
+		 */
+		String notifyaddr = prop.getProperty("mailuser");
+		/**
+		 * */
+		int resolution = 196;
+		// Hashtable pageSizes = Job.pagesizes;
+		Dimension pagesize = Pagesize.a4;
+		/*
+		 * Kill the job if not successfully sent after this much time. Format
+		 * DDHHSS. Defaults to 000259 (3 hours). [OPTIONAL]
+		 */
+		String killtime = "000259";
+		/*
+		 * The maximum number of times to dial the phone. Defaults to 12.
+		 * [OPTIONAL]
+		 */
+		int maxdials = 12;
+		/*
+		 * The maximum number of times to retry sending a job once connection is
+		 * established. Defaults to 3. [OPTIONAL]
+		 */
+		int maxtries = 3;
+		/*
+		 * The scheduling priority to assign to the job. Defaults to 127
+		 * (Normal). [OPTIONAL]
+		 */
+		int priority = 127;
+		/*
+		 * The amount of white space, in inches, that must be present at the
+		 * bottom of a page before HylaFAX will attempt to truncate the page
+		 * transmission. Defaults to 3. [OPTIONAL]
+		 */
+		int chopthreshold = 3;
+		/*
+		 * Open the host
+		 */
+		client.open(host, port);
+		client.user(from);
+		client.pass(password);
+		client.mode(FtpClientProtocol.MODE_ZLIB);
+		client.type(FtpClientProtocol.TYPE_IMAGE);
+		// for the heck of it
+		client.noop();
+		client.tzone(HylaFAXClientProtocol.TZONE_LOCAL);
+		/*
+		 * schlep file up to server
+		 */
+		FileInputStream file = new FileInputStream(filename);
+		String remote_filename = client.putTemporary(file);
+		Vector<String> documents = new Vector<String>();
+		documents.addElement(remote_filename);
+		/*
+		 * Start a new job.
+		 */
+		job = client.createJob();
+		/*
+		 * Set job properties.
+		 */
+		job.setFromUser(user);
+		job.setNotifyAddress(notifyaddr);
+		job.setKilltime(killtime);
+		job.setMaximumDials(maxdials);
+		job.setMaximumTries(maxtries);
+		job.setPriority(priority);
+		job.setDialstring(destination);
+		job.setVerticalResolution(resolution);
+		job.setPageDimension(pagesize);
+		job.setNotifyType(notify);
+		job.setChopThreshold(chopthreshold);
+		/*
+		 * Add documents to the job.
+		 */
+		for (int i = 0; i < documents.size(); i++) {
+			String document = (String) documents.elementAt(i);
+			job.addDocument(document);
+		}
+		try {
+			/*
+			 * submit the job to the scheduler
+			 */
+			client.submit(job);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+		client.quit();
+
+	}
+
+	public Job getJob(long faxid, HylaFAXClient c)
+			throws ServerResponseException, IOException {
+		return (Job) c.getJob(faxid);
+	}
+
+	public String getStatus(Job job) {
+		try {
+			return job.getJobInfo();
+		} catch (Exception e) {
+		}
+		return "not available";
+	}
+
+	public String getSendtime(Job j) {
+		String sendTime;
+		try {
+			sendTime = j.getRetrytime();
+		} catch (Exception e) {
+			sendTime = "0";
+		}
+		if (sendTime.equals("0")) {
+			return "now";
+		} else {
+			return sendTime.substring(4, 6) + "-" + sendTime.substring(6, 8)
+					+ "-" + sendTime.substring(0, 4) + " "
+					+ sendTime.substring(8, 10) + ":"
+					+ sendTime.substring(10, 12);
+		}
+	}
+}

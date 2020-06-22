@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoi_Urgences" language="groovy" columnCount="4" printOrder="Horizontal" columnDirection="RTL" pageWidth="555" pageHeight="802" columnWidth="138" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="852385d0-5564-4471-956b-dda214666022">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="urgenceLibelleAr" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="642c7659-d741-476b-9f47-4eb99b6f6a57" stretchType="RelativeToBandHeight" x="36" y="0" width="100" height="15"/>
+				<box topPadding="2" rightPadding="3"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{urgenceLibelleAr}]]></textFieldExpression>
+			</textField>
+			<ellipse>
+				<reportElement uuid="a2d8247c-39c4-4b9d-81e3-bb5f1079501b" x="136" y="6" width="5" height="5"/>
+			</ellipse>
+		</band>
+	</detail>
+</jasperReport>

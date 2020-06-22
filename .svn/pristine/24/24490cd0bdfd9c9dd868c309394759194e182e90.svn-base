@@ -1,0 +1,474 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.ajax4jsf.model.SequenceRange;
+import org.ajax4jsf.model.SerializableDataModel;
+import org.richfaces.model.FilterField;
+import org.richfaces.model.Modifiable;
+import org.richfaces.model.SortField2;
+
+import xtensus.beans.utils.CourrierInformations;
+
+public class CourrierAncienDataModel extends SerializableDataModel implements Modifiable {
+
+	private static final long serialVersionUID = 3418296524646654825L;
+	private Integer currentPk;
+	private Map<Integer, CourrierInformations> wrappedData = new HashMap<Integer, CourrierInformations>();
+	private List<Integer> wrappedKeys = null;
+	private Integer rowCount; // better to buffer row count locally
+	private Integer rowIndex;
+	private Integer oldFirstRow = 3;
+	private SequenceRange firstRange;
+	private Integer firstPage;
+
+	// Beans
+	private CourrierConsultationAncienBean courrierAncienConsultation;
+
+	// Filtre recherche
+	private String typeCourrierValidation;
+	private Boolean checkedTypeCourrierValidation;
+	private String transmissionCourrier;
+	private String typeCourrierTraitement;
+	private String categorieCourrier;
+	private String typeCourrier;
+	private String courrierRubrique;
+	private Integer totalCount;
+	private boolean moreChoices;
+	private boolean showExecuteAllButton;
+	private boolean hideExecuteAllButtonJour;
+	private boolean hideExecuteAllButton;
+
+	// For filter and Sort
+	private String sortField;
+	private boolean descending;
+	private HashMap<String, Object> filterMap = new HashMap<String, Object>();
+
+	// for calling walk Restrictions
+	private boolean walkVisited;
+	private boolean countVisited;
+	private boolean scrollerWalkVisit;
+
+	@PostConstruct
+	public void init() {
+		typeCourrierValidation = "";
+		transmissionCourrier = "Tout les courriers";
+		typeCourrierTraitement = "tous";
+		categorieCourrier = "T";
+		typeCourrier = "Tous";
+		courrierRubrique = "6";
+		moreChoices = false;
+		showExecuteAllButton = false;
+		hideExecuteAllButtonJour = true;
+		hideExecuteAllButton = true;
+		checkedTypeCourrierValidation = false;
+		firstPage = 1;
+	}
+
+	/**
+	 * This method never called from framework. (non-Javadoc)
+	 * 
+	 * @see org.ajax4jsf.model.ExtendedDataModel#getRowKey()
+	 */
+	@Override
+	public Object getRowKey() {
+		return currentPk;
+	}
+
+	/**
+	 * This method normally called by Visitor before request Data Row.
+	 */
+	@Override
+	public void setRowKey(Object key) {
+		this.currentPk = (Integer) key;
+	}
+
+	/**
+	 * This is main part of Visitor pattern. Method called by framework many
+	 * times during request processing.
+	 */
+	@Override
+	public void walk(FacesContext context, DataVisitor visitor, Range range,
+			Object argument) throws IOException {
+		int firstRow = 0;
+		int numberOfRows = 0;
+		if (firstRange == null) {
+			firstRange = (SequenceRange) range;
+		}
+		if (scrollerWalkVisit) {
+			firstRow = firstRange.getFirstRow();
+			numberOfRows = firstRange.getRows();
+			range = firstRange;
+			firstPage = 1;
+		} else {
+			if (courrierAncienConsultation.getVb().isOldPage() && courrierAncienConsultation.getVb().getFirstPageAncien() != null) {
+				firstPage = courrierAncienConsultation.getVb().getFirstPageAncien();
+				numberOfRows = courrierAncienConsultation.getVb().getNumberOfRows();
+				firstRow = (firstPage - 1) * numberOfRows;
+			} else {
+				firstRow = ((SequenceRange) range).getFirstRow();
+				numberOfRows = ((SequenceRange) range).getRows();
+			}
+		}
+		if(courrierAncienConsultation.getVb().getSelectedListCourrier().equals("CRancien")){
+			if (walkVisited == false || firstRow != oldFirstRow) {
+				System.out.println("IN ANCIEN WALK true");
+				courrierAncienConsultation.getVb().setNumberOfRows(numberOfRows);
+				courrierAncienConsultation.getVb().setFilterMap(filterMap);
+				courrierAncienConsultation.getVb().setSortField(sortField);
+				courrierAncienConsultation.getVb().setDescending(descending);
+				courrierAncienConsultation.getVb().setFirstPageAncien(firstPage);
+				walkVisited = true;
+				try {
+					oldFirstRow = firstRow;
+					if (checkedTypeCourrierValidation) {
+						typeCourrierValidation = "Avalider";
+					} else {
+						typeCourrierValidation = "";
+					}
+					wrappedKeys = new ArrayList<Integer>();
+					wrappedData = new HashMap<Integer, CourrierInformations>();
+					for (CourrierInformations item : courrierAncienConsultation
+							.searchListCourrier(filterMap, sortField, descending,
+									typeCourrier, categorieCourrier,
+									transmissionCourrier, typeCourrierTraitement,
+									typeCourrierValidation, firstRow, numberOfRows,
+									false, courrierRubrique)) {
+						wrappedKeys.add(item.getTransactionID());
+						wrappedData.put(item.getTransactionID(), item);
+						visitor.process(context, item.getTransactionID(), argument);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	// for filter and Sort
+	@Override
+	public void modify(List<FilterField> filterFields, List<SortField2> sortFields) {
+		if (courrierAncienConsultation.getVb().getSelectedListCourrier().equals("CRancien")) {
+			filterMap.clear();
+			walkVisited = false;
+		}
+	}
+//		SortField2 sortField2 = null;
+//		ExtendedFilterField extendedFilterField = null;
+//		String value = null;
+//		Expression expression = null;
+//		String expressionStr = null;
+//		if (sortFields != null && !sortFields.isEmpty()) {
+//			sortField2 = sortFields.get(0);
+//			int index = sortField2.getExpression().getExpressionString()
+//					.lastIndexOf(".");
+//			this.sortField = sortField2.getExpression().getExpressionString()
+//					.substring(index).replace("}", "").replace(".", "");
+//			if (sortField2.getOrdering() == Ordering.DESCENDING) {
+//				this.descending = true;
+//			} else {
+//				this.descending = false;
+//			}
+//
+//		}
+
+		// for (FilterField filterField : filterFields) {
+		// extendedFilterField = (ExtendedFilterField) filterField;
+		// System.out.println("VALUE : "
+		// + extendedFilterField.getFilterValue());
+		// System.out
+		// .println("EXPRESSION : "
+		// + extendedFilterField.getExpression()
+		// .getExpressionString());
+		// if (filterField instanceof ExtendedFilterField) {
+		// extendedFilterField = (ExtendedFilterField) filterField;
+		// value = extendedFilterField.getFilterValue();
+		// if (value != null) {
+		// expression = extendedFilterField.getExpression();
+		// expressionStr = expression.getExpressionString();
+		// int index = expressionStr.lastIndexOf(".");
+		// if (!expression.isLiteralText()) {
+		// expressionStr = expressionStr.substring(index)
+		// .replace("}", "").replace(".", "");
+		// }
+		// filterMap.put(expressionStr, value);
+		// }
+		// }
+		//
+		// }
+//	}
+
+	/**
+	 * This method must return actual data rows count from the Data Provider. It
+	 * is used by pagination control to determine total number of data items.
+	 */
+
+	@Override
+	public int getRowCount() {
+		if(courrierAncienConsultation.getVb().getSelectedListCourrier().equals("CRancien")){
+			long startTime = System.currentTimeMillis();
+			if (rowCount == null || countVisited == false) {
+				try {
+					countVisited = true;
+		//			if (rowCount == null) {
+						if (checkedTypeCourrierValidation) {
+							typeCourrierValidation = "Avalider";
+						} else {
+							typeCourrierValidation = "";
+						}
+						rowCount = courrierAncienConsultation.getCountCourrier(filterMap,
+								transmissionCourrier, typeCourrierTraitement, typeCourrier,
+								typeCourrierValidation, categorieCourrier, courrierRubrique, false)
+								.intValue();
+		//				System.out.println("rowcount--ANCIEN--- : " + rowCount);
+		//			}
+					System.out.println("list courrier ancien dure COUNT : " + (System.currentTimeMillis() - startTime));
+					return rowCount;
+				} catch (Exception e) {
+					e.printStackTrace();
+					return 0;
+				}
+			} else {
+				return rowCount;
+			}
+		}
+		return 0;
+	}
+
+	@Override
+	public CourrierInformations getRowData() {
+		if (currentPk == null) {
+			return null;
+		} else {
+			CourrierInformations ret = wrappedData.get(currentPk);
+			if (ret == null) {
+				wrappedData.put(currentPk, ret);
+				return ret;
+			} else {
+				return ret;
+			}
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public int getRowIndex() {
+		if (rowIndex == null) {
+			return 0;
+		}
+		return rowIndex;
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public Object getWrappedData() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Never called by framework.
+	 */
+	@Override
+	public boolean isRowAvailable() {
+		if (currentPk == null) {
+			return false;
+		} else {
+			// return getDataProvider().hasAuctionItemByPk(currentPk);
+			return true;
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setRowIndex(int rowIndex) {
+		this.rowIndex = rowIndex;
+		// throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setWrappedData(Object data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * This method suppose to produce SerializableDataModel that will be
+	 * serialized into View State and used on a post-back. In current
+	 * implementation we just mark current model as serialized. In more
+	 * complicated cases we may need to transform data to actually serialized
+	 * form.
+	 */
+	public SerializableDataModel getSerializableModel(Range range) {
+		if (wrappedKeys != null) {
+			return this;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * This is helper method that is called by framework after model update. In
+	 * must delegate actual database update to Data Provider.
+	 */
+	@Override
+	public void update() {
+		System.out.println("UPDATE CALL , SO change my Implementation");
+	}
+
+	public void permitionWalkVisit(ActionEvent evt) {
+		walkVisited = false;
+		countVisited = false;
+		scrollerWalkVisit = true;
+		courrierAncienConsultation.getVb().setOldPage(false);
+	}
+
+	public void permitionWalkScroller(ActionEvent evt) {
+        scrollerWalkVisit = false;
+		courrierAncienConsultation.getVb().setOldPage(false);
+	}
+
+	// Getters & Setters ...
+	public CourrierConsultationAncienBean getCourrierAncienConsultation() {
+		return courrierAncienConsultation;
+	}
+
+	public void setCourrierAncienConsultation(
+			CourrierConsultationAncienBean courrierAncienConsultation) {
+		this.courrierAncienConsultation = courrierAncienConsultation;
+	}
+
+	public String getTypeCourrierValidation() {
+		return typeCourrierValidation;
+	}
+
+	public void setTypeCourrierValidation(String typeCourrierValidation) {
+		this.typeCourrierValidation = typeCourrierValidation;
+	}
+
+	public String getTransmissionCourrier() {
+		return transmissionCourrier;
+	}
+
+	public void setTransmissionCourrier(String transmissionCourrier) {
+		this.transmissionCourrier = transmissionCourrier;
+	}
+
+	public String getTypeCourrierTraitement() {
+		return typeCourrierTraitement;
+	}
+
+	public void setTypeCourrierTraitement(String typeCourrierTraitement) {
+		this.typeCourrierTraitement = typeCourrierTraitement;
+	}
+
+	public String getCategorieCourrier() {
+		return categorieCourrier;
+	}
+
+	public void setCategorieCourrier(String categorieCourrier) {
+		this.categorieCourrier = categorieCourrier;
+	}
+
+	public String getTypeCourrier() {
+		return typeCourrier;
+	}
+
+	public void setTypeCourrier(String typeCourrier) {
+		this.typeCourrier = typeCourrier;
+	}
+
+	public boolean isMoreChoices() {
+		return moreChoices;
+	}
+
+	public void setMoreChoices(boolean moreChoices) {
+		this.moreChoices = moreChoices;
+	}
+
+	public boolean isShowExecuteAllButton() {
+		return showExecuteAllButton;
+	}
+
+	public void setShowExecuteAllButton(boolean showExecuteAllButton) {
+		this.showExecuteAllButton = showExecuteAllButton;
+	}
+
+	public boolean isHideExecuteAllButtonJour() {
+		return hideExecuteAllButtonJour;
+	}
+
+	public void setHideExecuteAllButtonJour(boolean hideExecuteAllButtonJour) {
+		this.hideExecuteAllButtonJour = hideExecuteAllButtonJour;
+	}
+
+	public boolean isHideExecuteAllButton() {
+		return hideExecuteAllButton;
+	}
+
+	public void setHideExecuteAllButton(boolean hideExecuteAllButton) {
+		this.hideExecuteAllButton = hideExecuteAllButton;
+	}
+
+	public Boolean getCheckedTypeCourrierValidation() {
+		return checkedTypeCourrierValidation;
+	}
+
+	public void setCheckedTypeCourrierValidation(
+			Boolean checkedTypeCourrierValidation) {
+		this.checkedTypeCourrierValidation = checkedTypeCourrierValidation;
+	}
+
+	public String getCourrierRubrique() {
+		return courrierRubrique;
+	}
+
+	public void setCourrierRubrique(String courrierRubrique) {
+		this.courrierRubrique = courrierRubrique;
+	}
+
+	public Integer getTotalCount() {
+		long startTime = System.currentTimeMillis();
+		if (totalCount == null) {
+			if (rowCount != null) {
+				totalCount = rowCount;
+			} else {
+				totalCount = courrierAncienConsultation.getCountCourrier(filterMap,
+						transmissionCourrier, typeCourrierTraitement, typeCourrier,
+						typeCourrierValidation, categorieCourrier, courrierRubrique, false).intValue();
+				System.out.println("list courrier ancien dure TOTAL : " + (System.currentTimeMillis() - startTime));
+			}
+		}
+		return totalCount;
+	}
+
+	public void setTotalCount(Integer totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	public Integer getFirstPage() {
+//		System.out.println("{{{{firstpage####" + firstPage);
+		return firstPage;
+	}
+
+	public void setFirstPage(Integer firstPage) {
+		this.firstPage = firstPage;
+	}
+}

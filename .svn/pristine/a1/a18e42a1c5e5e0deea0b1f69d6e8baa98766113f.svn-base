@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourriersListes_subreportRechercheMultCol2_subreportAnnotation" pageWidth="168" pageHeight="802" columnWidth="168" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="08c49371-8fbd-4a4c-a428-81f60e30833f">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="typeDateRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typeDateRecherche]]></fieldDescription>
+	</field>
+	<field name="criteresRecherche" class="xtensus.beans.utils.RechercheMulticritereModel">
+		<fieldDescription><![CDATA[criteresRecherche]]></fieldDescription>
+	</field>
+	<field name="evenementChoixTypeDate" class="java.lang.String">
+		<fieldDescription><![CDATA[evenementChoixTypeDate]]></fieldDescription>
+	</field>
+	<field name="typrRecherche" class="java.lang.String">
+		<fieldDescription><![CDATA[typrRecherche]]></fieldDescription>
+	</field>
+	<field name="selectItemsAnnotation" class="java.util.List">
+		<fieldDescription><![CDATA[selectItemsAnnotation]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="32" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="97c7d9f5-c88e-4486-8c70-3e2c5de290f7" x="0" y="0" width="66" height="30"/>
+				<textElement/>
+				<text><![CDATA[Nécessité de réponse :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="e85ce25f-2f7e-495e-96d8-84042d9c22fe" x="66" y="0" width="102" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{typeDateRecherche}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="34">
+			<staticText>
+				<reportElement uuid="a8fb3465-6625-4ab8-b51e-2b9104e13f40" x="0" y="0" width="66" height="20"/>
+				<textElement/>
+				<text><![CDATA[Annotation :]]></text>
+			</staticText>
+		</band>
+		<band height="20">
+			<staticText>
+				<reportElement uuid="a8238af3-1f1d-439a-bf74-b086f52ea818" x="0" y="0" width="66" height="20"/>
+				<textElement/>
+				<text><![CDATA[Description :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="5c0f73ca-4686-458a-bdca-61ca20ff3824" x="66" y="0" width="102" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getCourrierDescription()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="40">
+			<staticText>
+				<reportElement uuid="990f1942-3825-4f37-ab88-1e4610a59b66" x="0" y="0" width="76" height="37"/>
+				<textElement/>
+				<text><![CDATA[Degré de confidentialité :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="2252b948-ad19-4ae2-a5fb-4bd97eae7870" x="76" y="0" width="92" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getSelectedItemConf()]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="37">
+			<staticText>
+				<reportElement uuid="92eed9c7-a21c-44b2-bc0a-d23926ef09e3" x="0" y="0" width="66" height="31"/>
+				<textElement/>
+				<text><![CDATA[Degré d'urgence :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="009c6043-05f9-456d-9a4e-c07ed7b2eaf2" x="66" y="0" width="102" height="31"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{criteresRecherche}.getSelectedItemUg()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

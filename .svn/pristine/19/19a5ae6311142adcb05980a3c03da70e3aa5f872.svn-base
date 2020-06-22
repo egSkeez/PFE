@@ -1,0 +1,107 @@
+package xtensus.beans.common.GBO;
+
+import java.util.Date;
+
+
+public class RapportSuiviReclamation {
+	private Object dateReclamation;
+	private Object numeroReclamation;
+	private Object numTeleReclamation;
+	private Object adresseMailReclamation;
+	private Object adresseReclamation;
+	private Object numPoliceReclamation;
+	private int numeroCourrier;
+	private Date dateRecepReclammation;
+	private String expediteurNomReclamation;
+    private String objetReclamation;
+    private String listeDestinataireRec;
+    private Date dateTransfertReclamation;
+    private Date dateReponseAuReclam;
+    private Object refReclamation;
+	public Object getDateReclamation() {
+		return dateReclamation;
+	}
+	public void setDateReclamation(Object dateReclamation) {
+		this.dateReclamation = dateReclamation;
+	}
+	public Object getNumeroReclamation() {
+		return numeroReclamation;
+	}
+	public void setNumeroReclamation(Object numeroReclamation) {
+		this.numeroReclamation = numeroReclamation;
+	}
+	public Object getNumTeleReclamation() {
+		return numTeleReclamation;
+	}
+	public void setNumTeleReclamation(Object numTeleReclamation) {
+		this.numTeleReclamation = numTeleReclamation;
+	}
+	public Object getAdresseMailReclamation() {
+		return adresseMailReclamation;
+	}
+	public void setAdresseMailReclamation(Object adresseMailReclamation) {
+		this.adresseMailReclamation = adresseMailReclamation;
+	}
+	public Object getAdresseReclamation() {
+		return adresseReclamation;
+	}
+	public void setAdresseReclamation(Object adresseReclamation) {
+		this.adresseReclamation = adresseReclamation;
+	}
+	public Object getNumPoliceReclamation() {
+		return numPoliceReclamation;
+	}
+	public void setNumPoliceReclamation(Object numPoliceReclamation) {
+		this.numPoliceReclamation = numPoliceReclamation;
+	}
+	public int getNumeroCourrier() {
+		return numeroCourrier;
+	}
+	public void setNumeroCourrier(int numeroCourrier) {
+		this.numeroCourrier = numeroCourrier;
+	}
+	 
+	public Date getDateRecepReclammation() {
+		return dateRecepReclammation;
+	}
+	public void setDateRecepReclammation(Date dateRecepReclammation) {
+		this.dateRecepReclammation = dateRecepReclammation;
+	}
+	public String getExpediteurNomReclamation() {
+		return expediteurNomReclamation;
+	}
+	public void setExpediteurNomReclamation(String expediteurNomReclamation) {
+		this.expediteurNomReclamation = expediteurNomReclamation;
+	}
+	public String getObjetReclamation() {
+		return objetReclamation;
+	}
+	public void setObjetReclamation(String objetReclamation) {
+		this.objetReclamation = objetReclamation;
+	}
+	public String getListeDestinataireRec() {
+		return listeDestinataireRec;
+	}
+	public void setListeDestinataireRec(String listeDestinataireRec) {
+		this.listeDestinataireRec = listeDestinataireRec;
+	}
+	public Date getDateTransfertReclamation() {
+		return dateTransfertReclamation;
+	}
+	public void setDateTransfertReclamation(Date dateTransfertReclamation) {
+		this.dateTransfertReclamation = dateTransfertReclamation;
+	}
+	public Date getDateReponseAuReclam() {
+		return dateReponseAuReclam;
+	}
+	public void setDateReponseAuReclam(Date dateReponseAuReclam) {
+		this.dateReponseAuReclam = dateReponseAuReclam;
+	}
+	public Object getRefReclamation() {
+		return refReclamation;
+	}
+	public void setRefReclamation(Object refReclamation) {
+		this.refReclamation = refReclamation;
+	}
+	
+}

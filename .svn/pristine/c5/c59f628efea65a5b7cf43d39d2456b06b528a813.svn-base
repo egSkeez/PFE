@@ -1,0 +1,479 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Typetransaction;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class TypeTransactionGestionBean {
+	private Typetransaction typetransaction;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listtypetransactions;
+	private List<Typetransaction> listTypetransaction;
+	private List<Typetransaction> copylistTypetransaction;
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private Typetransaction typetransaction2;
+
+	@Autowired
+	public TypeTransactionGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		typetransaction = new Typetransaction();
+		typetransaction2 = new Typetransaction();
+		listtypetransactions = new ListDataModel();
+		listTypetransaction = new ArrayList<Typetransaction>();
+		copylistTypetransaction = new ArrayList<Typetransaction>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out
+				.println("*************Bean TypeTransactionGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajouter type transaction";
+		listTypetransaction = new ArrayList<Typetransaction>();
+		copylistTypetransaction = new ArrayList<Typetransaction>();
+		try {
+			listTypetransaction = appMgr.getList(Typetransaction.class);
+			if (vb.isInRestoration()) {
+				listTypetransaction.remove(listTypetransaction.size()-1);
+			} else {
+				System.out.println("Non");
+			}
+			for (int i = listTypetransaction.size(); i >= 0; i--) {
+				typetransaction2 = listTypetransaction.get(i - 1);
+				copylistTypetransaction.add(typetransaction2);
+				typetransaction2 = new Typetransaction();
+			}
+			
+		} catch (Exception e) {
+			System.out.println("erreur");
+			e.printStackTrace();
+		}
+		listtypetransactions.setWrappedData(copylistTypetransaction);
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+		try {
+			appMgr.insert(typetransaction);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout",
+					"Evénement de log d'ajout du type transaction "
+							+ typetransaction.getTypeTransactionId() + "-"
+							+ typetransaction.getTypeTransactionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+			System.out
+					.println("***************Succes TypeTransactionGestionBean***************");
+		} catch (Exception e) {
+			status3 = true;
+			System.out
+					.println("***************Erreur TypetransactionGestionBean***************");
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			typetransaction = (Typetransaction) listtypetransactions
+					.getRowData();
+			vb.setTypetransaction(typetransaction);
+			System.out
+					.println("*******Selection TypetransactionGestionBean*********");
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation du type transaction "
+							+ typetransaction.getTypeTransactionId() + "-"
+							+ typetransaction.getTypeTransactionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection TypeTransactionsGestionBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier type transaction";
+		titleaccor = messageSource.getMessage("Consultationtypetransaction",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+
+		try {
+			typetransaction = vb.getTypetransaction();
+			appMgr.update(typetransaction);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification du type transaction "
+							+ vb.getTypetransaction().getTypeTransactionId()
+							+ "-"
+							+ vb.getTypetransaction()
+									.getTypeTransactionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			listTypetransaction = new ArrayList<Typetransaction>();
+			Initialize();
+			typetransaction = new Typetransaction();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter type transaction";
+		titleaccor =  messageSource.getMessage("Ajouttypetransaction",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+
+		try {
+			typetransaction = vb.getTypetransaction();
+			appMgr.delete(typetransaction);
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression du type transaction "
+							+ typetransaction.getTypeTransactionId() + "-"
+							+ typetransaction.getTypeTransactionLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+		} catch (Exception e) {
+
+		}
+		listtypetransactions = new ListDataModel();
+		listTypetransaction = new ArrayList<Typetransaction>();
+		copylistTypetransaction = new ArrayList<Typetransaction>();
+		Initialize();
+
+	}
+
+	public void annulModif() {
+		typetransaction = new Typetransaction();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter type transaction";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		typetransaction = new Typetransaction();
+		msgerror = true;
+		titleaccor = messageSource.getMessage("Ajouttypetransaction",new Object[] {}, lm.createLocal());
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listtypetransactions == null
+				&& listtypetransactions.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Typetransaction>) listtypetransactions
+					.getWrappedData()).size();
+		return records;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public Typetransaction getTypetransaction() {
+		return typetransaction;
+	}
+
+	public void setTypetransaction(Typetransaction typetransaction) {
+		this.typetransaction = typetransaction;
+	}
+
+	public DataModel getListtypetransactions() {
+		return listtypetransactions;
+	}
+
+	public void setListtypetransactions(DataModel listtypetransactions) {
+		this.listtypetransactions = listtypetransactions;
+	}
+
+	public List<Typetransaction> getListTypetransaction() {
+		return listTypetransaction;
+	}
+
+	public void setListTypetransaction(List<Typetransaction> listTypetransaction) {
+		this.listTypetransaction = listTypetransaction;
+	}
+
+	public List<Typetransaction> getCopylistTypetransaction() {
+		return copylistTypetransaction;
+	}
+
+	public void setCopylistTypetransaction(
+			List<Typetransaction> copylistTypetransaction) {
+		this.copylistTypetransaction = copylistTypetransaction;
+	}
+
+	public Typetransaction getTypetransaction2() {
+		return typetransaction2;
+	}
+
+	public void setTypetransaction2(Typetransaction typetransaction2) {
+		this.typetransaction2 = typetransaction2;
+	}
+
+}

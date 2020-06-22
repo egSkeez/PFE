@@ -1,0 +1,155 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.common.GBO_LDAP.ListeUtilisateurBean;
+import xtensus.beans.utils.RapportPerson;
+import xtensus.entity.AoConsultation;
+import xtensus.ldap.model.Person;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportUtilisateursListBean {
+	private ApplicationManager appMgr;
+	private Export export;
+
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private ListeUtilisateurBean ListUtilisateursBean;
+	private Person person ;
+	@Autowired
+	private LanguageManagerBean lm;
+	
+
+
+	
+	
+	@Autowired
+	public RapportUtilisateursListBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public void printPDFFR() {
+
+		try {
+			List<Person> listPesons = ListUtilisateursBean.getListusers();
+//		
+			List<RapportPerson> listRapportPersonBean = new ArrayList<RapportPerson>();
+			int j =1;
+			for (int i = 0; i < listPesons.size(); i++){
+				
+			
+					
+				RapportPerson rapportPerson= new RapportPerson();
+			
+				rapportPerson.setNom(listPesons.get(i).getNom());
+				rapportPerson.setPrenom(listPesons.get(i).getPrenom());
+				rapportPerson.setLogin(listPesons.get(i).getLogin());
+				rapportPerson.setEmail(listPesons.get(i).getEmail());
+				rapportPerson.setTelephoneNumber(listPesons.get(i).getTelephoneNumber());
+				rapportPerson.setFax(listPesons.get(i).getFax());
+				rapportPerson.setAdresse(listPesons.get(i).getAdresse());
+				rapportPerson.setCodePostal(listPesons.get(i).getCodePostal());
+				rapportPerson.setnumero(j);
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe").get(0).getSocieteLibelle();
+			rapportPerson.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr.listSocieteByLibelle("Ministere_Nom").get(0).getSocieteLibelle();
+			rapportPerson.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr.listSocieteByLibelle("Republique_Nom").get(0).getSocieteLibelle();
+			rapportPerson.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom").get(0).getSocieteLibelle();
+			rapportPerson.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapportPerson.setNomProjet(nomProjet);
+			
+			
+			listRapportPersonBean.add(rapportPerson);
+			j++;
+					}
+			
+			
+			export.exportToPDF(listRapportPersonBean, "Fiche_List_Utilisateurs",
+					"FFiche_List_Utilisateurs");
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public void printCSVUser() {
+
+		try {
+			List<Person> listPesons = ListUtilisateursBean.getListusers();
+//		
+			List<String> listEntete = new ArrayList<String>();
+			List<String> listDonnees = new ArrayList<String>();
+			List<String> listString = new ArrayList<String>();
+			String separator = ";";
+			listEntete.add("Matricule");
+			listEntete.add("Nom");
+			listEntete.add("E-Mail");
+			listEntete.add("Telephone");
+
+			for (Person user : listPesons) {
+				listDonnees = new ArrayList<String>();
+				
+				String matricule=" ";
+				if(user.getShortName()!= null)
+					matricule = user.getShortName();
+									
+				String nom = " ";
+				if(user.getNom() != null)
+					nom = user.getNom();
+				
+				String email =" ";
+				if(user.getEmail() != null)
+					email = user.getEmail();
+				
+				
+				String telephone = " ";
+				if(user.getTelephoneNumber() != null)
+					telephone = user.getTelephoneNumber();
+				
+				listDonnees.add(matricule);
+				listDonnees.add(nom);
+				listDonnees.add(email);
+				listDonnees.add(telephone);
+				String str = "";
+				for(String donnee:listDonnees){
+					str= str + "," + donnee.toString();
+				}
+				listString.add(str);
+			}
+			
+			export.exportToCSVGen(listEntete, listString, "Liste des Utilisateurs", separator);			
+			
+			// Kaouther
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+	
+}

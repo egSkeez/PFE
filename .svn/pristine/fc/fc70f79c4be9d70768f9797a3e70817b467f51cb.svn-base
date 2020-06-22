@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter AO/Consultation</title>
+
+<script src="../framGraphique/calander.js" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:commandLink id="retour"
+										oncomplete="document.location.href='AOConsultation.jsf'">
+										<h:graphicImage value="../framGraphique/images/retour.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="retour" value="#{msg.Retour}"
+												direction="top-right" />
+									<a4j:commandLink id="ed"
+												onclick="document.location.href='AOConsultationModification.jsf'"
+												action="#{aoConsultationBean.getSelectionRow}">
+												<h:graphicImage value="../framGraphique/images/Edit.png"
+													alt="editer" width="25" height="25"/>
+											</a4j:commandLink>
+											<rich:toolTip for="ed" value="#{msg.labelEdit}"
+												direction="top-right" />
+									
+									<rich:spacer width="5px" />
+									
+					
+					     <h:commandLink id="aorecu" action="#{rapportEtatAORecu.printEtatAORecuAvantOuLors}" >
+					     <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf4" />
+											</h:commandLink>
+											<rich:toolTip for="aorecu" value="#{msg.rapport1}"
+												direction="top-right" />
+									 					
+					     <h:commandLink id="aorecuapouvert" action="#{rapportEtatAORecu.printEtatAORecuapresOuverture}" >
+					     <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf4" /></h:commandLink>
+							<rich:toolTip for="aorecuapouvert" value="#{msg.rapport2}"
+												direction="top-right" />
+					
+					     <h:commandLink id="aorecudansdelais" action="#{rapportEtatAORecu.printEtatAORecuDansDelais}" >
+					     <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf4" /></h:commandLink>
+							<rich:toolTip for="aorecudansdelais" value="#{msg.rapport3}"
+												direction="top-right" />					
+					     <h:commandLink id="aorecusansref" action="#{rapportEtatAORecu.printEtatAORecuSansReferences}" >
+					     <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf4" /></h:commandLink>
+											<rich:toolTip for="aorecusansref" value="#{msg.rapport4}"
+												direction="top-right" />
+								</div>
+								</div>
+						</h:form>
+						</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.aoconsultation}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<h:panelGroup id="PP">
+								<table width="100%">
+									<tr>
+										<td width="50%">
+										<h:panelGrid columns="2">
+										<h:column>
+										<h:outputText value="#{msg.typeLabel} #{msg.deuxpointsLabel}"	styleClass="xteDetailLabel" />
+										</h:column>
+										<h:selectOneRadio
+										disabled="true"
+										value="#{aoConsultationConsultationBean.aoConsultation.aoConsultationType}"
+										style="direction:#{languageManager.direction};"
+										styleClass="xteDetailLabelOutput"	layout="lineDirection">
+										<f:selectItem 
+										itemLabel="#{msg.ao}"	itemValue="1" />
+										<f:selectItem
+										itemLabel="#{msg.consultation}"	itemValue="2" />
+										</h:selectOneRadio>
+										<h:column>
+													<h:outputText style="width: 300px !important;" value="#{msg.numeroAOC} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:outputText id="adr1"
+												value="#{aoConsultationConsultationBean.aoConsultation.aoConsultationNumero}"
+												styleClass="xteDetailLabelOutput" />
+												<h:column>
+												<h:outputText style="width: 300px !important;" value="#{msg.objetAOC} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:outputText id="adr"
+												value="#{aoConsultationConsultationBean.aoConsultation.aoConsultationObjet}"
+												styleClass="xteDetailLabelOutput" />
+												<h:column> 
+													<h:outputText style="width: 300px !important;" value="#{msg.dateReceptionOffre} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:outputText 
+												value="#{aoConsultationConsultationBean.dateHeurLimite}"
+												styleClass="xteDetailLabel" />
+														
+												<h:column>
+													<h:outputText style="width: 300px !important;"  value="#{msg.dateProlongation} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:outputText 
+												value="#{aoConsultationConsultationBean.dateHeurProl}"
+														styleClass="xteDetailLabel" />
+										<h:column>
+													<h:outputText style="width: 300px !important;" value="#{msg.dateSeanceCommission} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:outputText 
+												value="#{aoConsultationConsultationBean.dateHeurComm}"
+														styleClass="xteDetailLabel" />	
+														<h:column>
+													<h:outputText style="width: 300px !important;" value="#{msg.nombreOffres} #{msg.deuxpointsLabel}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:outputText 
+												value="#{aoConsultationConsultationBean.nombreCourrier}"
+														styleClass="xteDetailLabel" />					
+											</h:panelGrid></td></tr></table>
+							</h:panelGroup>
+									<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listCourriersParAOC}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="aoConsultationConsultationBean" />
+					
+							<rich:dataTable value="#{aoConsultationConsultationBean.listCourrierAoConsultationDM}"
+								var="aoConsultation" id="data" rows="10" styleClass="rich-panel" >
+
+								<rich:column sortBy="#{aoConsultation.courrierReference}"
+									filterBy="#{aoConsultation.courrierReference}" filterEvent="onkeyup"
+									label="ref" width="18%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.reference}" />
+									</f:facet>
+									<h:outputText value="#{aoConsultation.courrierDestinataireReelleDirection}" />
+								</rich:column>
+								
+								<rich:column sortBy="#{aoConsultation.courrierObjet}" filterBy="#{aoConsultation.courrierObjet}"
+									filterEvent="onkeyup" label="dateReception" width="22%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneObjet}" />
+									</f:facet>
+									<h:outputText value="#{aoConsultation.courrierObjet}">
+									</h:outputText>
+								</rich:column>
+								
+								<rich:column sortBy="#{aoConsultation.courrierNature}" filterBy="#{aoConsultation.courrierNature}" filterEvent="onkeyup"
+									label="Nature" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneNature}" />
+									</f:facet>
+									<h:outputText value="#{aoConsultation.courrierNature}">
+									</h:outputText>
+								</rich:column>
+								
+								
+								<rich:column label="#{msg.CourrierMode}" width="10%"  filterBy="#{aoConsultation.transmission.transmissionLibelle}" filterEvent="onkeyup">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneMode}" />
+										</f:facet>
+										<h:outputText value="#{aoConsultation.transmission.transmissionLibelle}" styleClass="#{cr.style}"/>
+									</rich:column>
+
+
+
+
+
+								<rich:column sortBy="#{aoConsultation.courrierDateReceptionEnvoi}"
+									filterBy="#{aoConsultation.courrierDateReceptionEnvoi}" filterEvent="onkeyup"
+									label="id" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.dateReception}" />
+									</f:facet>
+									<h:outputText value="#{aoConsultation.courrierDateReceptionEnvoi}" />
+								</rich:column>
+
+								<rich:column sortBy="#{aoConsultation.courrierExpediteur}"
+									filterBy="#{aoConsultation.courrierExpediteur}"
+									filterEvent="onkeyup" label="id" width="20%">
+									<f:facet name="header">
+									
+										<h:outputText value="#{msg.expediteur}" />
+									</f:facet>
+									<h:outputText value="#{aoConsultation.courrierExpediteur}" />
+								</rich:column>
+
+								<rich:column  sortBy="#{aoConsultation.courrierDestinataireReelle}"
+									filterBy="#{aoConsultation.courrierDestinataireReelle}"
+								filterEvent="onkeyup"
+									label="id" width="15%">
+									
+									<f:facet name="header">
+										<h:outputText value="#{msg.destReelle}" />
+									</f:facet>
+									<h:outputText value="#{aoConsultation.courrierDestinataireReelle}" />
+								</rich:column>
+
+								<rich:column width="5%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="aoConsultationConsultationBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="cl" 
+											action="#{aoConsultationConsultationBean.getSelectedRowOffre}"
+										oncomplete="document.location.href='courrierConsulterDetails.jsf'">	
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="consulter" />
+											</a4j:commandLink>
+											<rich:toolTip for="cl" value="#{msg.labelConsulter}"
+												direction="top-right" />
+										</h:panelGrid>
+									</center>
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record" value="#{aoConsultationConsultationBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+					
+										
+					</rich:panel>
+							<rich:spacer height="10px" />
+						</rich:panel>
+					</h:form>
+							</div>
+						<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

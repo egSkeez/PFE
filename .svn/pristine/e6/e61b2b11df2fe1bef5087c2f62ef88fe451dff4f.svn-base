@@ -1,0 +1,86 @@
+package xtensus.beans.utils;
+
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import xtensus.entity.AoConsultation;
+
+public class aoConsultationModel {
+
+	
+	private static final long serialVersionUID = -5109888493616261512L;
+	private Integer aoConsultationId;
+	private int aoConsultationType;
+	private String aoConsultationTypeLib;
+	private String aoConsultationNumero;
+	private String aoConsultationObjet;
+	private String aoConsultationDateLimiteOffre;
+	private String aoConsultationDelaisProlongation;
+	private String aoConsultationDateSeanceCommission;
+	private AoConsultation aoConsultation;
+	public Integer getAoConsultationId() {
+		return aoConsultationId;
+	}
+	public void setAoConsultationId(Integer aoConsultationId) {
+		this.aoConsultationId = aoConsultationId;
+	}
+	public int getAoConsultationType() {
+		return aoConsultationType;
+	}
+	public void setAoConsultationType(int aoConsultationType) {
+		this.aoConsultationType = aoConsultationType;
+	}
+	public String getAoConsultationNumero() {
+		return aoConsultationNumero;
+	}
+	public void setAoConsultationNumero(String aoConsultationNumero) {
+		this.aoConsultationNumero = aoConsultationNumero;
+	}
+	public String getAoConsultationObjet() {
+		return aoConsultationObjet;
+	}
+	public void setAoConsultationObjet(String aoConsultationObjet) {
+		this.aoConsultationObjet = aoConsultationObjet;
+	}
+	
+	public String getAoConsultationDateLimiteOffre() {
+		return aoConsultationDateLimiteOffre;
+	}
+	public void setAoConsultationDateLimiteOffre(
+			String aoConsultationDateLimiteOffre) {
+		this.aoConsultationDateLimiteOffre = aoConsultationDateLimiteOffre;
+	}
+	public String getAoConsultationDelaisProlongation() {
+		return aoConsultationDelaisProlongation;
+	}
+	public void setAoConsultationDelaisProlongation(
+			String aoConsultationDelaisProlongation) {
+		this.aoConsultationDelaisProlongation = aoConsultationDelaisProlongation;
+	}
+	public String getAoConsultationDateSeanceCommission() {
+		return aoConsultationDateSeanceCommission;
+	}
+	public void setAoConsultationDateSeanceCommission(
+			String aoConsultationDateSeanceCommission) {
+		this.aoConsultationDateSeanceCommission = aoConsultationDateSeanceCommission;
+	}
+	public String getAoConsultationTypeLib() {
+		return aoConsultationTypeLib;
+	}
+	public void setAoConsultationTypeLib(String aoConsultationTypeLib) {
+		this.aoConsultationTypeLib = aoConsultationTypeLib;
+	}
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+	
+}

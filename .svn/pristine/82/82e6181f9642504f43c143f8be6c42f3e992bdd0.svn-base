@@ -1,0 +1,66 @@
+package xtensus.beans.common.GBO;
+
+import java.util.Date;
+
+import xtensus.entity.Entite;
+
+public class RappotRapidePosteLettreRecommande extends Entite{
+	
+	
+	private Date dateReception;
+	private Object reference;
+	private String expediteur;
+	private String destinataire;
+	
+			
+	
+		public String getDestinataire() {
+			return destinataire;
+		}
+
+		public void setDestinataire(String destinataire) {
+			this.destinataire = destinataire;
+		}
+
+		public RappotRapidePosteLettreRecommande() {
+		}
+
+
+
+	
+		public Date getDateReception() {
+			return dateReception;
+		}
+
+		public void setDateReception(Date dateReception) {
+			this.dateReception = dateReception;
+		}
+
+	 
+
+		public Object getReference() {
+			return reference;
+		}
+
+		public void setReference(Object reference) {
+			this.reference = reference;
+		}
+
+		public String getExpediteur() {
+			return expediteur;
+		}
+
+		public void setExpediteur(String expediteur) {
+			this.expediteur = expediteur;
+		}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+}

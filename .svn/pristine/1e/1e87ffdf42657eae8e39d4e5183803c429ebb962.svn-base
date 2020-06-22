@@ -1,0 +1,76 @@
+package xtensus.beans.common.GBO;
+
+import java.util.Date;
+
+
+public class RapportSuiviCourrierParAOC {
+	
+	private String reference;
+	private String reference2;
+	private int numOrdre;
+	private int numOrdre2;
+	private String dateArrivee;
+	private String heureArrivee;
+	private String dateArrivee2;
+	private String heureArrivee2;
+	private Date dateJour;
+	public String getReference() {
+		return reference;
+	}
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+	public int getNumOrdre() {
+		return numOrdre;
+	}
+	public void setNumOrdre(int numOrdre) {
+		this.numOrdre = numOrdre;
+	}
+	public String getDateArrivee() {
+		return dateArrivee;
+	}
+	public void setDateArrivee(String dateArrivee) {
+		this.dateArrivee = dateArrivee;
+	}
+	public String getHeureArrivee() {
+		return heureArrivee;
+	}
+	public void setHeureArrivee(String heureArrivee) {
+		this.heureArrivee = heureArrivee;
+	}
+	public String getDateArrivee2() {
+		return dateArrivee2;
+	}
+	public void setDateArrivee2(String dateArrivee2) {
+		this.dateArrivee2 = dateArrivee2;
+	}
+	public String getHeureArrivee2() {
+		return heureArrivee2;
+	}
+	public void setHeureArrivee2(String heureArrivee2) {
+		this.heureArrivee2 = heureArrivee2;
+	}
+	public String getReference2() {
+		return reference2;
+	}
+	public void setReference2(String reference2) {
+		this.reference2 = reference2;
+	}
+	public int getNumOrdre2() {
+		return numOrdre2;
+	}
+	public void setNumOrdre2(int numOrdre2) {
+		this.numOrdre2 = numOrdre2;
+	}
+	public Date getDateJour() {
+		return dateJour;
+	}
+	public void setDateJour(Date dateJour) {
+		this.dateJour = dateJour;
+	}
+	
+	
+	
+	
+	
+}

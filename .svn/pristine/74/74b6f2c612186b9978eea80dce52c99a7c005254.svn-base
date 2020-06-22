@@ -1,0 +1,1388 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ClasseGenerale;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Document;
+import xtensus.entity.Dossier;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Liensdossier;
+import xtensus.entity.Nature;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionAnnotation;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.entity.Groupe;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierRechercheBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private DataModel list;
+	private DataModel list1;
+	private DataModel listJ;
+	private DataModel listSem;
+	private DataModel listMois;
+	private DataModel listDurée;
+	private GregorianCalendar c;
+	private GregorianCalendar c1;
+	private Courrier listCr;
+	private Groupe grp;
+	private Courrier cr;
+	private Courrier crJour;
+	private Courrier crSem;
+	private Document doct;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private boolean status4;
+	private Date date;
+	private Transaction tr;
+	private Liensdossier lien;
+	private TransactionDestination trDest;
+	private TransactionAnnotation crAnnot;
+	private Nature nature;
+	private Nature nat;
+	private Nature nature1;
+	private Transmission trans;
+	private Confidentialite confi;
+
+	private Urgence ug;
+	private Expdestexterne exp;
+	private String nomNat;
+	private String nomConf;
+	private String nomUrg;
+	private String nomTran;
+	private Courrier courrier1;
+	private List<Expdestexterne> listDest;
+
+	private List<TransactionDestination> listTrDest;
+	private List<TransactionDestination> listTrDest1;
+	private List<Courrier> listCrLiens;
+	private List<TransactionAnnotation> listCrAnnot;
+	private List<TransactionAnnotation> listCrAnnot1;
+	private List<Liensdossier> listLiens;
+	private List<Liensdossier> listLiens1;
+	private List<Liensdossier> listLiensCr;
+	private List<Transaction> listTransaction;
+	private ClasseGenerale cg;
+	private List<ClasseGenerale> listG;
+	private List<xtensus.entity.Annotation> listAnnot;
+
+	private long records = 0;
+	private long recordsJ = 0;
+	private long recordsSem = 0;
+	private long recordsMois = 0;
+	private long recordsDurée = 0;
+	private Courrier courr;
+	private Transaction tran;
+	private Date dateJ;
+	private Date dateM;
+	private Date dateD;
+	private Date dateF;
+
+	@Autowired
+	private VariableGlobale vb;
+
+	private List<Courrier> listC;
+	private List<Nature> listNature;
+	private String selectedItem;
+	private String nt;
+	private String cf;
+	private String urg;
+	private String transmission;
+	private String annotation;
+	private String reponse1;
+	public boolean outputDisable = false;
+	private int n;
+	private String consltDestNom = "";
+	private String consltExpNom = "";
+	private String consltCrNom = "";
+	private String consltAnnotNom = "";
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	ArrayList<SelectItem> selectItems = new ArrayList<SelectItem>();
+	private int idCr;
+	private boolean select1;
+	private boolean select2;
+	private boolean select3;
+	private boolean select4;
+	private boolean select5;
+	private List<Courrier> listCourrier;
+	private List<Courrier> listCourrierJr;
+	private List<Courrier> listCourrierSem;
+	private List<Courrier> listCourrierMois;
+	private List<Courrier> listCourrierDurée;
+	private Date dateeee = new Date();
+	private Date dateRep;
+	private Date dateRecep;
+	private Date dateFilter;
+	public int nbr;
+	private int nbrCrDuré;
+	private int nbrJ;
+	private Date débutS;
+	private Date finS;
+
+
+	public CourrierRechercheBean() {
+		
+	}
+	
+	@Autowired
+	public CourrierRechercheBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		setGrp(new Groupe());
+		cr = new Courrier();
+		crJour = new Courrier();
+		crSem = new Courrier();
+		setDoct(new Document());
+		list = new ListDataModel();
+		list1 = new ListDataModel();
+		listJ = new ListDataModel();
+		listSem = new ListDataModel();
+		listMois = new ListDataModel();
+		listDurée = new ListDataModel();
+		setListC(new ArrayList<Courrier>());
+		listC = new ArrayList<Courrier>();
+		tr = new Transaction();
+		lien = new Liensdossier();
+		trDest = new TransactionDestination();
+		crAnnot = new TransactionAnnotation();
+		listTrDest = new ArrayList<TransactionDestination>();
+		listTrDest1 = new ArrayList<TransactionDestination>();
+		listLiens = new ArrayList<Liensdossier>();
+		listLiens1 = new ArrayList<Liensdossier>();
+		listLiensCr = new ArrayList<Liensdossier>();
+		listCrAnnot = new ArrayList<TransactionAnnotation>();
+		listCrAnnot1 = new ArrayList<TransactionAnnotation>();
+		listDest = new ArrayList<Expdestexterne>();
+		listCrLiens = new ArrayList<Courrier>();
+		listAnnot = new ArrayList<xtensus.entity.Annotation>();
+		nature = new Nature();
+		nature1 = new Nature();
+		nat = new Nature();
+		confi = new Confidentialite();
+		ug = new Urgence();
+		trans = new Transmission();
+		setListNature(new ArrayList<Nature>());
+		listTransaction = new ArrayList<Transaction>();
+		listG = new ArrayList<ClasseGenerale>();
+		cg = new ClasseGenerale();
+		courr = new Courrier();
+		tran = new Transaction();
+		date = new Date();
+		dateFilter = new Date();
+		courrier1 = new Courrier();
+		listCourrier = new ArrayList<Courrier>();
+		listCourrierJr = new ArrayList<Courrier>();
+		listCourrierSem = new ArrayList<Courrier>();
+		listCourrierMois = new ArrayList<Courrier>();
+		listCourrierDurée = new ArrayList<Courrier>();
+		dateJ = new Date();
+		dateM = new Date();
+		débutS = new Date();
+		finS = new Date();
+		c = new GregorianCalendar();
+		c1 = new GregorianCalendar();
+		System.out
+				.println("**************BeanInjecte CourrierRechercheBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+
+			listCourrier = appMgr.getList(Courrier.class);
+			list1.setWrappedData(listCourrier);
+			for (int i = 0; i < listCourrier.size(); i++) {
+				crJour = listCourrier.get(i);
+				if ((listCourrier.get(i).getCourrierDateReception().getDate() == dateJ
+						.getDate())
+						&& (listCourrier.get(i).getCourrierDateReception()
+								.getMonth() == dateJ.getMonth())
+						&& (listCourrier.get(i).getCourrierDateReception()
+								.getYear() == dateJ.getYear())) {
+					crJour = appMgr.getCourrierByDateJourId(
+							listCourrier.get(i).getIdCourrier(), dateJ).get(0);
+					listCourrierJr.add(crJour);
+					crJour = new Courrier();
+				}
+			}
+			listJ.setWrappedData(listCourrierJr);
+
+			/***** liste courrier de semaine ****/
+			nbrJ = dateM.getDay();
+			débutS.setDate((dateM.getDate() - nbrJ) + 1);
+			finS.setDate((dateM.getDate() - nbrJ) + 7);
+
+			for (int i = 0; i < listCourrier.size(); i++) {
+
+				if ((listCourrier.get(i).getCourrierDateReception().getDate() >= débutS
+						.getDate())
+						&& (listCourrier.get(i).getCourrierDateReception()
+								.getDate() <= finS.getDate())) {
+					listCourrierSem.add(listCourrier.get(i));
+				}
+			}
+			listSem.setWrappedData(listCourrierSem);
+
+			/***** liste courrier de mois ****/
+			for (int i = 0; i < listCourrier.size(); i++) {
+				if ((listCourrier.get(i).getCourrierDateReception().getMonth() == dateM
+						.getMonth())
+						&& (listCourrier.get(i).getCourrierDateReception()
+								.getYear() == dateM.getYear())) {
+					listCourrierMois.add(listCourrier.get(i));
+				}
+			}
+			listMois.setWrappedData(listCourrierMois);
+
+			listTrDest = appMgr.getList(TransactionDestination.class);
+			listLiens = appMgr.getList(Liensdossier.class);
+			listCrAnnot = appMgr.getList(TransactionAnnotation.class);
+
+			for (int m = 0; m < listCourrier.size(); m++) {
+				nat = appMgr.getNatureById(
+						listCourrier.get(m).getNature().getNatureId()).get(0);
+				listTransaction = new ArrayList<Transaction>();
+
+				cr = listCourrier.get(m);
+				int refcourrier = cr.getIdCourrier();
+				List<CourrierDossier> courrierDossiers = new ArrayList<CourrierDossier>();
+				List<Dossier> dossiers = new ArrayList<Dossier>();
+
+				courrierDossiers = appMgr
+						.getCourrierDossierByIdCourrier(refcourrier);
+				/***** listeDossier *****/
+				for (CourrierDossier crd : courrierDossiers) {
+					int refdossier = crd.getId().getDossierId();
+					dossiers.add(appMgr.getDossierByIdDossier(refdossier)
+							.get(0));
+				}
+				/***** listeTransaction *****/
+				for (Dossier d : dossiers) {
+					int refdossier = d.getDossierId();
+					listTransaction.add(appMgr.getTransactionByIdDossier(
+							refdossier).get(0));
+				}
+				for (int j = 0; j < listTransaction.size(); j++) {
+					tr = listTransaction.get(j);
+					int refDossier = tr.getDossier().getDossierId();
+					List<CourrierDossier> dossierscourrier = new ArrayList<CourrierDossier>();
+					dossierscourrier = appMgr
+							.getCourrierDossierByIdDossier(refDossier);
+					for (CourrierDossier crd : dossierscourrier) {
+						int refdossier = crd.getId().getDossierId();
+						int typedossier = appMgr
+								.getDossierByIdDossier(refdossier).get(0)
+								.getTypedossier().getTypeDossierId();
+						if (typedossier == 1) {
+							courr = appMgr.getCourrierByIdCourrier(
+									crd.getId().getIdCourrier()).get(0);
+						}
+					}
+					String nomExpediteur = "";
+					int i = 0;
+					boolean findPerson = false;
+					if (tr.getExpdest().getTypeExpDest().equals("Interne-Person")) {
+						do {
+							if (vb.getCopyLdapListUser().get(i).getId() == tr.getExpdest().getIdExpDestLdap()) {
+								nomExpediteur = vb.getCopyLdapListUser().get(i).getCn();
+								findPerson = true;
+							} else {
+								i++;
+							}
+						} while (!findPerson && i<vb.getCopyLdapListUser().size());
+					} else if (tr.getExpdest().getTypeExpDest().equals("Interne-Unité")){
+						do {
+							if (vb.getCopyLdapListUnit().get(i).getIdUnit() == tr.getExpdest().getIdExpDestLdap()) {
+								nomExpediteur = vb.getCopyLdapListUnit().get(i).getNameUnit();
+								findPerson = true;
+							} else {
+								i++;
+							}
+						} while (!findPerson && i<vb.getCopyLdapListUnit().size());
+					}else{
+						nomExpediteur = tr.getExpdest().getExpdestexterne().getExpDestExterneNom();
+					}
+					
+					cg.setCr1(courr);
+					cg.setTran(tr);
+					cg.setNom(nomExpediteur);
+					listG.add(cg);
+					cg = new ClasseGenerale();
+				}
+			}
+			list.setWrappedData(listG);
+
+			/*
+			 * setListNature(appMgr.getList(Nature.class)); nt =
+			 * vb.getNature().getNatureLibelle(); cf =
+			 * vb.getConfidentialite().getConfidentialiteLibelle(); urg =
+			 * vb.getUrgence().getUrgenceLibelle(); transmission =
+			 * vb.getTransmission().getTransmissionLibelle();
+			 * 
+			 * for (int x = 0; x < listCrAnnot.size(); x++) { annotation =
+			 * (vb.getListAt().get(x)).getNomAnnot(); }
+			 */
+			System.out
+					.println("*******ChargementAvecSucces   CourrierRechercheBean******");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement CourrierRechercheBean*******");
+		}
+	}
+
+	// fonction de filtrage des datedans le tableau
+	public boolean filterDateRecep(Object current) {
+		if (dateRecep == null) {
+			return true;
+		}
+		Courrier courrier1 = (Courrier) current;
+		return dateRecep.equals(courrier1.getCourrierDateReception());
+
+	}
+
+	public boolean filterDateRep(Object current) {
+
+		if (dateRep == null) {
+			return true;
+		}
+		Courrier courrier1 = (Courrier) current;
+		return dateRep.equals(courrier1.getCourrierDateReception());
+
+	}
+
+	// fonction de recherche des courriers en choisissant l'option "Intervalle"
+	public void DateDébut() {
+		if (dateD == null || dateF == null) {
+			status4 = true;
+		} else {
+			status4 = false;
+			for (int i = 0; i < listCourrier.size(); i++) {
+
+				if ((listCourrier.get(i).getCourrierDateReception()
+						.compareTo(dateD) >= 0)
+						&& (listCourrier.get(i).getCourrierDateReception()
+								.compareTo(dateF) <= 0)) {
+					// listCourrierDurée=appMgr.getCourrierByDateId(listCourrier.get(i).getIdCourrier(),dateD,
+					// dateF);
+					listCourrierDurée.add(listCourrier.get(i));
+
+				}
+			}
+			listDurée.setWrappedData(listCourrierDurée);
+
+			listCourrierDurée = new ArrayList<Courrier>();
+			nbrCrDuré = listDurée.getRowCount();
+		}
+	}
+
+	public void getSelectionRow() {
+		try {
+			if (reponse1.equals("Jour")) {
+				courr = (Courrier) listJ.getRowData();
+			} else if (reponse1.equals("Semaine")) {
+				courr = (Courrier) listSem.getRowData();
+			} else if (reponse1.equals("Mois")) {
+				courr = (Courrier) listMois.getRowData();
+			} else if (reponse1.equals("Durée")) {
+				courr = (Courrier) listDurée.getRowData();
+			}
+
+			vb.setCourrier(courr);
+
+			if (vb.getCourrier().getCourrierNecessiteReponse().equals("Non")) {
+				setSelect1(false);
+			} else {
+				setSelect1(true);
+			}
+			// //nature
+			nature = appMgr.getNatureById(courr.getNature().getNatureId()).get(
+					0);
+			vb.setNature(nature);
+			// ///transmission
+			trans = appMgr.getTransmissionById(
+					vb.getCourrier().getTransmission().getTransmissionId())
+					.get(0);
+			vb.setTransmission(trans);
+			// /confidentialité
+			confi = appMgr.getConfidentialiteById(
+					vb.getCourrier().getConfidentialite()
+							.getConfidentialiteId()).get(0);
+			vb.setConfidentialite(confi);
+			// ////urgence
+			ug = appMgr.getUrgenceById(
+					vb.getCourrier().getUrgence().getUrgenceId()).get(0);
+			vb.setUrgence(ug);
+			/*
+			 * // /lien try { vb.setListCourrier(null); vb.setCrNom(null); for
+			 * (int j = 0; j < listLiens.size(); j++) { listLiens1 =
+			 * appMgr.getLiensById(vb.getCrr() .getIdCourrier());
+			 * vb.setListLiens(listLiens1);
+			 * listCrLiens.add(appMgr.getCourrierLiensId(
+			 * listLiens1.get(j).getIdRefCourrier()).get(0));
+			 * vb.setListCourrier(listCrLiens); consltCrNom = consltCrNom +
+			 * listCrLiens.get(j).getReferenceCorrespondant() + "; ";
+			 * vb.setCrNom(consltCrNom); } } catch (Exception e) { System.out
+			 * .println
+			 * ("*******ErreurDeSelection CourrierConsultationBean*******"); }
+			 * 
+			 * 
+			 * try { vb.setExpNom(null); vb.setListDestNom(null);
+			 * vb.setExp(null); vb.setDestNom(null); setConsltExpNom("");
+			 * setConsltDestNom(""); // //expediteur tr =
+			 * appMgr.getTransactionByIdCourrier(
+			 * vb.getCrr().getIdCourrier()).get(0); vb.setTran(tr); exp =
+			 * appMgr.getExpById(
+			 * tr.getExpdestexterne().getIdExpDestExterne()).get(0);
+			 * vb.setExp(exp); consltExpNom = consltExpNom + exp.getNom() +
+			 * "; "; vb.setExpNom(consltExpNom);
+			 * 
+			 * // ////destinataire for (int i = 0; i < listTrDest.size(); i++) {
+			 * listTrDest1 = appMgr.getTransactionById(tr .getIdTransaction());
+			 * vb.setListtDest(listTrDest1); listDest.add(appMgr.getExpById(
+			 * listTrDest1.get(i).getId().getIdExpDestExterne()) .get(0));
+			 * vb.setListDestNom(listDest); consltDestNom = consltDestNom +
+			 * listDest.get(i).getNom() + "; "; vb.setDestNom(consltDestNom); }
+			 * 
+			 * } catch (Exception e) { System.out
+			 * .println("*******ErreurDeSelection CourrierConsultationBean*******"
+			 * ); } // ////Annotation
+			 * 
+			 * try { vb.setAnnotNom(null); setAnnotation(null);
+			 * setConsltAnnotNom(""); for (int m = 0; m < listCrAnnot.size();
+			 * m++) { listCrAnnot1 = appMgr.getAnnotById(vb.getTran()
+			 * .getIdTransaction()); vb.setListCrAnnotation(listCrAnnot1);
+			 * listAnnot.add(appMgr.getAnnotByIdNon(
+			 * listCrAnnot1.get(m).getId().getIdAnnot()).get(0));
+			 * vb.setListAt(listAnnot); consltAnnotNom = consltAnnotNom +
+			 * listAnnot.get(m).getNomAnnot() + "; ";
+			 * vb.setAnnotNom(consltAnnotNom); } } catch (Exception e) {
+			 * System.out
+			 * .println("*******ErreurDeSelection CourrierConsultationBean*******"
+			 * ); }
+			 */
+			System.out
+					.println("*******SelectionSucces CourrierRechercheBean*********");
+			cr = new Courrier();
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection CourrierRechercheBean*******");
+		}
+
+	}
+
+	public String suppDoc() {
+		System.out.println("***************Supp doc***************");
+		return ("supp");
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+
+		if (reponse1.equals("Jour")) {
+
+			select1 = true;
+			select2 = false;
+			select3 = false;
+			select4 = false;
+			dateF = null;
+			dateD = null;
+			listDurée = null;
+		} else if (reponse1.equals("Semaine")) {
+			select1 = false;
+			select2 = true;
+			select3 = false;
+			select4 = false;
+			dateF = null;
+			dateD = null;
+			listDurée = null;
+		} else if (reponse1.equals("Mois")) {
+			select1 = false;
+			select2 = false;
+			select3 = true;
+			select4 = false;
+			dateF = null;
+			dateD = null;
+			listDurée = null;
+		} else if (reponse1.equals("Durée")) {
+			select1 = false;
+			select2 = false;
+			select3 = false;
+			select4 = true;
+			listDurée = new ListDataModel();
+		}
+	}
+
+	// ************Getter & Setter********************
+
+	public void setSelectItems(ArrayList<SelectItem> selectItems) {
+		this.selectItems = selectItems;
+	}
+
+	public void setList(DataModel list) {
+		this.list = list;
+	}
+
+	public DataModel getList() {
+		return list;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setGrp(Groupe grp) {
+		this.grp = grp;
+	}
+
+	public Groupe getGrp() {
+		return grp;
+	}
+
+	public void setListCr(Courrier listCr) {
+		this.listCr = listCr;
+	}
+
+	public Courrier getListCr() {
+		return listCr;
+	}
+
+	public void setDoct(Document doct) {
+		this.doct = doct;
+	}
+
+	public Document getDoct() {
+		return doct;
+	}
+
+	public void setSelectedItem(String selectedItem) {
+		this.selectedItem = selectedItem;
+	}
+
+	public String getSelectedItem() {
+		return selectedItem;
+	}
+
+	public void setListC(List<Courrier> listC) {
+		this.listC = listC;
+	}
+
+	public List<Courrier> getListC() {
+		return listC;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public boolean isOutputDisable() {
+		return outputDisable;
+	}
+
+	public void setOutputDisable(boolean outputDisable) {
+		this.outputDisable = outputDisable;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus1(Boolean status1) {
+		this.status1 = status1;
+	}
+
+	public Boolean getStatus1() {
+		return status1;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setN(int n) {
+		this.n = n;
+	}
+
+	public int getN() {
+		return n;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (list1 == null && list1.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Courrier>) list1.getWrappedData()).size();
+		return records;
+	}
+
+	public Courrier getCr() {
+		return cr;
+	}
+
+	public void setCr(Courrier cr) {
+		this.cr = cr;
+	}
+
+	public void setTr(Transaction tr) {
+		this.tr = tr;
+	}
+
+	public Transaction getTr() {
+		return tr;
+	}
+
+	public void setTrDest(TransactionDestination trDest) {
+		this.trDest = trDest;
+	}
+
+	public TransactionDestination getTrDest() {
+		return trDest;
+	}
+
+	public void setListTrDest(List<TransactionDestination> listTrDest) {
+		this.listTrDest = listTrDest;
+	}
+
+	public List<TransactionDestination> getListTrDest() {
+		return listTrDest;
+	}
+
+	public void setListTrDest1(List<TransactionDestination> listTrDest1) {
+		this.listTrDest1 = listTrDest1;
+	}
+
+	public List<TransactionDestination> getListTrDest1() {
+		return listTrDest1;
+	}
+
+	public void setLien(Liensdossier lien) {
+		this.lien = lien;
+	}
+
+	public Liensdossier getLien() {
+		return lien;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setTrans(Transmission trans) {
+		this.trans = trans;
+	}
+
+	public Transmission getTrans() {
+		return trans;
+	}
+
+	public void setConfi(Confidentialite confi) {
+		this.confi = confi;
+	}
+
+	public Confidentialite getConfi() {
+		return confi;
+	}
+
+	public void setUg(Urgence ug) {
+		this.ug = ug;
+	}
+
+	public Urgence getUg() {
+		return ug;
+	}
+
+	public void setExp(Expdestexterne exp) {
+		this.exp = exp;
+	}
+
+	public Expdestexterne getExp() {
+		return exp;
+	}
+
+	public void setListDest(List<Expdestexterne> listDest) {
+		this.listDest = listDest;
+	}
+
+	public List<Expdestexterne> getListDest() {
+		return listDest;
+	}
+
+	public void setListLiens(List<Liensdossier> listLiens) {
+		this.listLiens = listLiens;
+	}
+
+	public List<Liensdossier> getListLiens() {
+		return listLiens;
+	}
+
+	public void setListLiens1(List<Liensdossier> listLiens1) {
+		this.listLiens1 = listLiens1;
+	}
+
+	public List<Liensdossier> getListLiens1() {
+		return listLiens1;
+	}
+
+	public void setCrAnnot(TransactionAnnotation crAnnot) {
+		this.crAnnot = crAnnot;
+	}
+
+	public TransactionAnnotation getCrAnnot() {
+		return crAnnot;
+	}
+
+	public void setListCrAnnot(List<TransactionAnnotation> listCrAnnot) {
+		this.listCrAnnot = listCrAnnot;
+	}
+
+	public List<TransactionAnnotation> getListCrAnnot() {
+		return listCrAnnot;
+	}
+
+	public void setListCrAnnot1(List<TransactionAnnotation> listCrAnnot1) {
+		this.listCrAnnot1 = listCrAnnot1;
+	}
+
+	public List<TransactionAnnotation> getListCrAnnot1() {
+		return listCrAnnot1;
+	}
+
+	public void setListCrLiens(List<Courrier> listCrLiens) {
+		this.listCrLiens = listCrLiens;
+	}
+
+	public List<Courrier> getListCrLiens() {
+		return listCrLiens;
+	}
+
+	public List<xtensus.entity.Annotation> getListAnnot() {
+		return listAnnot;
+	}
+
+	public void setListAnnot(List<xtensus.entity.Annotation> listAnnot) {
+		this.listAnnot = listAnnot;
+	}
+
+	public void setListNature(List<Nature> listNature) {
+		this.listNature = listNature;
+	}
+
+	public List<Nature> getListNature() {
+		return listNature;
+	}
+
+	public void setNomNat(String nomNat) {
+		this.nomNat = nomNat;
+	}
+
+	public String getNomNat() {
+		return nomNat;
+	}
+
+	public void setNature1(Nature nature1) {
+		this.nature1 = nature1;
+	}
+
+	public Nature getNature1() {
+		return nature1;
+	}
+
+	public void setCf(String cf) {
+		this.cf = cf;
+	}
+
+	public String getCf() {
+		return cf;
+	}
+
+	public void setNomConf(String nomConf) {
+		this.nomConf = nomConf;
+	}
+
+	public String getNomConf() {
+		return nomConf;
+	}
+
+	public void setUrg(String urg) {
+		this.urg = urg;
+	}
+
+	public String getUrg() {
+		return urg;
+	}
+
+	public void setNomUrg(String nomUrg) {
+		this.nomUrg = nomUrg;
+	}
+
+	public String getNomUrg() {
+		return nomUrg;
+	}
+
+	public void setNomTran(String nomTran) {
+		this.nomTran = nomTran;
+	}
+
+	public String getNomTran() {
+		return nomTran;
+	}
+
+	public void setTransmission(String transmission) {
+		this.transmission = transmission;
+	}
+
+	public String getTransmission() {
+		return transmission;
+	}
+
+	public String getAnnotation() {
+		return annotation;
+	}
+
+	public void setAnnotation(String annotation) {
+		this.annotation = annotation;
+	}
+
+	public void setNat(Nature nat) {
+		this.nat = nat;
+	}
+
+	public Nature getNat() {
+		return nat;
+	}
+
+	public void setListTransaction(List<Transaction> listTransaction) {
+		this.listTransaction = listTransaction;
+	}
+
+	public List<Transaction> getListTransaction() {
+		return listTransaction;
+	}
+
+	public void setListG(List<ClasseGenerale> listG) {
+		this.listG = listG;
+	}
+
+	public List<ClasseGenerale> getListG() {
+		return listG;
+	}
+
+	public void setCg(ClasseGenerale cg) {
+		this.cg = cg;
+	}
+
+	public int getIdCr() {
+		return idCr;
+	}
+
+	public void setIdCr(int idCr) {
+		this.idCr = idCr;
+	}
+
+	public ClasseGenerale getCg() {
+		return cg;
+	}
+
+	public void setCourr(Courrier courr) {
+		this.courr = courr;
+	}
+
+	public Courrier getCourr() {
+		return courr;
+	}
+
+	public void setTran(Transaction tran) {
+		this.tran = tran;
+	}
+
+	public Transaction getTran() {
+		return tran;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public ArrayList<SelectItem> getSelectItems() {
+		return selectItems;
+	}
+
+	public void setReponse1(String reponse1) {
+		this.reponse1 = reponse1;
+	}
+
+	public String getReponse1() {
+		return reponse1;
+	}
+
+	public void setSelect2(boolean select2) {
+		this.select2 = select2;
+	}
+
+	public boolean isSelect2() {
+		return select2;
+	}
+
+	public Date getDateRep() {
+		return dateRep;
+	}
+
+	public void setDateRep(Date dateRep) {
+		this.dateRep = dateRep;
+	}
+
+	public Date getDateeee() {
+		return dateeee;
+	}
+
+	public void setDateeee(Date dateeee) {
+		this.dateeee = dateeee;
+	}
+
+	public void setConsltDestNom(String consltDestNom) {
+		this.consltDestNom = consltDestNom;
+	}
+
+	public String getConsltDestNom() {
+		return consltDestNom;
+	}
+
+	public void setConsltCrNom(String consltCrNom) {
+		this.consltCrNom = consltCrNom;
+	}
+
+	public String getConsltCrNom() {
+		return consltCrNom;
+	}
+
+	public void setConsltAnnotNom(String consltAnnotNom) {
+		this.consltAnnotNom = consltAnnotNom;
+	}
+
+	public String getConsltAnnotNom() {
+		return consltAnnotNom;
+	}
+
+	public void setConsltExpNom(String consltExpNom) {
+		this.consltExpNom = consltExpNom;
+	}
+
+	public String getConsltExpNom() {
+		return consltExpNom;
+	}
+
+	public void setListCourrier(List<Courrier> listCourrier) {
+		this.listCourrier = listCourrier;
+	}
+
+	public List<Courrier> getListCourrier() {
+		return listCourrier;
+	}
+
+	public void setList1(DataModel list1) {
+		this.list1 = list1;
+	}
+
+	public DataModel getList1() {
+		return list1;
+	}
+
+	public void setCourrier1(Courrier courrier1) {
+		this.courrier1 = courrier1;
+	}
+
+	public Courrier getCourrier1() {
+		return courrier1;
+	}
+
+	public void setDateFilter(Date dateFilter) {
+		this.dateFilter = dateFilter;
+	}
+
+	public Date getDateFilter() {
+		return dateFilter;
+	}
+
+	public void setListLiensCr(List<Liensdossier> listLiensCr) {
+		this.listLiensCr = listLiensCr;
+	}
+
+	public List<Liensdossier> getListLiensCr() {
+		return listLiensCr;
+	}
+
+	public String getNt() {
+		return nt;
+	}
+
+	public void setNt(String nt) {
+		this.nt = nt;
+	}
+
+	public void setDateRecep(Date dateRecep) {
+		this.dateRecep = dateRecep;
+	}
+
+	public Date getDateRecep() {
+		return dateRecep;
+	}
+
+	public void setListJ(DataModel listJ) {
+		this.listJ = listJ;
+	}
+
+	public DataModel getListJ() {
+		return listJ;
+	}
+
+	public void setListCourrierJr(List<Courrier> listCourrierJr) {
+		this.listCourrierJr = listCourrierJr;
+	}
+
+	public List<Courrier> getListCourrierJr() {
+		return listCourrierJr;
+	}
+
+	public Date getDateJ() {
+		return dateJ;
+	}
+
+	public void setDateJ(Date dateJ) {
+		this.dateJ = dateJ;
+	}
+
+	public int getNbr() {
+		return nbr;
+	}
+
+	public void setNbr(int nbr) {
+		this.nbr = nbr;
+	}
+
+	public void setRecordsJ(long recordsJ) {
+		this.recordsJ = recordsJ;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsJ() {
+		if (listJ == null && listJ.getWrappedData() == null)
+			recordsJ = 0;
+		else
+			recordsJ = ((List<Courrier>) listJ.getWrappedData()).size();
+		return recordsJ;
+	}
+
+	public void setListCourrierSem(List<Courrier> listCourrierSem) {
+		this.listCourrierSem = listCourrierSem;
+	}
+
+	public List<Courrier> getListCourrierSem() {
+		return listCourrierSem;
+	}
+
+	public void setListCourrierMois(List<Courrier> listCourrierMois) {
+		this.listCourrierMois = listCourrierMois;
+	}
+
+	public List<Courrier> getListCourrierMois() {
+		return listCourrierMois;
+	}
+
+	public void setRecordsSem(long recordsSem) {
+		this.recordsSem = recordsSem;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsSem() {
+		if (listSem == null && listSem.getWrappedData() == null)
+			recordsSem = 0;
+		else
+			recordsSem = ((List<Courrier>) listSem.getWrappedData()).size();
+
+		return recordsSem;
+	}
+
+	public void setRecordsMois(long recordsMois) {
+		this.recordsMois = recordsMois;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsMois() {
+		if (listMois == null && listMois.getWrappedData() == null)
+			recordsMois = 0;
+		else
+			recordsMois = ((List<Courrier>) listMois.getWrappedData()).size();
+		return recordsMois;
+	}
+
+	public void setRecordsDurée(long recordsDurée) {
+		this.recordsDurée = recordsDurée;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsDurée() {
+		if (listDurée == null && listDurée.getWrappedData() == null)
+			recordsDurée = 0;
+		else
+			recordsDurée = ((List<Courrier>) listDurée.getWrappedData()).size();
+		return recordsDurée;
+	}
+
+	public void setListSem(DataModel listSem) {
+		this.listSem = listSem;
+	}
+
+	public DataModel getListSem() {
+		return listSem;
+	}
+
+	public void setListMois(DataModel listMois) {
+		this.listMois = listMois;
+	}
+
+	public DataModel getListMois() {
+		return listMois;
+	}
+
+	public void setListDurée(DataModel listDurée) {
+		this.listDurée = listDurée;
+	}
+
+	public DataModel getListDurée() {
+		return listDurée;
+	}
+
+	public void setSelect3(boolean select3) {
+		this.select3 = select3;
+	}
+
+	public boolean isSelect3() {
+		return select3;
+	}
+
+	public void setDateM(Date dateM) {
+		this.dateM = dateM;
+	}
+
+	public Date getDateM() {
+		return dateM;
+	}
+
+	public void setDateD(Date dateD) {
+		this.dateD = dateD;
+	}
+
+	public Date getDateD() {
+		return dateD;
+	}
+
+	public void setDateF(Date dateF) {
+		this.dateF = dateF;
+	}
+
+	public Date getDateF() {
+		return dateF;
+	}
+
+	public boolean isSelect4() {
+		return select4;
+	}
+
+	public void setSelect4(boolean select4) {
+		this.select4 = select4;
+	}
+
+	public void setSelect5(boolean select5) {
+		this.select5 = select5;
+	}
+
+	public boolean isSelect5() {
+		return select5;
+	}
+
+	public void setListCourrierDurée(List<Courrier> listCourrierDurée) {
+		this.listCourrierDurée = listCourrierDurée;
+	}
+
+	public List<Courrier> getListCourrierDurée() {
+		return listCourrierDurée;
+	}
+
+	public GregorianCalendar getC() {
+		return c;
+	}
+
+	public void setC(GregorianCalendar c) {
+		this.c = c;
+	}
+
+	public void setC1(GregorianCalendar c1) {
+		this.c1 = c1;
+	}
+
+	public GregorianCalendar getC1() {
+		return c1;
+	}
+
+	public void setNbrCrDuré(int nbrCrDuré) {
+		this.nbrCrDuré = nbrCrDuré;
+	}
+
+	public int getNbrCrDuré() {
+		return nbrCrDuré;
+	}
+
+	public void setNbrJ(int nbrJ) {
+		this.nbrJ = nbrJ;
+	}
+
+	public int getNbrJ() {
+		return nbrJ;
+	}
+
+	public void setFinS(Date finS) {
+		this.finS = finS;
+	}
+
+	public Date getFinS() {
+		return finS;
+	}
+
+	public void setDébutS(Date débutS) {
+		this.débutS = débutS;
+	}
+
+	public Date getDébutS() {
+		return débutS;
+	}
+
+	public void setCrSem(Courrier crSem) {
+		this.crSem = crSem;
+	}
+
+	public Courrier getCrSem() {
+		return crSem;
+	}
+
+	public void setCrJour(Courrier crJour) {
+		this.crJour = crJour;
+	}
+
+	public Courrier getCrJour() {
+		return crJour;
+	}
+
+	public void setStatus4(boolean status4) {
+		this.status4 = status4;
+	}
+
+	public boolean isStatus4() {
+		return status4;
+	}
+
+}

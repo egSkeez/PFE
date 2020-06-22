@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Bordereau_Envoi_Dossier" language="groovy" pageWidth="595" pageHeight="842" columnWidth="525" leftMargin="35" rightMargin="35" topMargin="35" bottomMargin="35" uuid="f1e7080e-5d2a-4e88-b151-959e9a0f6912">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="134" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="6279a9ac-b1d7-4a57-ad9e-79921ba6ace0" x="55" y="0" width="73" height="20"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[التاريخ]]></text>
+			</staticText>
+			<textField pattern="yyyy/MM/dd">
+				<reportElement uuid="dbb042a5-fcea-49d9-bd04-73852c313482" x="0" y="0" width="100" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="00a79e05-c6a2-4b95-93e1-8373f8f71a4c" x="0" y="49" width="525" height="20"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[جدول إرسال داخلي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="62e913b3-9222-4048-8197-9227db8e1b7c" x="446" y="93" width="45" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الموضوع :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="36fa0f0d-6ba8-4398-b1e9-bf364925abae" x="428" y="113" width="63" height="20"/>
+				<box topPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[يرجى الرد قبل : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="e93c8127-df89-419f-853e-df4767e7428f" x="454" y="73" width="37" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المصدر :]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

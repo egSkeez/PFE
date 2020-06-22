@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Envoi Fax</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel">
+						<h:form id="mainForm">
+							<h:panelGrid columns="20">
+								<a4j:commandLink id="retour" action="#{faxEnvoiBean.reset}" ajaxSingle="true"
+									oncomplete="document.location.href='../viewsFaxMail/consultationMailFax.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="1" styleClass="xtePanelGrid">
+								<h:outputText value="#{msg.envoieFaxLabel}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<h:form>
+							<rich:messages ajaxRendered="true" errorClass="msgError"
+								styleClass="error" />
+							<h:panelGrid columns="2">
+								<h:column>
+									<h:outputText value="#{msg.ExpDestType2} : "
+										styleClass="xteDetailLabel" />
+								</h:column>
+								<h:column>
+									<h:inputText id="ref1"
+										value="#{faxEnvoiBean.nameContact}"
+										style="width:150px;" />
+									<a4j:commandLink id="del" valign="bottom" ajaxSingle="true"
+										onclick="document.location.href='listContact.jsf'">
+										<h:graphicImage value="../framGraphique/images/Loupe.png"
+											alt="Rechercher" />
+									</a4j:commandLink>
+									<rich:toolTip for="del" direction="top-right"
+										value="#{msg.tooltipRecherche}" />
+								</h:column>
+								<h:column>
+									<h:outputText value="#{msg.numFax} : " styleClass="xteDetailLabel" />
+									<h:outputText value="*" styleClass="error" />
+								</h:column>
+								<h:inputText id="ref"
+									value="#{faxEnvoiBean.numFax}"
+									style="width:150px;" required="true"
+									requiredMessage="* #{msg.numFax} #{msg.champsobligatoire}" />
+								<h:column>
+									<h:outputText value="#{msg.contenu} : "
+										styleClass="xteDetailLabel" />
+									<h:outputText value="*" styleClass="error" />
+								</h:column>
+								<rich:editor id="commentaire" value="#{faxEnvoiBean.content}" useSeamText="false"
+									required="true" autoResize="true" width="650" height="300"
+									requiredMessage="* #{msg.contenu} #{msg.champsobligatoire}">
+								<a4j:support  event="onchange" action="#{faxEnvoiBean.saveTempValue}" ajaxSingle="true"/>
+								</rich:editor>
+								<h:column />
+							</h:panelGrid>
+							<br />
+						<!--  	<div>
+								<ui:include src="../framGraphique/upload.xhtml"></ui:include>
+							</div> -->
+							<br />
+							<rich:spacer height="10" />
+							<div align="center">
+								<a4j:commandButton value="#{msg.envoyer}" type="submit"
+									action="#{faxEnvoiBean.save}"
+									oncomplete="if(#{faxEnvoiBean.status}==true) #{rich:component('msgPanal')}.show(); else #{rich:component('msgPanal2')}.show();"
+									reRender="msgPanal,msgPanal2"></a4j:commandButton>
+								<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit" action="#{faxEnvoiBean.reset}" ajaxSingle="true"
+									oncomplete="document.location.href='../viewsFaxMail/consultationMailFax.jsf'" ></a4j:commandButton>
+							</div>
+							<rich:spacer height="10" />
+							<div align="left">
+								<h:outputText value="#{msg.infoChampObligatoir}" />
+							</div>
+						</h:form>
+					</rich:panel>
+					<div>
+						<ui:include src="../framGraphique/uploadPopup.xhtml"></ui:include>
+					</div>
+					<rich:modalPanel id="msgPanal" autosized="true" height="100"
+						width="350">
+						<f:facet name="header">
+							<h:outputText value="#{msg.labelConfirmation}"
+								styleClass="xtePopupInformationTextHeader" />
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<a4j:keepAlive beanName="faxEnvoiBean" />
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/interrogation.png"
+											alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											id="messagePop" styleClass="popupInformationText"
+											value="#{msg.CourrierTransferMsg}" />
+									</td>
+								</tr>
+							</table>
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											onclick="document.location.href='../GBO/acceuilGBO.jsf'" type="submit"
+											styleClass="submitButton" />
+									</td>
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+					<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+						width="400">
+						<a4j:keepAlive beanName="faxEnvoiBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelError}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink2" />
+								<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/erreurrrrr.png" alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText"
+											value="#{msg.erreurTransfert}" />
+									</td>
+								</tr>
+							</table>
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+											type="submit" ajaxSingle="true" styleClass="submitButton" />
+									</td>
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FicheListDossier_ListeCourrier" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="20" bottomMargin="0" uuid="6fc35615-fad4-459c-a2be-38460ce61f45">
+	<property name="ireport.zoom" value="1.331000000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="confidentialite" class="xtensus.entity.Confidentialite">
+		<fieldDescription><![CDATA[confidentialite]]></fieldDescription>
+	</field>
+	<field name="courrier" class="xtensus.entity.Courrier">
+		<fieldDescription><![CDATA[courrier]]></fieldDescription>
+	</field>
+	<field name="courrierAValider" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierAValider]]></fieldDescription>
+	</field>
+	<field name="courrierAutreDestinataires" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierAutreDestinataires]]></fieldDescription>
+	</field>
+	<field name="courrierCommentaire" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierCommentaire]]></fieldDescription>
+	</field>
+	<field name="courrierDateReceptionEnvoi" class="java.util.Date">
+		<fieldDescription><![CDATA[courrierDateReceptionEnvoi]]></fieldDescription>
+	</field>
+	<field name="courrierDestinataireReelle" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierDestinataireReelle]]></fieldDescription>
+	</field>
+	<field name="courrierExpediteur" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierExpediteur]]></fieldDescription>
+	</field>
+	<field name="courrierExpediteurObjet" class="java.lang.Object">
+		<fieldDescription><![CDATA[courrierExpediteurObjet]]></fieldDescription>
+	</field>
+	<field name="courrierNature" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierNature]]></fieldDescription>
+	</field>
+	<field name="courrierObjet" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierObjet]]></fieldDescription>
+	</field>
+	<field name="courrierRecu" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierRecu]]></fieldDescription>
+	</field>
+	<field name="courrierReference" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierReference]]></fieldDescription>
+	</field>
+	<field name="dossier" class="xtensus.entity.Dossier">
+		<fieldDescription><![CDATA[dossier]]></fieldDescription>
+	</field>
+	<field name="etatID" class="java.lang.Integer">
+		<fieldDescription><![CDATA[etatID]]></fieldDescription>
+	</field>
+	<field name="expDest" class="xtensus.entity.Expdest">
+		<fieldDescription><![CDATA[expDest]]></fieldDescription>
+	</field>
+	<field name="forValidating" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[forValidating]]></fieldDescription>
+	</field>
+	<field name="forwardable" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[forwardable]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="inValidating" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[inValidating]]></fieldDescription>
+	</field>
+	<field name="notForwardable" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[notForwardable]]></fieldDescription>
+	</field>
+	<field name="notOpened" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[notOpened]]></fieldDescription>
+	</field>
+	<field name="notShared" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[notShared]]></fieldDescription>
+	</field>
+	<field name="opened" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[opened]]></fieldDescription>
+	</field>
+	<field name="shared" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[shared]]></fieldDescription>
+	</field>
+	<field name="transaction" class="xtensus.entity.Transaction">
+		<fieldDescription><![CDATA[transaction]]></fieldDescription>
+	</field>
+	<field name="transactionDateConsultation" class="java.util.Date">
+		<fieldDescription><![CDATA[transactionDateConsultation]]></fieldDescription>
+	</field>
+	<field name="transactionDestination" class="xtensus.entity.TransactionDestination">
+		<fieldDescription><![CDATA[transactionDestination]]></fieldDescription>
+	</field>
+	<field name="transactionDestinationReelID" class="java.lang.Integer">
+		<fieldDescription><![CDATA[transactionDestinationReelID]]></fieldDescription>
+	</field>
+	<field name="transactionID" class="java.lang.Integer">
+		<fieldDescription><![CDATA[transactionID]]></fieldDescription>
+	</field>
+	<field name="transmission" class="xtensus.entity.Transmission">
+		<fieldDescription><![CDATA[transmission]]></fieldDescription>
+	</field>
+	<field name="treated" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[treated]]></fieldDescription>
+	</field>
+	<field name="typeCourrier" class="java.lang.String">
+		<fieldDescription><![CDATA[typeCourrier]]></fieldDescription>
+	</field>
+	<field name="unValidated" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[unValidated]]></fieldDescription>
+	</field>
+	<field name="untreated" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[untreated]]></fieldDescription>
+	</field>
+	<field name="urgence" class="xtensus.entity.Urgence">
+		<fieldDescription><![CDATA[urgence]]></fieldDescription>
+	</field>
+	<field name="validated" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[validated]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="16" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="1fb89e27-01cd-4168-9da2-26e355fa921f" x="0" y="0" width="522" height="16"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Liste des courriers attachés]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="103" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="5176c738-0635-4e8d-a268-f81d2a9e0e94" x="109" y="49" width="90" height="15"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="1"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReponseSysteme()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="dbe2ab80-a5ca-4f96-af4f-5c96793cdb71" x="67" y="4" width="149" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierReferenceCorrespondant()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="d9cee1f7-9a1b-4a1e-aa15-7243ea3785ec" x="254" y="49" width="133" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date effective de réponse :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689" x="10" y="34" width="95" height="15"/>
+				<box topPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date de réception :]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="64d0f1ed-5a30-4ea7-bc33-1812c9fd6564" x="105" y="34" width="95" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReponse()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689" x="10" y="19" width="117" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Mode de transmission :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="8adfe983-9fdd-4aef-b908-9a8848f1df49" x="126" y="19" width="122" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement verticalAlignment="Bottom" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transmission}.getTransmissionLibelle()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e45f4011-826d-4049-854d-8e64e41b5d32" x="10" y="64" width="122" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Degré de confidentialité :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="05b29087-c5d8-4bec-bdd5-965229f25a58" x="10" y="4" width="57" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Référence :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="0e1fde04-8cec-4fe6-8ec4-40ea36f964e6" x="370" y="34" width="136" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierNecessiteReponse()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6cd1cbbd-7103-4e7c-b849-48ac8a8e7689" x="254" y="19" width="40" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nature :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d32404f0-c93c-4c06-b290-c75c613f311c" x="10" y="49" width="98" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date limite d’envoi :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="e45f4011-826d-4049-854d-8e64e41b5d32" x="254" y="64" width="86" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Degré d'urgence :]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="8157b3a3-99cb-45bf-8ebe-bd470f048fe1" x="387" y="49" width="123" height="15"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierDateReception()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="31b69cb4-99aa-4723-82c5-d0a555503452" x="10" y="79" width="78" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Commentaires :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="ece7f3cd-6a22-4ad1-a817-b556707167e7" x="254" y="34" width="115" height="15"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nécessité de réponce :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f496011c-f778-4177-ae24-389d83d2383e" stretchType="RelativeToBandHeight" x="88" y="79" width="427" height="15"/>
+				<textElement verticalAlignment="Bottom" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrier}.getCourrierCommentaire()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="9fa480f2-b621-4efb-9c3c-25abc9b4e8bb" x="136" y="64" width="98" height="15"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{confidentialite}.getConfidentialiteLibelle()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c5a31bbb-c660-4e34-8e4b-e8c20ce63ca2" x="340" y="64" width="182" height="15"/>
+				<box leftPadding="1"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{urgence}.getUrgenceLibelle()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="74420cd8-f46e-426c-90ed-f7c07b868189" positionType="FixRelativeToBottom" x="55" y="98" width="391" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="6521022c-5ce9-427b-b679-1c66041897f0" x="293" y="19" width="227" height="15"/>
+				<box leftPadding="0" bottomPadding="0"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courrierNature}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

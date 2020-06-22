@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Accueil</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.cssmobile}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/headerWeb.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbarr2.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche" style="width: 100%">
+					<h:form id="LoginForm">
+						<rich:panel styleClass="rich-panel">
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<h:commandLink id="btnCreateFile"
+										action="#{accueilGBOBean.createFile}" target="_blank"
+										style="display:none;">
+										<h:graphicImage id="btnCreateFileImg"
+											value="../framGraphique/images/documents.png" />
+									</h:commandLink>
+									<a4j:commandButton id="btnCalculateStatCourrier"
+										
+										action="#{accueilGBOBean.calculateStatisticsCourrier}"
+										reRender="panCourrier" style="display:none;">
+									</a4j:commandButton>
+									<a4j:commandButton id="btnCalculateStatDossier"
+										
+										action="#{accueilGBOBean.calculateStatisticsDossier}"
+										style="display:none;" reRender="panDossier">
+									</a4j:commandButton>
+									<a4j:commandButton id="btnCalculateStatRelance"
+										
+										action="#{accueilGBOBean.calculateStatisticsRelance}"
+										style="display:none;" reRender="panRappel">
+									</a4j:commandButton>
+									<a4j:commandButton id="btnCalculateStatQualification"
+										action="#{accueilGBOBean.calculateStatisticsQualification}"
+										style="display:none;" reRender="panQualCourrier">
+									</a4j:commandButton>
+									<a4j:commandButton id="btnCalculateStatEmailCheck"
+										action="#{accueilGBOBean.calculateStatisticsEmailCheck}"
+										style="display:none;" reRender="statusForm">
+									</a4j:commandButton>
+
+									<a4j:commandLink id="accueil"
+										onclick="document.location.href='acceuilGBO.jsf'">
+										<h:graphicImage
+											value="../framGraphique/images/accueilActif.png"
+											onmouseover="this.src='../framGraphique/images/accueilmodifier.png'"
+											onmouseout="this.src='../framGraphique/images/accueilActif.png'" />
+									</a4j:commandLink>
+									<rich:spacer width="7" />
+									
+									<rich:toolTip for="accueilRelance"
+										value="#{msg.gestionRelance}" />
+									<rich:spacer width="10" />
+
+								</div>
+								<div id="barreIconeDroite">
+
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+								</div>
+							</div>
+						</rich:panel>
+						<rich:panel id="panStat" styleClass="rich-panel"
+							rendered="#{!accueilGBOBean.showLoginErrorMessage}"
+							style="padding: 0 3px 0 0;">
+							
+							<table width="100%" border="0">
+
+								<tr>
+									<td width="100%" valign="top" style="position: relative;">
+										<a4j:region>
+											<div align="center" class="centerOverDiv">
+												<a4j:status id="ajaxStatusCourrier"
+													rendered="#{accueilGBOBean.refreshedCourrier}">
+													<f:facet name="start">
+														<h:graphicImage width="200" height="200"
+															value="../framGraphique/images/loading.gif" />
+													</f:facet>
+												</a4j:status>
+											</div>
+											<rich:panel id="panCourrier" styleClass="rich-panel">
+												<f:facet name="header">
+													<h:outputText value="#{msg.courriersLabel}"
+														styleClass="xteDetailLabel" />
+												</f:facet>
+												<h:panelGrid columns="1">
+													<h:outputText
+														value="#{msg.annéecourranteLabel} #{accueilGBOBean.annee}"
+														styleClass="xteDetailLabel" />
+													<h:outputText
+														value="#{msg.arrivéesLabel} : #{accueilGBOBean.courrierArrivee} ( #{accueilGBOBean.pourcentageCourrierArrivee} %) #{msg.AcceuilGBOdontLabel} #{accueilGBOBean.courrierNouveaux} #{msg.AcceuilGBOnouveauxLabel}"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.AcceuilGBODépartsLabel} : #{accueilGBOBean.courrierDepart} ( #{accueilGBOBean.pourcentageCourrierDepart} %)"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.aValiderLabel} : #{accueilGBOBean.courrierAValider}"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.totalLabel} : #{accueilGBOBean.courrierTotal}"
+														styleClass="xteDetailLabel" />
+												</h:panelGrid>
+											</rich:panel>
+										</a4j:region></td>
+									</tr>
+									<tr>
+									<td width="100%" valign="top" style="position: relative;">
+										<a4j:region>
+											<div align="center" class="centerOverDiv">
+												<a4j:status id="ajaxStatusDossier"
+													rendered="#{accueilGBOBean.refreshedDossier}">
+													<f:facet name="start">
+														<h:graphicImage width="200" height="200"
+															value="../framGraphique/images/loading.gif" />
+													</f:facet>
+												</a4j:status>
+											</div>
+											<rich:panel id="panDossier" styleClass="rich-panel">
+												<f:facet name="header">
+													<h:outputText value="#{msg.dossiersLabel}"
+														styleClass="xteDetailLabel" />
+												</f:facet>
+												<h:panelGrid columns="1">
+													<h:outputText
+														value="#{msg.annéecourranteLabel} #{accueilGBOBean.annee}"
+														styleClass="xteDetailLabel" />
+													<h:outputText
+														value="#{msg.mesDossiersLabel} : #{accueilGBOBean.mesDossier}"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.arrivésLabel} : #{accueilGBOBean.dossierArrivee} ( #{accueilGBOBean.pourcentageDossierArrivee} %)"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.départsLabel} : #{accueilGBOBean.dossierDepart} ( #{accueilGBOBean.pourcentageDossierDepart} %)"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.totalLabel} : #{accueilGBOBean.dossierTotal}"
+														styleClass="xteDetailLabel" />
+												</h:panelGrid>
+											</rich:panel>
+										</a4j:region></td>
+								</tr>
+
+								<tr>
+									<td width="49%" valign="top" style="position: relative;">
+										<a4j:region>
+											<div align="center" class="centerOverDiv">
+												<a4j:status id="ajaxStatusRappel"
+													rendered="#{accueilGBOBean.refreshedRelance}">
+													<f:facet name="start">
+														<h:graphicImage width="200" height="200"
+															value="../framGraphique/images/loading.gif" />
+													</f:facet>
+												</a4j:status>
+											</div>
+											<rich:panel id="panRappel" styleClass="rich-panel">
+												<f:facet name="header">
+													<h:outputText value="#{msg.rappelsLabel}"
+														styleClass="xteDetailLabel" />
+												</f:facet>
+
+												<h:panelGrid columns="1">
+													<h:outputText value="#{msg.nécéssiteUneRéponseLabel}"
+														styleClass="xteDetailLabel" />
+													<h:outputText
+														value="#{msg.demainLabel} : #{accueilGBOBean.necessitnatReponseDemain}"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.cetteSemaineLabel}: #{accueilGBOBean.necessitnatReponseSemaine}"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.dateReponseDepasser} : #{accueilGBOBean.necessitnatReponseDateDepasse}"
+														styleClass="xteDetailLabelNormal" />
+													<h:outputText
+														value="#{msg.totalLabel} : #{accueilGBOBean.necessitnatReponseTotal}"
+														styleClass="xteDetailLabel" />
+												</h:panelGrid>
+											</rich:panel>
+										</a4j:region>
+									</td>
+									</tr>
+									<tr>
+									<td width="49%" valign="top" style="position: relative;">
+										<a4j:region>
+											<div align="center" class="centerOverDiv">
+												<a4j:status id="ajaxStatusQualCourrier"
+													rendered="#{accueilGBOBean.refreshedQualification}">
+													<f:facet name="start">
+														<h:graphicImage width="200" height="200"
+															value="../framGraphique/images/loading.gif" />
+													</f:facet>
+												</a4j:status>
+											</div>
+											<rich:panel id="panQualCourrier" styleClass="rich-panel">
+												<f:facet name="header">
+													<h:outputText value="#{msg.qualificationCourrierLabel}"
+														styleClass="xteDetailLabel" />
+												</f:facet>
+												<table width="100%">
+													<tr>
+														<td width="50%" valign="top"><h:panelGrid columns="1">
+																<h:outputText value="#{msg.urgenceLabel}"
+																	styleClass="xteDetailLabel" />
+
+																<rich:dataList var="u"
+																	value="#{accueilGBOBean.statistiqueUrgencesDM}"
+																	rows="10" type="square">
+																	<h:outputText
+																		rendered="#{variableGlobale.locale eq 'fr_FR'}"
+																		value="#{u.urgence.urgenceLibelle} : #{u.count}"
+																		styleClass="xteDetailLabelNormal" />
+																	<h:outputText
+																		rendered="#{variableGlobale.locale eq 'ar'}"
+																		value="#{u.urgence.urgenceLibelleAr} : #{u.count}"
+																		styleClass="xteDetailLabelNormal" />
+																</rich:dataList>
+																<h:outputText
+																	value="#{msg.totalLabel} : #{accueilGBOBean.urgenceTotal}"
+																	styleClass="xteDetailLabel" />
+															</h:panelGrid></td>
+														<td width="50%" valign="top"><h:panelGrid columns="1">
+																<h:outputText value="#{msg.acceuilConfidentialitelabel}"
+																	styleClass="xteDetailLabel" />
+																<rich:dataList var="c"
+																	value="#{accueilGBOBean.statistiqueConfidentialitesDM}"
+																	rows="10" type="square">
+																	<h:outputText
+																		rendered="#{variableGlobale.locale eq 'fr_FR'}"
+																		value="#{c.confidentialite.confidentialiteLibelle} : #{c.count}"
+																		styleClass="xteDetailLabelNormal" />
+																	<h:outputText
+																		rendered="#{variableGlobale.locale eq 'ar'}"
+																		value="#{c.confidentialite.confidentialiteLibelleAr} : #{c.count}"
+																		styleClass="xteDetailLabelNormal" />
+																</rich:dataList>
+																<h:outputText
+																	value="#{msg.totalLabel} : #{accueilGBOBean.confidentialiteTotal}"
+																	styleClass="xteDetailLabel" />
+															</h:panelGrid></td>
+													</tr>
+												</table>
+											</rich:panel>
+										</a4j:region></td>
+								</tr>
+							</table>
+
+						</rich:panel>
+					</h:form>
+					
+					
+					
+					<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="Aide : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+									value="../framGraphique/images/AideEnLigne/GBO-Tableau-Bord.jpg"
+									width="780" height="490" id="aidehidelink" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+									value="../framGraphique/images/AideEnLigne/GBO-Acceuil-GBO-AR.png"
+									width="750" height="490" id="aidehidelinkAR" />
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+							<!-- popoup wait -->
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+							<rich:modalPanel id="waitPanel" style="text-align:center">
+								<h:outputText value="#{msg.messageAttente}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+						</div>
+					</rich:modalPanel>
+				</div>
+			
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+
+
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,315 @@
+package xtensus.beans.common.GBO;
+
+import javax.el.Expression;
+import javax.faces.application.Application;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.ajax4jsf.model.SequenceRange;
+import org.ajax4jsf.model.SerializableDataModel;
+import org.richfaces.model.ExtendedFilterField;
+import org.richfaces.model.FilterField;
+import org.richfaces.model.Modifiable;
+import org.richfaces.model.Ordering;
+import org.richfaces.model.SortField2;
+
+import xtensus.entity.Nature;
+import xtensus.services.ApplicationManager;
+
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 
+ * @author ias This is example class that intended to demonstrate use of
+ *         ExtendedDataModel and SerializableDataModel. This implementation
+ *         intended to be used as a request scope bean. However, it actually
+ *         provides serialized state, so on a post-back we do not load data from
+ *         the data provider. Instead we use data that was used during
+ *         rendering. This data model must be used together with Data Provider,
+ *         which is responsible for actual data load from the database using
+ *         specific filtering and sorting. Normally Data Provider must be in
+ *         either session, or conversation scope.
+ */
+public class TestAuctionDataModel extends SerializableDataModel implements
+		Modifiable {
+
+	private ApplicationManager appMgr;
+	private Integer currentPk;
+	private Map<Integer, Nature> wrappedData = new HashMap<Integer, Nature>();
+	private List<Integer> wrappedKeys = null;
+	private Integer rowCount; // better to buffer row count locally
+	// private boolean detached;
+	private Integer rowIndex;
+	// For filter and Sort
+	private String sortField;
+	private boolean descending;
+	private HashMap<String, Object> filterMap = new HashMap<String, Object>();
+
+	// business
+	private String selectedVal = "";
+	private TestAuctionDataModelBean testAuction;
+
+	// for calling walk Restrictions
+	private boolean modifyVisited;
+	private boolean walkVisited;
+	/**
+	     * 
+	     */
+	private static final long serialVersionUID = -1956179896877538628L;
+
+	/**
+	 * This method never called from framework. (non-Javadoc)
+	 * 
+	 * @see org.ajax4jsf.model.ExtendedDataModel#getRowKey()
+	 */
+	@Override
+	public Object getRowKey() {
+		return currentPk;
+	}
+
+	/**
+	 * This method normally called by Visitor before request Data Row.
+	 */
+	@Override
+	public void setRowKey(Object key) {
+		this.currentPk = (Integer) key;
+
+	}
+
+	/**
+	 * This is main part of Visitor pattern. Method called by framework many
+	 * times during request processing.
+	 */
+	@Override
+	public void walk(FacesContext context, DataVisitor visitor, Range range,
+			Object argument) throws IOException {
+		try {
+			System.out.println(!filterMap.entrySet().isEmpty());
+			if (walkVisited == false || !filterMap.entrySet().isEmpty()) {
+                walkVisited = true;
+				int firstRow = ((SequenceRange) range).getFirstRow();
+				int numberOfRows = ((SequenceRange) range).getRows();
+				// if (detached) {
+				// for (Integer key : wrappedKeys) {
+				// setRowKey(key);
+				// visitor.process(context, key, argument);
+				// }
+				// } else{
+				wrappedKeys = new ArrayList<Integer>();
+				for (Nature item : appMgr.findNatureByCriteria(firstRow,
+						numberOfRows, filterMap, sortField, descending)) {
+					wrappedKeys.add(item.getNatureId());
+					wrappedData.put(item.getNatureId(), item);
+					visitor.process(context, item.getNatureId(), argument);
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * This method must return actual data rows count from the Data Provider. It
+	 * is used by pagination control to determine total number of data items.
+	 */
+
+	@Override
+	public int getRowCount() {
+		try {
+			if (rowCount == null) {
+				rowCount = appMgr.getList(Nature.class).size();
+			}
+			return rowCount;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	@Override
+	public Nature getRowData() {
+		if (currentPk == null) {
+			return null;
+		} else {
+			Nature ret = wrappedData.get(currentPk);
+			if (ret == null) {
+				// ret = getDataProvider().getAuctionItemByPk(currentPk);
+				wrappedData.put(currentPk, ret);
+				return ret;
+			} else {
+				return ret;
+			}
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public int getRowIndex() {
+		System.out.println("ROWINDEX");
+		return 0;
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public Object getWrappedData() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Never called by framework.
+	 */
+	@Override
+	public boolean isRowAvailable() {
+		if (currentPk == null) {
+			return false;
+		} else {
+			// return getDataProvider().hasAuctionItemByPk(currentPk);
+			return true;
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setRowIndex(int rowIndex) {
+		this.rowIndex = rowIndex;
+		// throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setWrappedData(Object data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * This method suppose to produce SerializableDataModel that will be
+	 * serialized into View State and used on a post-back. In current
+	 * implementation we just mark current model as serialized. In more
+	 * complicated cases we may need to transform data to actually serialized
+	 * form.
+	 */
+	public SerializableDataModel getSerializableModel(Range range) {
+		if (wrappedKeys != null) {
+			// detached = true;
+			return this;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * This is helper method that is called by framework after model update. In
+	 * must delegate actual database update to Data Provider.
+	 */
+	@Override
+	public void update() {
+		// detached =false;
+		System.out.println("UPDATE CALL , SO change my Implementation");
+	}
+
+	public void cliquer(ActionEvent evt) {
+		System.out.println("CLIQUER");
+	}
+
+	// Fin SerializableDataModel
+	// Debut Modifiable
+
+	@Override
+	public void modify(List<FilterField> filterFields,
+			List<SortField2> sortFields) {
+		System.out.println("MODIFY");
+		System.out.println("size filterFields :" + filterFields.size());
+		System.out.println("size sortFields :" + sortFields.size());
+		System.out.println("SORT_Field");
+		SortField2 sortField2 = null;
+		ExtendedFilterField extendedFilterField = null;
+		String value = null;
+		Expression expression = null;
+		String expressionStr = null;
+		if (sortFields != null && !sortFields.isEmpty()) {
+			sortField2 = sortFields.get(0);
+			int index = sortField2.getExpression().getExpressionString()
+					.lastIndexOf(".");
+			this.sortField = sortField2.getExpression().getExpressionString()
+					.substring(index).replace("}", "").replace(".", "");
+			if (sortField2.getOrdering() == Ordering.DESCENDING) {
+				this.descending = true;
+			} else {
+				this.descending = false;
+			}
+
+		}
+
+		System.out.println("FILTER_Field");
+		filterMap.clear();
+		walkVisited = false;
+		for (FilterField filterField : filterFields) {
+			extendedFilterField = (ExtendedFilterField) filterField;
+			System.out.println("VALUE : "
+					+ extendedFilterField.getFilterValue());
+			System.out
+					.println("EXPRESSION : "
+							+ extendedFilterField.getExpression()
+									.getExpressionString());
+			if (filterField instanceof ExtendedFilterField) {
+				extendedFilterField = (ExtendedFilterField) filterField;
+				value = extendedFilterField.getFilterValue();
+				if (value != null) {
+					expression = extendedFilterField.getExpression();
+					expressionStr = expression.getExpressionString();
+					int index = expressionStr.lastIndexOf(".");
+					if (!expression.isLiteralText()) {
+						expressionStr = expressionStr.substring(index)
+								.replace("}", "").replace(".", "");
+					}
+					filterMap.put(expressionStr, value);
+					
+				}
+			}
+
+		}
+
+	}
+
+	// Getters & Setters ......
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public String getSelectedVal() {
+		return selectedVal;
+	}
+
+	public void setSelectedVal(String selectedVal) {
+		this.selectedVal = selectedVal;
+	}
+
+	public TestAuctionDataModelBean getTestAuction() {
+		return testAuction;
+	}
+
+	public void setTestAuction(TestAuctionDataModelBean testAuction) {
+		this.testAuction = testAuction;
+	}
+
+}

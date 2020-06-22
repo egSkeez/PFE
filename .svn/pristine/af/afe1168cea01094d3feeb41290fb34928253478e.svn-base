@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-03-18T12:22:40 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourriersListes_Confidentialite" columnCount="3" printOrder="Horizontal" pageWidth="555" pageHeight="802" columnWidth="185" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="231761ae-2640-45c7-8739-0391bb6d334d">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="confidentilaiteLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentilaiteLibelle]]></fieldDescription>
+	</field>
+	<field name="nombre" class="java.lang.Long">
+		<fieldDescription><![CDATA[nombre]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="10" uuid="4ca913e7-b8e4-47c8-83aa-982f836e28b0"/>
+				<textElement markup="html">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{confidentilaiteLibelle}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

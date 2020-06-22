@@ -1,0 +1,168 @@
+package xtensus.beans.common.GNL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Annotation;
+import xtensus.entity.Nature;
+import xtensus.gnl.entity.Trace;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ConsultTraceBean {
+
+	public ConsultTraceBean() {
+	}
+
+	private DataModel listTraceDM;
+	private ApplicationManager appMgr;
+	private Trace trace;
+	private List<Trace> listTrace;
+	private int compteur;
+
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	@Autowired
+	private VariableGlobale vbg;
+
+	@Autowired
+	public ConsultTraceBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		trace = new Trace();
+		listTrace = new ArrayList<Trace>();
+		setListTraceDM(new ListDataModel());
+		System.out.println("**Bean Consult traces Injecte***");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			List<Trace> list = new ArrayList<Trace>();
+			listTrace = appMgr.getList(Trace.class);
+			Trace tr = new Trace();
+			for (int i = listTrace.size()-1; i >= 0; i--) {
+				tr = listTrace.get(i);
+				list.add(tr);
+				tr = new Trace();
+			}
+			listTraceDM.setWrappedData(list);
+			System.out.println("****ChargementListTraceAvecSucces****");
+
+		} catch (Exception e) {
+			System.out.println("***ErreurDeChargementListTraces***");
+		}
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	public String retour() {
+		return ("retour");
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			trace = (Trace) listTraceDM.getRowData();
+			vbg.setTrace(trace);
+			System.out.println(trace.getTraceId());
+		} catch (Exception e) {
+
+		}
+	}
+
+	public void updateSelectedRow() {
+		try {
+			appMgr.update(trace);
+			Initialize();
+		} catch (Exception e) {
+		}
+	}
+
+	public Trace nouveauTrace() {
+		trace = new Trace();
+		return (trace);
+	}
+
+	//
+	// getteur & setteur
+
+	public DataModel getListTraceDM() {
+		return listTraceDM;
+	}
+
+	public void setListTraceDM(DataModel listTraceDM) {
+		this.listTraceDM = listTraceDM;
+	}
+
+	@SuppressWarnings("unchecked")
+	public int getCompteur() {
+		try {
+			compteur = ((List<Trace>) listTraceDM.getWrappedData()).size();
+			return compteur;
+		} catch (NullPointerException n) {
+			compteur = 0;
+			return compteur;
+		}
+	}
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Trace getTrace() {
+		return trace;
+	}
+
+	public void setTrace(Trace trace) {
+		this.trace = trace;
+	}
+
+	public List<Trace> getListTrace() {
+		return listTrace;
+	}
+
+	public void setListTrace(List<Trace> listTrace) {
+		this.listTrace = listTrace;
+	}
+
+	public VariableGlobale getVbg() {
+		return vbg;
+	}
+
+	public void setVbg(VariableGlobale vbg) {
+		this.vbg = vbg;
+	}
+
+}

@@ -1,0 +1,391 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.ajax4jsf.model.SequenceRange;
+import org.ajax4jsf.model.SerializableDataModel;
+
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.beans.utils.RechercheMulticritereModel;
+
+public class CourrierRechercheDataModel extends SerializableDataModel {
+
+	private static final long serialVersionUID = 1494387208247308526L;
+	private Integer currentPk;
+	private Map<Integer, CourrierInformations> wrappedData = new HashMap<Integer, CourrierInformations>();
+	private List<Integer> wrappedKeys = null;
+	private Integer rowCount; // better to buffer row count locally
+	private Integer rowIndex;
+	private Integer oldFirstRow = 1;
+	private SequenceRange firstRange;
+	private int firstPage;
+
+	// Beans
+	private CourrierRechercheMultiCriteresBean courrierRechercheMultiCriteresBean;
+
+	// Filtre recherche
+	private String typeCourrierValidation;
+	private Boolean checkedTypeCourrierValidation;
+	private String transmissionCourrier;
+	private String typeCourrierTraitement;
+	private String categorieCourrier;
+	private String typeCourrier;
+	private String courrierRubrique;
+	private boolean moreChoices;
+	private boolean showExecuteAllButton;
+	private boolean hideExecuteAllButtonJour;
+	private boolean hideExecuteAllButton;
+
+	// for calling walk Restrictions
+	private boolean walkVisited;
+	private boolean scrollerWalkVisit;
+	private RechercheMulticritereModel criteres;
+	private String heightDataTable;
+
+	@PostConstruct
+	public void init() {
+		typeCourrierValidation = "";
+		transmissionCourrier = "Tout les courriers";
+		typeCourrierTraitement = "tous";
+		categorieCourrier = "T";
+		typeCourrier = "tous";
+		courrierRubrique = "6";
+		moreChoices = false;
+		showExecuteAllButton = false;
+		hideExecuteAllButtonJour = true;
+		hideExecuteAllButton = true;
+		checkedTypeCourrierValidation = false;
+		firstPage = 1;
+	}
+
+	/**
+	 * This method never called from framework. (non-Javadoc)
+	 * 
+	 * @see org.ajax4jsf.model.ExtendedDataModel#getRowKey()
+	 */
+	@Override
+	public Object getRowKey() {
+		return currentPk;
+	}
+
+	/**
+	 * This method normally called by Visitor before request Data Row.
+	 */
+	@Override
+	public void setRowKey(Object key) {
+		this.currentPk = (Integer) key;
+	}
+
+	/**
+	 * This is main part of Visitor pattern. Method called by framework many
+	 * times during request processing.
+	 */
+	@Override
+	public void walk(FacesContext context, DataVisitor visitor, Range range,
+			Object argument) throws IOException {
+		int firstRow = 0;
+		int numberOfRows = 0;
+		if (firstRange == null) {
+			firstRange = (SequenceRange) range;
+		}
+		if (scrollerWalkVisit) {
+			firstRow = firstRange.getFirstRow();
+			numberOfRows = firstRange.getRows();
+			range = firstRange;
+			firstPage = 1;
+		} else {
+			firstRow = ((SequenceRange) range).getFirstRow();
+			numberOfRows = ((SequenceRange) range).getRows();
+		}
+		if (walkVisited == false || firstRow != oldFirstRow) {
+			System.out.println("IN WALK");
+			walkVisited = true;
+			try {
+				oldFirstRow = firstRow;
+				if (checkedTypeCourrierValidation) {
+					typeCourrierValidation = "Avalider";
+				} else {
+					typeCourrierValidation = "";
+				}
+				wrappedKeys = new ArrayList<Integer>();
+				wrappedData = new HashMap<Integer, CourrierInformations>();
+				for (CourrierInformations item : courrierRechercheMultiCriteresBean
+						.recherche(firstRow, numberOfRows)) {
+					wrappedKeys.add(item.getTransactionID());
+					wrappedData.put(item.getTransactionID(), item);
+					visitor.process(context, item.getTransactionID(), argument);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * This method must return actual data rows count from the Data Provider. It
+	 * is used by pagination control to determine total number of data items.
+	 */
+
+	@Override
+	public int getRowCount() {
+		System.out.println("countVisited = " + courrierRechercheMultiCriteresBean.getVb().isRechercheCountVisited());
+		if (courrierRechercheMultiCriteresBean.getVb().getRechercheRowCount() == null
+				|| courrierRechercheMultiCriteresBean.getVb().isRechercheCountVisited() == false) {
+			try {
+				courrierRechercheMultiCriteresBean.getVb().setRechercheCountVisited(true);
+				if (checkedTypeCourrierValidation) {
+					typeCourrierValidation = "Avalider";
+				} else {
+					typeCourrierValidation = "";
+				}
+				criteres = courrierRechercheMultiCriteresBean.getCriteres();
+				rowCount = courrierRechercheMultiCriteresBean.getCountCourrier();
+				courrierRechercheMultiCriteresBean.getVb().setRechercheRowCount(rowCount);
+				System.out.println("rowCount = " + rowCount);
+				if (rowCount == 0) {
+					heightDataTable = "98";
+				} else {
+					heightDataTable = "358";
+				}
+				return rowCount;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return 0;
+			}
+		} else {
+			return courrierRechercheMultiCriteresBean.getVb().getRechercheRowCount();
+		}
+	}
+
+	@Override
+	public CourrierInformations getRowData() {
+		if (currentPk == null) {
+			return null;
+		} else {
+			CourrierInformations ret = wrappedData.get(currentPk);
+			if (ret == null) {
+				wrappedData.put(currentPk, ret);
+				return ret;
+			} else {
+				return ret;
+			}
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public int getRowIndex() {
+		if (rowIndex == null) {
+			return 0;
+		}
+		return rowIndex;
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public Object getWrappedData() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Never called by framework.
+	 */
+	@Override
+	public boolean isRowAvailable() {
+		if (currentPk == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setRowIndex(int rowIndex) {
+		this.rowIndex = rowIndex;
+		// throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Unused rudiment from old JSF staff.
+	 */
+	@Override
+	public void setWrappedData(Object data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * This method suppose to produce SerializableDataModel that will be
+	 * serialized into View State and used on a post-back. In current
+	 * implementation we just mark current model as serialized. In more
+	 * complicated cases we may need to transform data to actually serialized
+	 * form.
+	 */
+	public SerializableDataModel getSerializableModel(Range range) {
+		if (wrappedKeys != null) {
+			return this;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * This is helper method that is called by framework after model update. In
+	 * must delegate actual database update to Data Provider.
+	 */
+	@Override
+	public void update() {
+		System.out.println("UPDATE CALL , SO change my Implementation");
+	}
+
+	public void permitionWalkVisit() {
+		walkVisited = false;
+		courrierRechercheMultiCriteresBean.getVb().setRechercheCountVisited(false);
+		scrollerWalkVisit = true;
+	
+	}
+
+	public void permitionWalkScroller(ActionEvent evt) {
+        scrollerWalkVisit = false;
+	}
+
+	// Getters & Setters ...
+	public String getTypeCourrierValidation() {
+		return typeCourrierValidation;
+	}
+
+	public void setTypeCourrierValidation(String typeCourrierValidation) {
+		this.typeCourrierValidation = typeCourrierValidation;
+	}
+
+	public String getTransmissionCourrier() {
+		return transmissionCourrier;
+	}
+
+	public void setTransmissionCourrier(String transmissionCourrier) {
+		this.transmissionCourrier = transmissionCourrier;
+	}
+
+	public String getTypeCourrierTraitement() {
+		return typeCourrierTraitement;
+	}
+
+	public void setTypeCourrierTraitement(String typeCourrierTraitement) {
+		this.typeCourrierTraitement = typeCourrierTraitement;
+	}
+
+	public String getCategorieCourrier() {
+		return categorieCourrier;
+	}
+
+	public void setCategorieCourrier(String categorieCourrier) {
+		this.categorieCourrier = categorieCourrier;
+	}
+
+	public String getTypeCourrier() {
+		return typeCourrier;
+	}
+
+	public void setTypeCourrier(String typeCourrier) {
+		this.typeCourrier = typeCourrier;
+	}
+
+	public boolean isMoreChoices() {
+		return moreChoices;
+	}
+
+	public void setMoreChoices(boolean moreChoices) {
+		this.moreChoices = moreChoices;
+	}
+
+	public boolean isShowExecuteAllButton() {
+		return showExecuteAllButton;
+	}
+
+	public void setShowExecuteAllButton(boolean showExecuteAllButton) {
+		this.showExecuteAllButton = showExecuteAllButton;
+	}
+
+	public boolean isHideExecuteAllButtonJour() {
+		return hideExecuteAllButtonJour;
+	}
+
+	public void setHideExecuteAllButtonJour(boolean hideExecuteAllButtonJour) {
+		this.hideExecuteAllButtonJour = hideExecuteAllButtonJour;
+	}
+
+	public boolean isHideExecuteAllButton() {
+		return hideExecuteAllButton;
+	}
+
+	public void setHideExecuteAllButton(boolean hideExecuteAllButton) {
+		this.hideExecuteAllButton = hideExecuteAllButton;
+	}
+
+	public Boolean getCheckedTypeCourrierValidation() {
+		return checkedTypeCourrierValidation;
+	}
+
+	public void setCheckedTypeCourrierValidation(
+			Boolean checkedTypeCourrierValidation) {
+		this.checkedTypeCourrierValidation = checkedTypeCourrierValidation;
+	}
+
+	public String getCourrierRubrique() {
+		return courrierRubrique;
+	}
+
+	public void setCourrierRubrique(String courrierRubrique) {
+		this.courrierRubrique = courrierRubrique;
+	}
+
+	public int getFirstPage() {
+		return firstPage;
+	}
+
+	public void setFirstPage(int firstPage) {
+		this.firstPage = firstPage;
+	}
+
+	public RechercheMulticritereModel getCriteres() {
+		criteres = courrierRechercheMultiCriteresBean.getCriteres();
+		return criteres;
+	}
+
+	public void setCriteres(RechercheMulticritereModel criteres) {
+		this.criteres = criteres;
+	}
+
+	public String getHeightDataTable() {
+		return heightDataTable;
+	}
+
+	public void setHeightDataTable(String heightDataTable) {
+		this.heightDataTable = heightDataTable;
+	}
+
+	public CourrierRechercheMultiCriteresBean getCourrierRechercheMultiCriteresBean() {
+		return courrierRechercheMultiCriteresBean;
+	}
+
+	public void setCourrierRechercheMultiCriteresBean(
+			CourrierRechercheMultiCriteresBean courrierRechercheMultiCriteresBean) {
+		this.courrierRechercheMultiCriteresBean = courrierRechercheMultiCriteresBean;
+	}
+}

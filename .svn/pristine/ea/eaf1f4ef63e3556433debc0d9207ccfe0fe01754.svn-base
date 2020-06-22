@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Recherche PM</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<h:panelGrid columns="4">
+								<a4j:commandLink
+									oncomplete="document.location.href='contactConsultation.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+							</h:panelGrid>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.ConsultExpfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+
+							<table style="width: 100%;">
+								<tr>
+									<td width="50%"><h:panelGrid columns="2">
+											<h:outputText value="#{msg.ContactPrenomNom}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{variableGlobale.expdestexterne.expDestExterneNom} #{variableGlobale.expdestexterne.expDestExternePrenom}"
+												style=" width :100px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactAdresse}"
+												styleClass="xteDetailLabel" />
+											<h:column />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactRue}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="adr"
+												value="#{variableGlobale.expdestexterne.expDestExterneAdresse}"
+												styleClass="xteDetailLabelOutput" />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactCode}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="code"
+												value="#{variableGlobale.expdestexterne.expDestExterneCodePostale}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactPays}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="pays"
+												value="#{variableGlobale.expdestexterne.expDestExternePays}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.Gouvernorat}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+
+											<h:outputText id="gouvernorat"
+												value="#{variableGlobale.expdestexterne.expDestExterneGouvernerat}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+											<h:column>
+												<rich:spacer width="30px" />
+												<h:outputText value="#{msg.ContactVille}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:outputText id="ville"
+												value="#{variableGlobale.expdestexterne.expDestExterneVille}"
+												styleClass="xteDetailLabelOutput" style=" width : 200px;" />
+										</h:panelGrid></td>
+									<td width="50%"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.ContactType}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="PP"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactCIN}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{variableGlobale.pp.cin}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactPortable}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{variableGlobale.pp.ppnumPortable}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactTele}"
+												styleClass="xteDetailLabel" />
+											<h:outputText id="no"
+												value="#{variableGlobale.expdestexterne.expDestExterneTelephone}"
+												styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.Contactfax}"
+												styleClass="xteDetailLabel" />
+											<h:outputText
+												value="#{variableGlobale.expdestexterne.expDestExterneFax}"
+												style=" width : 200px;" styleClass="xteDetailLabelOutput" />
+
+											<h:outputText value="#{msg.ContactMail}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{variableGlobale.expdestexterne.expDestExterneMail}"
+												style=" width :100px;" styleClass="xteDetailLabelOutput" />
+											<h:outputText value="#{msg.ContactEmp}"
+												styleClass="xteDetailLabel" style=" width :100px;" />
+											<h:outputText
+												value="#{variableGlobale.pp.pm.expdestexterne.expDestExterneNom}"
+												style=" width :100px;" styleClass="xteDetailLabelOutput" />
+
+										</h:panelGrid>
+									</td>
+								</tr>
+							</table>
+
+
+						</rich:panel>
+
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.RechercherExpfacet}"
+										styleClass="xteEnregistrementLabelOutput " />
+								</h:panelGrid>
+							</f:facet>
+							<div align="center">
+								<rich:dataTable
+									value="#{contactPersonneMoraleConsultationBean.list}" var="exp"
+									id="data" rows="10" styleClass="rich-datatable">
+									<rich:column width="5%">
+										<f:facet name="header">
+											<h:outputText value="" />
+										</f:facet>
+										<div align="center">
+											<h:selectBooleanCheckbox id="checkBoxAdd"
+												value="#{exp.selected}">
+												<a4j:support event="onclick" />
+											</h:selectBooleanCheckbox>
+										</div>
+									</rich:column>
+									<rich:column sortBy="#{exp.expdestexterne.expDestExterneNom}"
+										filterBy="#{exp.expdestexterne.expDestExterneNom}"
+										filterEvent="onkeyup" label="Nom">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ExpPrenomNomRaisonSociale}" />
+										</f:facet>
+										<h:outputText value="#{exp.expdestexterne.expDestExterneNom}" />
+									</rich:column>
+
+									<rich:column sortBy="#{exp.expdestexterne.expDestExterneMail}"
+										filterBy="#{exp.expdestexterne.expDestExterneMail}"
+										filterEvent="onkeyup" label="mail">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ExpMail}" />
+										</f:facet>
+										<h:outputText value="#{exp.expdestexterne.expDestExterneMail}" />
+									</rich:column>
+
+									<rich:column
+										sortBy="#{exp.expdestexterne.expDestExterneTelephone}"
+										filterBy="#{exp.expdestexterne.expDestExterneTelephone}"
+										filterEvent="onkeyup" label="Adr">
+										<f:facet name="header" id="yy">
+											<h:outputText value="#{msg.ExpTéle}" />
+										</f:facet>
+
+										<h:outputText
+											value="#{exp.expdestexterne.expDestExterneTelephone}" />
+
+									</rich:column>
+									<rich:column sortBy="#{exp.pm.pmmatriculeFiscal}"
+										filterBy="#{exp.pm.pmmatriculeFiscal}" filterEvent="onkeyup"
+										label="Adr">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ExpMatricule}" />
+										</f:facet>
+										<h:outputText value="#{exp.pm.pmmatriculeFiscal}" />
+									</rich:column>
+									<rich:column sortBy="#{exp.pm.pmaffiliationCnss}"
+										filterBy="#{exp.pm.pmaffiliationCnss}" filterEvent="onkeyup"
+										label="Adr">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ExpCNSS}" />
+										</f:facet>
+										<h:outputText value="#{exp.pm.pmaffiliationCnss}" />
+									</rich:column>
+								</rich:dataTable>
+							</div>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.NbrExp}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="records"
+									value="#{contactPersonneMoraleConsultationBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+							<rich:spacer width="10px" />
+							<a4j:keepAlive beanName="contactPersonneMoraleConsultationBean" />
+							<div align="center">
+								<a4j:commandButton value="#{msg.bouttonValider}" type="submit"
+									actionListener="#{contactPersonneMoraleConsultationBean.submitSelections}"
+									oncomplete="if(#{contactPersonneMoraleConsultationBean.status2}==true)
+									 #{rich:component('msgPanal')}.show();
+							else if(#{contactPersonneMoraleConsultationBean.status3}==true)
+							 #{rich:component('msgPanal2')}.show();"
+									reRender="msgPanal,msgPanal2" ajaxSingle="true"
+									styleClass="submitButton">
+								</a4j:commandButton>
+							</div>
+						</rich:panel>
+					</h:form>
+					<rich:modalPanel id="msgPanal" autosized="true" height="100"
+						width="400">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+
+						<h:form>
+							<a4j:keepAlive beanName="contactPersonneMoraleConsultationBean" />
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" alt="confirm" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText"
+											value="#{msg.MsgAffectationPM}" /></td>
+								</tr>
+							</table>
+
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href='contactRecherche.jsf'" /></td>
+
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+					<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+						width="400">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+
+								<h:outputText value="#{msg.labelAlerte}"
+									styleClass="popupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/closePopup.png"
+									width="15" height="15" id="hidelink3" />
+								<rich:componentControl for="msgPanal2" attachTo="hidelink3"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+
+						<h:form>
+							<a4j:keepAlive beanName="contactPersonneMoraleConsultationBean" />
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png"
+											alt="confirm" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="popupInformationText" value="#{msg.MsgErreurPM}" />
+									</td>
+								</tr>
+							</table>
+
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.bouttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href='contactPersonneMoraleRecherche.jsf'" />
+									</td>
+
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,251 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.AoConsultation;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+	public class AoConsultationModificationBean {
+
+	private ApplicationManager appMgr;
+	private AoConsultation aoConsultation;
+	private List<AoConsultation> listAoConsultation;
+	private boolean succesModif;
+	//[JS] : 2020-03-24
+	private boolean erreurSaisieDate1;
+	private boolean erreurSaisieDate2;
+	private boolean erreurSaisieDate3;
+	private boolean passeSaveAO= true;
+     //JS================
+	@Autowired
+	private VariableGlobale vb;
+	private boolean testOK;
+	
+	
+	public AoConsultationModificationBean() {
+
+	}
+	@Autowired
+	public AoConsultationModificationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		listAoConsultation = new ArrayList<AoConsultation>();
+		aoConsultation = new AoConsultation();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		System.out.println("/////////////////Initialize");
+
+		try {
+			aoConsultation = vb.getAoConsultation();
+			testOK=true;
+		} 
+		
+		catch (Exception e) {		
+			e.printStackTrace();
+		}
+	}
+
+		public void update(){
+			succesModif=false;
+			if(testOK && passeSaveAO){
+			
+			try {
+				appMgr.update(aoConsultation);
+				Initialize();
+				succesModif=true;
+			} catch (Exception e) {
+				System.out.println("Modif Erreur");
+				e.printStackTrace();
+			}
+		 
+			}
+			else{
+				if(!testOK){
+				FacesContext.getCurrentInstance().addMessage(
+						"messages",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Existe un AO ou Consultation avec ce Numéro",
+								""));
+				}
+				
+				 if(erreurSaisieDate1) {
+						FacesContext.getCurrentInstance().addMessage(
+								"messages",
+								new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Veuillez vérifier les dates,La date prolongation doit être supérieur ou égale à la date réception.",
+										""));
+					
+				 }
+				 if(erreurSaisieDate2) {
+						FacesContext.getCurrentInstance().addMessage(
+								"messages",
+								new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date prolongation.",
+										""));
+				
+				 }
+				 if(erreurSaisieDate3){
+					 FacesContext.getCurrentInstance().addMessage(
+								"messages",
+								new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date réception.",
+										""));
+					 
+				 }
+				
+				
+			}
+		}
+
+		public void validationNum() {
+			String numSaisi=aoConsultation.getAoConsultationNumero();
+			//String numSaisi = (String) object;
+			List<AoConsultation> listAo= appMgr.getListAoConsultationParNumero(numSaisi);
+			 testOK=true;
+			if(listAo!=null && listAo.size()>0){
+				System.out.println("ID Trouvé : "+listAo.get(0).getAoConsultationId());
+				System.out.println("ID Consulté : "+aoConsultation.getAoConsultationId());
+				if(listAo.get(0).getAoConsultationId().intValue()!=aoConsultation.getAoConsultationId().intValue())
+					testOK=false;
+			}
+			
+			if (!testOK) {
+				FacesContext.getCurrentInstance().addMessage(
+						"messages",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, "* Existe un AO ou Consultation avec ce Numéro",
+								""));
+			}
+			else{
+				System.out.println("C'est OK");
+			}
+		}
+		
+		//[JS] : ====================== 2020-03-24 ===================================================
+		public void validationDate(){
+			
+			 erreurSaisieDate1=false;
+			 erreurSaisieDate2=false;
+			 erreurSaisieDate3=false;
+			 passeSaveAO=true;
+			 System.out.println("validationDate=============> validationDate");
+			 if(aoConsultation.getAoConsultationDelaisProlongation()!= null ){
+					//Date prolongation inférieur date Limite offre || date limite offre inférieur date prolongation
+				 if(aoConsultation.getAoConsultationDateLimiteOffre()!=null){
+					if ( (aoConsultation.getAoConsultationDelaisProlongation().compareTo(aoConsultation.getAoConsultationDateLimiteOffre()) < 0))						
+					{
+						erreurSaisieDate1=true;
+					}	
+				 }
+					if(aoConsultation.getAoConsultationDateSeanceCommission()!= null){
+					if( (aoConsultation.getAoConsultationDateSeanceCommission().compareTo(aoConsultation.getAoConsultationDelaisProlongation()) < 0)){
+						erreurSaisieDate2=true;
+					}
+				
+					}
+			
+			 }else{ 
+				 System.out.println("aoConsultation.getAoConsultationDateLimiteOffre()"+aoConsultation.getAoConsultationDateLimiteOffre());
+				 System.out.println("aoConsultation.getAoConsultationDateSeanceCommission() "+aoConsultation.getAoConsultationDateSeanceCommission());
+				 if(aoConsultation.getAoConsultationDateLimiteOffre() != null && aoConsultation.getAoConsultationDateSeanceCommission()!= null){
+					if( (aoConsultation.getAoConsultationDateSeanceCommission().compareTo(aoConsultation.getAoConsultationDateLimiteOffre()) < 0)){
+						erreurSaisieDate3=true;
+					}
+				 }
+
+			 }
+			 if(erreurSaisieDate1) {
+					FacesContext.getCurrentInstance().addMessage(
+							"messages",
+							new FacesMessage(FacesMessage.SEVERITY_ERROR, "Veuillez vérifier les dates,La date prolongation doit être supérieur ou égale à la date réception.",
+									""));
+					passeSaveAO=false;
+			 }
+			 if(erreurSaisieDate2) {
+					FacesContext.getCurrentInstance().addMessage(
+							"messages",
+							new FacesMessage(FacesMessage.SEVERITY_ERROR, "Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date prolongation.",
+									""));
+					passeSaveAO=false;
+			 }
+			 if(erreurSaisieDate3){
+				 FacesContext.getCurrentInstance().addMessage(
+							"messages",
+							new FacesMessage(FacesMessage.SEVERITY_ERROR, "Veuillez vérifier les dates ,La date séance commission doit être supérieur ou égale à la date réception.",
+									""));
+				 	passeSaveAO=false;
+			 }
+		}
+		
+		//[JS] : ====================== 2020-03-24 ===================================================
+
+	/**
+	 * Getter and Setter
+	 */
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public List<AoConsultation> getListAoConsultation() {
+		return listAoConsultation;
+	}
+
+	public void setListAoConsultation(List<AoConsultation> listAoConsultation) {
+		this.listAoConsultation = listAoConsultation;
+	}
+
+	public boolean isSuccesModif() {
+		return succesModif;
+	}
+	public void setSuccesModif(boolean succesModif) {
+		this.succesModif = succesModif;
+	}
+	public VariableGlobale getVb() {
+		return vb;
+	}
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	public void setErreurSaisieDate1(boolean erreurSaisieDate1) {
+		this.erreurSaisieDate1 = erreurSaisieDate1;
+	}
+	public boolean isErreurSaisieDate1() {
+		return erreurSaisieDate1;
+	}
+	public void setErreurSaisieDate2(boolean erreurSaisieDate2) {
+		this.erreurSaisieDate2 = erreurSaisieDate2;
+	}
+	public boolean isErreurSaisieDate2() {
+		return erreurSaisieDate2;
+	}
+	public void setErreurSaisieDate3(boolean erreurSaisieDate3) {
+		this.erreurSaisieDate3 = erreurSaisieDate3;
+	}
+	public boolean isErreurSaisieDate3() {
+		return erreurSaisieDate3;
+	}
+	public void setPasseSaveAO(boolean passeSaveAO) {
+		this.passeSaveAO = passeSaveAO;
+	}
+	public boolean isPasseSaveAO() {
+		return passeSaveAO;
+	}
+
+}

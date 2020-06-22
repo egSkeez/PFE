@@ -1,0 +1,144 @@
+package xtensus.ldap.model;
+
+import java.util.List;
+
+public class BOC implements java.io.Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3497435991347144840L;
+	private int idBOC;
+	private String nameBOC;
+	private String shortNameBOC;
+	private List<BOC> listChildBOCsBOC;
+	private List<BOC> listAdjoiningBOCsBOC;
+	private List<Unit> listDirectionsChildBOC;
+	private List<Person> membersBOC;
+	private String typeBOC;
+	private String descriptionBOC;
+	private BOC associatedBOC;
+	private String rowKeyBOC;
+private Unit associatedDirection;
+	public BOC() {
+
+	}
+
+	public BOC(int idBOC, String nameBOC, List<BOC> listChildBOCsBOC,
+			List<Person> membersBOC, int niveauBOC) {
+		this.idBOC = idBOC;
+		this.nameBOC = nameBOC;
+		this.listChildBOCsBOC = listChildBOCsBOC;
+		this.membersBOC = membersBOC;
+	}
+
+	public int getIdBOC() {
+		return idBOC;
+	}
+
+	public void setIdBOC(int idBOC) {
+		this.idBOC = idBOC;
+	}
+
+	public String getNameBOC() {
+		return nameBOC;
+	}
+
+	public void setNameBOC(String nameBOC) {
+		this.nameBOC = nameBOC;
+	}
+
+	public List<BOC> getListChildBOCsBOC() {
+		return listChildBOCsBOC;
+	}
+
+	public void setListChildBOCsBOC(List<BOC> listChildBOCsBOC) {
+		this.listChildBOCsBOC = listChildBOCsBOC;
+	}
+
+	public List<Person> getMembersBOC() {
+		
+		return membersBOC;
+	}
+
+	public void setMembersBOC(List<Person> membersBOC) {
+		
+		this.membersBOC = membersBOC;
+	}
+
+	public String getDescriptionBOC() {
+		return descriptionBOC;
+	}
+
+	public void setDescriptionBOC(String descriptionBOC) {
+		this.descriptionBOC = descriptionBOC;
+	}
+
+	public String getRowKeyBOC() {
+		return rowKeyBOC;
+	}
+
+	public void setRowKeyBOC(String rowKeyBOC) {
+		this.rowKeyBOC = rowKeyBOC;
+	}
+
+	public void setListDirectionsChildBOC(List<Unit> listDirectionsChildBOC) {
+		this.listDirectionsChildBOC = listDirectionsChildBOC;
+	}
+
+	public List<Unit> getListDirectionsChildBOC() {
+		return listDirectionsChildBOC;
+	}
+
+	public void setAssociatedBOC(BOC associatedBOC) {
+		this.associatedBOC = associatedBOC;
+	}
+
+	public BOC getAssociatedBOC() {
+		return associatedBOC;
+	}
+
+	public void setListAdjoiningBOCsBOC(List<BOC> listAdjoiningBOCsBOC) {
+		this.listAdjoiningBOCsBOC = listAdjoiningBOCsBOC;
+	}
+
+	public List<BOC> getListAdjoiningBOCsBOC() {
+		return listAdjoiningBOCsBOC;
+	}
+
+	public void setTypeBOC(String typeBOC) {
+		this.typeBOC = typeBOC;
+	}
+
+	public String getTypeBOC() {
+		return typeBOC;
+	}
+
+	
+	
+	public Unit getAssociatedDirection() {
+		return associatedDirection;
+	}
+
+	public void setAssociatedDirection(Unit associatedDirection) {
+		this.associatedDirection = associatedDirection;
+	}
+
+	@Override
+	public String toString() {
+		return "BOC [idBOC=" + idBOC + ", nameBOC=" + nameBOC + ", typeBOC="
+				+ typeBOC + ", descriptionBOC=" + descriptionBOC
+				+ ", associatedBOC=" + associatedBOC + ", rowKeyBOC="
+				+ rowKeyBOC + ", associatedDirection=" + associatedDirection
+				+ "]";
+	}
+
+	public void setShortNameBOC(String shortNameBOC) {
+		this.shortNameBOC = shortNameBOC;
+	}
+
+	public String getShortNameBOC() {
+		return shortNameBOC;
+	}
+
+}

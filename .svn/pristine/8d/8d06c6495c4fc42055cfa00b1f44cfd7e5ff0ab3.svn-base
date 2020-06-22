@@ -1,0 +1,129 @@
+package xtensus.beans.utils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.Validator;
+import javax.faces.validator.ValidatorException;
+import org.springframework.context.MessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+
+@Component()
+@Scope("request")
+public class ValidationVide implements Validator {
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private MessageSource messageSource;
+	@Autowired
+	private LanguageManagerBean lm;
+	
+	private String message;
+	private String message1;
+
+	public ValidationVide() {
+		lm = new LanguageManagerBean();
+		
+	}
+
+	@Override
+	public void validate(FacesContext facesContext, UIComponent uIComponent,Object object) throws ValidatorException {
+		try {
+			System.out.println("##### vb.getSelectedItemsTr() == "	+ vb.getSelectedItemsTr());
+
+			if (Integer.valueOf(vb.getSelectedItemsTr()) == 1) {
+				String uicom = uIComponent.getClientId(facesContext);
+				int lenght = uicom.length();
+				String index = uicom.substring((lenght - 4), lenght);
+				System.out.println("##### index == " + index);
+				System.out.println("####  uicom == " + uicom);
+				System.out.println("####  Object == " + object);
+				System.out.println("#### index.equals(:1:c) == " + index.equals(":1:c"));
+				if (index.equals(":1:c")) {
+
+					String cin = (String) object;
+					Pattern patternCin = Pattern.compile("[0-9]*");
+					Matcher matcherCin = patternCin.matcher(cin);
+					boolean match = matcherCin.matches();
+					
+					if (!match) {
+						setMessage(
+								messageSource.getMessage("numCin",
+								new Object[] {},
+								lm.createLocal()));
+						FacesContext.getCurrentInstance().addMessage("messages",	new FacesMessage(FacesMessage.SEVERITY_ERROR, message,""));
+//						FacesMessage message = new FacesMessage();
+//						message.setSummary("Numéro CIN invalide");
+//						throw new ValidatorException(message);
+
+					}
+				}
+				if (index.equals(":2:c")) {
+					boolean validObject = true;
+					try {
+
+						Integer.parseInt(object.toString());
+
+					} catch (NumberFormatException e) {
+						validObject = false;
+					}
+					if (!validObject) {
+						setMessage1(
+								messageSource.getMessage("nombrePage",
+								new Object[] {},
+								lm.createLocal()));
+						FacesContext.getCurrentInstance().addMessage("messages",	new FacesMessage(FacesMessage.SEVERITY_ERROR, message1,""));
+//						FacesMessage message = new FacesMessage();
+//						message.setSummary("Nombre de pages Invalide");
+//						throw new ValidatorException(message);
+
+					}
+
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getMessage1() {
+		return message1;
+	}
+
+	public void setMessage1(String message1) {
+		this.message1 = message1;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+	
+}

@@ -1,0 +1,41 @@
+
+
+    function launchApplication(jnlpfile) {
+        dtjava.launch(            {
+                url : '../ScannerApplet/ScannerApplet.jnlp'
+            },
+            {
+                javafx : '2.2+'
+            },
+            {
+            }
+        );
+        return false;
+    }
+
+
+
+    function javafxEmbed_fxApplication() {
+        dtjava.embed(
+            {
+                id : 'fxApplication',
+                url : '../ScannerApplet/ScannerApplet.jnlp',
+                placeholder : 'javafx-app-placeholder',
+                width : 200,
+                height : 100
+            },
+            {
+                javafx : '2.2+'
+            },
+            {
+            	onGetSplash: function(app) {return null;}
+            }
+        );
+    }
+    
+    function getButton(){
+    	
+    dtjava.addOnloadCallback(javafxEmbed_fxApplication);
+       
+
+    }

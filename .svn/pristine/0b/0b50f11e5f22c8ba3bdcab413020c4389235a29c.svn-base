@@ -1,0 +1,4107 @@
+package xtensus.beans.common.GBO;
+
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ComparatorStatistiqueCourrierOrganismeOrStructure;
+import xtensus.beans.utils.ComparatorStatistiqueNombreCourrierStructure;
+import xtensus.beans.utils.ComparatorStatistiquePourcentageCourrierStructure;
+import xtensus.beans.utils.CountStatistique;
+import xtensus.beans.utils.StatistiqueCourrierOrganisme;
+import xtensus.beans.utils.StatistiqueCourrierStructure;
+import xtensus.beans.utils.StatistiqueCourrierStructureByNature;
+import xtensus.beans.utils.StatistiqueCourrierTempsReponseParUniteNature;
+import xtensus.beans.utils.StatistiqueCourrierUtilisateur;
+import xtensus.entity.Annotation;
+import xtensus.entity.Courrier;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.NatureCategorie;
+import xtensus.entity.NatureModel;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component()
+@Scope("session")
+public class StatistiqueBean {
+
+	private long CONST_DURATION_OF_DAY = 1000l * 60 * 60 * 24;
+	private ApplicationManager appMgr;
+	private Export export;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String etatStatistique;
+	private String typeDate;
+	private String choixMois;
+	private String choixAnnee;
+	private boolean showResult;
+	private boolean showInputDay;
+	private boolean showInputMonth;
+	private boolean showInputYear;
+	private boolean showInputPeriode;
+	private boolean showLegend;
+	private Date selectedDate;
+	private Date selectedDateF;
+	private String axeX;
+	private String titre;
+	private String categorieType;
+	private String typeCourrier1;
+	private String typeCourrier2;
+	private String typeCourrier3;
+	private String dataTypeCourrier1;
+	private String dataNatureCourrier;
+	private String dataDelaiReponseCourrier;
+	private String dataTypeCourrier2;
+	private String dataTypeCourrier3;
+	private String dataPasRepondu;
+	private String dataReponduHorsDelai;
+	private String dataReponduDansDelai;
+	private String seriesVariable;
+	private Date anneeDebut;
+	private LdapOperation ldapOperation;
+	private String message;
+	private Boolean showAlertMessage;
+	Calendar cal = Calendar.getInstance();
+	private List<Integer> listIdBocMembers;
+	private DataModel listStatistiqueArriveByOrganisme;
+	private DataModel listStatistiqueDepartByOrganisme;
+	private DataModel listStatistiqueArriveByStructure;
+	private DataModel listStatistiqueDepartByStructure;
+	private String showStatistiqueArriveByOrganisme = "none";
+	private String showStatistiqueArriveByStructure = "none";
+	private List<StatistiqueCourrierOrganisme> listStatistiqueCourrierOrganismeArrive;
+	private List<StatistiqueCourrierOrganisme> listStatistiqueCourrierOrganismeDepart;
+	private List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureArrive;
+	private List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureDepart;
+	private boolean tooLong;
+	// [JS]
+	private List<Integer> listIdDirectionMembers;
+	private String type;
+	private DataModel listStatistiqueCourrierArriveeByUtilisateur;
+	private DataModel listStatistiqueCourrierDepartByUtilisateur;
+	private String showStatistiqueCourrrierArriveByUtilisateur = "none";
+	private String showStatistiqueCourrrierByStructureByNature = "none";
+	private String showStatistiqueCourrrierDelaisReponseParUniteParNature="none";
+	private List<StatistiqueCourrierUtilisateur> listStatistiqueCourrierUtilisateurArrive;
+	private List<StatistiqueCourrierUtilisateur> listStatistiqueCourrierUtilisateurDepart;
+	private List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierStructureByNature;
+	private List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierTopVignt;
+	private List<StatistiqueCourrierTempsReponseParUniteNature> listStatistiqueTempsReponseCourrierTopVignt;
+	private List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierSuppVignt;
+	private List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierStructureByNatureDepart;
+	private List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierStructureByNatureArrivee;
+	private DataModel listStatCourrierStructureByNatureDepartDM;
+	private DataModel listStatCourrierStructureByNatureArriveDM;
+	private DataModel listStatCourrierStructureByNatureDM;
+	private List<CountStatistique> listCountStatistique;
+	private CountStatistique countStatistique;
+	private List<NatureCategorie> listCategorieNature;
+	private String selectItemCatg;
+	private List<SelectItem> selectItemsNat;
+	private List<Nature> listNatureParCategorie;
+	private List<String> listLibelleNature;
+	private String unite;
+	private HashMap<Integer, int[]> hashMapStructure;
+	private Integer countNature;
+	private NatureModel natureModel;
+	private List<NatureModel> listNatureModel;
+	private List<Nature> listNat;
+	private String selectedItemNature;
+	private boolean affichePanneauNature = false;
+	private boolean affichePanneauStructure= false;
+	private String valueAttr="Tous";
+	private String libelleNature;
+	private DataModel listStatistiqueCourrierTempsReponseParUniteNatureDM;
+	private List<String> listeType;
+	private Integer idUser;
+	private String type2;
+	private String type3;
+	private String typeSecretaire;
+	private List<Integer> listIdsSousUnit;
+	private List<Integer> listIdsSubordonne;
+	private boolean boc=false;
+	private String selectedItemCategorie;
+	public List<SelectItem> selectItemsCat;
+	private List<Nature> listNatureParCateg;
+
+	
+	@Autowired
+	public StatistiqueBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		showInputDay = true;
+		selectedDate = new Date();
+		selectedDateF = new Date();
+		showInputMonth = false;
+		showInputYear = false;
+		tooLong = false;
+		ldapOperation = new LdapOperation();
+		listStatistiqueArriveByOrganisme = new ListDataModel();
+		listStatistiqueDepartByOrganisme = new ListDataModel();
+		listStatistiqueArriveByStructure = new ListDataModel();
+		listStatistiqueDepartByStructure = new ListDataModel();
+		// JS
+		listStatistiqueCourrierArriveeByUtilisateur = new ListDataModel();
+		listStatistiqueCourrierDepartByUtilisateur = new ListDataModel();
+		listStatistiqueCourrierUtilisateurArrive = new ArrayList<StatistiqueCourrierUtilisateur>();
+		listStatistiqueCourrierUtilisateurDepart = new ArrayList<StatistiqueCourrierUtilisateur>();
+		listStatistiqueCourrierStructureByNature = new ArrayList<StatistiqueCourrierStructureByNature>();
+		listStatCourrierStructureByNatureDepartDM = new ListDataModel();
+		listStatCourrierStructureByNatureArriveDM = new ListDataModel();
+		listCountStatistique = new ArrayList<CountStatistique>();
+		countStatistique = new CountStatistique();
+		listCategorieNature = new ArrayList<NatureCategorie>();
+		hashMapStructure=new HashMap<Integer, int[]>();
+		listNatureParCategorie=new ArrayList<Nature>();
+		listLibelleNature=new ArrayList<String>();
+		listNatureModel=new ArrayList<NatureModel>();
+		natureModel=new NatureModel();
+		listNat=new ArrayList<Nature>();
+		listStatistiqueCourrierStructureByNatureDepart=new ArrayList<StatistiqueCourrierStructureByNature>();
+		listStatistiqueCourrierStructureByNatureArrivee=new ArrayList<StatistiqueCourrierStructureByNature>();
+		listStatCourrierStructureByNatureDM=new ListDataModel();
+		listStatistiqueCourrierTempsReponseParUniteNatureDM=new ListDataModel();
+		listStatistiqueCourrierTopVignt=new ArrayList<StatistiqueCourrierStructureByNature>();
+		listStatistiqueCourrierSuppVignt=new ArrayList<StatistiqueCourrierStructureByNature>();
+		listStatistiqueTempsReponseCourrierTopVignt=new ArrayList<StatistiqueCourrierTempsReponseParUniteNature>();
+		listeType=new ArrayList<String>();
+		listIdsSousUnit=new ArrayList<Integer>();
+		listIdsSubordonne=new ArrayList<Integer>();
+		selectItemsCat = new ArrayList<SelectItem>();
+		listNatureParCateg=new ArrayList<Nature>();
+		System.out.println("**********Bean StatistiqueBean Injecte***********");
+	}
+
+	public void test() {
+		System.out.println("________________________________*");
+	}
+
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public void viewStatistics() {
+
+		// System.out.println("################### :"+selectItemCatg);
+		// Integer categorieId = Integer.parseInt(selectItemCatg);
+		System.out.println("### Dans Méthode viewStatistics");
+		showStatistiqueArriveByOrganisme = "none";
+		showStatistiqueArriveByStructure = "none";
+		showStatistiqueCourrrierArriveByUtilisateur = "none";
+		showStatistiqueCourrrierByStructureByNature = "none";
+		showStatistiqueCourrrierDelaisReponseParUniteParNature="none";
+		showAlertMessage = false;
+		listIdBocMembers = new ArrayList<Integer>();
+		System.out.println("IS BOC :" + vb.getPerson().isBoc());		
+		
+		// identify connected user
+		idUser = vb.getPerson().getId();	 
+
+		listIdDirectionMembers = new ArrayList<Integer>();
+//		isBoc=vb.getPerson().isBoc();
+
+		if (vb.getPerson().isBoc()) {
+			System.out.println("Si Connecté est un BO");
+			List<Person> listBocMembers = vb.getPerson().getAssociatedBOC()
+					.getMembersBOC();
+			boc=true;
+			System.out.println("Membres Boc : " + vb.getPerson().getAssociatedBOC()
+					.getMembersBOC() );
+			System.out.println("List BOC :" + listBocMembers.size());
+
+			for (Person person : listBocMembers) {
+				listIdBocMembers.add(person.getId());
+			}
+			String type = "boc_"
+					+ String.valueOf(vb.getPerson().getAssociatedBOC()
+							.getIdBOC());
+			System.out.println("type=====>"+type);
+	    	listeType.add(type);
+		}else{
+			
+			boc=false;			
+			System.out.println("vb.getPerson() : "+vb.getPerson());
+			System.out.println("vb.getPerson().getAssociatedDirection().getResponsibleUnit() : "+vb.getPerson().getAssociatedDirection().getResponsibleUnit());
+			Unit unit =ldapOperation.getUnitById(vb.getPerson().getAssociatedDirection().getIdUnit());
+			List<Person> listBocMembers =unit.getMembersUnit();
+			for(int i=0;i<listBocMembers.size();i++){	
+				
+				System.out.println("get Id Memebres ===> : "+listBocMembers.get(i).getId());
+			}
+			System.out.println("size list Boc Members : " +listBocMembers.size());
+
+			for(Person p:listBocMembers){
+				System.out.println("---------------------------");
+				System.out.println("affiche p : "+p);
+				System.out.println("IS Responsable : "+p.isResponsable());
+				System.out.println("IS Secretary : "+p.isSecretary());
+
+				System.out.println("IS Agent : "+p.isAgent());
+
+				System.out.println("---------------------------");
+
+				if(p.isResponsable()){
+					System.out.println("Person is Responsable");
+					listIdBocMembers.add(p.getId());
+				   // listIdBocMembers.add(vb.getPerson().getAssociatedDirection().getIdUnit());
+					String type="sub_"+String.valueOf(p.getId());
+					String type2 = "unit_"
+						+ vb.getPerson().getAssociatedDirection().getIdUnit();
+					listeType.add(type);
+					listeType.add(type2);
+				}
+			
+				if(p.isSecretary()){
+					
+					System.out.println("Person is Secretary");
+					listIdBocMembers.add(p.getId());
+					String type="secretary_"+String.valueOf(p.getId());
+					System.out.println("Type Secretary : "+type);
+					listeType.add(type);
+
+				}
+				if(p.isAgent()){
+					
+					System.out.println("Person is Agent");
+					listIdBocMembers.add(p.getId());
+					String type="agent_"+String.valueOf(p.getId());
+					System.out.println("Type Agent : "+type);
+					listeType.add(type);
+				}
+
+			}
+		}
+		
+		
+		
+		
+		
+		Date date, date1, date2;
+		Date dateDebut;
+		Date dateFin;
+		Date dateDebutR;
+		Date dateFinR;
+		dataTypeCourrier3 = "[";
+		dataTypeCourrier2 = "[";
+		dataTypeCourrier1 = "[";
+		dataNatureCourrier = "";
+		dataDelaiReponseCourrier = "";
+		dataPasRepondu = "";
+		dataReponduHorsDelai = "";
+		dataReponduDansDelai = "";
+		String separateur;
+		int nbrArrive = 0;
+		int nbrDepart = 0;
+		int nbrCourriers=0;
+		int nbrTransactionTotal = 0;
+		int total = 0;
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		HashMap<String, Object> filterHashMap = new HashMap<String, Object>();
+		// System.out.println("######### Test Requette #####################");
+		// SimpleDateFormat simpleDateFormat = new
+		// SimpleDateFormat("yyyy-MM-dd");
+		// String db="2018-02-01";
+		// String da="2018-02-01";;
+		// try {
+		// date1 = simpleDateFormat.parse(db);
+		// date2 = simpleDateFormat.parse(da);
+		// System.out.println("######### Test Requette #####################");
+		// HashMap<String, Integer> mapDepart = new HashMap<String, Integer>();
+		// List<Object []> listCourrierDepart1 =
+		// appMgr.CountAllCourrierMembreBOCByCriteria(filterHashMap, 1, date1,
+		// date2, listIdBocMembers, "", "", "A");
+		// System.out.println("listCourrierDepart1 :=>"+listCourrierDepart1.size());
+		// for (Object [] o : listCourrierDepart1) {
+		// String intervenant = (String) o[0];
+		// System.out.println(" intervenant 1 :"+intervenant);
+		// Integer intervenantCount = 0;
+		// if (o[1] instanceof Integer) {
+		// intervenantCount = (Integer) o[1];
+		// } else if (o[1] instanceof BigInteger) {
+		// intervenantCount = ((BigInteger) o[1]).intValue();
+		// }
+		// System.out.println(" intervenant 2 :"+intervenant);
+		// System.out.println(" intervenantCount 1 :"+intervenantCount);
+		// mapDepart.put(intervenant, intervenantCount);
+		// }
+		// } catch (ParseException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
+		// [JS] anneeDebut=Min(date courrier reception) dans l'année sélectionné
+		System.out.println("************" + "L'anne de debut est :"
+				+ anneeDebut);
+		if (etatStatistique.equals("nombreCourrierTotal")) {
+
+			typeCourrier1 = "'Tout les courriers'";
+			typeCourrier2 = "'Courriers arrivés'";
+			typeCourrier3 = "'Courriers départs'";
+			dataTypeCourrier3 = "[";
+			dataTypeCourrier2 = "[";
+			dataTypeCourrier1 = "[";
+
+			System.out.println("Type Date :" + typeDate);
+			if (typeDate.equals("jour")) {
+
+				axeX = "'Bureau Ordre'";
+
+				dateDebut = new Date(selectedDate.getYear(),
+						selectedDate.getMonth(), selectedDate.getDate(), 0, 0,
+						0);
+				System.out.println("date debut 1:" + dateDebut);
+
+				dateFin = new Date(selectedDate.getYear(),
+						selectedDate.getMonth(), selectedDate.getDate(), 23,
+						59, 59);
+				System.out.println("date Fin 1:" + dateFin);
+
+				// listTransaction = appMgr.getListTransactionBoccJour(vb
+				// .getPerson().getId(), dateDebut, dateFin);
+				// listTransactionDestination = appMgr
+				// .getListTransactionDestinationBocJour(type, dateDebut,
+				// dateFin);
+				System.out.println("size liste Membres :"
+						+ listIdBocMembers.size());
+				
+				nbrArrive = appMgr.CountAllCourrierBOCByCriteria(filterHashMap,
+						1, dateDebut, dateFin, "", "", listIdBocMembers, "",
+						"", "A").intValue();
+				nbrDepart = appMgr.CountAllCourrierBOCByCriteria(filterHashMap,
+						1, dateDebut, dateFin, "", "", listIdBocMembers, "",
+						"", "D").intValue();
+				
+				//[JS]
+				nbrCourriers= appMgr.CountAllCourrierNotBOCByCriteria(filterHashMap,
+						1, dateDebut, dateFin,listeType, "", listIdBocMembers, "",
+						"", "I").intValue();
+				System.out.println("nbrCourriers : " +nbrCourriers);
+			
+				
+				
+				// int nbrTransactionTotal = listTransaction.size() +
+				// listTransactionDestination.size();
+
+				// nbrArrive = listTransactionDestination.size();
+				// nbrDepart = 0;
+				// Expdest expDest;
+				// for (Transaction transaction : listTransaction) {
+				// expDest = new Expdest();
+				// expDest = appMgr.getListExpDestByIdExpDest(
+				// transaction.getExpdest().getIdExpDest()).get(0);
+				// if (expDest.getTypeExpDest().equals("Externe")) {
+				// nbrArrive++;
+				// } else {
+				// nbrDepart++;
+				// }
+				// }
+				dataTypeCourrier3 = dataTypeCourrier3 + nbrDepart + "]";
+				dataTypeCourrier2 = dataTypeCourrier2 + nbrArrive + "]";
+				total = nbrArrive + nbrDepart;
+				dataTypeCourrier1 = dataTypeCourrier1 + total + "]";
+				axeX = "[" + axeX + "]";
+				nbrTransactionTotal = total;
+				if (nbrTransactionTotal != 0) {
+					titre = "'"
+							+ messageSource.getMessage("statistiqueDate",
+									new Object[] {}, lm.createLocal()) + " "
+							+ sdf.format(selectedDate) + "'";
+
+				} else {
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueAucunCourrier",
+									new Object[] {}, lm.createLocal())
+							+ " "
+							+ messageSource.getMessage("ceJour",
+									new Object[] {}, lm.createLocal()) + " "
+							+ sdf.format(selectedDate) + "'";
+					// try {
+					// Charset charset = Charset.forName("UTF-8");
+					// CharsetDecoder decoder = charset.newDecoder();
+					// CharsetEncoder encoder = charset.newEncoder();
+					// ByteBuffer bbuf =
+					// encoder.encode(CharBuffer.wrap("courriééréééé"));
+					// CharBuffer cbuf = decoder.decode(bbuf);
+					// // String s = cbuf.toString();
+					// // titre = "'" + s + "'";
+					// titre = new String(cbuf.array());
+					// System.out.println(titre);
+					// System.out.println("courriééréééé");
+					// } catch (CharacterCodingException e) {
+					// e.printStackTrace();
+					// }
+					// titre = "'" + s + "'";
+					// #{statistiqueBean.titre}
+				}
+			} else if (typeDate.equals("mois")) {
+				String monthName = getMonthName(choixMois);
+				date = getDayOfMonth(choixMois, choixAnnee);
+				dateDebut = getFirstDay(date);
+				dateFin = getLastDay(date);
+				int indexDebut = dateDebut.getDate();
+				int indexFin = dateFin.getDate();
+				axeX = "'" + indexDebut + "'";
+				for (int i = indexDebut; i <= indexFin; i++) {
+					if (i != 1) {
+						axeX = axeX + ",'" + i + "'";
+					}
+					dateDebutR = new Date(date.getYear(), date.getMonth(), i,
+							0, 0, 0);
+					System.out.println("date debutR 1:" + dateDebutR);
+					dateFinR = new Date(date.getYear(), date.getMonth(), i, 23,
+							59, 59);
+					System.out.println("date FinR 1:" + dateFinR);
+					// listTransaction = new ArrayList<Transaction>();
+					// listTransactionDestination = new
+					// ArrayList<TransactionDestination>();
+					// listTransaction = appMgr.getListTransactionBoccJour(vb
+					// .getPerson().getId(), dateDebutR, dateFinR);
+					// listTransactionDestination = appMgr
+					// .getListTransactionDestinationBocJour(type,
+					// dateDebutR, dateFinR);
+					nbrArrive = appMgr.CountAllCourrierBOCByCriteria(
+							filterHashMap, 1, dateDebutR, dateFinR, "", "",
+							listIdBocMembers, "", "", "A").intValue();
+					System.out.println("Nbres des Courriers Arrivées :"
+							+ nbrArrive);
+					nbrDepart = appMgr.CountAllCourrierBOCByCriteria(
+							filterHashMap, 1, dateDebutR, dateFinR, "", "",
+							listIdBocMembers, "", "", "D").intValue();
+					System.out.println("Nbres des Courriers Départs :"
+							+ nbrDepart);
+					if (i == indexFin) {
+						separateur = "]";
+					} else {
+						separateur = " ,";
+					}
+					// nbrArrive = listTransactionDestination.size();
+					// nbrDepart = 0;
+					// Expdest expDest;
+					// for (Transaction transaction : listTransaction) {
+					// expDest = new Expdest();
+					// expDest = appMgr.getListExpDestByIdExpDest(
+					// transaction.getExpdest().getIdExpDest()).get(0);
+					// if (expDest.getTypeExpDest().equals("Externe")) {
+					// nbrArrive++;
+					// } else {
+					// nbrDepart++;
+					// }
+					// }
+					dataTypeCourrier3 = dataTypeCourrier3 + nbrDepart
+							+ separateur;
+					dataTypeCourrier2 = dataTypeCourrier2 + nbrArrive
+							+ separateur;
+					total = nbrArrive + nbrDepart;
+					dataTypeCourrier1 = dataTypeCourrier1 + total + separateur;
+					// **
+					nbrTransactionTotal += total;
+				}
+				axeX = "[" + axeX + "]";
+				if (nbrTransactionTotal != 0) {
+					titre = "'"
+							+ messageSource.getMessage("statistiqueMois",
+									new Object[] {}, lm.createLocal()) + " : "
+							+ monthName + " " + choixAnnee + "'";
+					// titre = "Arrive";
+					// try {
+					// byte[] utf8Bytes = titre.getBytes("UTF8");
+					// String resultUtf8 = new String(utf8Bytes, "UTF8");
+					//
+					// System.out.println(resultUtf8);
+					// titre = resultUtf8;
+					// // titre = new String(titre.getBytes(), "US-ASCII");
+					//
+					// System.out.println("#");
+					// System.out.println(titre);
+					// } catch (Exception e) {
+					// e.printStackTrace();
+					// }
+					// titre = new BigInteger(titre.getBytes()).toString(8);
+					// System.out.println(titre);
+					// ####
+					// System.out.println(titre);
+					// Charset ch = Charset.forName("UTF-8");
+					// byte[] originalTitre = titre.getBytes();
+					// String titleUTF = new String(originalTitre, ch);
+					// System.out.println(titleUTF);
+					// titre = titleUTF;
+				} else {
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueAucunCourrier",
+									new Object[] {}, lm.createLocal())
+							+ " "
+							+ messageSource.getMessage("ceMois",
+									new Object[] {}, lm.createLocal()) + " "
+							+ monthName + " " + choixAnnee + "'";
+				}
+			} else if (typeDate.equals("periode")) {
+				dateDebut = new Date(selectedDate.getYear(),
+						selectedDate.getMonth(), selectedDate.getDate(), 0, 0,
+						0);
+				System.out.println("date debut :" + dateDebut);
+				dateFin = new Date(selectedDateF.getYear(),
+						selectedDateF.getMonth(), selectedDateF.getDate(), 23,
+						59, 59);
+				System.out.println("date Fin :" + dateFin);
+				Calendar dateD = Calendar.getInstance();
+				Calendar dateF = Calendar.getInstance();
+				dateD.setTime(dateDebut);
+				dateF.setTime(dateFin);
+				axeX = "";
+				for (Date currentDate = dateD.getTime(); dateD.before(dateF); dateD
+						.add(Calendar.DATE, 1), currentDate = dateD.getTime()) {
+					axeX = axeX + ",'" + sdf.format(dateD.getTime()) + "'";
+					dateDebutR = new Date(currentDate.getYear(),
+							currentDate.getMonth(), currentDate.getDate(), 0,
+							0, 0);
+					dateFinR = new Date(currentDate.getYear(),
+							currentDate.getMonth(), currentDate.getDate(), 23,
+							59, 59);
+					nbrArrive = appMgr.CountAllCourrierBOCByCriteria(
+							filterHashMap, 1, dateDebutR, dateFinR, "", "",
+							listIdBocMembers, "", "", "A").intValue();
+					nbrDepart = appMgr.CountAllCourrierBOCByCriteria(
+							filterHashMap, 1, dateDebutR, dateFinR, "", "",
+							listIdBocMembers, "", "", "D").intValue();
+
+					dataTypeCourrier3 = dataTypeCourrier3 + nbrDepart + " ,";
+					dataTypeCourrier2 = dataTypeCourrier2 + nbrArrive + " ,";
+					total = nbrArrive + nbrDepart;
+					dataTypeCourrier1 = dataTypeCourrier1 + total + " ,";
+
+					nbrTransactionTotal += total;
+				}
+				dataTypeCourrier1 = dataTypeCourrier1.substring(0,
+						dataTypeCourrier1.length() - 2) + "]";
+				dataTypeCourrier2 = dataTypeCourrier2.substring(0,
+						dataTypeCourrier2.length() - 2) + "]";
+				dataTypeCourrier3 = dataTypeCourrier3.substring(0,
+						dataTypeCourrier3.length() - 2) + "]";
+				axeX = "[" + axeX.substring(1) + "]";
+				if (nbrTransactionTotal != 0) {
+					titre = "'"
+							+ messageSource.getMessage("statistiquePeriode",
+									new Object[] {}, lm.createLocal()) + " : "
+							+ sdf.format(dateDebut) + " é "
+							+ sdf.format(dateFin) + "'";
+				} else {
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueAucunCourrier",
+									new Object[] {}, lm.createLocal())
+							+ " "
+							+ messageSource.getMessage("ceMois",
+									new Object[] {}, lm.createLocal()) + " "
+							+ sdf.format(dateDebut) + " é "
+							+ sdf.format(dateFin) + "'";
+				}
+				System.out
+						.println("--------------------PERIODE--------------------");
+				System.out.println("text : " + titre);
+				System.out.println("categories (AxeX) : " + axeX);
+				System.out.println(typeCourrier1 + " :" + dataTypeCourrier1);
+				System.out.println(typeCourrier2 + " :" + dataTypeCourrier2);
+				System.out.println(typeCourrier2 + " :" + dataTypeCourrier2);
+				System.out
+						.println("--------------------PERIODE--------------------");
+			} else {
+				// [JS] Année ------------------------
+				axeX = "'Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'";
+				axeX = "[" + axeX + "]";
+				// 0->11=12 mois
+				for (int i = 0; i <= 11; i++) {
+					System.out.println("Choix Année :" + choixAnnee);
+					date = new Date(Integer.parseInt(choixAnnee) - 1900, i, 5);
+					System.out.println("Date Sélectionné:" + date);
+					dateDebutR = getFirstDay(date);
+					System.out.println("dateDebutR :" + dateDebutR);
+					dateFinR = getLastDay(date);
+					System.out.println("dateFinR :" + dateFinR);
+
+					// **************************************
+					// listTransaction = new ArrayList<Transaction>();
+					// listTransactionDestination = new
+					// ArrayList<TransactionDestination>();
+					// listTransaction = appMgr.getListTransactionBoccJour(vb
+					// .getPerson().getId(), dateDebutR, dateFinR);
+					// listTransactionDestination = appMgr
+					// .getListTransactionDestinationBocJour(type,
+					// dateDebutR, dateFinR);
+					nbrArrive = appMgr.CountAllCourrierBOCByCriteria(
+							filterHashMap, 1, dateDebutR, dateFinR, "", "",
+							listIdBocMembers, "", "", "A").intValue();
+					System.out.println("nbre DEs courriers Arrivées :"
+							+ nbrArrive);
+					nbrDepart = appMgr.CountAllCourrierBOCByCriteria(
+							filterHashMap, 1, dateDebutR, dateFinR, "", "",
+							listIdBocMembers, "", "", "D").intValue();
+					System.out.println("nbre DEs courriers Départs :"
+							+ nbrDepart);
+					//
+					if (i == 11) {
+						separateur = "]";
+					} else {
+						separateur = " ,";
+					}
+					// nbrArrive = listTransactionDestination.size();
+					// nbrDepart = 0;
+					// Expdest expDest;
+					// for (Transaction transaction : listTransaction) {
+					// expDest = new Expdest();
+					// expDest = appMgr.getListExpDestByIdExpDest(
+					// transaction.getExpdest().getIdExpDest()).get(0);
+					// if (expDest.getTypeExpDest().equals("Externe")) {
+					// nbrArrive++;
+					// } else {
+					// nbrDepart++;
+					// }
+					// }
+					dataTypeCourrier3 = dataTypeCourrier3 + nbrDepart
+							+ separateur;
+					dataTypeCourrier2 = dataTypeCourrier2 + nbrArrive
+							+ separateur;
+					total = nbrArrive + nbrDepart;
+					dataTypeCourrier1 = dataTypeCourrier1 + total + separateur;
+					nbrTransactionTotal += total;
+				}
+				if (nbrTransactionTotal != 0) {
+					titre = "'"
+							+ messageSource.getMessage("statistiqueAnnee",
+									new Object[] {}, lm.createLocal()) + " "
+							+ choixAnnee + "'";
+
+				} else {
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueAucunCourrierAnne",
+									new Object[] {}, lm.createLocal())
+							+ " "
+							+ messageSource.getMessage("cetteAnnees",
+									new Object[] {}, lm.createLocal()) + " "
+							+ choixAnnee + "'";
+
+				}
+				System.out
+						.println("----------------------ANNEE-----------------------------");
+				System.out.println("text : " + titre);
+				System.out.println("categories (AxeX) : " + axeX);
+				System.out.println("Series : name 1 :" + typeCourrier1);
+				System.out.println("Series : data 1 :" + dataTypeCourrier1);
+				System.out.println("Series : name 2 :" + typeCourrier2);
+				System.out.println("Series : data 2 :" + dataTypeCourrier2);
+				System.out.println("Series : name 3 :" + typeCourrier3);
+				System.out.println("Series : data 3 :" + dataTypeCourrier3);
+				System.out
+						.println("----------------------ANNEE-----------------------------");
+
+			}
+		} else if (etatStatistique.equals("nombreCourrierNature")) {
+			try {
+				HashMap<Integer, Integer[]> resultMap = new HashMap<Integer, Integer[]>();
+				List<Nature> listNature = new ArrayList<Nature>();
+				listNature = appMgr.getList(Nature.class);
+				String name = "";
+				axeX = "";
+				Integer[] nbrCourrier;
+				for (Nature nature : listNature) {
+					nbrCourrier = new Integer[2];
+					nbrCourrier[0] = 0;
+					nbrCourrier[1] = 0;
+					name = nature.getNatureLibelle();
+					System.out.println("JS :Libelle Nature :" + name);
+					resultMap.put(nature.getNatureId(), nbrCourrier);
+					name = name.replace("'", "\\'");
+					System.out.println("## name ## :" + name);
+					axeX = axeX + "," + "'" + name + "'";
+				}
+				System.out.println("## AXE ## :" + axeX.substring(1));
+				axeX = "[" + axeX.substring(1) + "]";
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					// Année
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 2:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 2:" + dateDebut);
+				}
+				// listTransaction =
+				// appMgr.getListTransactionBoccJour(vb.getPerson().getId(),
+				// dateDebut, dateFin);
+				// listTransactionDestination =
+				// appMgr.getListTransactionDestinationBocJour(type,
+				// dateDebut, dateFin);
+				System.out.println("type Connecté pour nombreCourrierNature :"+type);
+				System.out.println("Liste Type : "+listeType.size());
+				List<Object[]> lstCourriersInfo = appMgr.courrierStatistiquesBOC(dateDebut, dateFin, listeType, "", listIdBocMembers,
+						"", "", "", "nature");
+					
+				
+				System.out.println("lstCourriersInfo : "+lstCourriersInfo.size());
+				Integer[] value;
+				Integer totalCourrier = 0;
+				for (Object[] o : lstCourriersInfo) {
+					value = new Integer[2];
+					Integer natureId = (Integer) o[0];
+					String expType = (String) o[1];
+					Integer natureCount = 0;
+					System.out.println("### o[2] ### " + o[2]);
+					if (o[2] instanceof Integer) {
+						natureCount = (Integer) o[2];
+						System.out.println("### NatureCount ### " + o[2]);
+					} else if (o[2] instanceof BigInteger) {
+						natureCount = ((BigInteger) o[2]).intValue();
+						System.out.println("### NatureCount ### " + o[2]);
+					}
+					System.out.println("## Type Expdest ### :" + expType);
+					System.out.println("## JS resultMap ### :"
+							+ resultMap.get(natureId).length);
+					if (expType.equals("Externe")) {
+						value[0] = resultMap.get(natureId)[0] + natureCount;
+						value[1] = resultMap.get(natureId)[1];
+						System.out.println("## value[0] Externe ### :"
+								+ value[0]);
+						System.out.println("## value[1] Externe ### :"
+								+ value[1]);
+					} else {
+						System.out.println("## natureId =" + natureId);
+						value[0] = resultMap.get(natureId)[0];
+						value[1] = resultMap.get(natureId)[1] + natureCount;
+						System.out.println("## value[0] not Externe ### :"
+								+ value[0]);
+						System.out.println("## value[1] not Externe ### :"
+								+ value[1]);
+					}
+					totalCourrier += natureCount;
+					System.out
+							.println("## totalCourrier ### :" + totalCourrier);
+
+					resultMap.put((Integer) natureId, value);
+				}
+				dataNatureCourrier = "";
+				int nombreCourrierTotal = totalCourrier;
+				double pourcentageArrive;
+				double pourcentageDepart;
+				double pourcentageTotal;
+				DecimalFormat df = new DecimalFormat("0.00");
+				for (Entry<Integer, Integer[]> entry : resultMap.entrySet()) {
+					if (nombreCourrierTotal != 0) {
+						System.out.println("## nombreCourrierTotal ### ="
+								+ nombreCourrierTotal);
+						System.out.println("## entry.getValue()[0] ### ="
+								+ entry.getValue()[0]);
+						System.out.println("## entry.getValue()[1] ### ="
+								+ entry.getValue()[1]);
+						pourcentageArrive = (entry.getValue()[0] * 100)
+								/ nombreCourrierTotal;
+						pourcentageDepart = (entry.getValue()[1] * 100)
+								/ nombreCourrierTotal;
+
+						System.out.println("## pourcentageArrive ### ="
+								+ pourcentageArrive);
+						System.out.println("## pourcentageDepart ### ="
+								+ pourcentageDepart);
+
+						pourcentageTotal = pourcentageArrive
+								+ pourcentageDepart;
+						System.out.println("## pourcentageTotal ### ="
+								+ pourcentageTotal);
+					} else {
+						pourcentageArrive = 0;
+						pourcentageDepart = 0;
+						pourcentageTotal = 0;
+					}
+					String arriveDepart = "'"
+							+ messageSource.getMessage("statistiqueArrive",
+									new Object[] {}, lm.createLocal())
+							+ "', "
+							+ "'"
+							+ messageSource.getMessage("statistiqueDepart",
+									new Object[] {}, lm.createLocal()) + "'";
+					System.out.println("### arriveDepart ###" + arriveDepart);
+					dataNatureCourrier = dataNatureCourrier + "," + "{ y: "
+							+ df.format(pourcentageTotal).replace(',', '.')
+							+ ", color: colors[" + entry.getKey()
+							+ "], drilldown: { categories: [" + arriveDepart
+							+ "], data: ["
+							+ df.format(pourcentageArrive).replace(',', '.')
+							+ ", "
+							+ df.format(pourcentageDepart).replace(',', '.')
+							+ "], color: colors[" + entry.getKey() + "] }}";
+				}
+				dataNatureCourrier = "[" + dataNatureCourrier.substring(1)
+						+ "]";
+				showLegend = true;
+				System.out
+						.println("dataNatureCourrier : " + dataNatureCourrier);
+				System.out.println("### typeDate ### : " + typeDate);
+				if (typeDate.equals("jour")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueNatureDate",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceJour",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					}
+				} else if (typeDate.equals("mois")) {
+					String monthName = getMonthName(choixMois);
+					if (nombreCourrierTotal != 0) {
+
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueNatureMois",
+										new Object[] {}, lm.createLocal())
+								+ " : " + monthName + " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + monthName + " " + choixAnnee + "'";
+					}
+				} else if (typeDate.equals("periode")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueNaturePeriode",
+										new Object[] {}, lm.createLocal())
+								+ " : " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					}
+				} else {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueNatureAnnee",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+						System.out.println("### titre ### : " + titre);
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrierAnne",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("cetteAnnees",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+						System.out.println("### titre else ### : " + titre);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else if (etatStatistique.equals("nombreCourrierModeReception")) {
+			System.out.println("Etat Statistique :" + etatStatistique);
+			try {
+				HashMap<Integer, Integer[]> resultMap = new HashMap<Integer, Integer[]>();
+				List<Transmission> listTransmission = new ArrayList<Transmission>();
+				listTransmission = appMgr.getList(Transmission.class);
+				System.out.println("Taille liste Transaction :"
+						+ listTransmission.size());
+				String name = "";
+				axeX = "";
+				Integer[] nbrCourrier;
+				for (Transmission transmission : listTransmission) {
+					nbrCourrier = new Integer[2];
+					nbrCourrier[0] = 0;
+					nbrCourrier[1] = 0;
+					name = transmission.getTransmissionLibelle();
+					resultMap
+							.put(transmission.getTransmissionId(), nbrCourrier);
+					name = name.replace("'", "\\'");
+					axeX = axeX + "," + "'" + name + "'";
+				}
+
+				axeX = "[" + axeX.substring(1) + "]";
+
+				if (typeDate.equals("jour")) {
+					// SimpleDateFormat sdf = new
+					// SimpleDateFormat("dd/MM/yyyy");
+					// titre = "'"
+					// + messageSource.getMessage(
+					// "statistiqueModeReceptionDate",
+					// new Object[] {}, lm.createLocal()) + " "
+					// + sdf.format(selectedDate) + ".'";
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					// String monthName = getMonthName(choixMois);
+					// titre = "'"
+					// + messageSource.getMessage(
+					// "statistiqueModeReceptionMois",
+					// new Object[] {}, lm.createLocal()) + " "
+					// + monthName + " " + choixAnnee + ".'";
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					System.out.println("=======Année============");
+					// titre = "'"
+					// + messageSource.getMessage(
+					// "statistiqueModeReceptionAnnee",
+					// new Object[] {}, lm.createLocal()) + " "
+					// + choixAnnee + ".'";
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 3:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 3:" + dateFin);
+				}
+
+				// listTransaction = appMgr.getListTransactionBoccJour(vb
+				// .getPerson().getId(), dateDebut, dateFin);
+				// listTransactionDestination = appMgr
+				// .getListTransactionDestinationBocJour(type, dateDebut,
+				// dateFin);
+				List<Object[]> lstCourriersInfo = appMgr
+						.courrierStatistiquesBOC(dateDebut, dateFin, listeType, "",
+								listIdBocMembers, "", "", "", "transmission");
+				Integer[] value;
+				Integer totalCourrier = 0;
+				for (Object[] o : lstCourriersInfo) {
+					value = new Integer[2];
+					Integer transmissionId = (Integer) o[0];
+					String expType = (String) o[1];
+					Integer transmissionCount = 0;
+					if (o[2] instanceof Integer) {
+						transmissionCount = (Integer) o[2];
+					} else if (o[2] instanceof BigInteger) {
+						transmissionCount = ((BigInteger) o[2]).intValue();
+					}
+					if (expType.equals("Externe")) {
+						value[0] = resultMap.get(transmissionId)[0]
+								+ transmissionCount;
+						value[1] = resultMap.get(transmissionId)[1];
+					} else {
+						value[0] = resultMap.get(transmissionId)[0];
+						value[1] = resultMap.get(transmissionId)[1]
+								+ transmissionCount;
+					}
+					totalCourrier += transmissionCount;
+					resultMap.put((Integer) transmissionId, value);
+				}
+				dataNatureCourrier = "";
+				int nombreCourrierTotal = totalCourrier;
+				double pourcentageArrive;
+				double pourcentageDepart;
+				double pourcentageTotal;
+				DecimalFormat df = new DecimalFormat("0.00");
+				for (Entry<Integer, Integer[]> entry : resultMap.entrySet()) {
+					System.out.println("Key : " + entry.getKey()
+							+ " - Value : " + entry.getValue()[0] + " , "
+							+ entry.getValue()[1]);
+					if (nombreCourrierTotal != 0) {
+						pourcentageArrive = (entry.getValue()[0] * 100)
+								/ nombreCourrierTotal;
+						pourcentageDepart = (entry.getValue()[1] * 100)
+								/ nombreCourrierTotal;
+						pourcentageTotal = pourcentageArrive
+								+ pourcentageDepart;
+					} else {
+						pourcentageArrive = 0;
+						pourcentageDepart = 0;
+						pourcentageTotal = 0;
+					}
+					// dataNatureCourrier = dataNatureCourrier
+					// + ","
+					// + "{ y: "
+					// + df.format(pourcentageTotal).replace(',', '.')
+					// + ", color: colors["
+					// + entry.getKey()
+					// +
+					// "], drilldown: { categories: ['Arrive', 'Depart'], data: ["
+					// + df.format(pourcentageArrive).replace(',', '.')
+					// + ", "
+					// + df.format(pourcentageDepart).replace(',', '.')
+					// + "], color: colors[" + entry.getKey() + "] }}";
+					String arriveDepart = "'"
+							+ messageSource.getMessage("statistiqueArrive",
+									new Object[] {}, lm.createLocal())
+							+ "', "
+							+ "'"
+							+ messageSource.getMessage("statistiqueDepart",
+									new Object[] {}, lm.createLocal()) + "'";
+					System.out.println(arriveDepart);
+					dataNatureCourrier = dataNatureCourrier + "," + "{ y: "
+							+ df.format(pourcentageTotal).replace(',', '.')
+							+ ", color: colors[" + entry.getKey()
+							+ "], drilldown: { categories: [" + arriveDepart
+							+ "], data: ["
+							+ df.format(pourcentageArrive).replace(',', '.')
+							+ ", "
+							+ df.format(pourcentageDepart).replace(',', '.')
+							+ "], color: colors[" + entry.getKey() + "] }}";
+				}
+				dataNatureCourrier = "[" + dataNatureCourrier.substring(1)
+						+ "]";
+				showLegend = true;
+				System.out.println(titre);
+				System.out.println(dataNatureCourrier);
+				// **
+				if (typeDate.equals("jour")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueModeReceptionDate",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceJour",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					}
+				} else if (typeDate.equals("mois")) {
+					String monthName = getMonthName(choixMois);
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueModeReceptionMois",
+										new Object[] {}, lm.createLocal())
+								+ " : " + monthName + " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + monthName + " " + choixAnnee + "'";
+					}
+				} else if (typeDate.equals("periode")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueModeReceptionPeriode",
+										new Object[] {}, lm.createLocal())
+								+ " : " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					}
+				} else {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueModeReceptionAnnee",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrierAnne",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("cetteAnnees",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					}
+				}
+				// **
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if (etatStatistique.equals("delaiReponseCourrier")) {
+			try {
+				List<Courrier> listCourrier = new ArrayList<Courrier>();
+				if (typeDate.equals("jour")) {
+					// SimpleDateFormat sdf = new
+					// SimpleDateFormat("dd/MM/yyyy");
+					// titre = "'"
+					// + messageSource.getMessage(
+					// "statistiqueDelaiReponseDate",
+					// new Object[] {}, lm.createLocal()) + " "
+					// + sdf.format(selectedDate) + ".'";
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					// String monthName = getMonthName(choixMois);
+					// titre = "'"
+					// + messageSource.getMessage(
+					// "statistiqueDelaiReponseMois",
+					// new Object[] {}, lm.createLocal()) + " "
+					// + monthName + " " + choixAnnee + ".'";
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					// titre = "'"
+					// + messageSource.getMessage(
+					// "statistiqueDelaiReponseAnnee",
+					// new Object[] {}, lm.createLocal()) + " "
+					// + choixAnnee + ".'";
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 4 :" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 4 :" + dateFin);
+				}
+
+				HashMap<Integer, Integer> resultMap = new HashMap<Integer, Integer>();
+//				listCourrier = appMgr.getListCourrierNecessitantReponse("Oui",
+//						dateDebut, dateFin);
+				
+				listCourrier=appMgr.courrierStatistiquesNecessitReponses("Oui", dateDebut,dateFin,listeType,listIdBocMembers);
+				System.out.println("bonjour le 0705 : "+listCourrier.size());
+				System.out.println("delaiReponseCourrier : "+listCourrier.size());
+				Integer numberOfDate;
+				Date dateReception;
+				Date dateReponse;
+				int sizeListCourrier = listCourrier.size();
+
+				for (Courrier courrier2 : listCourrier) {
+					dateReponse = courrier2.getCourrierDateReponse();
+					System.out.println(" ### dateReponse : " +dateReponse);
+					if (dateReponse != null) {
+						dateReception = courrier2.getCourrierDateReception();
+						System.out.println(" ### dateReception : " +dateReception);
+
+						numberOfDate = (int) compareTwoDates(dateReception,
+								dateReponse);
+						System.out.println(" ### numberOfDate : " +numberOfDate);
+						if (resultMap.containsKey(numberOfDate)) {
+							System.out.println(resultMap.get(numberOfDate));
+							resultMap.put(numberOfDate,
+									resultMap.get(numberOfDate) + 1);
+						} else {
+							resultMap.put(numberOfDate, 1);
+						}
+					} else {
+						sizeListCourrier--;
+					}
+				}
+				dataDelaiReponseCourrier = "";
+				for (Entry<Integer, Integer> entry : resultMap.entrySet()) {
+					dataDelaiReponseCourrier = dataDelaiReponseCourrier + ","
+							+ "[" + entry.getValue() + "," + entry.getKey()
+							+ "]";
+					System.out.println("dataDelaiReponseCourrier 1: "+dataDelaiReponseCourrier);
+				}
+				if (sizeListCourrier > 0) {
+					dataDelaiReponseCourrier = "["
+							+ dataDelaiReponseCourrier.substring(1) + "]";
+					System.out.println("dataDelaiReponseCourrier 2: "+dataDelaiReponseCourrier);
+
+				} else {
+					dataDelaiReponseCourrier = "[]";
+					System.out.println("dataDelaiReponseCourrier 3: "+dataDelaiReponseCourrier);
+
+				}
+				if (typeDate.equals("jour")) {
+					if (sizeListCourrier > 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueDelaiReponseDate",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceJour",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					}
+				} else if (typeDate.equals("mois")) {
+					String monthName = getMonthName(choixMois);
+					if (sizeListCourrier > 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueDelaiReponseMois",
+										new Object[] {}, lm.createLocal())
+								+ " : " + monthName + " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + monthName + " " + choixAnnee + "'";
+					}
+				} else if (typeDate.equals("periode")) {
+					if (sizeListCourrier > 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueDelaiReponsePeriode",
+										new Object[] {}, lm.createLocal())
+								+ " : " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					}
+				} else {
+					if (sizeListCourrier > 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueDelaiReponseAnnee",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrierAnne",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("cetteAnnees",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if (etatStatistique.equals("tempsMoyenReponseDepartement")) {
+			try {
+				List<Object[]> listReponse;
+				List<Unit> listUnit = new ArrayList<Unit>();
+				// listUnit = ldapOperation.getListUnit();
+				listUnit = vb.getCopyLdapListUnit();
+				categorieType = "";
+				for (Unit unit : listUnit) {
+					categorieType = categorieType + "," + "'"
+							+ unit.getShortNameUnit() + "'";
+				}
+				categorieType = "[" + categorieType.substring(1) + "]";
+
+				// CourrierDossier courrierDossier;
+				// Courrier courrier;
+				// Transaction transactionn;
+				if (typeDate.equals("jour")) {
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueReponseDepartementDate",
+									new Object[] {}, lm.createLocal()) + " "
+							+ sdf.format(selectedDate) + "'";
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+
+					String monthName = getMonthName(choixMois);
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueReponseDepartementMois",
+									new Object[] {}, lm.createLocal()) + " : "
+							+ monthName + " " + choixAnnee + "'";
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueReponseDepartementPeriode",
+									new Object[] {}, lm.createLocal()) + " : "
+							+ sdf.format(dateDebut) + " é "
+							+ sdf.format(dateFin) + "'";
+				} else {
+					titre = "'"
+							+ messageSource.getMessage(
+									"statistiqueReponseDepartementAnnee",
+									new Object[] {}, lm.createLocal()) + " "
+							+ choixAnnee + "'";
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 5 :" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 5:" + dateFin);
+				}
+				int courrierPasEncoreRepondu;
+				int courrierReponduDansDelai;
+				int courrierReponduHorsDelai;
+				dataPasRepondu = "";
+				dataReponduHorsDelai = "";
+				dataReponduDansDelai = "";
+				for (Unit unit : listUnit) {
+					listReponse = new ArrayList<Object[]>();
+					courrierPasEncoreRepondu = 0;
+					courrierReponduDansDelai = 0;
+					courrierReponduHorsDelai = 0;
+				 type = "unit_" + unit.getIdUnit();
+				 System.out.println("type : "+type);
+//				 System.out.println("Unit Connecté "+vb.getPerson().getAssociatedDirection().getIdUnit());
+//     			 if(unit.getIdUnit()==vb.getPerson().getAssociatedDirection().getIdUnit()){
+					listReponse = appMgr.courrierStatistiquesBOCReponse(type,
+							dateDebut, dateFin);
+					System.out.println("size listReponse : "+listReponse.size());
+					for (Object[] o : listReponse) {
+						Date transactionDestDateTransfert = (Date) o[0];
+						Date courrierDateReponse = (Date) o[1];
+						if (transactionDestDateTransfert == null) {
+							courrierPasEncoreRepondu++;
+						} else {
+							if (transactionDestDateTransfert
+									.before(courrierDateReponse)) {
+								courrierReponduDansDelai++;
+							} else {
+								courrierReponduHorsDelai++;
+							}
+						}
+					}
+					dataPasRepondu = dataPasRepondu + ","
+							+ courrierPasEncoreRepondu;
+					dataReponduDansDelai = dataReponduDansDelai + ","
+							+ courrierReponduDansDelai;
+					dataReponduHorsDelai = dataReponduHorsDelai + ","
+							+ courrierReponduHorsDelai;
+					
+					
+					
+					
+				}
+				dataPasRepondu = "[" + dataPasRepondu.substring(1) + "]";
+				dataReponduDansDelai = "[" + dataReponduDansDelai.substring(1)
+						+ "]";
+				dataReponduHorsDelai = "[" + dataReponduHorsDelai.substring(1)
+						+ "]";
+				System.out
+						.println("--------------------TEMPS MOYEN DE REPONSE--------------------");
+				System.out.println("text : " + titre);
+				System.out.println("categories (AxeX) : " + categorieType);
+				System.out.println("data Pas encore repondu  :"
+						+ dataPasRepondu);
+				System.out.println("data Repondu hors delai :"
+						+ dataReponduHorsDelai);
+				System.out.println("data Repondu dans delai:"
+						+ dataReponduDansDelai);
+				System.out
+						.println("--------------------ANNEE--------------------");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if (etatStatistique.equals("degreeUrgence")) {
+			try {
+				HashMap<Integer, Integer[]> resultMap = new HashMap<Integer, Integer[]>();
+				List<Urgence> listUrgence = new ArrayList<Urgence>();
+				
+				listUrgence = appMgr.getList(Urgence.class);
+				
+				String name = "";
+				axeX = "";
+				Integer[] nbrCourrier;
+				
+				for (Urgence urgence : listUrgence) {
+					nbrCourrier = new Integer[2];
+					nbrCourrier[0] = 0;
+					nbrCourrier[1] = 0;
+					
+					name = urgence.getUrgenceLibelle();
+					
+					resultMap.put(urgence.getUrgenceId(), nbrCourrier);
+					name = name.replace("'", "\\'");
+					axeX = axeX + "," + "'" + name + "'";
+				}
+
+				axeX = "[" + axeX.substring(1) + "]";
+				
+				System.out.println(axeX);
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 3:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 3:" + dateFin);
+				}
+
+				List<Object[]> lstCourriersInfo = appMgr
+						.courrierStatistiquesBOC(dateDebut, dateFin, listeType, "",
+								listIdBocMembers, "", "", "", "urgence");
+				System.out.println("size lstCourriersInfo : "+lstCourriersInfo.size());
+				Integer[] value;
+				Integer totalCourrier = 0;
+				
+				for (Object[] o : lstCourriersInfo) {
+					System.out.println("------------------------");
+					System.out.println("idUregence : "+ o[0]);
+					System.out.println("type Expdest : "+ o[1]);
+					System.out.println("count   : "+ o[2]);
+					System.out.println("------------------------");
+				}
+				
+				for (Object[] o : lstCourriersInfo) {
+					
+					System.out.println("========== degreeUrgence ========================");
+					
+					value = new Integer[2];
+					Integer urgenceId = (Integer) o[0];
+					String expType = (String) o[1];
+					Integer urgenceCount = 0;
+					
+					
+					System.out.println("value  : "+value);
+					System.out.println("urgenceId  : "+urgenceId);
+					System.out.println("expType  : "+expType);
+					System.out.println("o[2] : "+o[2]);
+					
+					
+					if (o[2] instanceof Integer) {
+						urgenceCount = (Integer) o[2];
+						System.out.println("urgenceCount 1  : "+urgenceCount);
+					} else if (o[2] instanceof BigInteger) {
+						urgenceCount = ((BigInteger) o[2]).intValue();
+						System.out.println("urgenceCount 2  : "+urgenceCount);
+					}
+					if (expType.equals("Externe")) {
+						value[0] = resultMap.get(urgenceId)[0] + urgenceCount;
+						value[1] = resultMap.get(urgenceId)[1];
+						System.out.println("Externe value[0] : "+value[0]);
+						System.out.println("Externe value[1] : "+value[1]);
+					} else {
+						value[0] = resultMap.get(urgenceId)[0];
+						value[1] = resultMap.get(urgenceId)[1] + urgenceCount;
+						System.out.println("Else Externe value[0] : "+value[0]);
+						System.out.println("Else Externe value[1] : "+value[1]);
+					}
+					totalCourrier += urgenceCount;
+					System.out.println("totalCourrier : " +totalCourrier);
+					resultMap.put((Integer) urgenceId, value);
+					System.out.println("=============================================");
+				}
+				
+				dataNatureCourrier = "";
+				int nombreCourrierTotal = totalCourrier;
+				double pourcentageArrive;
+				double pourcentageDepart;
+				double pourcentageTotal;
+				DecimalFormat df = new DecimalFormat("0.00");
+				for (Entry<Integer, Integer[]> entry : resultMap.entrySet()) {
+					System.out.println("Key : " + entry.getKey()
+							+ " - Value : " + entry.getValue()[0] + " , "
+							+ entry.getValue()[1]);
+					if (nombreCourrierTotal != 0) {
+						pourcentageArrive = (entry.getValue()[0] * 100)
+								/ nombreCourrierTotal;
+						pourcentageDepart = (entry.getValue()[1] * 100)
+								/ nombreCourrierTotal;
+						pourcentageTotal = pourcentageArrive
+								+ pourcentageDepart;
+					} else {
+						pourcentageArrive = 0;
+						pourcentageDepart = 0;
+						pourcentageTotal = 0;
+					}
+					// dataNatureCourrier = dataNatureCourrier
+					// + ","
+					// + "{ y: "
+					// + df.format(pourcentageTotal).replace(',', '.')
+					// + ", color: colors["
+					// + entry.getKey()
+					// +
+					// "], drilldown: { categories: ['Arrive', 'Depart'], data: ["
+					// + df.format(pourcentageArrive).replace(',', '.')
+					// + ", "
+					// + df.format(pourcentageDepart).replace(',', '.')
+					// + "], color: colors[" + entry.getKey() + "] }}";
+					String arriveDepart = "'"
+							+ messageSource.getMessage("statistiqueArrive",
+									new Object[] {}, lm.createLocal())
+							+ "', "
+							+ "'"
+							+ messageSource.getMessage("statistiqueDepart",
+									new Object[] {}, lm.createLocal()) + "'";
+					System.out.println(arriveDepart);
+					dataNatureCourrier = dataNatureCourrier + "," + "{ y: "
+							+ df.format(pourcentageTotal).replace(',', '.')
+							+ ", color: colors[" + entry.getKey()
+							+ "], drilldown: { categories: [" + arriveDepart
+							+ "], data: ["
+							+ df.format(pourcentageArrive).replace(',', '.')
+							+ ", "
+							+ df.format(pourcentageDepart).replace(',', '.')
+							+ "], color: colors[" + entry.getKey() + "] }}";
+				}
+				dataNatureCourrier = "[" + dataNatureCourrier.substring(1)
+						+ "]";
+				showLegend = true;
+				System.out.println(titre);
+				System.out.println(dataNatureCourrier);
+				// **
+				if (typeDate.equals("jour")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueUrgenceDate",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceJour",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					}
+				} else if (typeDate.equals("mois")) {
+					String monthName = getMonthName(choixMois);
+					if (nombreCourrierTotal != 0) {
+
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueUrgenceMois",
+										new Object[] {}, lm.createLocal())
+								+ " : " + monthName + " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + monthName + " " + choixAnnee + "'";
+					}
+				} else if (typeDate.equals("periode")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueUrgencePeriode",
+										new Object[] {}, lm.createLocal())
+								+ " : " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					}
+				} else {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueUrgenceAnnee",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrierAnne",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("cetteAnnees",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					}
+				}
+				// **
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if (etatStatistique.equals("annotation")) {
+			try {
+				HashMap<Integer, Integer[]> resultMap = new HashMap<Integer, Integer[]>();
+				List<Annotation> listAnnotations = new ArrayList<Annotation>();
+				listAnnotations = appMgr.getList(Annotation.class);
+				String name = "";
+				axeX = "";
+				Integer[] nbrCourrier;
+				for (Annotation annotation : listAnnotations) {
+					nbrCourrier = new Integer[2];
+					nbrCourrier[0] = 0;
+					nbrCourrier[1] = 0;
+					name = annotation.getAnnotationLibelle();
+					resultMap.put(annotation.getAnnotationId(), nbrCourrier);
+					name = name.replace("'", "\\'");
+					axeX = axeX + "," + "'" + name + "'";
+				}
+
+				axeX = "[" + axeX.substring(1) + "]";
+
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 3:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 3:" + dateFin);
+				}
+
+				List<Object[]> lstCourriersInfo = appMgr
+						.courrierStatistiquesBOC(dateDebut, dateFin, listeType, "",
+								listIdBocMembers, "", "", "", "annotation");
+				
+				for (Object[] o : lstCourriersInfo) {
+					System.out.println("--------Annotation-----------");
+					System.out.println("id Annotation : "+ o[0]);
+					System.out.println("type Expdest : "+ o[1]);
+					System.out.println("count   : "+ o[2]);
+					System.out.println("-----------------------------");
+				}
+				Integer[] value;
+				Integer totalCourrier = 0;
+				for (Object[] o : lstCourriersInfo) {
+					value = new Integer[2];
+					Integer annotationId = (Integer) o[0];
+					String expType = (String) o[1];
+					Integer annotationCount = 0;
+					if (o[2] instanceof Integer) {
+						annotationCount = (Integer) o[2];
+					} else if (o[2] instanceof BigInteger) {
+						annotationCount = ((BigInteger) o[2]).intValue();
+					}
+					if (annotationId != null) {
+						if (expType.equals("Externe")) {
+							value[0] = resultMap.get(annotationId)[0]
+									+ annotationCount;
+							value[1] = resultMap.get(annotationId)[1];
+						} else {
+							value[0] = resultMap.get(annotationId)[0];
+							value[1] = resultMap.get(annotationId)[1]
+									+ annotationCount;
+						}
+						totalCourrier += annotationCount;
+						resultMap.put((Integer) annotationId, value);
+					}
+				}
+				dataNatureCourrier = "";
+				int nombreCourrierTotal = totalCourrier;
+				double pourcentageArrive;
+				double pourcentageDepart;
+				double pourcentageTotal;
+				DecimalFormat df = new DecimalFormat("0.00");
+				for (Entry<Integer, Integer[]> entry : resultMap.entrySet()) {
+					System.out.println("Key : " + entry.getKey()
+							+ " - Value : " + entry.getValue()[0] + " , "
+							+ entry.getValue()[1]);
+					if (nombreCourrierTotal != 0) {
+						pourcentageArrive = (entry.getValue()[0] * 100)
+								/ nombreCourrierTotal;
+						pourcentageDepart = (entry.getValue()[1] * 100)
+								/ nombreCourrierTotal;
+						pourcentageTotal = pourcentageArrive
+								+ pourcentageDepart;
+					} else {
+						pourcentageArrive = 0;
+						pourcentageDepart = 0;
+						pourcentageTotal = 0;
+					}
+					// dataNatureCourrier = dataNatureCourrier
+					// + ","
+					// + "{ y: "
+					// + df.format(pourcentageTotal).replace(',', '.')
+					// + ", color: colors["
+					// + entry.getKey()
+					// +
+					// "], drilldown: { categories: ['Arrive', 'Depart'], data: ["
+					// + df.format(pourcentageArrive).replace(',', '.')
+					// + ", "
+					// + df.format(pourcentageDepart).replace(',', '.')
+					// + "], color: colors[" + entry.getKey() + "] }}";
+					String arriveDepart = "'"
+							+ messageSource.getMessage("statistiqueArrive",
+									new Object[] {}, lm.createLocal())
+							+ "', "
+							+ "'"
+							+ messageSource.getMessage("statistiqueDepart",
+									new Object[] {}, lm.createLocal()) + "'";
+					System.out.println(arriveDepart);
+					dataNatureCourrier = dataNatureCourrier + "," + "{ y: "
+							+ df.format(pourcentageTotal).replace(',', '.')
+							+ ", color: colors[" + entry.getKey()
+							+ "], drilldown: { categories: [" + arriveDepart
+							+ "], data: ["
+							+ df.format(pourcentageArrive).replace(',', '.')
+							+ ", "
+							+ df.format(pourcentageDepart).replace(',', '.')
+							+ "], color: colors[" + entry.getKey() + "] }}";
+				}
+				dataNatureCourrier = "[" + dataNatureCourrier.substring(1)
+						+ "]";
+				showLegend = false;
+				System.out.println(titre);
+				System.out.println(dataNatureCourrier);
+				// **
+				if (typeDate.equals("jour")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAnnotationDate",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceJour",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(selectedDate) + "'";
+					}
+				} else if (typeDate.equals("mois")) {
+					String monthName = getMonthName(choixMois);
+					if (nombreCourrierTotal != 0) {
+
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAnnotationMois",
+										new Object[] {}, lm.createLocal())
+								+ " : " + monthName + " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + monthName + " " + choixAnnee + "'";
+					}
+				} else if (typeDate.equals("periode")) {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAnnotationPeriode",
+										new Object[] {}, lm.createLocal())
+								+ " : " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrier",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("ceMois",
+										new Object[] {}, lm.createLocal())
+								+ " " + sdf.format(dateDebut) + " é "
+								+ sdf.format(dateFin) + "'";
+					}
+				} else {
+					if (nombreCourrierTotal != 0) {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAnnotationAnnee",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					} else {
+						titre = "'"
+								+ messageSource.getMessage(
+										"statistiqueAucunCourrierAnne",
+										new Object[] {}, lm.createLocal())
+								+ " "
+								+ messageSource.getMessage("cetteAnnees",
+										new Object[] {}, lm.createLocal())
+								+ " " + choixAnnee + "'";
+					}
+				}
+				// **
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if (etatStatistique.equals("organisme")) {
+			try {
+				// date debut & fin
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 2:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 2:" + dateDebut);
+				}
+				// date debut & fin
+
+				// DecimalFormat df = new DecimalFormat("0.0");
+				Integer totalCourrierArriveeExterne = 0;
+				Integer totalCourrierDepartExterne = 0;
+
+				HashMap<Integer, Integer> hashMapOrganismeNbrCourrierArrive = new HashMap<Integer, Integer>();
+				HashMap<Integer, Integer> hashMapOrganismeNbrCourrierDepart = new HashMap<Integer, Integer>();
+
+				List<Expdestexterne> listAllExpediteurExterne = appMgr
+						.getListAllAxpDestExternJustPpAndPm();
+				System.out.println("List All Expediteur :"
+						+ listAllExpediteurExterne.size());
+
+				List<Nature> listNature = appMgr.getList(Nature.class);
+				for (Nature nat : listNature) {
+				}
+				HashMap<Integer, Expdestexterne> edeMap = new HashMap<Integer, Expdestexterne>();
+
+				for (Expdestexterne expdestexterne : listAllExpediteurExterne) {
+					System.out.println("expdestexterne.getIdExpDestExterne() :"
+							+ expdestexterne.getIdExpDestExterne());
+					;
+					hashMapOrganismeNbrCourrierArrive.put(
+							expdestexterne.getIdExpDestExterne(), 0);
+					hashMapOrganismeNbrCourrierDepart.put(
+							expdestexterne.getIdExpDestExterne(), 0);
+					edeMap.put(expdestexterne.getIdExpDestExterne(),
+							expdestexterne);
+				}
+
+				// arrivée
+				listStatistiqueCourrierOrganismeArrive = new ArrayList<StatistiqueCourrierOrganisme>();
+				listStatistiqueCourrierUtilisateurArrive = new ArrayList<StatistiqueCourrierUtilisateur>();
+
+				List<Object[]> listCourrierArrive = appMgr
+						.courrierStatistiquesBOC(dateDebut, dateFin, listeType, "",
+								listIdBocMembers, "", "", "A", "organisme");
+				System.out.println("listCourrierArrive :"
+						+ listCourrierArrive.size());
+				for (Object[] o : listCourrierArrive) {
+					Integer externeId = (Integer) o[0];
+					Integer externeCount = 0;
+					if (o[1] instanceof Integer) {
+						externeCount = (Integer) o[1];
+					} else if (o[1] instanceof BigInteger) {
+						externeCount = ((BigInteger) o[1]).intValue();
+					}
+					System.out.println("externeId = " + externeId);
+					System.out.println("externeCount = " + externeCount);
+					int nbrCourrierOrganisme = hashMapOrganismeNbrCourrierArrive
+							.get(externeId);
+					System.out.println("nbrCourrierOrganisme :"
+							+ nbrCourrierOrganisme);
+					hashMapOrganismeNbrCourrierArrive.put(externeId,
+							externeCount + nbrCourrierOrganisme);
+					totalCourrierArriveeExterne += externeCount;
+				}
+
+				StatistiqueCourrierOrganisme statistiqueCourrierOrganisme;
+				for (Entry<Integer, Integer> entry : hashMapOrganismeNbrCourrierArrive
+						.entrySet()) {
+					statistiqueCourrierOrganisme = new StatistiqueCourrierOrganisme();
+					// organisme
+					Expdestexterne expediteurExterne = edeMap
+							.get((Integer) entry.getKey());
+					statistiqueCourrierOrganisme
+							.setOrganismeExterne(expediteurExterne);
+					// pourcentage
+					Integer nombreCourrier = (Integer) entry.getValue();
+					System.out.println("-----------------Arrivée-------------------");
+					System.out.println("nombreCourrier Arrivée: "+nombreCourrier);
+
+					System.out.println("totalCourrierArriveeExterne Arrivée: "+totalCourrierArriveeExterne);
+					System.out.println("-------------------------------------------");
+					if (totalCourrierArriveeExterne != 0) {
+						Integer pourcentage = (nombreCourrier * 100)
+								/ totalCourrierArriveeExterne;
+						statistiqueCourrierOrganisme
+								.setPourcentage(pourcentage);
+					} else {
+						statistiqueCourrierOrganisme.setPourcentage(0);
+					}
+					listStatistiqueCourrierOrganismeArrive
+							.add(statistiqueCourrierOrganisme);
+				}
+				Collections
+						.sort(listStatistiqueCourrierOrganismeArrive,
+								new ComparatorStatistiqueCourrierOrganismeOrStructure());
+				listStatistiqueArriveByOrganisme
+						.setWrappedData(listStatistiqueCourrierOrganismeArrive);
+				// Depart
+				listStatistiqueCourrierOrganismeDepart = new ArrayList<StatistiqueCourrierOrganisme>();
+
+				List<Object[]> listCourrierDepart = appMgr
+						.courrierStatistiquesBOC(dateDebut, dateFin, listeType, "",
+								listIdBocMembers, "", "", "D", "organisme");
+				for (Object[] o : listCourrierDepart) {
+					Integer externeId = (Integer) o[0];
+					Integer externeCount = 0;
+					if (o[1] instanceof Integer) {
+						externeCount = (Integer) o[1];
+					} else if (o[1] instanceof BigInteger) {
+						externeCount = ((BigInteger) o[1]).intValue();
+					}
+					int nbrCourrierOrganisme = hashMapOrganismeNbrCourrierDepart
+							.get(externeId);
+					hashMapOrganismeNbrCourrierDepart.put(externeId,
+							externeCount + nbrCourrierOrganisme);
+					totalCourrierDepartExterne += externeCount;
+				}
+				for (Entry<Integer, Integer> entry : hashMapOrganismeNbrCourrierDepart
+						.entrySet()) {
+					statistiqueCourrierOrganisme = new StatistiqueCourrierOrganisme();
+					// organisme
+					Expdestexterne expediteurExterne = edeMap
+							.get((Integer) entry.getKey());
+					statistiqueCourrierOrganisme
+							.setOrganismeExterne(expediteurExterne);
+					// pourcentage
+					Integer nombreCourrier = (Integer) entry.getValue();
+					System.out.println("-------------Depart -------------------");
+					System.out.println("nombreCourrier Départ: "+nombreCourrier);
+					System.out.println("totalCourrierArriveeExterne Départ: "+totalCourrierArriveeExterne);
+					System.out.println("-------------------------------------------");
+					if (totalCourrierDepartExterne != 0) {
+						Integer pourcentage = (nombreCourrier * 100)
+								/ totalCourrierDepartExterne;
+						statistiqueCourrierOrganisme
+								.setPourcentage(pourcentage);
+					} else {
+						statistiqueCourrierOrganisme.setPourcentage(0);
+					}
+					listStatistiqueCourrierOrganismeDepart
+							.add(statistiqueCourrierOrganisme);
+				}
+
+				Collections
+						.sort(listStatistiqueCourrierOrganismeDepart,
+								new ComparatorStatistiqueCourrierOrganismeOrStructure());
+
+				listStatistiqueDepartByOrganisme
+						.setWrappedData(listStatistiqueCourrierOrganismeDepart);
+				showStatistiqueArriveByOrganisme = "inline";
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if (etatStatistique.equals("structure")) {
+			try {
+				// date debut & fin
+				
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+					
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+					
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+					
+				} else {
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 2:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 2:" + dateDebut);
+				}
+				
+				// date debut & fin
+				HashMap<Integer, Integer> hashMapStructureNbrCourrierArrive;
+				HashMap<Integer, Integer> hashMapStructureNbrCourrierDepart;
+				
+//				Integer totalNumberCourrierArrivee = 0;
+//				Integer totalNumberCourrierDepart = 0;
+				Integer totalNumberCourrier=0;
+				Integer totalCourrier=0;
+				hashMapStructureNbrCourrierArrive = new HashMap<Integer, Integer>();
+				hashMapStructureNbrCourrierDepart = new HashMap<Integer, Integer>();
+				HashMap<Integer, Integer> hashMapStructureNbrCourrier=new HashMap<Integer, Integer>();
+
+				listStatistiqueCourrierStructureArrive = new ArrayList<StatistiqueCourrierStructure>();
+				listStatistiqueCourrierStructureDepart = new ArrayList<StatistiqueCourrierStructure>();
+				
+				// DecimalFormat df = new DecimalFormat("0.0");
+				HashMap<String, Integer> mapDepart = new HashMap<String, Integer>();
+				HashMap<String, Integer> mapArrive = new HashMap<String, Integer>();
+				
+				System.out.println("vb.getPerson().isResponsable() : "+vb.getPerson().isResponsable());
+				System.out.println("listIdsSousUnit : "+listIdsSousUnit.size());
+				System.out.println("listIdsSubordonne : "+listIdsSubordonne.size());
+				System.out.println("type2 : "+type2);
+				System.out.println("type3 : "+type3);
+				System.out.println("typeSecretaire : "+typeSecretaire);
+				System.out.println("idUser : "+idUser);
+
+				
+				
+				List<Object[]> listCourrierDepart = appMgr
+						.courrierStatistiquesBOCStructure(dateDebut, dateFin, 1,listeType,listIdBocMembers);		
+				System.out.println("listCourrierDepart : " +listCourrierDepart.size());
+				System.out.println("======= Affiche Résulat requette 1 ==================");
+				for(Object[] o :listCourrierDepart){
+					System.out.println("---------------------");
+					System.out.println("o[0] : "+o[0]);
+					System.out.println("o[1] : "+o[1]);
+					System.out.println("---------------------");
+
+				}
+				System.out.println("======= Fin Affiche Résulat requette 1 ==================");
+
+				List<Object[]> listCourrierArrive = appMgr
+						.courrierStatistiquesBOCStructure(dateDebut, dateFin, 2,listeType,listIdBocMembers);
+				System.out.println("listCourrierArrive : " +listCourrierArrive.size());
+				
+				System.out.println("======= Affiche Résulat requette 2 ==================");
+				for(Object[] o :listCourrierArrive){
+					System.out.println("---------------------");
+					System.out.println("o[0] : "+o[0]);
+					System.out.println("o[1] : "+o[1]);
+					System.out.println("---------------------");
+
+				}
+				System.out.println("======= Fin Affiche Résulat requette 2 ==================");
+
+				System.out.println("list Courrier Départ : "+listCourrierDepart.size());
+				for (Object[] o : listCourrierDepart) {
+					String intervenant = (String) o[0];
+					System.out.println("-----------Depart-----------------");
+					System.out.println("intervenant :" + intervenant);
+					Integer intervenantCount = 0;
+
+					if (o[1] instanceof Integer) {
+						intervenantCount = (Integer) o[1];
+						System.out.println("intervenantCount : "
+								+ intervenantCount);
+					} else if (o[1] instanceof BigInteger) {
+						intervenantCount = ((BigInteger) o[1]).intValue();
+						System.out.println("intervenantCount  : "
+								+ intervenantCount);
+					}
+					
+					System.out.println("-----------Fin Départ-------------");
+
+					mapDepart.put(intervenant, intervenantCount);
+				}
+				
+				System.out.println("list Courrier Arrivées : "+listCourrierArrive.size());
+
+				for (Object[] o : listCourrierArrive) {
+					String intervenant = (String) o[0];
+					System.out.println("------------Arrivées---------------");
+					System.out.println("intervenant :" + intervenant);
+					Integer intervenantCount = 0;
+					if (o[1] instanceof Integer) {
+						intervenantCount = (Integer) o[1];
+						System.out.println("intervenantCount  : "
+								+ intervenantCount);
+					} else if (o[1] instanceof BigInteger) {
+						intervenantCount = ((BigInteger) o[1]).intValue();
+						System.out.println("intervenantCount  : "
+								+ intervenantCount);
+					}
+					System.out.println("-----------Fin Arrivées-------------");
+					mapArrive.put(intervenant, intervenantCount);
+				}
+				
+				for (Unit vbUnit : vb.getCopyLdapListUnit()) {
+					Integer countA = 0;
+					Integer countD = 0;
+					Unit unit = ldapOperation.getUnitById(vbUnit.getIdUnit());
+					
+					System.out.println("unit " + unit.getIdUnit());
+					
+					System.out.println("--------------- Unité ---------------------");
+					// unité
+					if (mapArrive.containsKey("unit_" + unit.getIdUnit())) {
+						System.out.println("countA 1 =>Arrivées : "+countA);
+						countA += mapArrive.get("unit_" + unit.getIdUnit());
+						System.out.println("countA 2 =>Arrivées : "+countA);
+					}
+					if (mapDepart.containsKey("unit_" + unit.getIdUnit())) {
+						System.out.println("countD 1 =>Départs : "+countD);
+						countD += mapDepart.get("unit_" + unit.getIdUnit());
+						System.out.println("countD 2 =>Arrivées : "+countD);
+
+					}
+					System.out.println("--------------- FIN unité ---------------------"); 
+					
+					
+					
+					System.out.println("--------------- Responsible ---------------------");
+
+					// responsable
+					if (unit.getResponsibleUnit() != null) {
+					System.out.println("Sub : " + unit.getResponsibleUnit().getId());
+						if (mapArrive.containsKey("sub_"
+								+ unit.getResponsibleUnit().getId())) {
+							System.out.println("countA 1 =>Arrivées : "+countA);
+							countA += mapArrive.get("sub_"
+									+ unit.getResponsibleUnit().getId());
+							System.out.println("countA 2 =>Arrivées : "+countA);
+
+						}
+						System.out.println("Sub : " + unit.getResponsibleUnit().getId());
+
+						if (mapDepart.containsKey("sub_"
+								+ unit.getResponsibleUnit().getId())) {
+							System.out.println("countD 1 =>Départs : "+countD);
+							countD += mapDepart.get("sub_"
+									+ unit.getResponsibleUnit().getId());
+							System.out.println("countD 2 =>Départs : "+countD);
+
+						}
+					}
+					System.out.println("---------------FIn Responsible ---------------------");
+
+					
+					System.out.println("--------------- Secretaire ---------------------");
+
+					// secretaire
+					System.out.println("Secretary : "+unit.getSecretaryUnit().getId());
+					if (unit.getSecretaryUnit() != null) {
+						if (mapArrive.containsKey("secretary_"
+								+ unit.getSecretaryUnit().getId())) {
+							System.out.println("countA 1 =>Arrivées : "+countA);
+							countA += mapArrive.get("secretary_"
+									+ unit.getSecretaryUnit().getId());
+							System.out.println("countA 2 =>Arrivées : "+countA);
+
+						}
+						if (mapDepart.containsKey("secretary_"
+								+ unit.getSecretaryUnit().getId())) {
+							System.out.println("countD 1 =>Départs : "+countD);
+							countD += mapDepart.get("secretary_"
+									+ unit.getSecretaryUnit().getId());
+							System.out.println("countD 1 =>Départs : "+countD);
+
+						}
+					}
+					System.out.println("--------------Fin Secretaire ---------------------");
+
+					System.out.println("--------------- agents ---------------------");
+
+					//agents
+					for (Person person : unit.getMembersUnit()) {
+						if (mapArrive.containsKey("agent_" + person.getId())) {
+							System.out.println("countA 1 =>Arrivées : "+countA);
+							countA += mapArrive.get("agent_" + person.getId());
+							System.out.println("countA 2 =>Arrivées : "+countA);
+
+						}
+						if (mapDepart.containsKey("agent_" + person.getId())) {
+							System.out.println("countD 1 =>Départs : "+countD);
+							countD += mapDepart.get("agent_" + person.getId());
+							System.out.println("countD 2 =>Départs : "+countD);
+
+						}
+					}
+					System.out.println("---------------Fin agents ---------------------");
+
+					System.out.println("countA :" + countA);
+					System.out.println("countA :" + countD);
+					System.out.println("id unit :" + vbUnit.getIdUnit());
+					
+					hashMapStructureNbrCourrierDepart.put(vbUnit.getIdUnit(),countD);
+					hashMapStructureNbrCourrierArrive.put(vbUnit.getIdUnit(),countA);
+					
+					totalNumberCourrier=countD+countA;
+					System.out.println("totalNumberCourrier : "+totalNumberCourrier);					
+					hashMapStructureNbrCourrier.put(vbUnit.getIdUnit(),totalNumberCourrier);
+					totalCourrier += totalNumberCourrier;
+//					totalNumberCourrierDepart += countD;
+//					totalNumberCourrierArrivee += countA;
+				
+
+				}
+				
+				// calcul depart
+				StatistiqueCourrierStructure statistiqueCourrierStructure;
+				for (Entry<Integer, Integer> entryDepart : hashMapStructureNbrCourrierDepart.entrySet()) {
+					
+					statistiqueCourrierStructure = new StatistiqueCourrierStructure();
+					statistiqueCourrierStructure.setUnite(vb.getHashMapUnit().get(entryDepart.getKey()));
+					
+					// pourcentage
+					Integer nombreCourrier = (Integer) entryDepart.getValue();
+					System.out.println("-----------------Départ---------------------");
+					System.out.println("NombreCourrier : "+nombreCourrier);
+					System.out.println("###  nombreCourrier  ### "+nombreCourrier);
+					System.out.println("###  totalCourrier  ### "+totalCourrier);
+					
+					if (totalCourrier != 0) {
+						Integer pourcentage = (nombreCourrier * 100)
+								/ totalCourrier;
+						System.out.println("pourcentage : "+pourcentage);
+						statistiqueCourrierStructure
+								.setPourcentage(pourcentage);
+					} else {
+						statistiqueCourrierStructure.setPourcentage(0);
+
+					}
+					System.out.println("------------------Fin------------------------");
+
+					listStatistiqueCourrierStructureDepart
+							.add(statistiqueCourrierStructure);
+				}
+				
+				// calcul arrive
+				for (Entry<Integer, Integer> entryArrive : hashMapStructureNbrCourrierArrive
+						.entrySet()) {
+					statistiqueCourrierStructure = new StatistiqueCourrierStructure();
+					statistiqueCourrierStructure.setUnite(vb.getHashMapUnit()
+							.get(entryArrive.getKey()));
+					// pourcentage
+					Integer nombreCourrier = (Integer) entryArrive.getValue();
+					System.out.println("-----------------Arrivées---------------------");
+					System.out.println("###  nombreCourrier  ### "+nombreCourrier);
+					System.out.println("###  totalCourrier  ### "+totalCourrier);
+					if (totalCourrier != 0) {
+						Integer pourcentage = (nombreCourrier * 100)
+								/ totalCourrier;
+						System.out.println("pourcentage : "+pourcentage);
+						System.out.println("------------------Fin------------------------");
+						statistiqueCourrierStructure
+								.setPourcentage(pourcentage);
+					} else {
+						statistiqueCourrierStructure.setPourcentage(0);
+					}
+					listStatistiqueCourrierStructureArrive
+							.add(statistiqueCourrierStructure);
+				}
+				
+				//trier la liste
+				Collections
+						.sort(listStatistiqueCourrierStructureArrive,
+								new ComparatorStatistiqueCourrierOrganismeOrStructure());
+				Collections
+						.sort(listStatistiqueCourrierStructureDepart,
+								new ComparatorStatistiqueCourrierOrganismeOrStructure());
+				Collections.reverse(listStatistiqueCourrierStructureArrive);
+				Collections.reverse(listStatistiqueCourrierStructureDepart);
+
+				listStatistiqueArriveByStructure
+						.setWrappedData(listStatistiqueCourrierStructureArrive);
+				listStatistiqueDepartByStructure
+						.setWrappedData(listStatistiqueCourrierStructureDepart);
+				
+				//afficher stat
+				showStatistiqueArriveByStructure = "inline";
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+		} else if (etatStatistique.equals("nbreCourrierParUtilisateur")) {
+
+			System.out.println("Statistique : Nbre Courriers Par Utilisateurs");
+			try {
+				// date debut & fin
+				System.out.println("type Date :" + typeDate);
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+					System.out.println("Choix Jour Date Début:" + dateDebut);
+					System.out.println("Choix Jour Date Arrivées:" + dateFin);
+
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+					System.out.println("Choix mois Date Début:" + dateDebut);
+					System.out.println("Choix mois Date Arrivées:" + dateFin);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+
+					System.out.println("Choix periode Date Début:" + dateDebut);
+					System.out
+							.println("Choix periode Date Arrivées:" + dateFin);
+				} else {
+					System.out.println("====Année============= :" + choixAnnee);
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 2:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 2:" + dateFin);
+				}
+
+				//Arrivées
+				List<StatistiqueCourrierUtilisateur> listCourrierArriveeParAgentBoc = appMgr
+						.CountAllCourrierMembreBOCByCriteria(filterHashMap, 1,
+								dateDebut, dateFin, listIdBocMembers, "A");
+				
+				//Départs
+				List<StatistiqueCourrierUtilisateur> listCourrierDepartParAgentBoc = appMgr
+						.CountAllCourrierMembreBOCByCriteria(filterHashMap, 1,
+								dateDebut, dateFin, listIdBocMembers, "D");
+
+				System.out.println("list Courrier Arrivée Par Agent Boc"
+						+ listCourrierArriveeParAgentBoc.size());
+				System.out.println("list Courrier Départ Par Agent Boc"
+						+ listCourrierDepartParAgentBoc.size());
+
+				StatistiqueCourrierUtilisateur statistiqueCourrierUtilisateur;
+				//Arrivées
+				System.out.println("listCourrierArriveeParAgentBoc : "+listCourrierArriveeParAgentBoc.size());
+				for (StatistiqueCourrierUtilisateur stat : listCourrierArriveeParAgentBoc) {
+					System.out.println("-------------------------------------------");
+					System.out.println("Id Utilisateur" +stat.getIdutilisateur());
+					System.out.println("-------------------------------------------");
+					statistiqueCourrierUtilisateur = new StatistiqueCourrierUtilisateur();
+					Person p = getIdPersonbyId(stat.getIdutilisateur());
+					System.out.println("Person :" + p);
+					statistiqueCourrierUtilisateur.setAgent(p);
+					statistiqueCourrierUtilisateur.setNbrCourrier(stat.getNbrCourrier());
+					listStatistiqueCourrierUtilisateurArrive
+							.add(statistiqueCourrierUtilisateur);
+
+				}
+				System.out.println("Size List Sat :"
+						+ listStatistiqueCourrierUtilisateurArrive.size());
+				listStatistiqueCourrierArriveeByUtilisateur
+						.setWrappedData(listStatistiqueCourrierUtilisateurArrive);
+				
+				//Départs
+				System.out.println("listCourrierDepartParAgentBoc : "+listCourrierArriveeParAgentBoc.size());
+				for (StatistiqueCourrierUtilisateur stat : listCourrierDepartParAgentBoc) {
+					statistiqueCourrierUtilisateur = new StatistiqueCourrierUtilisateur();
+					System.out.println("-------------------------------------------");
+					System.out.println("Id Utilisateur" +stat.getIdutilisateur());
+					System.out.println("-------------------------------------------");
+					Person p = getIdPersonbyId(stat.getIdutilisateur());
+					System.out.println("Person :" + p);
+					statistiqueCourrierUtilisateur.setAgent(p);
+					statistiqueCourrierUtilisateur.setNbrCourrier(stat
+							.getNbrCourrier());
+					listStatistiqueCourrierUtilisateurDepart
+							.add(statistiqueCourrierUtilisateur);
+				}
+				
+				listStatistiqueCourrierDepartByUtilisateur
+						.setWrappedData(listStatistiqueCourrierUtilisateurDepart);
+				listStatistiqueCourrierUtilisateurDepart=new ArrayList<StatistiqueCourrierUtilisateur>();
+				showStatistiqueCourrrierArriveByUtilisateur = "inline";
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else if (etatStatistique.equals("nbreCourrierParStructureParNature")) {
+			System.out
+					.println("Statistique : Nbre Courriers Par Structure et par Nature");
+			try {
+				// date debut & fin
+				System.out.println("type Date :" + typeDate);
+				if (typeDate.equals("jour")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+					System.out.println("Choix Jour Date Début:" + dateDebut);
+					System.out.println("Choix Jour Date Arrivées:" + dateFin);
+
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+					System.out.println("Choix mois Date Début:" + dateDebut);
+					System.out.println("Choix mois Date Arrivées:" + dateFin);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+
+					System.out.println("Choix periode Date Début:" + dateDebut);
+					System.out
+							.println("Choix periode Date Arrivées:" + dateFin);
+				} else {
+					System.out.println("====Année============= :" + choixAnnee);
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 2:" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 2:" + dateFin);
+				}
+				
+				System.out.println("selectedItemNature : "+selectedItemNature);				
+			
+				int idNature = Integer.valueOf(selectedItemNature);
+				libelleNature=appMgr.getNatureById(idNature).get(0).getNatureLibelle();
+				
+				System.out.println("ID Nature :  "+idNature);
+				System.out.println("valueAttr :  "+valueAttr);
+				
+				List<Object[]> listCourrierDepart = appMgr
+						.courrierStatistiquesBOCStructureByNature(dateDebut,
+								dateFin, 1, idNature,valueAttr,listeType);
+				System.out
+						.println("List Courrier Depart Par Structure et Par Nature  :"
+								+ listCourrierDepart.size());
+				
+				List<Object[]> listCourrierArrivee = appMgr
+				.courrierStatistiquesBOCStructureByNature(dateDebut,
+						dateFin, 2, idNature,valueAttr,listeType);
+				
+				System.out.println("List Courrier Depart Par Structure et Par Nature  : "+listCourrierArrivee.size());
+
+				
+				HashMap<String, Integer> mapDepart = new HashMap<String, Integer>();
+				HashMap<String, Integer> mapArrive = new HashMap<String, Integer>();
+
+				HashMap<Integer, Integer> hashMapStructureNbrCourrierDepart;
+				HashMap<Integer, Integer> hashMapStructureNbrCourrierArrive;
+				HashMap<Integer, Integer> hashMapStructureNbrCourrier;
+
+				Integer totalNumberCourrier=0;
+				Integer totalCourrier=0;
+				hashMapStructureNbrCourrierDepart = new HashMap<Integer, Integer>();
+				hashMapStructureNbrCourrierArrive=new HashMap<Integer, Integer>();
+				hashMapStructureNbrCourrier=new HashMap<Integer, Integer>();
+				listStatistiqueCourrierStructureDepart = new ArrayList<StatistiqueCourrierStructure>();
+
+				// HashMap<String, Integer> mapArrive = new HashMap<String,
+				// Integer>();
+				
+				//Liste des Courriers Départs		
+				for (Object[] o : listCourrierDepart) {
+					String intervenant = (String) o[0];
+					System.out.println("intervenant :" + intervenant);
+					Integer intervenantCount = 0;
+
+					if (o[1] instanceof Integer) {
+						intervenantCount = (Integer) o[1];
+						System.out.println("intervenantCount dans if :"
+								+ intervenant);
+					} else if (o[1] instanceof BigInteger) {
+						intervenantCount = ((BigInteger) o[1]).intValue();
+						System.out.println("intervenantCount dans else :"
+								+ intervenant);
+					}
+					mapDepart.put(intervenant, intervenantCount);
+				}
+				
+				//Liste des Courriers Arrivées				
+				for (Object[] o : listCourrierArrivee) {
+					String intervenant = (String) o[0];
+					Integer intervenantCount = 0;
+					if (o[1] instanceof Integer) {
+						intervenantCount = (Integer) o[1];
+					} else if (o[1] instanceof BigInteger) {
+						intervenantCount = ((BigInteger) o[1]).intValue();
+					}
+					mapArrive.put(intervenant, intervenantCount);
+				}
+				
+			
+				for (Unit vbUnit : vb.getCopyLdapListUnit()) {
+					Integer countA = 0;
+					Integer countD = 0;
+					Unit unit = ldapOperation.getUnitById(vbUnit.getIdUnit());
+					System.out.println("unit " + unit.getShortNameUnit());
+					// unité
+					if (mapArrive.containsKey("unit_" + unit.getIdUnit())) {
+						countA += mapArrive.get("unit_" + unit.getIdUnit());
+					}
+					if (mapDepart.containsKey("unit_" + unit.getIdUnit())) {
+						countD += mapDepart.get("unit_" + unit.getIdUnit());
+					}
+					// responsable
+					if (unit.getResponsibleUnit() != null) {
+						if (mapArrive.containsKey("sub_"
+								+ unit.getResponsibleUnit().getId())) {
+							countA += mapArrive.get("sub_"
+									+ unit.getResponsibleUnit().getId());
+						}
+						if (mapDepart.containsKey("sub_"
+								+ unit.getResponsibleUnit().getId())) {
+							countD += mapDepart.get("sub_"
+									+ unit.getResponsibleUnit().getId());
+						}
+					}
+					// secretaire
+					if (unit.getSecretaryUnit() != null) {
+						if (mapArrive.containsKey("secretary_"
+								+ unit.getSecretaryUnit().getId())) {
+							countA += mapArrive.get("secretary_"
+									+ unit.getSecretaryUnit().getId());
+						}
+						if (mapDepart.containsKey("secretary_"
+								+ unit.getSecretaryUnit().getId())) {
+							countD += mapDepart.get("secretary_"
+									+ unit.getSecretaryUnit().getId());
+						}
+					}
+					for (Person person : unit.getMembersUnit()) {
+						if (mapArrive.containsKey("agent_" + person.getId())) {
+							countA += mapArrive.get("agent_" + person.getId());
+						}
+						if (mapDepart.containsKey("agent_" + person.getId())) {
+							countD += mapDepart.get("agent_" + person.getId());
+						}
+					}
+					System.out.println("===================================");
+					System.out.println("Unité :" + vbUnit.getIdUnit());
+					System.out.println("countA :" + countA);
+					System.out.println("countD :" + countD);
+					System.out.println("===================================");
+
+					hashMapStructureNbrCourrierDepart.put(vbUnit.getIdUnit(),
+							countD);
+					hashMapStructureNbrCourrierArrive.put(vbUnit.getIdUnit(),
+							countA);
+				
+					
+					totalNumberCourrier=countD+countA;
+					System.out.println("totalNumberCourrier : "+totalNumberCourrier);					
+					hashMapStructureNbrCourrier.put(vbUnit.getIdUnit(),totalNumberCourrier);
+					totalCourrier += totalNumberCourrier;
+				}
+
+				// calcul depart
+				StatistiqueCourrierStructureByNature statistiqueCourrierStructureNature;
+			
+				
+				for (Entry<Integer, Integer> entryCourrier : hashMapStructureNbrCourrier
+						.entrySet()) {
+					
+					statistiqueCourrierStructureNature = new StatistiqueCourrierStructureByNature();
+					//listStatistiqueCourrierStructureByNature=new ArrayList<StatistiqueCourrierStructureByNature>();
+					statistiqueCourrierStructureNature.setUnite(vb.getHashMapUnit().get(entryCourrier.getKey()));
+					Integer nombreCourrier = (Integer) entryCourrier.getValue();
+					statistiqueCourrierStructureNature.setCountCourrier(nombreCourrier);
+					System.out.println("###  nombreCourrier  ### "+nombreCourrier);
+					System.out.println("###  totalCourrier  ### "+totalCourrier);
+					if (totalCourrier != 0) {
+						Integer pourcentage = (nombreCourrier * 100)
+								/ totalCourrier;
+						statistiqueCourrierStructureNature
+								.setPourcentage(pourcentage);
+					} else {
+						statistiqueCourrierStructureNature.setPourcentage(0);
+					}
+					listStatistiqueCourrierStructureByNature.add(statistiqueCourrierStructureNature);
+				}
+				
+				listStatCourrierStructureByNatureDM.setWrappedData(listStatistiqueCourrierStructureByNature);
+
+				//Trier liste des courriers par nombre des courriers				
+			
+				if(valueAttr.equals("Top20")){
+				
+					System.out.println(" Top 20");
+					System.out.println(" vb.getTopVignt() : "+ vb.getTopVignt());
+					
+					Collections
+					.sort(listStatistiqueCourrierStructureByNature,
+							new ComparatorStatistiqueNombreCourrierStructure());
+					
+					System.out.println("SORT By NOMBRE COURRIER ");
+					
+					if(listStatistiqueCourrierStructureByNature.size()>vb.getTopVignt())
+					{
+						listStatistiqueCourrierTopVignt=listStatistiqueCourrierStructureByNature.subList(0, vb.getTopVignt());
+					}else{
+						listStatistiqueCourrierTopVignt=listStatistiqueCourrierStructureByNature;
+					}
+					
+					System.out.println("listStatistiqueCourrierTopVignt : "+listStatistiqueCourrierTopVignt.size());
+					
+					for(int i=0;i<listStatistiqueCourrierTopVignt.size();i++){
+						System.out.println("fadiiit : "+listStatistiqueCourrierTopVignt.get(i));
+					}
+		
+					listStatCourrierStructureByNatureDM.setWrappedData(listStatistiqueCourrierTopVignt);
+
+				}
+			
+				System.out.println("valueAttr avant if : "+valueAttr);
+				
+				if(valueAttr.equals(">=20%")){
+					
+					System.out.println("Heloo >= 20");
+					System.out.println(" vb.getTopVignt() : "+ vb.getTopVignt());
+
+					Collections.sort(listStatistiqueCourrierStructureByNature, new ComparatorStatistiquePourcentageCourrierStructure());
+					System.out.println("SORT By POURCENTAGE");
+
+					for(StatistiqueCourrierStructureByNature structures:listStatistiqueCourrierStructureByNature){
+						System.out.println("structures.getPourcentage() : " +structures.getPourcentage());
+						if(structures.getPourcentage()>vb.getTopVignt()){
+							listStatistiqueCourrierTopVignt.add(structures);
+						}
+					}
+					listStatCourrierStructureByNatureDM.setWrappedData(listStatistiqueCourrierTopVignt);
+					
+				}
+							
+				showStatistiqueCourrrierByStructureByNature = "inline";
+				listStatistiqueCourrierTopVignt=new ArrayList<StatistiqueCourrierStructureByNature>();
+				listStatistiqueCourrierStructureByNature=new ArrayList<StatistiqueCourrierStructureByNature>();
+				listStatistiqueCourrierStructureByNatureDepart=new ArrayList<StatistiqueCourrierStructureByNature>();
+				listStatistiqueCourrierStructureByNatureArrivee=new ArrayList<StatistiqueCourrierStructureByNature>();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}else if (etatStatistique.equals("tempsMoyenReponseDepartementNature")) {
+		
+			System.out.println("Nombre des courriers traités dans les délais/hors délais par nature, par Unité ");
+					
+			try {
+				List<Object[]> listReponse;
+				StatistiqueCourrierTempsReponseParUniteNature statTempsReponse=new StatistiqueCourrierTempsReponseParUniteNature();
+				List<StatistiqueCourrierTempsReponseParUniteNature> listStatTempsReponse=new ArrayList<StatistiqueCourrierTempsReponseParUniteNature>();
+				HashMap<Integer, Integer> hashMapTempsReponse=new HashMap<Integer, Integer>();
+				List<Unit> listUnit = new ArrayList<Unit>();
+				
+				listUnit = vb.getCopyLdapListUnit();
+				
+				//Nature Selectionné
+				System.out.println("selectedItemNature : "+selectedItemNature);
+				int idNature = Integer.valueOf(selectedItemNature);
+				libelleNature=appMgr.getNatureById(idNature).get(0).getNatureLibelle();
+				System.out.println("ID Nature :  "+idNature);	
+				System.out.println("valueAttr :  "+valueAttr);		
+				
+				
+				if (typeDate.equals("jour")) {					
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(),
+							23, 59, 59);
+				} else if (typeDate.equals("mois")) {
+					date = getDayOfMonth(choixMois, choixAnnee);
+					dateDebut = getFirstDay(date);
+					dateFin = getLastDay(date);
+				} else if (typeDate.equals("periode")) {
+					dateDebut = new Date(selectedDate.getYear(),
+							selectedDate.getMonth(), selectedDate.getDate(), 0,
+							0, 0);
+					dateFin = new Date(selectedDateF.getYear(),
+							selectedDateF.getMonth(), selectedDateF.getDate(),
+							23, 59, 59);
+				} else {
+					dateDebut = new Date(Integer.parseInt(choixAnnee) - 1900,
+							0, 1, 0, 0, 0);
+					System.out.println("date debut 4 :" + dateDebut);
+					dateFin = new Date(Integer.parseInt(choixAnnee) - 1900, 11,
+							31, 23, 59, 59);
+					System.out.println("date Fin 4 :" + dateFin);
+				}
+				
+				
+				int courrierPasEncoreRepondu;
+				int courrierReponduDansDelai;
+				int courrierReponduHorsDelai;
+				int totalcourrierParTempsReponse;				
+				
+
+				for (Unit unit : listUnit) {
+					
+					listReponse = new ArrayList<Object[]>();
+					courrierPasEncoreRepondu = 0;
+					courrierReponduDansDelai = 0;
+					courrierReponduHorsDelai = 0;
+					totalcourrierParTempsReponse=0;
+					
+					type = "unit_" + unit.getIdUnit();					
+					System.out.println("Type :"+type);
+					
+					listReponse = appMgr.courrierStatistiquesBOCReponseParUniteNature(type,
+							dateDebut, dateFin,idNature);	 				
+					System.out.println("list Reponse : "+listReponse.size());
+				
+					hashMapTempsReponse.put(unit.getIdUnit(), 0);
+					
+					for (Object[] o : listReponse) {
+						
+						Date transactionDestDateTransfert = (Date) o[0];
+						System.out.println("transactionDestDateTransfert :" +transactionDestDateTransfert);
+						Date courrierDateReponse = (Date) o[1];
+						System.out.println("courrierDateReponse : "+courrierDateReponse);
+						if (transactionDestDateTransfert == null) {
+							courrierPasEncoreRepondu++;
+							System.out.println("#1- courrierPasEncoreRepondu :"+courrierPasEncoreRepondu);
+						} else {
+							if (transactionDestDateTransfert
+									.before(courrierDateReponse)) {
+								courrierReponduDansDelai++;
+								System.out.println("#2- courrierReponduDansDelai "+courrierReponduDansDelai);
+							} else {
+								courrierReponduHorsDelai++;
+								System.out.println("#3- courrierReponduHorsDelai "+courrierReponduHorsDelai);
+							}
+						}					
+
+					}
+					//total=courrier non Traité + courrier Traité dans délai + courrier traité hors délai
+					totalcourrierParTempsReponse=courrierPasEncoreRepondu+courrierReponduDansDelai+courrierReponduHorsDelai+courrierPasEncoreRepondu;
+					System.out.println("Total Courrier Par Temps de Réponse : " +totalcourrierParTempsReponse);
+
+					if(totalcourrierParTempsReponse != 0){
+						Integer pourcentageCourrierPasEncoreTraite=(courrierPasEncoreRepondu*100)/totalcourrierParTempsReponse;
+						Integer pourcentageCourrierTraiteDansDelai=(courrierReponduDansDelai*100)/totalcourrierParTempsReponse;
+						Integer pourcentageCourrierTraiteHorsDelai=(courrierReponduHorsDelai*100)/totalcourrierParTempsReponse;
+						
+						statTempsReponse.setPourcentageCourrierPasencoreTraite(pourcentageCourrierPasEncoreTraite);
+						statTempsReponse.setPourcentageCourrieTraiteDansDelai(pourcentageCourrierTraiteDansDelai);
+						statTempsReponse.setPourcentageCourrierTraiteHorsDelai(pourcentageCourrierTraiteHorsDelai);
+						
+						System.out.println("pourcentageCourrierPasEncoreTraite : " +pourcentageCourrierPasEncoreTraite);
+						System.out.println("pourcentageCourrierTraiteDansDelai : " +pourcentageCourrierTraiteDansDelai);
+						System.out.println("pourcentageCourrierTraiteHorsDelai : " +pourcentageCourrierTraiteHorsDelai);
+						
+					}else{
+						statTempsReponse.setPourcentageCourrierPasencoreTraite(0);
+						statTempsReponse.setPourcentageCourrieTraiteDansDelai(0);
+						statTempsReponse.setPourcentageCourrierTraiteHorsDelai(0);
+					}
+					
+					System.out.println("uniiiiiiiiiiiiiiiit :" +vb.getHashMapUnit().get(unit.getIdUnit()));
+					statTempsReponse.setUnite(vb.getHashMapUnit().get(unit.getIdUnit()));	
+					statTempsReponse.setNbreCourrierPasencoreTraite(courrierPasEncoreRepondu);
+					statTempsReponse.setNbreCourrierTraiteHorsDelai(courrierReponduHorsDelai);
+					statTempsReponse.setNbreCourrieTraiteDansDelai(courrierReponduDansDelai);
+					listStatTempsReponse.add(statTempsReponse);
+					statTempsReponse=new StatistiqueCourrierTempsReponseParUniteNature();
+
+				}
+				listStatistiqueCourrierTempsReponseParUniteNatureDM.setWrappedData(listStatTempsReponse);
+				
+				
+				
+				listStatTempsReponse=new ArrayList<StatistiqueCourrierTempsReponseParUniteNature>();
+								
+				showStatistiqueCourrrierDelaisReponseParUniteParNature="inline";			
+				
+			}catch (Exception e) {
+					e.printStackTrace();
+			}
+			}
+
+			showResult = true;
+		}
+
+	
+	
+	//*********
+	
+	public void evenementChoixNature(ActionEvent evt) {
+		if (etatStatistique.equals("nbreCourrierParStructureParNature")||etatStatistique.equals("tempsMoyenReponseDepartementNature")) {
+			affichePanneauNature = true;
+//			affichePanneauStructure=false;
+//			
+//			System.out.println("nbreCourrierParStructureParNature");
+		} else{
+			affichePanneauNature = false;
+		}
+		
+		if (etatStatistique.equals("nbreCourrierParStructureParNature")){
+			affichePanneauStructure=true;
+		}
+		
+		if(etatStatistique.equals("tempsMoyenReponseDepartementNature")){
+			
+			affichePanneauStructure=false;
+			
+			System.out.println("tempsMoyenReponseDepartementNature");
+
+
+		}
+	
+
+	
+	}
+	
+	public void test(ActionEvent evt){
+		if (etatStatistique.equals("tempsMoyenReponseDepartementNature")) {
+			affichePanneauStructure=false;
+		}
+	}
+
+	//*********************
+	
+	public void statRapport() {
+		System.out.println("####+++++");
+	}
+
+	public void chooseTypeDate(ActionEvent actionEvent) {
+		if (typeDate.equals("jour")) {
+			showInputDay = true;
+			showInputMonth = false;
+			showInputYear = false;
+			showInputPeriode = false;
+			selectedDate = new Date();
+		} else if (typeDate.equals("mois")) {
+			showInputDay = false;
+			showInputMonth = true;
+			showInputYear = true;
+			showInputPeriode = false;
+		} else if (typeDate.equals("periode")) {
+			showInputDay = true;
+			showInputMonth = false;
+			showInputYear = false;
+			showInputPeriode = true;
+		} else {
+			showInputDay = false;
+			showInputMonth = false;
+			showInputYear = true;
+			showInputPeriode = false;
+		}
+	}
+
+	public void chooseMonth(ActionEvent actionEvent) {
+		System.out.println(choixMois);
+	}
+
+	public void chooseYear(ActionEvent actionEvent) {
+		System.out.println(choixAnnee);
+	}
+
+	public List<SelectItem> getSelectItemsYear() {
+		System.out.println("Das Méthode getSelectItemsYear ");
+		List<SelectItem> selectItemsYear = new ArrayList<SelectItem>();
+		anneeDebut = appMgr.getListTransactionByDateTransaction().get(0)
+				.getTransactionDateTransaction();
+		System.out.println("anneeDebut =" + anneeDebut);
+		SimpleDateFormat maDateLongue = new SimpleDateFormat("yyyy");
+		int firstYear = Integer.parseInt(maDateLongue.format(anneeDebut));
+		System.out.println("firstYear =" + firstYear);
+		int lastYear;
+		// Date currentDate = new Date();
+		lastYear = cal.get(Calendar.YEAR);
+		System.out.println("lastYear =" + lastYear);
+		for (int i = firstYear; i <= lastYear; i++) {
+			selectItemsYear.add(new SelectItem(String.valueOf(i)));
+		}
+		System.out.println("selectItemsYear =" + selectItemsYear);
+		return selectItemsYear;
+	}
+
+	public void reinitialize() {
+		etatStatistique = "";
+		showResult = false;
+	}
+
+	private Date getFirstDay(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		Date result = calendar.getTime();
+		return result;
+	}
+
+	private Date getLastDay(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.DAY_OF_MONTH,
+				calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 59);
+		Date result = calendar.getTime();
+		return result;
+	}
+
+	@SuppressWarnings("deprecation")
+	private Date getDayOfMonth(String typeMonth, String typeYear) {
+		int month;
+		int year = Integer.parseInt(typeYear);
+		if (typeMonth.equals("janvier")) {
+			month = 0;
+		} else if (typeMonth.equals("fevrier")) {
+			month = 1;
+		} else if (typeMonth.equals("mars")) {
+			month = 2;
+		} else if (typeMonth.equals("avril")) {
+			month = 3;
+		} else if (typeMonth.equals("mai")) {
+			month = 4;
+		} else if (typeMonth.equals("juin")) {
+			month = 5;
+		} else if (typeMonth.equals("juillet")) {
+			month = 6;
+		} else if (typeMonth.equals("aout")) {
+			month = 7;
+		} else if (typeMonth.equals("septembre")) {
+			month = 8;
+		} else if (typeMonth.equals("octobre")) {
+			month = 9;
+		} else if (typeMonth.equals("novembre")) {
+			month = 10;
+		} else {
+			month = 11;
+		}
+		Date result = new Date(year - 1900, month, 5);
+		return result;
+	}
+
+	private String getMonthName(String typeMonth) {
+		if (typeMonth.equals("janvier")) {
+			return "Janvier";
+		} else if (typeMonth.equals("fevrier")) {
+			return "Fevrier";
+		} else if (typeMonth.equals("mars")) {
+			return "Mars";
+		} else if (typeMonth.equals("avril")) {
+			return "Avril";
+		} else if (typeMonth.equals("mai")) {
+			return "Mai";
+		} else if (typeMonth.equals("juin")) {
+			return "Juin";
+		} else if (typeMonth.equals("juillet")) {
+			return "Juillet";
+		} else if (typeMonth.equals("aout")) {
+			return "Aout";
+		} else if (typeMonth.equals("septembre")) {
+			return "Septembre";
+		} else if (typeMonth.equals("octobre")) {
+			return "Octobre";
+		} else if (typeMonth.equals("novembre")) {
+			return "Novembre";
+		} else {
+			return "Decembre";
+		}
+	}
+
+	private long compareTwoDates(Date date1, Date date2) {
+		long numberOfDay;
+		Calendar calendar = Calendar.getInstance();
+		Calendar calendar1 = Calendar.getInstance();
+		calendar.setTime(date1);
+		calendar1.setTime(date2);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar1.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar1.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar1.set(Calendar.SECOND, 0);
+		long diff = Math.abs(calendar.getTime().getTime()
+				- calendar1.getTime().getTime());
+		numberOfDay = (long) diff / CONST_DURATION_OF_DAY;
+		return numberOfDay;
+	}
+
+	@SuppressWarnings("deprecation")
+	public void periodCalcBeforeViewStatistics() {
+		System.out.println("Dans Méthode periodCalcBeforeViewStatistics");
+		System.out.println("selectItemCatg :" + selectItemCatg);
+		tooLong = false;
+		System.out.println("Etat Statistique :" + etatStatistique);
+		System.out.println("Type Date :" + typeDate);
+		if (etatStatistique.equals("nombreCourrierTotal")
+				&& typeDate.equals("periode")) {
+			Date dateDebut = new Date(selectedDate.getYear(),
+					selectedDate.getMonth(), selectedDate.getDate(), 0, 0, 0);
+			System.out.println("date debut :" + dateDebut);
+			Date dateFin = new Date(selectedDateF.getYear(),
+					selectedDateF.getMonth(), selectedDateF.getDate(), 23, 59,
+					59);
+			System.out.println("date Fin :" + dateFin);
+			Calendar dateD = Calendar.getInstance();
+			Calendar dateF = Calendar.getInstance();
+			dateD.setTime(dateDebut);
+			dateF.setTime(dateFin);
+
+			long diffTime = selectedDateF.getTime() - selectedDate.getTime();
+			long diffDays = diffTime / (1000 * 60 * 60 * 24);
+			dateD.add(Calendar.DAY_OF_MONTH, (int) diffDays);
+			while (dateD.before(dateF)) {
+				dateD.add(Calendar.DAY_OF_MONTH, 1);
+				diffDays++;
+			}
+			while (dateD.after(dateF)) {
+				dateD.add(Calendar.DAY_OF_MONTH, -1);
+				diffDays--;
+			}
+			System.out.println("diffDays : " + diffDays);
+			if (diffDays > 31) {
+				tooLong = true;
+			}
+		}
+		if (tooLong == false) {
+			System.out
+					.println("if etatstatistique=nombreCourrierTotal && typeDate= Année");
+			viewStatistics();
+		}
+	}
+
+	/*********** Getters && Setters *****************/
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setEtatStatistique(String etatStatistique) {
+		this.etatStatistique = etatStatistique;
+	}
+
+	public String getEtatStatistique() {
+		return etatStatistique;
+	}
+
+	public void setShowResult(boolean showResult) {
+		this.showResult = showResult;
+	}
+
+	public boolean isShowResult() {
+		return showResult;
+	}
+
+	public void setTypeDate(String typeDate) {
+		this.typeDate = typeDate;
+	}
+
+	public String getTypeDate() {
+		return typeDate;
+	}
+
+	public void setChoixMois(String choixMois) {
+		this.choixMois = choixMois;
+	}
+
+	public String getChoixMois() {
+		return choixMois;
+	}
+
+	public void setChoixAnnee(String choixAnnee) {
+		this.choixAnnee = choixAnnee;
+	}
+
+	public String getChoixAnnee() {
+		return choixAnnee;
+	}
+
+	public void setShowInputDay(boolean showInputDay) {
+		this.showInputDay = showInputDay;
+	}
+
+	public boolean isShowInputDay() {
+		return showInputDay;
+	}
+
+	public void setShowInputMonth(boolean showInputMonth) {
+		this.showInputMonth = showInputMonth;
+	}
+
+	public boolean isShowInputMonth() {
+		return showInputMonth;
+	}
+
+	public void setShowInputYear(boolean showInputYear) {
+		this.showInputYear = showInputYear;
+	}
+
+	public boolean isShowInputYear() {
+		return showInputYear;
+	}
+
+	public boolean isShowInputPeriode() {
+		return showInputPeriode;
+	}
+
+	public void setShowInputPeriode(boolean showInputPeriode) {
+		this.showInputPeriode = showInputPeriode;
+	}
+
+	public void setSelectedDate(Date selectedDate) {
+		this.selectedDate = selectedDate;
+	}
+
+	public Date getSelectedDate() {
+		return selectedDate;
+	}
+
+	public Date getSelectedDateF() {
+		return selectedDateF;
+	}
+
+	public void setSelectedDateF(Date selectedDateF) {
+		this.selectedDateF = selectedDateF;
+	}
+
+	public void setAxeX(String axeX) {
+		this.axeX = axeX;
+	}
+
+	public String getAxeX() {
+		return axeX;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTypeCourrier1(String typeCourrier1) {
+		this.typeCourrier1 = typeCourrier1;
+	}
+
+	public String getTypeCourrier1() {
+		return typeCourrier1;
+	}
+
+	public void setTypeCourrier2(String typeCourrier2) {
+		this.typeCourrier2 = typeCourrier2;
+	}
+
+	public String getTypeCourrier2() {
+		return typeCourrier2;
+	}
+
+	public void setTypeCourrier3(String typeCourrier3) {
+		this.typeCourrier3 = typeCourrier3;
+	}
+
+	public String getTypeCourrier3() {
+		return typeCourrier3;
+	}
+
+	public void setDataTypeCourrier1(String dataTypeCourrier1) {
+		this.dataTypeCourrier1 = dataTypeCourrier1;
+	}
+
+	public String getDataTypeCourrier1() {
+		return dataTypeCourrier1;
+	}
+
+	public void setDataTypeCourrier2(String dataTypeCourrier2) {
+		this.dataTypeCourrier2 = dataTypeCourrier2;
+	}
+
+	public String getDataTypeCourrier2() {
+		return dataTypeCourrier2;
+	}
+
+	public void setDataTypeCourrier3(String dataTypeCourrier3) {
+		this.dataTypeCourrier3 = dataTypeCourrier3;
+	}
+
+	public String getDataTypeCourrier3() {
+		return dataTypeCourrier3;
+	}
+
+	public void setSeriesVariable(String seriesVariable) {
+		this.seriesVariable = seriesVariable;
+	}
+
+	public String getSeriesVariable() {
+		return seriesVariable;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setDataNatureCourrier(String dataNatureCourrier) {
+		this.dataNatureCourrier = dataNatureCourrier;
+	}
+
+	public String getDataNatureCourrier() {
+		return dataNatureCourrier;
+	}
+
+	public void setShowLegend(boolean showLegend) {
+		this.showLegend = showLegend;
+	}
+
+	public boolean isShowLegend() {
+		return showLegend;
+	}
+
+	public void setDataDelaiReponseCourrier(String dataDelaiReponseCourrier) {
+		this.dataDelaiReponseCourrier = dataDelaiReponseCourrier;
+	}
+
+	public String getDataDelaiReponseCourrier() {
+		return dataDelaiReponseCourrier;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setCategorieType(String categorieType) {
+		this.categorieType = categorieType;
+	}
+
+	public String getCategorieType() {
+		return categorieType;
+	}
+
+	public void setDataPasRepondu(String dataPasRepondu) {
+		this.dataPasRepondu = dataPasRepondu;
+	}
+
+	public String getDataPasRepondu() {
+		return dataPasRepondu;
+	}
+
+	public void setDataReponduHorsDelai(String dataReponduHorsDelai) {
+		this.dataReponduHorsDelai = dataReponduHorsDelai;
+	}
+
+	public String getDataReponduHorsDelai() {
+		return dataReponduHorsDelai;
+	}
+
+	public void setDataReponduDansDelai(String dataReponduDansDelai) {
+		this.dataReponduDansDelai = dataReponduDansDelai;
+	}
+
+	public String getDataReponduDansDelai() {
+		return dataReponduDansDelai;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Boolean getShowAlertMessage() {
+		return showAlertMessage;
+	}
+
+	public void setShowAlertMessage(Boolean showAlertMessage) {
+		this.showAlertMessage = showAlertMessage;
+	}
+
+	public void setAnneeDebut(Date anneeDebut) {
+		this.anneeDebut = anneeDebut;
+	}
+
+	public Date getAnneeDebut() {
+		return anneeDebut;
+	}
+
+	public DataModel getListStatistiqueArriveByOrganisme() {
+		return listStatistiqueArriveByOrganisme;
+	}
+
+	public void setListStatistiqueArriveByOrganisme(
+			DataModel listStatistiqueArriveByOrganisme) {
+		this.listStatistiqueArriveByOrganisme = listStatistiqueArriveByOrganisme;
+	}
+
+	public DataModel getListStatistiqueDepartByOrganisme() {
+		return listStatistiqueDepartByOrganisme;
+	}
+
+	public void setListStatistiqueDepartByOrganisme(
+			DataModel listStatistiqueDepartByOrganisme) {
+		this.listStatistiqueDepartByOrganisme = listStatistiqueDepartByOrganisme;
+	}
+
+	public DataModel getListStatistiqueArriveByStructure() {
+		return listStatistiqueArriveByStructure;
+	}
+
+	public void setListStatistiqueArriveByStructure(
+			DataModel listStatistiqueArriveByStructure) {
+		this.listStatistiqueArriveByStructure = listStatistiqueArriveByStructure;
+	}
+
+	public DataModel getListStatistiqueDepartByStructure() {
+		return listStatistiqueDepartByStructure;
+	}
+
+	public void setListStatistiqueDepartByStructure(
+			DataModel listStatistiqueDepartByStructure) {
+		this.listStatistiqueDepartByStructure = listStatistiqueDepartByStructure;
+	}
+
+	public String getShowStatistiqueArriveByOrganisme() {
+		return showStatistiqueArriveByOrganisme;
+	}
+
+	public void setShowStatistiqueArriveByOrganisme(
+			String showStatistiqueArriveByOrganisme) {
+		this.showStatistiqueArriveByOrganisme = showStatistiqueArriveByOrganisme;
+	}
+
+	public String getShowStatistiqueArriveByStructure() {
+		return showStatistiqueArriveByStructure;
+	}
+
+	public void setShowStatistiqueArriveByStructure(
+			String showStatistiqueArriveByStructure) {
+		this.showStatistiqueArriveByStructure = showStatistiqueArriveByStructure;
+	}
+
+	public List<StatistiqueCourrierOrganisme> getListStatistiqueCourrierOrganismeArrive() {
+		return listStatistiqueCourrierOrganismeArrive;
+	}
+
+	public void setListStatistiqueCourrierOrganismeArrive(
+			List<StatistiqueCourrierOrganisme> listStatistiqueCourrierOrganismeArrive) {
+		this.listStatistiqueCourrierOrganismeArrive = listStatistiqueCourrierOrganismeArrive;
+	}
+
+	public List<StatistiqueCourrierOrganisme> getListStatistiqueCourrierOrganismeDepart() {
+		return listStatistiqueCourrierOrganismeDepart;
+	}
+
+	public void setListStatistiqueCourrierOrganismeDepart(
+			List<StatistiqueCourrierOrganisme> listStatistiqueCourrierOrganismeDepart) {
+		this.listStatistiqueCourrierOrganismeDepart = listStatistiqueCourrierOrganismeDepart;
+	}
+
+	public List<StatistiqueCourrierStructure> getListStatistiqueCourrierStructureArrive() {
+		return listStatistiqueCourrierStructureArrive;
+	}
+
+	public void setListStatistiqueCourrierStructureArrive(
+			List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureArrive) {
+		this.listStatistiqueCourrierStructureArrive = listStatistiqueCourrierStructureArrive;
+	}
+
+	public List<StatistiqueCourrierStructure> getListStatistiqueCourrierStructureDepart() {
+		return listStatistiqueCourrierStructureDepart;
+	}
+
+	public void setListStatistiqueCourrierStructureDepart(
+			List<StatistiqueCourrierStructure> listStatistiqueCourrierStructureDepart) {
+		this.listStatistiqueCourrierStructureDepart = listStatistiqueCourrierStructureDepart;
+	}
+
+	public boolean isTooLong() {
+		return tooLong;
+	}
+
+	public void setTooLong(boolean tooLong) {
+		this.tooLong = tooLong;
+	}
+
+	public void setListIdDirectionMembers(List<Integer> listIdDirectionMembers) {
+		this.listIdDirectionMembers = listIdDirectionMembers;
+	}
+
+	public List<Integer> getListIdDirectionMembers() {
+		return listIdDirectionMembers;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setShowStatistiqueCourrrierArriveByUtilisateur(
+			String showStatistiqueCourrrierArriveByUtilisateur) {
+		this.showStatistiqueCourrrierArriveByUtilisateur = showStatistiqueCourrrierArriveByUtilisateur;
+	}
+
+	public String getShowStatistiqueCourrrierArriveByUtilisateur() {
+		return showStatistiqueCourrrierArriveByUtilisateur;
+	}
+
+	public void setListStatistiqueCourrierUtilisateurArrive(
+			List<StatistiqueCourrierUtilisateur> listStatistiqueCourrierUtilisateurArrive) {
+		this.listStatistiqueCourrierUtilisateurArrive = listStatistiqueCourrierUtilisateurArrive;
+	}
+
+	public List<StatistiqueCourrierUtilisateur> getListStatistiqueCourrierUtilisateurArrive() {
+		return listStatistiqueCourrierUtilisateurArrive;
+	}
+
+	public void setListStatistiqueCourrierArriveeByUtilisateur(
+			DataModel listStatistiqueCourrierArriveeByUtilisateur) {
+		this.listStatistiqueCourrierArriveeByUtilisateur = listStatistiqueCourrierArriveeByUtilisateur;
+	}
+
+	public DataModel getListStatistiqueCourrierArriveeByUtilisateur() {
+		return listStatistiqueCourrierArriveeByUtilisateur;
+	}
+
+	public void setListStatistiqueCourrierDepartByUtilisateur(
+			DataModel listStatistiqueCourrierDepartByUtilisateur) {
+		this.listStatistiqueCourrierDepartByUtilisateur = listStatistiqueCourrierDepartByUtilisateur;
+	}
+
+	public DataModel getListStatistiqueCourrierDepartByUtilisateur() {
+		return listStatistiqueCourrierDepartByUtilisateur;
+	}
+
+	public Person getIdPersonbyId(int idUserDest) {
+		System.out.println(" Dans getIdPersonbyId ");
+
+		int id1;
+		Person personneRecherche = new Person();
+		boolean findPerson = false;
+		int j = 0;
+		do {
+			id1 = vb.getCopyLdapListUser().get(j).getId();
+			if (id1 == idUserDest) {
+				findPerson = true;
+				personneRecherche = vb.getCopyLdapListUser().get(j);
+			} else {
+				j++;
+			}
+		} while (!findPerson && j < vb.getCopyLdapListUser().size());
+		System.out.println("#Connected recherché : " + personneRecherche);
+
+		return personneRecherche;
+	}
+
+	public void setShowStatistiqueCourrrierByStructureByNature(
+			String showStatistiqueCourrrierByStructureByNature) {
+		this.showStatistiqueCourrrierByStructureByNature = showStatistiqueCourrrierByStructureByNature;
+	}
+
+	public String getShowStatistiqueCourrrierByStructureByNature() {
+		return showStatistiqueCourrrierByStructureByNature;
+	}
+
+	public void setListStatistiqueCourrierStructureByNature(
+			List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierStructureByNature) {
+		this.listStatistiqueCourrierStructureByNature = listStatistiqueCourrierStructureByNature;
+	}
+
+	public List<StatistiqueCourrierStructureByNature> getListStatistiqueCourrierStructureByNature() {
+		return listStatistiqueCourrierStructureByNature;
+	}
+
+
+	public void setListCountStatistique(
+			List<CountStatistique> listCountStatistique) {
+		this.listCountStatistique = listCountStatistique;
+	}
+
+	public List<CountStatistique> getListCountStatistique() {
+		return listCountStatistique;
+	}
+
+	public void setCountStatistique(CountStatistique countStatistique) {
+		this.countStatistique = countStatistique;
+	}
+
+	public CountStatistique getCountStatistique() {
+		return countStatistique;
+	}
+
+	public void setListCategorieNature(List<NatureCategorie> listCategorieNature) {
+		this.listCategorieNature = listCategorieNature;
+	}
+
+	public List<NatureCategorie> getListCategorieNature() {
+		return listCategorieNature;
+	}
+
+	public List<SelectItem> getSelectItemsCatg() {
+		List<SelectItem> selectItemsCatgList = new ArrayList<SelectItem>();
+		try {
+			listCategorieNature = appMgr.getList(NatureCategorie.class);
+
+			System.out.println("list Categorie Nature :"
+					+ listCategorieNature.size());
+			System.out.println("list Nature :" + listCategorieNature.size());
+			String libelle;
+
+			selectItemsCatgList.add(new SelectItem(""));
+			for (int j = 0; j <= listCategorieNature.size() - 1; j++) {
+				Integer idCf = listCategorieNature.get(j)
+						.getNatureCategorieId();
+				if (vb.getLocale().equals("ar")) {
+					libelle = listCategorieNature.get(j).getCategorieLibelle();
+				} else {
+
+					libelle = listCategorieNature.get(j).getCategorieLibelle();
+					System.out.println("Libelle :" + libelle);
+				}
+				selectItemsCatgList.add(new SelectItem(String.valueOf(idCf),
+						libelle));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return selectItemsCatgList;
+	}
+
+	public void setSelectItemCatg(String selectItemCatg) {
+		this.selectItemCatg = selectItemCatg;
+	}
+
+	public String getSelectItemCatg() {
+		return selectItemCatg;
+	}
+
+	public void setUnite(String unite) {
+		this.unite = unite;
+	}
+
+	public String getUnite() {
+		return unite;
+	}
+
+	public void setHashMapStructure(HashMap<Integer, int[]> hashMapStructure) {
+		this.hashMapStructure = hashMapStructure;
+	}
+
+	public HashMap<Integer, int[]> getHashMapStructure() {
+		return hashMapStructure;
+	}
+
+	public void setListNatureParCategorie(List<Nature> listNatureParCategorie) {
+		this.listNatureParCategorie = listNatureParCategorie;
+	}
+
+	public List<Nature> getListNatureParCategorie() {
+		return listNatureParCategorie;
+	}
+
+	public void setCountNature(Integer countNature) {
+		this.countNature = countNature;
+	}
+
+	public Integer getCountNature() {
+		return countNature;
+	}
+
+	public void setListLibelleNature(List<String> listLibelleNature) {
+		this.listLibelleNature = listLibelleNature;
+	}
+
+	public List<String> getListLibelleNature() {
+		return listLibelleNature;
+	}
+
+	public void setNatureModel(NatureModel natureModel) {
+		this.natureModel = natureModel;
+	}
+
+	public NatureModel getNatureModel() {
+		return natureModel;
+	}
+
+	public void setListNatureModel(List<NatureModel> listNatureModel) {
+		this.listNatureModel = listNatureModel;
+	}
+
+	public List<NatureModel> getListNatureModel() {
+		return listNatureModel;
+	}
+
+	public void setSelectItemsNat(ArrayList<SelectItem> selectItemsNat) {
+		this.selectItemsNat = selectItemsNat;
+	}
+
+	public List<SelectItem> getSelectItemsNat() {
+		String libelle;
+//			try {
+//				listNat=appMgr.getList(Nature.class);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+		System.out.println("Liste des natures :"+listNat.size());
+		List<SelectItem> selectItemsNat = new ArrayList<SelectItem>();
+		if(listNatureParCateg != null && listNatureParCateg.size()>0)
+		{
+		for (int j = 0; j <= listNatureParCateg.size() - 1; j++) {
+			Integer idNat = listNatureParCateg.get(j).getNatureId();
+			if (vb.getLocale().equals("ar")) {
+				libelle = listNatureParCateg.get(j).getNatureLibelleAr();
+			} else {
+				libelle = listNatureParCateg.get(j).getNatureLibelle();
+			}
+
+			selectItemsNat.add(new SelectItem(String.valueOf(idNat), libelle));
+
+		}
+		}else{
+			selectItemsNat.add(new SelectItem(""));
+
+		}
+		System.out.println("selectItemsNat ==>"+selectItemsNat);
+		return selectItemsNat;
+	}
+
+	
+	public void chargerNature(ActionEvent evt) {
+
+		if (!selectedItemCategorie.equals("")) {
+			listNatureParCateg = appMgr.listNaturesByCategorie(Integer
+					.valueOf(selectedItemCategorie));
+		}
+		getSelectItemsNat();
+
+	}
+
+	public List<Nature> getListNat() {
+		return listNat;
+	}
+
+	public void setListNat(List<Nature> listNat) {
+		this.listNat = listNat;
+	}
+
+	public String getSelectedItemNature() {
+		System.out.println("goog morning :"+selectedItemNature);
+		return selectedItemNature;
+	}
+
+	public void setSelectedItemNature(String selectedItemNature) {
+		this.selectedItemNature = selectedItemNature;
+	}
+
+	public void setListStatistiqueCourrierStructureByNatureDepart(
+			List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierStructureByNatureDepart) {
+		this.listStatistiqueCourrierStructureByNatureDepart = listStatistiqueCourrierStructureByNatureDepart;
+	}
+
+	public List<StatistiqueCourrierStructureByNature> getListStatistiqueCourrierStructureByNatureDepart() {
+		return listStatistiqueCourrierStructureByNatureDepart;
+	}
+
+	public void setListStatistiqueCourrierStructureByNatureArrivee(
+			List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierStructureByNatureArrivee) {
+		this.listStatistiqueCourrierStructureByNatureArrivee = listStatistiqueCourrierStructureByNatureArrivee;
+	}
+
+	public List<StatistiqueCourrierStructureByNature> getListStatistiqueCourrierStructureByNatureArrivee() {
+		return listStatistiqueCourrierStructureByNatureArrivee;
+	}
+
+	public void setListStatCourrierStructureByNatureDepartDM(
+			DataModel listStatCourrierStructureByNatureDepartDM) {
+		this.listStatCourrierStructureByNatureDepartDM = listStatCourrierStructureByNatureDepartDM;
+	}
+
+	public DataModel getListStatCourrierStructureByNatureDepartDM() {
+		return listStatCourrierStructureByNatureDepartDM;
+	}
+
+	public void setListStatCourrierStructureByNatureArriveDM(
+			DataModel listStatCourrierStructureByNatureArriveDM) {
+		this.listStatCourrierStructureByNatureArriveDM = listStatCourrierStructureByNatureArriveDM;
+	}
+
+	public DataModel getListStatCourrierStructureByNatureArriveDM() {
+		return listStatCourrierStructureByNatureArriveDM;
+	}
+
+
+	public void setListStatCourrierStructureByNatureDM(
+			DataModel listStatCourrierStructureByNatureDM) {
+		this.listStatCourrierStructureByNatureDM = listStatCourrierStructureByNatureDM;
+	}
+
+	public DataModel getListStatCourrierStructureByNatureDM() {
+		return listStatCourrierStructureByNatureDM;
+	}
+
+	public void setAffichePanneauNature(boolean affichePanneauNature) {
+		this.affichePanneauNature = affichePanneauNature;
+	}
+
+	public boolean isAffichePanneauNature() {
+		return affichePanneauNature;
+	}
+
+	public void setValueAttr(String valueAttr) {
+		this.valueAttr = valueAttr;
+	}
+
+	public String getValueAttr() {
+		return valueAttr;
+	}
+
+	public void setLibelleNature(String libelleNature) {
+		this.libelleNature = libelleNature;
+	}
+
+	public String getLibelleNature() {
+		return libelleNature;
+	}
+
+	public void setShowStatistiqueCourrrierDelaisReponseParUniteParNature(
+			String showStatistiqueCourrrierDelaisReponseParUniteParNature) {
+		this.showStatistiqueCourrrierDelaisReponseParUniteParNature = showStatistiqueCourrrierDelaisReponseParUniteParNature;
+	}
+
+	public String getShowStatistiqueCourrrierDelaisReponseParUniteParNature() {
+		return showStatistiqueCourrrierDelaisReponseParUniteParNature;
+	}
+
+	public void setListStatistiqueCourrierTempsReponseParUniteNatureDM(
+			DataModel listStatistiqueCourrierTempsReponseParUniteNatureDM) {
+		this.listStatistiqueCourrierTempsReponseParUniteNatureDM = listStatistiqueCourrierTempsReponseParUniteNatureDM;
+	}
+
+	public DataModel getListStatistiqueCourrierTempsReponseParUniteNatureDM() {
+		return listStatistiqueCourrierTempsReponseParUniteNatureDM;
+	}
+
+	public void setListStatistiqueCourrierTopVignt(
+			List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierTopVignt) {
+		this.listStatistiqueCourrierTopVignt = listStatistiqueCourrierTopVignt;
+	}
+
+	public List<StatistiqueCourrierStructureByNature> getListStatistiqueCourrierTopVignt() {
+		return listStatistiqueCourrierTopVignt;
+	}
+
+	public void setListStatistiqueCourrierSuppVignt(
+			List<StatistiqueCourrierStructureByNature> listStatistiqueCourrierSuppVignt) {
+		this.listStatistiqueCourrierSuppVignt = listStatistiqueCourrierSuppVignt;
+	}
+
+	public List<StatistiqueCourrierStructureByNature> getListStatistiqueCourrierSuppVignt() {
+		return listStatistiqueCourrierSuppVignt;
+	}
+
+	public void setListStatistiqueTempsReponseCourrierTopVignt(
+			List<StatistiqueCourrierTempsReponseParUniteNature> listStatistiqueTempsReponseCourrierTopVignt) {
+		this.listStatistiqueTempsReponseCourrierTopVignt = listStatistiqueTempsReponseCourrierTopVignt;
+	}
+
+	public List<StatistiqueCourrierTempsReponseParUniteNature> getListStatistiqueTempsReponseCourrierTopVignt() {
+		return listStatistiqueTempsReponseCourrierTopVignt;
+	}
+
+	public void setAffichePanneauStructure(boolean affichePanneauStructure) {
+		this.affichePanneauStructure = affichePanneauStructure;
+	}
+
+	public boolean isAffichePanneauStructure() {
+		return affichePanneauStructure;
+	}
+
+	public void setListeType(List<String> listeType) {
+		this.listeType = listeType;
+	}
+
+	public List<String> getListeType() {
+		return listeType;
+	}
+
+	public List<Integer> getListIdBocMembers() {
+		return listIdBocMembers;
+	}
+
+	public void setListIdBocMembers(List<Integer> listIdBocMembers) {
+		this.listIdBocMembers = listIdBocMembers;
+	}
+
+	public String getType2() {
+		return type2;
+	}
+
+	public void setType2(String type2) {
+		this.type2 = type2;
+	}
+
+	public String getType3() {
+		return type3;
+	}
+
+	public void setType3(String type3) {
+		this.type3 = type3;
+	}
+
+	public String getTypeSecretaire() {
+		return typeSecretaire;
+	}
+
+	public void setTypeSecretaire(String typeSecretaire) {
+		this.typeSecretaire = typeSecretaire;
+	}
+
+	public List<Integer> getListIdsSousUnit() {
+		return listIdsSousUnit;
+	}
+
+	public void setListIdsSousUnit(List<Integer> listIdsSousUnit) {
+		this.listIdsSousUnit = listIdsSousUnit;
+	}
+
+	public List<Integer> getListIdsSubordonne() {
+		return listIdsSubordonne;
+	}
+
+	public void setListIdsSubordonne(List<Integer> listIdsSubordonne) {
+		this.listIdsSubordonne = listIdsSubordonne;
+	}
+
+	public void setSelectedItemCategorie(String selectedItemCategorie) {
+		this.selectedItemCategorie = selectedItemCategorie;
+	}
+
+	public String getSelectedItemCategorie() {
+		return selectedItemCategorie;
+	}
+
+	public void setListNatureParCateg(List<Nature> listNatureParCateg) {
+		this.listNatureParCateg = listNatureParCateg;
+	}
+
+	public List<Nature> getListNatureParCateg() {
+		return listNatureParCateg;
+	}
+
+	public List<SelectItem> getSelectItemsCat() {
+		return selectItemsCat;
+	}
+
+	public void setSelectItemsCat(List<SelectItem> selectItemsCat) {
+		this.selectItemsCat = selectItemsCat;
+	}
+
+	public void setSelectItemsNat(List<SelectItem> selectItemsNat) {
+		this.selectItemsNat = selectItemsNat;
+	}
+
+	public boolean isBoc() {
+		return boc;
+	}
+
+	public void setBoc(boolean boc) {
+		this.boc = boc;
+	}
+
+
+	
+
+}

@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+<html>
+	<head>
+<title>Détails évènements pour utilisateur</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<!--*************** 
+		Le tableau d'affichage du donnée 
+		*****************-->
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<h:panelGrid columns="14">
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='GestionGNL0.jsf'">
+									<h:graphicImage
+										value="../framGraphique/images/retour.png"
+										alt="retour" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.buttonRetour}" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<rich:panel>
+						<rich:simpleTogglePanel id="user" styleClass="rich-panel"
+							switchType="client" label="#{msg.detailsUtilisateur}" opened="true">
+							<table width="100%">
+								<tr>
+									<td style="width: 50%; padding-top: px; vertical-align: top;">
+										<h:panelGrid columns="2">
+											<h:column>
+												<h:outputText value="#{msg.prenom}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{consultEvenementBean.user.prenom}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{msg.nom}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" style=" height : 1px;" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{consultEvenementBean.user.nom}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText
+													value="#{consultEvenementBean.user.telephoneNumber}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+
+											<h:column>
+												<h:outputText value="#{msg.login}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{consultEvenementBean.user.login}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+										</h:panelGrid></td>
+									<td style="width: 50%;"><h:panelGrid columns="2">
+											<h:column>
+												<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{consultEvenementBean.user.email}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{msg.Expfax}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{consultEvenementBean.user.fax}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{msg.postalCode}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText
+													value="#{consultEvenementBean.user.codePostal}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{consultEvenementBean.user.adresse}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+											<h:column>
+											</h:column>
+										</h:panelGrid></td>
+								</tr>
+							</table>
+						</rich:simpleTogglePanel>
+					</rich:panel>
+					<rich:panel styleClass="rich-panel" style=" height : 440px;">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listeEvenements}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="consultEvenementBean" />
+						<h:form>
+
+							<rich:dataTable value="#{consultEvenementBean.listevenementDM}"
+								var="evenement" id="data" rows="10" styleClass="rich-panel">
+								<rich:column width="12%"
+									sortBy="#{evenement.evenement.evenementId}"
+									filterBy="#{evenement.evenement.evenementId}"
+									filterEvent="onkeyup" label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.Reference}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{evenement.evenement.evenementId}" />
+									</div>
+								</rich:column>
+
+								<rich:column width="40%"
+									sortBy="#{evenement.evenement.evenementLibelle}"
+									filterBy="#{evenement.evenement.evenementLibelle}"
+									filterEvent="onkeyup" label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.libelle1}" />
+									</f:facet>
+									<h:outputText value="#{evenement.evenement.evenementLibelle}" />
+								</rich:column>
+								<rich:column sortBy="#{evenement.type}"
+									filterBy="#{evenement.type}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.EvenementType}" />
+									</f:facet>
+									<h:outputText style="text-transform:uppercase"
+										value="#{evenement.type}" />
+								</rich:column>
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="evenementGestionBean" />
+									<center>
+										<h:panelGrid columns="8">
+											<a4j:commandLink
+												action="#{consultEvenementBean.getSelectedRowForDetails}"
+												oncomplete="document.location.href='DetailsEvenement.jsf'"
+												id="detailsEvenement">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="detailsEvenement" />
+											</a4j:commandLink>
+											<rich:toolTip for="detailsEvenement" value="Détails avancées" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{evenementGestionBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+					</rich:panel>
+				</div>
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+	</body>
+	</html>
+</ui:composition>

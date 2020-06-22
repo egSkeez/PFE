@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+<html>
+<head>
+<title>Liste Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"/>  
+<!-- enable full-screen mode -->  
+<meta name="apple-mobile-web-app-capable" content="yes"/>  
+<!-- controls the appearance of the status bar in full-screen mode -->  
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>  
+
+<script type="text/javascript" src="../framGraphique/jquery-1.10.2.min.js" />
+<script type="text/javascript" src="../framGraphique/js/jquery.min.js"></script>
+<script type="text/javascript" src="../framGraphique/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../framGraphique/js/datatables.js"></script>
+<link rel="stylesheet" href="../framGraphique/slidfast.css" />
+
+<script type="text/javascript">
+function fctClick( obj){
+  // récup. de tous les INPUT de la TR passée en paramètre
+  var oInput = obj.getElementsByTagName('INPUT');
+  // affichage de la value du 1st
+  var val2 = oInput[0].value;
+  alert(val2);
+
+}
+
+</script>
+
+<script type="text/javascript" >
+function updateIndexWhenOnclick(obj){
+	alert(obj);	
+	remoteCommandFunctionName([{name: 'name1', value: 'value1'}, {name: 'name2', value: 'value2'}]);
+</script>
+<script type="text/javascript">
+   function setHiddenValue(new_value){
+	   alert(new_value);
+		document.getElementById('myForm:hidden2').value = new_value;
+		document.location.href="courrierConsulterDetails.jsf"
+			
+   }
+</script>
+	<script type="text/javascript">
+		function setHiddenValue2(new_value){
+			
+			document.getElementById('myForm:hidden2').value = new_value;
+			
+		}
+	</script>
+<script type="text/javascript" src="../framGraphique/js/slidfast.js"></script>
+		<script type="text/javascript">
+		$(document).ready(function() {
+			$('.datatable').dataTable({
+				"sPaginationType": "bs_normal"
+			});	
+			$('.datatable').each(function(){
+				var datatable = $(this);
+				// SEARCH - Add the placeholder for Search and Turn this into in-line form control
+				var search_input = datatable.closest('.dataTables_wrapper').find('div[id$=_filter] input');
+				search_input.attr('placeholder', 'Search');
+				search_input.addClass('form-control input-sm');
+				// LENGTH - Inline-Form control
+				var length_sel = datatable.closest('.dataTables_wrapper').find('div[id$=_length] select');
+				length_sel.addClass('form-control input-sm');
+			});
+		});
+		</script>
+
+<script type="text/javascript">
+	jQuery.noConflict();
+	jQuery(document).ready(function() {
+		jQuery("#formm\\:selectoneRadioId1Ancien").change(function() {
+			jQuery("#formm\\:panelGridId").css("display", "inline");
+		});
+		jQuery("#formm\\:selectoneRadioIdAncien").change(function() {
+			jQuery("#formm\\:panelGridId").css("display", "none");
+		});
+	});
+</script>
+<script src="../framGraphique/js/bootstrap.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="../framGraphique/datatables.css"/>
+<link rel="stylesheet" href="../framGraphique/bootstrap.min.css"/>
+
+<style type="text/css">
+/* disable column resize */
+.extdt-hsep {
+    display: none;
+}
+</style>
+
+</head>
+<body>
+
+
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.cssmobile}" title="css"></link>
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/bootstrap.css" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/headerWeb.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbarr2.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+			
+				<div id="corpsGauche">
+					<h:form id="frmBtn">
+						<rich:panel styleClass="rich-panel">
+							<div id="barreIcone" style="height: 30px;">
+								<div id="barreIconeGauche">
+								
+									<a4j:status id="ajaxStatus"
+										onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+										onstop="#{rich:component('waitPanel')}.hide()" />
+
+									<rich:modalPanel id="waitPanel" style="text-align:center">
+										<h:outputText value="#{msg.messageAttente}"
+											style="font-weight:bold;font-size:large" />
+
+										<div align="center">
+											<h:graphicImage value="../framGraphique/images/timeOut.gif"
+												alt="timeOut" />
+										</div>
+									</rich:modalPanel>
+								</div>
+						
+							</div>
+						</rich:panel>
+						<a4j:status id="ajaxStatusRapport" forceId="true"
+							onstart="#{rich:component('waitPanelRapport')}.show('',{height:'85px', width:'250px'})"
+							onstop="#{rich:component('waitPanelRapport')}.hide()" />
+						<rich:modalPanel id="waitPanelRapport" style="text-align:center"
+							autosized="true">
+							<h:outputText value="#{msg.messageAttente}"
+								style="font-weight:bold;font-size:large" />
+							<div align="center">
+								<h:graphicImage value="../framGraphique/images/timeOut.gif"
+									alt="timeOut" />
+							</div>
+						</rich:modalPanel>
+
+					</h:form>
+					<a4j:keepAlive beanName="courrierConsultationRecentBean" />
+<!--					<h:outputText value="#{courrierConsultationRecentBean.texteTypeCourrier}" escape="false" styleClass="#{courrierConsultationRecentBean.styleMessage}"/>-->
+					
+					
+					
+	<table width="100%"  border="1" class="datatable table table-striped table-bordered" >    
+
+   	 <tbody >
+
+        <a4j:repeat id="it" value="#{courrierConsultationRecentBean.listCourrier}" var="item">
+           <ui:fragment >
+           <tr>               
+        <td>
+        <h:form id="myForm">
+           <ul ><li> <h:outputText style="font-size:10px"  value="#{item.courrierDestinataireReelle}"  />
+          <h:outputText style="font-size:10px;float:right;"  value="#{item.courrierDateReceptionEnvoi}" />
+           
+          <ul>
+          <li>
+          <h:outputText style="font-size:10px"  value="#{item.courrierDestinataireReelleDirection}"  /><br></br>
+          </li>
+          <li>
+            <h:outputText style="font-size:10px"  value="#{item.courrierObjet}"  /><br></br>
+            </li>
+          
+            <h:outputText style="font-size:10px"  value="#{item.courrierCommentaire}" rendered="false" /><br></br>
+            
+            </ul></li></ul>
+<!--            <h:outputText value="#{item.courrierID}"/>           -->
+<!--			 <h:outputText value="#{item.courrierExpediteur}"/> -->
+			
+		    <input type="hidden" name="hidden1" value="#{item.courrierID}" />
+		    <input type="hidden" name="hidden2" value="#{item.courrierExpediteur}" />
+		    <input type="hidden" name="hidden3" value="#{item.courrierDestinataireReelle}" />
+		    <input type="hidden" name="hidden4" value="#{item.transaction.transactionId}" />
+		    <input type="hidden" name="hidden8" value="#{item.courrierDestinataireReelleDirection}" />
+		    <a4j:repeat id="annotation"  value="#{item.listeDestinatairesAvecAnnotations}" var="annotationDest">
+		    
+<!--		    <h:outputText value="#{annotationDest.destinataireId}"/>		    -->
+<!--		    <h:outputText value="#{annotationDest.destinataireName}"/>-->
+<!--		    <h:outputText value="#{annotationDest.annotations}"/>-->
+		    
+		     <input type="hidden" name="hidden5" value="#{annotationDest.destinataireId}" />		    
+		     <input type="hidden" name="hidden6" value="#{annotationDest.destinataireName}" />
+		     <input type="hidden" name="hidden7" value="#{annotationDest.annotations}" />
+		   
+		    
+		    </a4j:repeat>
+		    
+		    <h:inputHidden id="hidden2" value="#{courrierConsultationRecentBean.hidden2}" />
+		    
+		    <a4j:commandButton value="submit" action="#{courrierConsultationRecentBean.action}" oncomplete="document.location.href='courrierConsulterDetailsWeb.jsf'" />
+<!--		     <li>Hidden1 = <h:outputText value="#{courrierConsultationRecentBean.hidden1}" /></li>-->
+<!-- 		<li>Hidden2 = <h:outputText value="#{courrierConsultationRecentBean.hidden2}" /></li>-->
+		</h:form>   
+           </td>
+        
+          </tr>
+		</ui:fragment>
+		
+		</a4j:repeat>
+		
+	</tbody>
+	
+		
+		</table>	 
+		
+
+
+
+
+
+     
+    
+ 		
+ 		
+ 					 <ul class="pagination hidden-xs pull-right">
+                      <li><a href="#">1</a></li>
+                      <li><a href="#">2</a></li>
+                      <li><a href="#">3</a></li>
+                      <li><a href="#">4</a></li>
+                      <li><a href="#">5</a></li>
+                    </ul>
+                    <ul class="pagination visible-xs pull-right">
+                        <li><a href="#">«</a></li>
+                        <li><a href="#">»</a></li>
+                    </ul>
+					
+					<!-- popoup wait -->
+					<a4j:status id="ajaxStatusWait" forceId="true"
+						onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+						onstop="#{rich:component('waitPanel')}.hide()" />
+					<rich:modalPanel id="waitPanel" style="text-align:center">
+						<h:outputText value="#{msg.messageAttente}"
+							style="font-weight:bold;font-size:large" />
+						<div align="center">
+							<h:graphicImage value="../framGraphique/images/timeOut.gif"
+								alt="timeOut" />
+						</div>
+					</rich:modalPanel>
+					<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="#{msg.acceuilAideLabel} : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+									value="../framGraphique/images/AideEnLigne/GBO-List-Courrier-FR.png"
+									width="790" height="700" id="aidehidelink" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+									value="../framGraphique/images/AideEnLigne/GBO-List-Courriers-AR.png"
+									width="750" height="490" id="aidehidelinkAR" />
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+
+							</h:form>
+						</div>
+					</rich:modalPanel>
+
+					<!--					</h:form>-->
+				</div>
+				
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+	
+	
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="statistiqueOrganismeExpediteur" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="8c3f46c7-83c1-40f3-8de7-c3dbe8a55bf4">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="organismeExterne" class="xtensus.entity.Expdestexterne">
+		<fieldDescription><![CDATA[organismeExterne]]></fieldDescription>
+	</field>
+	<field name="pourcentage" class="java.lang.String">
+		<fieldDescription><![CDATA[pourcentage]]></fieldDescription>
+	</field>
+	<field name="organismeName" class="java.lang.String">
+		<fieldDescription><![CDATA[organismeName]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="1f16913d-d368-44bb-b25d-bed572b676b2" stretchType="RelativeToBandHeight" x="0" y="0" width="131" height="15"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+					<font fontName="Arial" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{organismeName}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="0aaa9974-bdd9-42cd-9a4e-b34698868245" stretchType="RelativeToBandHeight" x="131" y="0" width="111" height="15"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pourcentage}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PROCESS model-entity="JSFProcess">
+ <PROCESS-ITEM NAME="rules:#*" PATH="/*" SHAPE="32,17,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#*:0" NAME="item" PATH="/*" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="pass:#{menuBean.interfaceAccueil}:#GBO#accueil.xhtml"
+    NAME="output" PATH="/GBO/accueil.xhtml"
+    TARGET="rules:#GBO#accueil.xhtml"
+    TITLE="#{menuBean.interfaceAccueil}:pass" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#*:1" PATH="/*" SHAPE="256,145,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#*:1" NAME="item" PATH="/*" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="passPhone:#{menuBean.interfaceAccueil}:#GBO#accueilWeb.xhtml"
+    NAME="output" PATH="/GBO/accueilWeb.xhtml"
+    TARGET="rules:#GBO#accueilWeb.xhtml"
+    TITLE="#{menuBean.interfaceAccueil}:passPhone" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#*:2" PATH="/*" SHAPE="32,2305,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#*:2" NAME="item" PATH="/*" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="pass:#{menuBean.interfaceAjouterCourrier}:#GBO#courrierAjout.xhtml"
+    NAME="output" PATH="/GBO/courrierAjout.xhtml"
+    TARGET="rules:#GBO#courrierAjout.xhtml"
+    TITLE="#{menuBean.interfaceAjouterCourrier}:pass" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#*:3" PATH="/*" SHAPE="256,1521,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#*:3" NAME="item" PATH="/*" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="refused:#{loginBean.check}:#Ilogin#loginFailure.xhtml"
+    NAME="output" PATH="/Ilogin/loginFailure.xhtml"
+    TARGET="rules:#Ilogin#loginFailure.xhtml"
+    TITLE="#{loginBean.check}:refused" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#*:4" PATH="/*" SHAPE="32,2417,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#*:4" NAME="item" PATH="/*" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="pass:#{loginBean.deconnexion}:#Ilogin#login.xhtml" NAME="output"
+    PATH="/Ilogin/login.xhtml" TARGET="rules:#Ilogin#login.xhtml"
+    TITLE="#{loginBean.deconnexion}:pass" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#GBO#courrierAjout.xhtml"
+  PATH="/GBO/courrierAjout.xhtml" SHAPE="784,385,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#GBO#courrierAjout.xhtml:0" NAME="item"
+   PATH="/GBO/courrierAjout.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromCAToListSender:#{courrierAjoutBean.goToListDestinataire}:#GBO#courrierUtilisateurTree.xhtml"
+    NAME="output" PATH="/GBO/courrierUtilisateurTree.xhtml"
+    TARGET="rules:#GBO#courrierUtilisateurTree.xhtml"
+    TITLE="#{courrierAjoutBean.goToListDestinataire}:rediretFromCAToListSender" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierAjout.xhtml:1" NAME="item1"
+   PATH="/GBO/courrierAjout.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromCTMFDestArrToListSender:#{courrierAjoutBean.goToListDestinataire}:#GBO#courrierUtilisateurTree.xhtml"
+    NAME="output" PATH="/GBO/courrierUtilisateurTree.xhtml"
+    TARGET="rules:#GBO#courrierUtilisateurTree.xhtml"
+    TITLE="#{courrierAjoutBean.goToListDestinataire}:rediretFromCTMFDestArrToListSender" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierAjout.xhtml:2" NAME="item2"
+   PATH="/GBO/courrierAjout.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromCAExpArrToListSender:#{courrierAjoutBean.goToListExpediteur}:#GBO#courrierUtilisateurTree.xhtml"
+    NAME="output" PATH="/GBO/courrierUtilisateurTree.xhtml"
+    TARGET="rules:#GBO#courrierUtilisateurTree.xhtml"
+    TITLE="#{courrierAjoutBean.goToListExpediteur}:rediretFromCAExpArrToListSender" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierAjout.xhtml:3" NAME="item3"
+   PATH="/GBO/courrierAjout.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromCAExpDepToListSender:#{courrierAjoutBean.goToListExpediteur}:#GBO#courrierUtilisateurTree.xhtml"
+    NAME="output" PATH="/GBO/courrierUtilisateurTree.xhtml"
+    TARGET="rules:#GBO#courrierUtilisateurTree.xhtml"
+    TITLE="#{courrierAjoutBean.goToListExpediteur}:rediretFromCAExpDepToListSender" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierAjout.xhtml:4" NAME="item4"
+   PATH="/GBO/courrierAjout.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromCADestDepToListSender:#{courrierAjoutBean.goToListDestinataire}:#GBO#courrierUtilisateurTree.xhtml"
+    NAME="output" PATH="/GBO/courrierUtilisateurTree.xhtml"
+    TARGET="rules:#GBO#courrierUtilisateurTree.xhtml"
+    TITLE="#{courrierAjoutBean.goToListDestinataire}:rediretFromCADestDepToListSender" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierAjout.xhtml:5" NAME="item5"
+   PATH="/GBO/courrierAjout.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromCADestArrToListSender:#{courrierAjoutBean.goToListDestinataire}:#GBO#courrierUtilisateurTree.xhtml"
+    NAME="output" PATH="/GBO/courrierUtilisateurTree.xhtml"
+    TARGET="rules:#GBO#courrierUtilisateurTree.xhtml"
+    TITLE="#{courrierAjoutBean.goToListDestinataire}:rediretFromCADestArrToListSender" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#GBO#courrierUtilisateurTree.xhtml"
+  PATH="/GBO/courrierUtilisateurTree.xhtml" SHAPE="1056,369,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#GBO#courrierUtilisateurTree.xhtml:0"
+   NAME="item" PATH="/GBO/courrierUtilisateurTree.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromListSenderToCA:#{treeBean.validatechoiceDestinataire}:#GBO#courrierAjout.xhtml"
+    NAME="output" PATH="/GBO/courrierAjout.xhtml"
+    TARGET="rules:#GBO#courrierAjout.xhtml"
+    TITLE="#{treeBean.validatechoiceDestinataire}:rediretFromListSenderToCA" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierUtilisateurTree.xhtml:1"
+   NAME="item1" PATH="/GBO/courrierUtilisateurTree.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromListSenderToCA:#{treeBean.retour}:#GBO#courrierAjout.xhtml"
+    NAME="output" PATH="/GBO/courrierAjout.xhtml"
+    TARGET="rules:#GBO#courrierAjout.xhtml"
+    TITLE="#{treeBean.retour}:rediretFromListSenderToCA" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierUtilisateurTree.xhtml:2"
+   NAME="item2" PATH="/GBO/courrierUtilisateurTree.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromListSenderToCTMF:#{treeBean.validatechoiceDestinataire}:#GBO#courrierAjout.xhtml"
+    NAME="output" PATH="/GBO/courrierAjout.xhtml"
+    TARGET="rules:#GBO#courrierAjout.xhtml"
+    TITLE="#{treeBean.validatechoiceDestinataire}:rediretFromListSenderToCTMF" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierUtilisateurTree.xhtml:3"
+   NAME="item3" PATH="/GBO/courrierUtilisateurTree.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="rediretFromListSenderToCTMF:#{treeBean.retour}:#GBO#courrierAjout.xhtml"
+    NAME="output" PATH="/GBO/courrierAjout.xhtml"
+    TARGET="rules:#GBO#courrierAjout.xhtml"
+    TITLE="#{treeBean.retour}:rediretFromListSenderToCTMF" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#GBO#courrierConsulterDetails.xhtml"
+  PATH="/GBO/courrierConsulterDetails.xhtml" SHAPE="256,1313,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#GBO#courrierConsulterDetails.xhtml:0"
+   NAME="item" PATH="/GBO/courrierConsulterDetails.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="passAjouter:#{courrierDetailsBean.accesAccuseReception}:#GBO#courrierAjouterAccuseReception.xhtml"
+    NAME="output" PATH="/GBO/courrierAjouterAccuseReception.xhtml"
+    TARGET="rules:#GBO#courrierAjouterAccuseReception.xhtml"
+    TITLE="#{courrierDetailsBean.accesAccuseReception}:passAjouter" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#GBO#courrierConsulterDetails.xhtml:1"
+   NAME="item1" PATH="/GBO/courrierConsulterDetails.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="courrierDetailsToListeCourrier:#{courrierDetailsBean.backwardPage}:#GBO#accueil.xhtml"
+    NAME="output" PATH="/GBO/accueil.xhtml"
+    TARGET="rules:#GBO#accueil.xhtml"
+    TITLE="#{courrierDetailsBean.backwardPage}:courrierDetailsToListeCourrier" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#GBO#courrierAjouterAccuseReception.xhtml"
+  PATH="/GBO/courrierAjouterAccuseReception.xhtml" SHAPE="784,1313,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#GBO#accueil.xhtml" PATH="/GBO/accueil.xhtml"
+  SHAPE="512,1025,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#Ilogin#loginFailure.xhtml"
+  PATH="/Ilogin/loginFailure.xhtml" SHAPE="240,2545,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#GBO#accueilWeb.xhtml"
+  PATH="/GBO/accueilWeb.xhtml" SHAPE="240,2433,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#Ilogin#login.xhtml"
+  PATH="/Ilogin/login.xhtml" SHAPE="240,5633,0,0" model-entity="JSFProcessGroup"/>
+</PROCESS>

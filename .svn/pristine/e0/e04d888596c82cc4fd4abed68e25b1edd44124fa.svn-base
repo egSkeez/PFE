@@ -1,0 +1,147 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportListPP;
+import xtensus.beans.utils.RapportPM;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Societe;
+import xtensus.entity.Variables;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportPersonneMoraleBean {
+	private ApplicationManager appMgr;
+	private Export export;
+
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	// @Autowired
+	// private DossierCourrierConsulterBean dossierCourrierConsulterBean;
+
+	@Autowired
+	private DossierGestionBean dossierGestionBean;
+	private Expdestexterne expediteur;
+	private Expdestexterne expediteur2;
+	private Pp pp;
+	private List<Pp> listPp;
+	private Pm pm;
+
+	@Autowired
+	public RapportPersonneMoraleBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		expediteur = new Expdestexterne();
+		expediteur2 = new Expdestexterne();
+		pp = new Pp();
+		pm = new Pm();
+		listPp = new ArrayList<Pp>();
+
+	}
+
+	// Fiche Dossier Franéais
+	@SuppressWarnings("unchecked")
+	public void printPDFFR() {
+
+		try {
+
+			List<RapportPM> rapportPPList = new ArrayList<RapportPM>();
+			RapportPM rapport = new RapportPM();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			rapport.setPathJasper(vb.getPathJasper());
+			// Expediteur
+			pm = vb.getPm();
+			int refpm = pm.getPmid();
+			listPp = appMgr.listPPByIDPM(refpm);
+			rapport.setPm(pm);
+			int refexp = pm.getExpdestexterne().getIdExpDestExterne();
+			expediteur = appMgr.getExpediteurById(refexp).get(0);
+			rapport.setExpediteur(expediteur);
+			rapport.setNombrePersonnel(listPp.size());
+			rapport.setPathJasper(vb.getPathJasper());
+			List<RapportListPP> rapportListPPs = new ArrayList<RapportListPP>();
+			RapportListPP rapportListPP = new RapportListPP();
+			int i = 1;
+			for (Pp pp : listPp) {
+				rapportListPP.setNumero(i);
+				int refexpe = pp.getExpdestexterne().getIdExpDestExterne();
+				expediteur2 = appMgr.getExpediteurById(refexpe).get(0);
+				rapportListPP.setPp(pp);
+				rapportListPP.setExpediteur2(expediteur2);
+				rapportListPP.setNomProjet(nomProjet);
+				rapportListPP.setPath(vb.getPathJasper());
+				rapportListPPs.add(rapportListPP);
+				rapportListPP = new RapportListPP();
+				expediteur2 = new Expdestexterne();
+				i++;
+			}
+			rapport.setRapportListPPs(rapportListPPs);
+			rapportPPList.add(rapport);
+			export.exportToPDF(rapportPPList, "FichePersonneMorale",
+					"FichePersonneMorale");
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setExpediteur(Expdestexterne expediteur) {
+		this.expediteur = expediteur;
+	}
+
+	public Expdestexterne getExpediteur() {
+		return expediteur;
+	}
+}

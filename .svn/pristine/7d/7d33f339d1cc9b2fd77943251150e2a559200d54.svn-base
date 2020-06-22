@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Modifier Contact</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<a4j:keepAlive beanName="contactModificationBean" />
+						<rich:panel styleClass="rich-panel">
+							<h:panelGrid columns="4">
+								<a4j:commandLink
+									oncomplete="document.location.href='contactRecherche.jsf'"
+									ajaxSingle="true">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+							</h:panelGrid>
+						</rich:panel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.ModifExpfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<table align="center" class="frameTableClient"
+								style="width: 100%;">
+								<tr>
+									<td><rich:messages ajaxRendered="true"
+											errorClass="msgError" styleClass="error" />
+										<table width="100%">
+											<tr>
+												<td width="50%"><h:panelGrid id="panelInstalle3"
+														columns="2" style="  font: inherit;">
+														<h:column>
+															<h:outputText value="#{msg.ContactRaisonSociale}"
+																styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+															<h:outputText value="*" styleClass="error" />
+														</h:column>
+														<h:column>
+															<h:inputText id="pren"
+																value="#{contactModificationBean.exp.expDestExterneNom}"
+																required="true"
+																requiredMessage="* #{msg.ContactRaisonSociale} #{msg.champsobligatoire}"
+																maxlength="100">
+
+															</h:inputText>
+														</h:column>
+														<h:column>
+															<h:outputText value="#{msg.ContactRegistreCommerce}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+														</h:column>
+														<h:column>
+															<h:inputText
+																value="#{contactModificationBean.pm.registreCommerce}"
+																maxlength="30">
+															</h:inputText>
+
+														</h:column>
+														<h:column>
+															<h:outputText value="#{msg.ContactCNSS}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:column>
+															<h:inputText
+																value="#{contactModificationBean.pm.pmaffiliationCnss}"
+																maxlength="30">
+															</h:inputText>
+														</h:column>
+														<h:column>
+															<h:outputText value="#{msg.ContactMatricule}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:column>
+															<h:inputText
+																value="#{contactModificationBean.pm.pmmatriculeFiscal}"
+																maxlength="30">
+															</h:inputText>
+														</h:column>
+														<h:column>
+															<h:outputText value="#{msg.ContactMail}"
+																styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+														</h:column>
+														<h:column>
+															<h:inputText id="mails"
+																value="#{contactModificationBean.exp.expDestExterneMail}"
+																validatorMessage="* #{msg.validatorMail}">
+																<f:validator validatorId="checkvalidemail" />
+															</h:inputText>
+														</h:column>
+														<h:column>
+															<h:outputText value="#{msg.ContactTele}"
+																styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+
+															
+														</h:column>
+														<h:column>
+															<h:inputText id="nume"
+																value="#{contactModificationBean.exp.expDestExterneTelephone}"
+																
+																>
+																<f:validator validatorId="checkvalideTel" />
+															</h:inputText>
+														</h:column>
+														<h:column>
+															<h:outputText value="#{msg.Contactfax}"
+																styleClass="xteDetailLabel" />
+														</h:column>
+														<h:column>
+															<h:inputText
+																value="#{contactModificationBean.exp.expDestExterneFax}"
+																validatorMessage="* #{msg.champ} #{msg.Expfax} #{msg.validatorTel}">
+																<f:validator validatorId="checkvalideTel" />
+															</h:inputText>
+														</h:column>
+													</h:panelGrid>
+												</td>
+												<td width="50%"><h:panelGrid id="panelInstalle2"
+														columns="2" style="  font: inherit; ">
+														<h:column>
+															<h:outputText value="#{msg.ContactAdresse} "
+																styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+														</h:column>
+														<h:column>
+														</h:column>
+
+														<h:column>
+															<rich:spacer width="30px" />
+															<h:outputText value="#{msg.ContactRue}"
+																styleClass="xteDetailLabel" />
+															<rich:spacer width="5px" />
+														</h:column>
+														<h:column>
+															<h:inputText id="adr"
+																value="#{contactModificationBean.exp.expDestExterneAdresse}"
+																/>
+														</h:column>
+
+														<h:column>
+															<rich:spacer width="30" />
+															<h:outputText value="#{msg.ContactPays} " styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+															<rich:spacer width="15" />
+														</h:column>
+														<h:column>
+
+															<h:selectOneMenu id="selectOneMenu1"
+																value="#{contactModificationBean.selectedItemPays}"
+																styleClass="xteDetailLabelcombox">
+																<f:selectItems
+																	value="#{contactModificationBean.selectItemsPays}" />
+																<a4j:support event="onchange"
+																	action="#{contactModificationBean.onSelectOneMenuChange}"
+																	ajaxSingle="true"
+																	reRender="panelInstalle2,textbox1,textbox2,textbox3,textbox4,textbox5,textbox6,textbox7,code,groupId1" />
+															</h:selectOneMenu>
+														</h:column>
+														<h:column>
+															<rich:spacer width="30" />
+															<h:outputText value="#{msg.Gouvernorat} "
+																styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+														</h:column>
+														<h:column>
+															<h:inputText id="textbox1" maxlength="30"
+																value="#{contactModificationBean.selectedItemGouvernorat}"
+																rendered="#{contactModificationBean.textbox1}">
+															</h:inputText>
+															<h:selectOneMenu title="Choix Gourvernorat" id="textbox4"
+																value="#{contactModificationBean.selectedItemGouvernorat}"
+																rendered="#{contactModificationBean.textbox4}"
+																styleClass="xteDetailLabelcombox">
+																<f:selectItems
+																	value="#{contactModificationBean.selectItemsGouvernorat}">
+																</f:selectItems>
+																<a4j:support event="onchange"
+																	reRender="code, textbox5,textbox6"
+																	actionListener="#{contactModificationBean.chargerVille}"
+																	ajaxSingle="true" />
+															</h:selectOneMenu>
+														</h:column>
+														<h:column>
+															<rich:spacer width="30" />
+															<h:outputText value="#{msg.ContactVille} " styleClass="xteDetailLabel" />
+															<rich:spacer width="5" />
+														</h:column>
+														<h:column>
+															<h:inputText id="textbox2"  maxlength="30"
+																value="#{contactModificationBean.selectedItemVille}"
+																rendered="#{contactModificationBean.textbox2}">
+															</h:inputText>
+															<h:selectOneMenu title="Choix Commune" id="textbox5"
+																rendered="#{contactModificationBean.textbox5}"
+																value="#{contactModificationBean.selectedItemVille}"
+																styleClass="xteDetailLabelcombox">
+																<f:selectItems
+																	value="#{contactModificationBean.selectItemsVille}">
+																</f:selectItems>
+
+															</h:selectOneMenu>
+														</h:column>
+                                                    <h:column>
+														<rich:spacer width="30" />
+														<h:outputText value="#{msg.contactCodePostale} :"
+															rendered="#{contactModificationBean.textbox2}"
+															styleClass="xteDetailLabel" />
+														<rich:spacer width="5" />
+													</h:column>
+													<h:column>
+														<h:inputText id="txtCodePostalePP"
+															maxlength="30"
+															value="#{contactModificationBean.codePostale}"
+															rendered="#{contactModificationBean.textbox2}">
+														</h:inputText>
+													</h:column>
+
+
+														
+													</h:panelGrid>
+												</td>
+											</tr>
+										</table></td>
+								</tr>
+
+							</table>
+							<rich:spacer height="10px" />
+							<div align="center">
+								<a4j:commandButton value="#{msg.btnSaveCode}" type="submit"
+									action="#{contactModificationBean.updatePM}"
+									oncomplete="if(#{contactModificationBean.statusModif}==true)
+									#{rich:component('msgPanal')}.show();"></a4j:commandButton>
+
+								<a4j:commandButton value="#{msg.bouttonAnnuler}"
+									oncomplete="document.location.href='contactRecherche.jsf'"
+									type="submit" ajaxSingle="true" styleClass="submitButton"
+									reRender="t4,data,scroller,records" />
+							</div>
+							<rich:spacer height="10px" />
+
+							<div align="left">
+								<h:outputText value="#{msg.infoChampObligatoir}" />
+							</div>
+						</rich:panel>
+					</h:form>
+						<!-- **********************popup modifier************************ -->
+						<rich:modalPanel id="msgPanal" autosized="true" height="90"
+							width="350">
+							<a4j:keepAlive beanName="contactModificationBean" />
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink1" />
+									<rich:componentControl for="info" attachTo="hidelink1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText" value="#{msg.ModifMsg}" />
+										</td>
+									</tr>
+								</table>
+								<div align="center">
+									<a4j:commandButton value="#{msg.bouttonOk}"
+										action="#{contactAjoutBean.nouveauExp}"
+										oncomplete="Richfaces.hideModalPanel('msgPanal');"
+										type="submit" ajaxSingle="true" styleClass="submitButton"
+										onclick="document.location.href='contactRecherche.jsf'" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

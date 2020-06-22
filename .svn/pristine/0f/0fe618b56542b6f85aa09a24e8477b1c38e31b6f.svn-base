@@ -1,0 +1,352 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RapportDossier;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Document;
+import xtensus.entity.Dossier;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Nature;
+import xtensus.entity.Pp;
+import xtensus.entity.Societe;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+
+import xtensus.entity.Variables;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportDossierConsulterDetailsBean {
+	private ApplicationManager appMgr;
+	private Export export;
+
+	private Nature nature;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private Dossier dossier;
+
+	@Autowired
+	private VariableGlobale vb;
+
+	@Autowired
+	private DossierRechercheBean dossierRechercheBean;
+
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist;
+	private RapportExpediteurDestinataire rapportExpediteurDestinataire;
+	private Pp pp;
+	private Expdestexterne expedestExpdestexterne;
+
+	@Autowired
+	public RapportDossierConsulterDetailsBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		nature = new Nature();
+		dossier = new Dossier();
+		transmission = new Transmission();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+		rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+		expedestExpdestexterne = new Expdestexterne();
+		pp = new Pp();
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+
+	/******************************** Rapport Fiche Courrier ************************************************/
+
+	// Fiche Dossier Français
+	@SuppressWarnings("unchecked")
+	public void printPDFFR() {
+		dossier = vb.getDossier();
+		try {
+
+			List<RapportDossier> rapportcourrier = new ArrayList<RapportDossier>();
+			RapportDossier rapport = new RapportDossier();
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+
+
+			// Urgence
+//			Urgence urgence = new Urgence();
+//			int refUrgence = dossier.getUrgence().getUrgenceId();
+//			urgence = appMgr.getUrgenceById(refUrgence).get(0);
+//			rapport.setUrgence(urgence);
+			// confidentialite
+//			Confidentialite confidentialite = new Confidentialite();
+//			int confref = dossier.getConfidentialite().getConfidentialiteId();
+//			confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+//			rapport.setConfidentialite(confidentialite);
+			// dossier
+
+			dossier = vb.getDossier();
+			int refDossier = dossier.getDossierId();
+			rapport.setDossierDescription("<b>Description : </b>"
+					+ dossier.getDossierDescription());
+			rapport.setDossier(dossier);
+			String pathJasper = vb.getPathJasper();
+
+			// Proprietaire du dossier
+			//rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			//rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+			//expedestExpdestexterne = appMgr.getExpediteurById(5).get(0);
+			//pp = appMgr.getPPByReferenceExpediteur(5).get(0);
+			//rapport.setExpediteur(expedestExpdestexterne);
+			//rapport.setPp(pp);
+			
+			
+			// Listes des courriers attaches
+			List<CourrierDossier> listCourriers = new ArrayList<CourrierDossier>();
+			listCourriers = appMgr.getCourrierDossierByIdDossier(refDossier);
+			List<Courrier> listCourriers2 = new ArrayList<Courrier>();
+			for (CourrierDossier courrierDossier : listCourriers) {
+				listCourriers2.add(appMgr.getCourrierByIdCourrier(
+						courrierDossier.getId().getIdCourrier()).get(0));
+			}
+			for (int i = 0; i < listCourriers2.size(); i++) {
+				// String v = String.valueOf(i+1);
+				// rapport.setCourrierReference("<b>" + v +" : </b>"+
+				// listCourriers2.get(i).getCourrierReferenceCorrespondant());
+				rapport.setCourrier(listCourriers2.get(i));
+				rapport.setPathJasper(pathJasper);
+				List<Document> liste = new ArrayList<Document>();
+				int refCourrier = listCourriers2.get(i).getIdCourrier();
+				liste = appMgr.getDocumentByIdCourrier(refCourrier);
+
+				int reftransmission = listCourriers2.get(i).getTransmission()
+						.getTransmissionId();
+				transmission = appMgr.getTransmissionById(reftransmission).get(
+						0);
+
+				int refU = listCourriers2.get(i).getUrgence().getUrgenceId();
+				urgence = appMgr.getUrgenceById(refU).get(0);
+
+				int refnature = listCourriers2.get(i).getNature().getNatureId();
+				nature = appMgr.getNatureById(refnature).get(0);
+
+				int refConf = listCourriers2.get(i).getConfidentialite()
+						.getConfidentialiteId();
+				confidentialite = appMgr.getConfidentialiteById(refConf).get(0);
+
+				rapportExpediteurDestinataire
+						.setDestinataire("<b>Destinataire : </b>"
+								+ vb.getCopyDestNom());
+				rapportExpediteurDestinataire
+						.setExpediteur("<b>Expéditeur : </b>"
+								+ vb.getCopyExpNom());
+				rapportExpediteurDestinatairelist
+						.add(rapportExpediteurDestinataire);
+				rapport.setRapportExpediteurDestinataire(rapportExpediteurDestinatairelist);
+				rapport.setNumero(i + 1);
+				String b = "";
+				if (liste.size() != 0) {
+					// Liste des documents relative à chaque courrier
+					b = "<b>Liste des documents : </b>" + "<b>(1)</b> "
+							+ liste.get(0).getDocumentNom();
+					for (int x = 1; x < liste.size(); x++) {
+						Document doc = liste.get(x);
+						rapport.setNomProjet(nomProjet);
+						String a = String.valueOf(x + 1);
+						System.out.println(a);
+						b = b + ";<b> (" + a + ")</b> " + doc.getDocumentNom();
+					}
+				} else {
+					b = "<b>Ce courrier n'a pas de documents </b>";
+				}
+				rapport.setNature(nature);
+				rapport.setUrgence(urgence);
+				rapport.setConfidentialite(confidentialite);
+				rapport.setTransmission(transmission);
+				rapport.setNomProjet(nomProjet);
+				rapport.setDossierNom(b);
+				rapport.setDocuments(liste);
+				rapportcourrier.add(rapport);
+				rapport = new RapportDossier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				transmission = new Transmission();
+				rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+				rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+				liste = new ArrayList<Document>();
+			}
+
+			export.exportToPDF(rapportcourrier, "FicheDossier-FR",
+					"FicheDossier-FR");
+
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	// Fiche Dossier Français
+	@SuppressWarnings("unchecked")
+	public void printPDF() {
+		try {
+			List<RapportDossier> rapportcourrier = new ArrayList<RapportDossier>();
+			RapportDossier rapport = new RapportDossier();
+			// Variable
+			Variables variable = new Variables();
+			variable = appMgr.getList(Variables.class).get(0);
+
+			// Societe
+			List<Societe> societes = new ArrayList<Societe>();
+			List<Societe> societes2 = new ArrayList<Societe>();
+			societes = appMgr.getList(Societe.class);
+			String societeNom = societes.get(1).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+
+			String nomProjet = appMgr.getList(Variables.class).get(0)
+					.getVariablesContenu();
+			String societeOrganismeParent = societes.get(3).getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+
+			String societeRepublique = societes.get(5).getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+
+			String societeVille = societes.get(6).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+
+			// Urgence
+			Urgence urgence1 = new Urgence();
+			urgence1 = appMgr.getList(Urgence.class).get(0);
+			rapport.setUrgence(urgence1);
+
+			// confidentialite
+			Confidentialite confidentialite1 = new Confidentialite();
+			confidentialite1 = appMgr.getList(Confidentialite.class).get(0);
+			rapport.setConfidentialite(confidentialite1);
+
+			// dossier
+			Dossier dossier = new Dossier();
+			dossier = appMgr.getList(Dossier.class).get(0);
+			int refDossier = dossier.getDossierId();
+			rapport.setDossierDescription("<b>Description : </b>"
+					+ dossier.getDossierDescription());
+			rapport.setDossier(dossier);
+
+			// Propriétaire à partir du LDAP
+
+			// Listes des courriers rattaches
+			List<CourrierDossier> listCourriers = new ArrayList<CourrierDossier>();
+			listCourriers = appMgr.getCourrierDossierByIdDossier(refDossier);
+
+			List<Courrier> listCourriers2 = new ArrayList<Courrier>();
+
+			for (CourrierDossier courrierDossier : listCourriers) {
+
+				listCourriers2.add(appMgr.getCourrierByIdCourrier(
+						courrierDossier.getId().getIdCourrier()).get(0));
+
+			}
+			for (int i = 0; i < listCourriers2.size(); i++) {
+
+				rapport.setCourrier(listCourriers2.get(i));
+
+				List<Document> liste = new ArrayList<Document>();
+				int refCourrier = listCourriers2.get(i).getIdCourrier();
+				liste = appMgr.getDocumentByIdCourrier(refCourrier);
+
+				int reftransmission = listCourriers2.get(i).getTransmission()
+						.getTransmissionId();
+				transmission = appMgr.getTransmissionById(reftransmission).get(
+						0);
+
+				int refUrgence = listCourriers2.get(i).getUrgence()
+						.getUrgenceId();
+				urgence = appMgr.getUrgenceById(refUrgence).get(0);
+
+				int refnature = listCourriers2.get(i).getNature().getNatureId();
+				nature = appMgr.getNatureById(refnature).get(0);
+
+				int confref = listCourriers2.get(i).getConfidentialite()
+						.getConfidentialiteId();
+				confidentialite = appMgr.getConfidentialiteById(confref).get(0);
+
+				rapport.setNumero(i + 1);
+				// Liste des documents relative à chaque courrier
+				String b = "<b>الوثائق   : </b>" + "<b>(1)</b> "
+						+ liste.get(0).getDocumentNomAR();
+				for (int x = 1; x < liste.size(); x++) {
+					Document doc = liste.get(x);
+					rapport.setNomProjet(nomProjet);
+					String a = String.valueOf(x + 1);
+					System.out.println(a);
+					b = b + ";<b> (" + a + ")</b> " + doc.getDocumentNomAR();
+				}
+				rapport.setNature(nature);
+				rapport.setUrgence(urgence);
+				rapport.setConfidentialite(confidentialite);
+				rapport.setTransmission(transmission);
+				rapport.setNomProjet(nomProjet);
+				rapport.setDossierNom(b);
+				rapport.setDocuments(liste);
+				rapportcourrier.add(rapport);
+				rapport = new RapportDossier();
+				nature = new Nature();
+				urgence = new Urgence();
+				confidentialite = new Confidentialite();
+				transmission = new Transmission();
+				liste = new ArrayList<Document>();
+			}
+
+			export.exportToPDF(rapportcourrier, "FicheDossier-AR",
+					"FicheDossier-AR");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	public void setExpedestExpdestexterne(Expdestexterne expedestExpdestexterne) {
+		this.expedestExpdestexterne = expedestExpdestexterne;
+	}
+
+	public Expdestexterne getExpedestExpdestexterne() {
+		return expedestExpdestexterne;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+}

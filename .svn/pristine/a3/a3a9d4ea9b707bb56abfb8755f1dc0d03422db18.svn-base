@@ -1,0 +1,212 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.utils.RechercheUnitModel;
+import xtensus.beans.utils.RechercheUserModel;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class AnnuaireRechercheMulticritereBean {
+
+	private ApplicationManager appMgr;
+	private RechercheUserModel rechercheUserModel;
+	private RechercheUnitModel rechercheUnitModel;
+	private DataModel dataModelUser;
+	private DataModel dataModelUnit;
+	private List<RechercheUserModel> listUser;
+	private List<RechercheUnitModel> listUnit;
+	private String typeIntervenant;
+	private boolean showUserForm;
+	private boolean showUnitForm;
+	private long recordsUser = 0;
+	private long recordsUnit = 0;
+	private LdapOperation ldapOperation;
+
+	@Autowired
+	public AnnuaireRechercheMulticritereBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		rechercheUserModel = new RechercheUserModel();
+		rechercheUnitModel = new RechercheUnitModel();
+		dataModelUser = new ListDataModel();
+		dataModelUnit = new ListDataModel();
+		listUser = new ArrayList<RechercheUserModel>();
+		listUnit = new ArrayList<RechercheUnitModel>();
+		ldapOperation = new LdapOperation();
+	}
+
+	@PostConstruct
+	public void initialize() {
+		typeIntervenant = "utilisateur";
+		showUnitForm = false;
+		showUserForm = true;
+		rechercheUserModel = new RechercheUserModel();
+		rechercheUnitModel = new RechercheUnitModel();
+		dataModelUser.setWrappedData(listUser);
+		dataModelUnit.setWrappedData(listUnit);
+	}
+
+	public void eventChooseTypeIntervenant(ActionEvent actionEvent) {
+		if (typeIntervenant.equals("utilisateur")) {
+			showUnitForm = false;
+			showUserForm = true;
+			reset();
+		} else {
+			showUnitForm = true;
+			showUserForm = false;
+			reset();
+		}
+	}
+
+	public void search() {
+		if (typeIntervenant.equals("utilisateur")) {
+			listUser = ldapOperation.getListUserByCriteria(rechercheUserModel);
+			dataModelUser.setWrappedData(listUser);
+		} else {
+			listUnit = ldapOperation.getListUnitByCriteria(
+					rechercheUnitModel);
+			dataModelUnit.setWrappedData(listUnit);
+		}
+	}
+
+	public void reset() {
+		rechercheUnitModel = new RechercheUnitModel();
+		rechercheUserModel = new RechercheUserModel();
+		listUser = new ArrayList<RechercheUserModel>();
+		listUnit = new ArrayList<RechercheUnitModel>();
+		dataModelUser.setWrappedData(listUser);
+		dataModelUnit.setWrappedData(listUnit);
+	}
+
+	// Getters and Setters
+	@SuppressWarnings("unchecked")
+	public long getRecordsUnit() {
+		if (dataModelUnit == null && dataModelUnit.getWrappedData() == null)
+			recordsUnit = 0;
+		else
+			recordsUnit = ((List<RechercheUnitModel>) dataModelUnit
+					.getWrappedData()).size();
+		return recordsUnit;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecordsUser() {
+		if (dataModelUser == null && dataModelUser.getWrappedData() == null)
+			recordsUser = 0;
+		else
+			recordsUser = ((List<RechercheUserModel>) dataModelUser
+					.getWrappedData()).size();
+		return recordsUser;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setRechercheUserModel(RechercheUserModel rechercheUserModel) {
+		this.rechercheUserModel = rechercheUserModel;
+	}
+
+	public RechercheUserModel getRechercheUserModel() {
+		return rechercheUserModel;
+	}
+
+	public void setTypeIntervenant(String typeIntervenant) {
+		this.typeIntervenant = typeIntervenant;
+	}
+
+	public String getTypeIntervenant() {
+		return typeIntervenant;
+	}
+
+	public void setShowUserForm(boolean showUserForm) {
+		this.showUserForm = showUserForm;
+	}
+
+	public boolean isShowUserForm() {
+		return showUserForm;
+	}
+
+	public void setShowUnitForm(boolean showUnitForm) {
+		this.showUnitForm = showUnitForm;
+	}
+
+	public boolean isShowUnitForm() {
+		return showUnitForm;
+	}
+
+	public void setRechercheUnitModel(RechercheUnitModel rechercheUnitModel) {
+		this.rechercheUnitModel = rechercheUnitModel;
+	}
+
+	public RechercheUnitModel getRechercheUnitModel() {
+		return rechercheUnitModel;
+	}
+
+	public void setDataModelUser(DataModel dataModelUser) {
+		this.dataModelUser = dataModelUser;
+	}
+
+	public DataModel getDataModelUser() {
+		return dataModelUser;
+	}
+
+	public void setDataModelUnit(DataModel dataModelUnit) {
+		this.dataModelUnit = dataModelUnit;
+	}
+
+	public DataModel getDataModelUnit() {
+		return dataModelUnit;
+	}
+
+	public void setListUser(List<RechercheUserModel> listUser) {
+		this.listUser = listUser;
+	}
+
+	public List<RechercheUserModel> getListUser() {
+		return listUser;
+	}
+
+	public void setListUnit(List<RechercheUnitModel> listUnit) {
+		this.listUnit = listUnit;
+	}
+
+	public List<RechercheUnitModel> getListUnit() {
+		return listUnit;
+	}
+
+	public void setRecordsUser(long recordsUser) {
+		this.recordsUser = recordsUser;
+	}
+
+	public void setRecordsUnit(long recordsUnit) {
+		this.recordsUnit = recordsUnit;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+}

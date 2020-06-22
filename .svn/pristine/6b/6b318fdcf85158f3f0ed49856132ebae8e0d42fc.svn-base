@@ -1,0 +1,1696 @@
+#GBO
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+# *** Interfaces Toolbar ******************** *********************************************
+GestionCourrier=Gestion Courrier
+statistiqueNaturePeriode=Statistique des courriers par nature du p\u00E9riode
+statistiquePeriode=Statistique des courriers arriv\u00E9s/d\u00E9parts de l\\'ann\u00E9e
+AjouterCourrier=Ajouter Courrier
+CourrierConsultation=Consulter Courrier
+RechercherCourrier=Rechercher Courrier
+ModifierCourrier=Modifier Courrier
+SupprimerCourrier=Supprimer Courrier
+Langue=AR
+Langue1=FR
+#-----------------------------------------------------------------------------------------
+GestionDocument=Gestion document
+AjouterDocument=Gestion document
+ConsulterDocument=Consulter document
+RechercherDocument=Rechercher document
+ModifierDocument=Modifier document
+SupprimerDocument=Supprimer document
+#-----------------------------------------------------------------------------------------
+GestionContact=Gestion Contact
+AjouterContact=Ajouter Contact
+RechercherContact=Rechercher Contact
+ConsulterContact=Consulter Contact
+ModifierContact=Modifier Contact
+SupprimerContact=Supprimer Contact
+AffecterPP=Affecter Contact
+#-----------------------------------------------------------------------------------------
+SuiviDesCourrier=Suivi Courrier
+#-----------------------------------------------------------------------------------------
+#GestionUtili=Gestion Utilisateur
+#AjouterUtili=Ajouter utilisateur
+#RechercherUtili=Rechercher utilisateur
+#ConsulterUtili=Consulter utilisateur
+#ModifierUtili=Modifier utilisateur
+#SupprimerUtili=Supprimer utilisateur
+#-----------------------------------------------------------------------------------------
+#GestionGrp=Gestion groupe
+#AjouterGrp=Ajouter groupe
+#RechercherGrp=Rechercher groupe
+#ConsulterGrp=Consulter groupe
+#ModifierGrp=Modifier groupe
+#SupprimerGrp=Supprimer groupe
+#-----------------------------------------------------------------------------------------
+#GestionDroit=Gestion droit
+#AjouterDroit=Ajouter droit
+#RechercherDroit=Rechercher
+#ConsulterDroit=Consulter droit
+#ModifierDroit=Modifier droit
+#SupprimerDroit=Supprimer droit
+#-----------------------------------------------------------------------------------------
+#RapportStat=Rapports et statistiques
+#Rapport=Rapports
+#Stat=Statistiques
+#-----------------------------------------------------------------------------------------
+# *** Interfaces Bouttons ****************************************************************
+bouttonValider=Valider
+bouttonAjouter=Ajouter
+bouttonAnnuler=Annuler
+#bouttonRetour=Retour
+#bouttonImprimer=Imprimer
+bouttonModifier=Modifier
+#bouttonSupprim=Supprimer
+bouttonOui=Oui
+bouttonNon=Non
+bouttonOk=OK
+#buttonSave=Enregistrer
+bouttonChercher=Rechercher
+#ExpDestType1=Expéditeur
+ExpDestType2=Destinataire
+labelEdit=Modifier
+labelDelete=Supprimer
+labelInfo=Information
+labelConfirmation=Confirmation
+labelAlerte=Alerte 
+labelError=Erreur
+#-----------------------------------------------------------------------------------------
+# *** Interfaces Messages ****************************************************************
+confirmDelete=Etes-vous sûr de vouloir supprimer cet enregistrement ?
+confirmModif=Etes-vous sûr de vouloir modifier cet élément?
+#confirmAdd=Etes-vous sûr de vouloir ajouter cet élément?
+#confirmConsult=Etes-vous sûr de vouloir consulter cet élément?
+confirmDeleteCourrier=Tous les documents de ce courrier ont été supprimés. Confirmez vous la suppression du courrier ?
+confirmDeleteExp=Le contact sélectionné est déjà relié à des courriers. Voulez vous le désactiver ?
+#confirmDeleteUtili=Etes-vous sér de vouloir désactiver cet utilisateur ?
+msgDelete=La suppression a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s
+champsobligatoire=est un champ obligatoire
+validatorMail=Adresse e-mail invalide
+validatorTel= ne peut contenir que des espaces, des chiffres et les caract\u00E8res suivants  ( ) + -
+validatorMax= doit contenir au moins 8 chiffres.
+champsentier= est un champ entier
+champ=Le champ
+infoChampObligatoir=Les champs suivis par (*) sont obligatoires.
+noteValidationHierarchique=Si vous décochez la validation hiérarchique, si nous avons les variables de la validation hiérarchique à « Oui » un courrier de cette nature ne suit pas cette validation.
+confirmInsert=L'ajout a été effectué avec succès.
+confirmAffectation1=Contact(s) affect\u00E9(s) avec succ\u00E8s.
+confirmAffectation = L'affectation a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s
+avecObjet = Avec Objet
+avecIdentifiant = Avec Identifiant
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ToolTip *****************************************************************
+Supprim=Supprimer
+Modif=Modifier
+ModifPwd=Modifier mot de passe
+Consult=Consulter
+Affecter=Ajouter
+Suivi= Suivi courrier
+Trans=Transférer
+Retour=Retour
+Desactiv=Désactiver
+Valid=Valider
+#-----------------------------------------------------------------------------------------
+# *** Interfaces UtilisateurRecherche ****************************************************
+MsgUtilisateurRechercheFacet=UtilisateurRecherche
+MsgCourrier=Courrier
+MsgAujourdhuiCourrier=Courriers d'aujourd'hui
+MsgDernierCourrier=Courriers plus anciens
+MsgMois=Mois dernier
+#-----------------------------------------------------------------------------------------
+# *** Interfaces Connexion ***************************************************************
+MsgConnexion=L'authentification a \u00E9t\u00E9 effectu\u00E9e avec succ\u00E8s.
+MsgErreurConnexion=Identifiant et/ou mot de passe incorrect(s).
+MsgErreurConnexion1=Le compte de cet utilisateur a été désactivé. Veuillez contacter l'administrateur.
+Login=Identifiant :
+Password=Mot de passe :
+Contactidentif=Identifiant
+Deconnexion=Déconnexion
+Connexionfacet=Remplir les critéres d'authentification
+#-----------------------------------------------------------------------------------------
+# *** Interfaces CourrierAjout ***********************************************************
+Courrierfacet=Ajouter un courrier
+PanelBarItem1=Information Courrier
+PanelBarItem2=Choix du circuit
+PanelBarItem3=Expéditeur / Destinataire
+CourrierTitreFormulaire=Ajout courrier
+CourrierExp=Expéditeur :
+CourrierDest=Destinataire :
+CourrierRef=R\u00E9f\u00E9rence exp\u00E9diteur \:
+CourrierId=Id courrier :
+CourrierDateRecep=Date R\u00E9ception courrier \:
+CourrierDateRecepReelle=Date courrier r\u00E9elle \:
+CourrierObjet=Objet :
+CourrierDes=Description :
+CourrierNature=Nature :
+CourrierMode=Mode de transmission :
+CourrierConfidentialite=Degré de confidentialité :
+CourrierUrgence=Degré d'urgence :
+CourrierNecessite=Nécessité de réponse :
+CourrierAnnot=Annotation :
+CourrierCircuit=Circuit :
+CourrierKey=Mots clé :
+CourrierLiens=Liens avec d'autres courriers :
+CourrierDateRep=Echéance de réponse :
+CourrierPop1=Ajout effectué
+MsgErreurDateRep=La date de réponse doit étre supérieure ou égale à la date courrier
+MsgErreurDateRecep=La date courrier doit étre inférieure ou égale é la date du jour
+MsgErreurTransfDateRep=La date de réponse doit étre supérieure é la date du jour
+CourrierAjoutMsg=L'ajout a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s. Voulez-vous ajouter des documents?
+CourrierAjoutMsgSansGED=L'ajout a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s. 
+CourrierTransferMsg=Le transfert a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s.
+CourrierTransferMsg1=Le transfert a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s.Voulez-vous ajouter des documents?
+CourrierCopieMsg=Le Copie a été effectué avec succès
+CourrierAjoutMsgErreur=Ajout non effectuée.
+PickListCopierTout=Copier tout
+PickListCopier=Copier
+PickListEnleverTout=Enlever tout
+PickListEnlever=Enlever
+#-----------------------------------------------------------------------------------------
+# *** Interfaces RechercherCourrier ******************************************************
+RechercherCourrierfacet=Liste des courriers 
+RechercheCourrier=Recherche des courriers
+rechercheCr=Choisir le critére de recherche :
+ListCourrierTitre=Liste des courriers recherch\u00E9s  
+NbrCourrier=Nombre d'enregistrements \: 
+CourrierDetails=Détails du courrier :
+CourrierListDocument=Liste des documents :
+ConsulterListDocument_Courrier=Consulter 
+ColonneOperation=Opérations
+ColonneRef=Ref.
+ColonneExp=Expéditeur
+ColonneDest=Destinataire
+ColonneRefExp=Référence expéditeur
+ColonneDateRecep=Réception
+ColonneObjet=Objet
+ColonneDes=Description
+ColonneNature=Nature
+ColonneUrgence=Urgence
+ColonneMode=Mode de transmission
+ColonneConfidentialite=Degré de confidentialité
+ColonnerUrgence=Degré d'urgence
+ColonneNecessite=Nécessité de réponse
+ColonneAnnot=Annotation
+ColonneCircuit=Circuit
+ColonneKey=Mots clé
+ColonneLiens=Liens vers d'autres courriers
+ColonneDateRep=Date de réponse
+ColonneSuiviDestinataire=( Destinataire )
+ResultatRechercheCourrierOui=Courrier trouvé.
+ResultatRechercheCourrierNon=Courrier inexistant, 
+confirmDeleteDoc=Ce courrier contient des documents. Voulez-vous les supprimer?
+#-----------------------------------------------------------------------------------------
+# *** Interfaces CourrierConsultation ****************************************************
+ConsultCourrierfacet=Détails courrier
+ConsultCourrierTitreFormulaire=Les informations du courrier
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ModifierCourrier ********************************************************
+ModifCourrierfacet=Modifier un courrier
+#-----------------------------------------------------------------------------------------
+# *** Interfaces TransfererCourrier ******************************************************
+FacetTransfer=Transférer courrier
+FacetCopier=Copier courrier
+#-----------------------------------------------------------------------------------------
+# *** Interfaces DocumentAjout ***********************************************************
+Documentfacet=Gestion Document 
+DocumentTitreFormulaire=Gestion Document
+DocumentRefCourrier=R\u00E9f\u00E9rence courrier \:
+ListDocTitre=Liste des documents
+DocumentId=Id 
+DocumentNom=Nom :
+DocumentRef=Référence document :
+DocumentObjet=Objet :
+DocumentCommentaire=Commentaire :
+IdCourrier=Id courrier
+IdDoc=Id document
+DocumentPop1=Ajout effectué
+DocumentAjoutMsg=L'ajout a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s. Voulez-vous en ajouter un autre?
+#-----------------------------------------------------------------------------------------
+# *** Interfaces RechercherDocument ******************************************************
+RechercherDocumentfacet=Liste des documents
+ColonneDocRefCourrier=Référence courrier
+ColonneDocNom=Nom
+ColonneDocRef=Référence document
+ColonneDocObjet=Objet
+ColonneDocCommentaire=Commentaire
+ListDocumentTitre=Liste des documents recherch\u00E9s  
+NbrDoc=Nombre d'enregistrements \: 
+#-----------------------------------------------------------------------------------------
+# *** Interfaces DocumentConsultation ****************************************************
+ConsultDocfacet=Informations sur le document
+ConsultDocTitreFormulaire=Les informations du document
+ModifDocfacet=Modifier un document
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ContactAjout(Contact) ***************************************************
+Expfacet=Ajouter un contact
+ExpTitreFormulaire=Ajout contact
+ExpAjoutMsg=Ajout effectu\u00E9 avec succ\u00E8s.
+ValidationMail=Adresse e-mail invalide
+ContactNom=Nom :
+ContactId=Id :
+ContactPrenom=Prénom :
+ContactAdresse=Adresse :
+ContactRue=Numéro et nom de la rue :
+ContactCode=Code postal :
+ContactVille=Ville :
+ContactPays=Pays :
+ContactMail=E-mail :
+ContactType=Type :
+ContactTele=Téléphone :
+ContactCIN=CIN :
+ContactStatut=Statut :
+ContactEmp=Employeur :
+ContactPortable=Portable :
+ContactRegistreCommerce=Registre de commerce :
+ContactMatricule=Matricule fiscal :
+ContactCNSS=Affiliation CNSS :
+Contactfax=Fax :
+ContactPm=Personne morale :
+ContactPrenomNomRaisonSociale=Nom/Raison sociale :
+listvariablefacet = Listes des variables
+valeur= Valeur
+symbole = Symbole
+contenu = Contenu
+listnaturefacet=Liste des Natures
+listtransmissionfacet = Liste des Transmissions
+listetatfacet = Liste des états
+listUrgencefacet=Liste des degrés d'urgence
+listConfidentialitefacet=Liste des degrés de confidentialité
+listAnnotationfacet=Liste des annotations 
+listProprietefacet=Liste des types des transactions
+labelAjoutConfidentialite = Ajouter degré confidentialité
+labelAjoutUrgence = Ajouter degré urgence
+labelAjoutAnnotation = Ajouter annotation
+labelAjoutTyprTransaction = Ajouter Type Transaction
+DesignationProp = Designation
+listSocietefacet = Société
+labelAjoutInformationSociete = Ajouter Information Soci\u00E9t\u00E9
+expDestExterneMail =Mail
+rPP= Affecter PP a une entreprise
+AjouterPPPM= Ajouter des Contatcts
+NombreEnregistrement=Nombre d'enregistrements \:
+#-----------------------------------------------------------------------------------------
+ContactPrenomNom = Nom et Pr\u00E9nom \: 
+ContactRaisonSociale = Raison sociale \: 
+Gouvernorat = Gouvernorat :
+ContactGouvernorat = Gouvernorat
+RechercheContact = Recherche Contacts
+ChoixType = Choisir le type du Contact
+DateInsertion = Date d'insertion \: 
+documentProprietaire = Propri\u00E9taire de Document \:
+boutton = Affecter
+RechercherrExpfacet = Liste des Contacts Non Affectés
+ContactNomm = Nom
+Contact contact
+ContactPrenomm = Prénom
+Expportable = Portable
+ExpTel = Téléphone
+labelAjoutExpediteur = Ajout Contact
+Nonaffecter = Non affecté
+#-----------------------------------------------------------------------------------------
+# *** Interfaces AffecterContactCourrier *************************************************
+MsgErreurDest=Veuillez s\u00E9lectionner au moins un destinataire. 
+MsgErreurExp=Veuillez s\u00E9lectionner un seul exp\u00E9diteur. 
+MsgErreurPM=Veuillez s\u00E9lectionner une seule PM. 
+MsgAffectationPM=L'affectation de la PP a \u00E9t\u00E9 effectu\u00E9e avec succ\u00E8s.
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ContactRecherche ********************************************************
+NbrExp=Nombre d'enregistrements \: 
+ListExpTitre=Liste des contacts recherch\u00E9s 
+RechercherExpfacet=Liste des contacts
+ResultatRechercheOui=Contact Trouvé .
+ResultatRechercheNon=Merci de vérifiez la référence entrée.
+ExpNom=Nom 
+ExpPrenomNomRaisonSociale=Nom/Raison sociale
+ExpId=Id
+ExpPrenom=Prénom
+ExpAdresse=Numéro et nom de la rue
+ExpCode=Code postal
+ExpVille=Ville
+ExpPays=Pays
+ExpMail=E-mail
+ExpType=Type
+ExpTéle=Téléphone
+ExpCIN=CIN
+ExpPortable=Portable
+ExpRegistreCommerce=Registre de commerce
+ExpMatricule=Matricule fiscal
+ExpCNSS=Affiliation CNSS
+Expfax=Fax
+ExpPm=Personne morale
+ExpOperation=Opérations
+ExpEmp=Employeur
+ExpStatut=Statut
+PMAjoutMsg=L'ajout a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s. Voulez-vous lui attribuer des personnes physiques?
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ConsulterExp ************************************************************
+ConsultExpfacet=Consulter un contact
+ConsultExpTitreFormulaire=Les informations du contact
+NbrPP=Liste des Personnes Physiques :
+InfoContact=Informations de la PM
+RechercherPPfacet=Liste des PP 
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ModifierContact *********************************************************
+ModifExpfacet=Modifier un contact
+ModifMsg=La modification a été effectuée avec succès.
+msgAjout=L'ajout a \u00E9t\u00E9 effectu\u00E9 avec succ\u00E8s. Voulez-vous en ajouter un autre?
+#-----------------------------------------------------------------------------------------
+# *** Interfaces UtilisateurAjout ********************************************************
+Utilifacet=Ajouter un utilisateur
+UtiliTitreFormulaire=Ajout utilisateur
+UtiliAjoutMsg=Utilisateur ajouté avec succès.
+UtiliGrp=Groupe
+UtiliNom=Nom
+UtiliId=Id
+UtiliPrénom=Prénom et nom :
+UtiliPrénom1=Prénom et nom
+UtiliAdresse=Adresse
+UtiliMail=Mail
+UtiliLogin=Login
+UtiliPassword=Password
+UtiliContact=Contact :
+UtiliContact1=Contact
+MsgErreurContact=Veuillez s\u00E9lectionner un seul contact. 
+MsgErreurContact1=Veuillez s\u00E9lectionner un contact. 
+MsgErreurAjoutUtili=L'identifiant existe déja. Veuillez saisir un autre.
+#-----------------------------------------------------------------------------------------
+# *** Interfaces UtilisateurRecherche ****************************************************
+RechercherUtilifacet=Rechercher un utilisateur
+UtiliModiffacet=Modifier mot de passe
+NbrUtili=Nombre d'enregistrements \: 
+ListUtiliTitre=Liste des utilisateurs 
+ResultatRechercheUtiliOui=Utilisateur Trouvé .
+ResultatRechercheUtiliNon=Utilisateur inexistant, voulez-vous ajouter un autre?
+UtiliPrenom=Prenom
+UtiliTelephone=Téléphone
+UtiliPwd=Mot de passe
+UtiliOperation=Opération
+UtiliType=Type
+#-----------------------------------------------------------------------------------------
+# *** Interfaces UtilisateurConsultation *************************************************
+ConsultUtilisateurfacet=Consulter un utilisateur
+#-----------------------------------------------------------------------------------------
+# *** Interfaces rechercheGroupe *********************************************************
+ListGrpTitre=Liste des groupes recherch\u00E9s 
+RechercherGrpfacet=Rechercher un groupe
+ResultatRechercheGrpOui=Groupe Trouvé .
+ResultatRechercheGrpNon=Groupe inexistant, voulez-vous ajouter un autre?
+GrpNom=Nom
+GrpId=Id
+GrpOpération=Opération
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ajoutGroupe *************************************************************
+Grpfacet=Ajouter un groupe
+GrpTitreFormulaire=Ajout groupe
+GrpAjoutMsg=Groupe ajouté avec succès.
+ResultatAjoutGrpOui=Groupe Ajouté .
+ResultatAjoutGrpNon=Groupe existant, voulez-vous ajouter un autre?
+GrpDroit=Droit
+#-----------------------------------------------------------------------------------------
+# *** Interfaces ajoutDroit **************************************************************
+Droitfacet=Ajouter un droit
+DroitTitreFormulaire=Ajout droit
+DroitAjoutMsg=Droit ajouté avec succès.
+#-----------------------------------------------------------------------------------------
+# *** Interfaces rechercheDroit **********************************************************
+ListDroitTitre=Liste des droits recherch\u00E9s 
+RechercherDroitfacet=Rechercher un droit
+ResultatRechercheDroitOui=Droit Trouvé .
+ResultatRechercheDroitNon=Droit inexistant, voulez-vous ajouter un autre?
+DroitNom=Nom
+DroitId=Id
+DroitOpération=Opération
+#-----------------------------------------------------------------------------------------
+# *** Interfaces suiviCourrier ***********************************************************
+Suivifacet=Suivi du courrier
+SuiviPeriode=Recherche par période
+SuiviRecherche=Autres critéres de recherche
+SuiviRechercheAvancée=Recherche avancée
+SuiviPeriod1=Jour
+SuiviPeriod2=Semaine
+SuiviPeriod3=Mois
+SuiviPeriod4=Durée
+SuiviDateFin=Date fin :
+SuiviDateDebut=Date début :
+SuiviCourrier=Courrier
+SuiviRecherche1=Répondu
+SuiviRecherche2=Non répondu
+TitreCourrierSuivi=Fiche courrier
+SuiviInfoCourrier=Informations du courrier
+SuiviDate=Date
+RespTransaction=Responsable
+nbrDoc=Nombre de documents :
+MsgCommentaire=Commentaire
+#-----------------------------------------------------------------------------------------
+# *** Interfaces Rapports ****************************************************************
+RapportsFacet=Liste des rapports
+ListCrUrg=Liste des courriers urgents
+ListCrParNat=Liste des courriers par nature
+ListCrUrgParUtili=Liste des courriers urgents par utilisateur
+VarTauxrep=Variation du taux de réponse des courriers
+ClassementCrParDelaisRep=Classement des courriers par délais de réponse
+ClassementCrParRespectDelais=Classement des courriers par respect des délais
+format=Choisir le format du rapport :
+StatFacet=Liste des statistiques
+NbrCrParPeriodeParNat=Nombre des courriers par période par nature
+NbrCrParPeriodeParConf=Nombre des courriers par période par degré de confidentialité
+NbrCrParPeriodeParUrg=Nombre des courriers par période par degré d'urgence
+operation=Opérations
+UtilisateursConsultForm5=Login
+UtilisateursConsultForm6=Mot de passe
+UtilisateursConsultForm7=Adresse
+UtilisateursConsultForm8=Nom
+UtilisateursConsultForm9=Prénom
+UtilisateursConsultForm10=Téléphone
+UtilisateursConsultForm11=Description
+nbEnregistrement=Nombre d'enregistrements \: 
+labelAjoutNature=Ajouter nature
+typePropriete=Type propriété
+typeProp=Type
+#-----------------------------------------------------------------------------------------
+# *** Buttons ****************************************************************************
+buttonAjouter=Ajouter
+buttonValidate=Valider
+buttonCancel=Annuler
+buttonOui=Oui
+buttonNon=Non
+buttonOk=OK
+#buttonReset=Reset
+buttonRetour=Retour
+#buttonResilier=Résilier
+#buttonImprimer=Imprimer
+#buttonChercher=Chercher
+buttonAffecter=Affecter
+buttonModifier=Modifier
+labelConsulter=Consulter
+labelConfirm=Confirmation
+#-----------------------------------------------------------------------------------------
+# *** Messages popUp *********************************************************************
+Reference=Référence
+confirmAjout=L'ajout a été effectué avec succès.
+confirmUpdate=La mise à jour a été effectuée avec succès.
+confirmSuppression=La suppression a été effectée avec succès.
+#-----------------------------------------------------------------------------------------
+# *** GED ********************************************************************************
+exceptionDownload=Le document est indisponible , veuillez contacter l'administrateur.
+exceptionUpdate = Mise \u00E0 jour impossible, veuillez contacter l'administrateur. 
+exceptionDelete = Suppression impossible, le document attaché est indisponible, veuillez contacter l'administrateur.
+ficheMiseAJour =Télécharger le fichier :
+failScan =Echec de l'opération de scannage, veuillez réessayer encore.
+successScan =L'opération de scannage a été effectué avec succès.
+joindreDocument = Joindre un document
+apercuDoc = Visualiser le document
+joindreDocumentLabel = Joindre un document :
+#-----------------------------------------------------------------------------------------
+# *** Gestion des Utilisateurs / Groupes LDAP ********************************************
+erreurInsertGroup=Erreur d'insertion : Groupe existe déjà .
+erreurInsertUtilisateurRemain=Erreur d'insertion : Identifiant existe déjà.
+labelAjoutgroupe=Ajouter un groupe
+invalid=invalide
+pointvirgule=\ \:
+incorrect=incorrecte
+confirmpwd=Confirmation du mot de passe
+confirmDeletegroup=Etes-vous sûre de vouloir supprimer ce groupe ?
+Affectationutilisateurs=Affectation et désaffectation des utilisateurs
+confirmDeleteUsers=Le groupe sélectionné contient déjà des utilisateurs.
+confirmDeleteutilisateur=Etes-vous sûre de vouloir supprimer cet utilisateur ?
+labelDesaffect=Désaffecter
+aideListUserDisponible=La liste affich\u00E9e repr\u00E9sente la liste des utilisateurs non affect\u00E9s au 
+aideListGroupDisponible=La liste affich\u00E9e repr\u00E9sente la liste des groupes non affect\u00E9s \u00E0 
+aideListUserCourants=La liste affich\u00E9e repr\u00E9sente la liste des utilisateurs appartenant au 
+aideListGroupCourants=La liste affich\u00E9e repr\u00E9sente la liste des groupes affect\u00E9s \u00E0 
+groupesnoncourants=Groupes disponibles
+email=Email
+ConfirmDeleteGroups=Cet utilisateur est affecté à un/plusieurs groupe(s).
+organisation=Organisation
+emploi=Poste occupé
+groupecourants=Groupes courants
+erreurUpdate=Erreur de mise é jour de type de lettre.
+informationutilisateur=Informations sur l'utilisateur \: 
+listeutilfacet=Liste des utilisateurs
+formulaireUtilisateur=Ajout Utilisateur.
+erreurInsertUtilisateur=Erreur d'insertion : Cet Utilisateur existe déjà .
+matricule=Matricule
+nom=Nom
+prenom=Prénom
+adresse=Adresse
+telephone=Téléphone
+login=Nom d'utilisateur
+pwd=Mot de passe
+erreurInsertUniteBO=Erreur d'insertion Structure / Bureau d'Ordre.
+#-----------------------------------------------------------------------------------------
+reference=Référence
+reference1=Référence
+libelle=Libellé :
+libelle1=Libellé
+Resultat=R\u00E9sultat \: 
+comment=Description
+groupeconcern=Informations sur le groupe
+utilcourant=Liste des utilisateurs courants
+utilnoncourant=Listes des utilisateurs disponibles
+societe=Société ID
+retapepwd=Confirmer mot de passe
+listegroupesfacet=Liste des groupes
+labelAjoututilisateur=Ajouter utilisateur
+InterfaceGestion=Interface d'ajout et de consultation
+#-----------------------------------------------------------------------------------------
+Consultation=Consulter
+Modification=Modifier
+Suppression=Supprimer
+confirmDelete3=Voulez-vous le supprimer ?
+listBureauOrdrefacet = Liste des Bureaux d'Ordre
+labelAjouttransmission = Ajouter transmission
+Parametrages=Paramétrages
+TypeTransaction=Type Transaction
+listdossierfacet=Liste des Dossiers
+#-----------------------------------------------------------------------------------------
+GestionDossier=Gestion Dossier
+RechercherDossier=Rechercher Dossier
+AjoutDossier=Ajouter Dossier
+listCourrierAffecter=Liste des Courriers Affectés
+Intitule=Intitulé :
+dossierReference=Référence :
+Transferer=Transférer
+Suividossier=Suivi Dossier
+RechercheDossier=Recherche des Dossiers
+ListDossierTitre=Liste des Dossiers recherchés
+RechercherDossiersfacet=Liste des Dossiers
+RechercherDossierAvance=Rechercher Dossier Avancé
+RechercherCourrierAvance=Rechercher Courrier Avanc\u00E9 
+dateCreation=Date de Creation
+#---------------------Nouvelles propriétés
+#Groupe
+gestionAffectationGroupe = Gestion des affectations
+ErreurAffectation = Erreur d'affectation d'utilisateurs
+#Utilisateur
+postalCode = Code postal
+Affectationgroups = Affectation et désaffectation des groupes
+validatorMaxchampsentier = doit \u00EAtre un nombre et contient au minimum 8 chiffres.
+validatorchampsentier = doit être un nombre.
+GestionGroup = Gestion Groupe
+GererUtili = Gérer utilisateur
+GererGroup = Gérer groupe
+gestionUniteBOCfacet = Gestion unités/bureaux d'ordres
+labelAjoutSousUnite = Ajouter sous-unité
+uniteRattachement =Structure de rattachement
+BORattachement =BO de rattachement
+directionName = Nom direction
+listDirectionMembers = Liste des membres de l'unité
+noeudRattachement=Noeud de Rattachement
+#Unité
+confirmDeleteUnit = Etes-vous sûr de vouloir supprimer cette unité ?
+confirmDeleteUnits = Cette unité contient déjà des membres.Veuillez les désaffecter avant.
+finalConfirmDeleteDirection = Voulez-vous la supprimer ?
+confirmDeleteSubUnits = Cette unité contient une/plusieurs sous-unité(s).Veuillez supprimer ces dernières avant.
+choixUnite = Choix d'unité :
+serviceName = Nom service
+askForAddingMembers = Voulez-vous affecter des membres à cette unité ?
+otherUsers = Liste des utilisateurs disponibles 
+affectDesaffectMember = Affectation et désaffectation des membres
+labelWarning = Avertissement
+noDirectorAffected = Cette unité ne contient pas un responsable, Poursuivre comme même ?
+noSecretaryAffected = Cette unité ne contient pas une secrétaire, Poursuivre comme même ?
+listServiceMembers = Liste des membres du service
+erreurSuppression = Erreur de suppression
+noChefServiceAffected = Cette unité ne contient pas un chef service, Vous devez en affecter un .
+#Boc
+listBocMembers = Liste des membres du bureau d'ordre
+listBoc = Liste des bureaux d'ordres fils
+typeBOC = Type bureau d'ordre
+bocName = Nom bureau d'ordre
+choixTypeUnite = Choix
+confirmAjoutAskForAddingMembers = L'ajout a été effectué avec succès, Voulez-vous affecter des membres à cette unité ?
+confirmDeleteBocUnits = Ce bureau d'ordre contient une/plusieurs sous-unité(s).Veuillez supprimer ces dernières avant.
+confirmDeleteBO = Etes-vous sûr de vouloir supprimer ce bureau d'ordre ?
+labelDeleteUnit = Supprimer unité
+labelUpdateUnit = Modifier unité
+labelAffectUnit = Affecter/désaffecter des membres
+confirmDeleteAdjBOC = Etes-vous sûre de vouloir supprimer cet enregistrement ?
+confirmDeleteBOCs = Ce bureau d'ordre contient d\u00E9j\u00E0 des membres.
+GestionUnite = Gestion Unité
+GererUnite = Gérer unité/bureau d'ordre
+Secretary = Secretaire
+listCourriersJour = La liste des courriers d'aujourd'hui
+dateReception = Date Réception courrier
+expediteur = Expéditeur
+listCourriers = Liste des courriers
+destReelle = Destinataire Final
+Reponse = Répondre
+sentAlsoTO = Envoyé aussi à(aux) :
+aValider = A valider
+referenceCourrier = Référence courrier :
+bouttonRefuser = Refuser
+facetValidateRefuse = Valider/Refuser transfert du courrier
+erreurTransfert = Erreur de transfert
+wordExport = Exporter sous format Word
+pdfExport = Exporter Liste Courriers sous format PDF
+pdfExportContact=Exporter Liste Contacts sous format PDF
+pdfExportDetails = Exporter Fiche Courrier sous format PDF
+pdfExportDecharge = Exporter Décharge Courrier sous format PDF
+pdfExportSuivi = Exporter Suivi Courrier sous format PDF
+clotExport = Exporter Courrier Cloturé sous format PDF
+pdfExportRetard = Exporter Courrier Retard sous format PDF
+pdfExportfiltre = Courrier Par : Employé / Unité
+pdfExportTraite = Exporter Courrier Traité sous format PDF
+pdfExportLiee = Exporter Courrier liée sous format PDF
+codeExport = Exporter Liste Courriers  sous format Code a Barre
+imgExport = Exporter Liste Courriers  sous format JPEG
+imgExportDetails = Exporter Fiche Courrier sous format JPEG
+intereneExport = Exporter Liste Courriers Interne sous format PDF 
+repondre = Répondre
+CourrierExpOr = Expéditeur :
+etat = Etat
+FacetTransferDossier = Transférer dossier
+SuiviDossier = Suivi dossier
+affectCourrierfacet = Affectation/Désaffectation des courriers
+buttonAffecterCourriers = Affecter des courriers
+MsgDernierDossier = Dossiers plus anciens
+MsgAujourdhuiDossier = Dossiers d'aujourd'hui
+listDossiersJour = La liste des dossiers d'aujourd'hui
+listDossiers = Liste des dossiers plus anciens
+ColonneIntitule = Intitulé
+referenceDossier = Référence dossier :
+ConsultDossierfacet = Informations sur le dossier
+dossierIntitule = Intitulé :
+dossierDateCreation = Date de création :
+dossierDateTransaction = Date de transaction :
+SuiviDossierfacet = Suivi Dossier
+partagerDossier = Partager dossier
+bouttonPartager = Partager
+dossierPartageMsg = Le partage a été effectué avec succès.
+partagerDossierDetail = Suivi partage
+dossierDatePartage = Date de partage :
+invites = Invité(s) :
+partageInformation = Informations de partage
+listHistorique = Historique des commentaires
+sujetCommentaire = Sujet
+dateDeCommentaire = Date de commentaire
+commentMsg = Commenter
+confirmModifyMail = Ce courrier a été déjà consulté par un des destinataires.Vous ne pouvez plus le modifier.
+partage = Partager
+detailPartage = Suivre le partage
+deconnexion = Déconnexion
+allRightReserved = Tous droits r\u00E9serv\u00E9s | 
+Xtensus=Xtensus
+footerlicence=Licence accordée à « SONEDE »
+logoAr = Langue Arabe
+logoFr = Langue Française
+ReConsult = Reconsulter
+de = De \: 
+a = \u00E0 \: 
+courrierFacet = Courrier \: 
+dateFacet = Courrier Reçus de :
+dateFacet1 = Courrier Envoyés de :
+messageRecherche = Recherche en cours ...
+lee = Le :
+courrierValide = Validé
+courrierNonValide = Non validé
+courrierTraite = Traité
+courrierATraiter = A traiter
+courrierAValide = A valider
+dateReponse = R\u00E9ponse
+date = Date
+dateDebut = Date de début
+dateFin = Date de fin
+messageChargement = Chargement en cours
+buttonAccept = Accepter
+CourrierRefusMsg = Le processus de validation a été annulé
+aExecuter = Exécuter
+executeAll = Exécuter tous
+#------------------------------------------------------------------------------------
+#*** Mail & Fax interfaces **********************************************************
+ListMails=Liste des mail reçus
+ListFaxs=Liste des fax reçus
+Telechargement=Télécharger
+listMailFax=Mail & Fax
+messageAttente=Patientez, s'il vous plaît...
+confirmTransfereMail=Le transfert de ce Mail a été effectué.
+confirmTransfereFax=Le transfert de ce Fax a été effectué.
+erreurTransfereMail=Assurez vous que cet expéditeur est enregisteré dans la BD
+#****************************************************************
+BordereauCourrier=Bordereau d'envoie
+#------------------------------------------------------------------------------------
+# **** Armoire **********************************************************************
+listArmoirefacet=Liste des Armoires
+labelAjoutArmoire=Ajouter Armoire
+armoireLibelle=Libellé
+armoireLibelleAr=Libellé en Arabe
+armoireDescription=Description
+armoireDescriptionAr=Description en Arabe
+armoireNombreEtage=Nombre Boite d'Archive
+Armoire=Réf. Armoire
+confirmDeleteEtgages=Cette Armoire contient des boites d'archive. Veuillez les supprimer d'abord ?
+#------------------------------------------------------------------------------------
+# *** Etages boite d'archive ********************************************************
+labelAjoutEtages=Ajouter Boite d'Archive
+Etagesarmoire=Armoire
+listEtagesfacet=Liste des Boite d'Archive
+etagesLibelle=Libelle
+etagesLibelleAr=Libelle en Arabe
+etagesDescription=Description 
+etagesDescriptionAr=Description en Arabe
+etagesNombreDossier=Nombre courriers
+Etages=N°. Boite d'Archive
+taille=Taille
+numeroBoiteArchive=Numéro
+typeBoiteArchive=Type
+#------------------------------------------------------------------------------------
+# *** Classement ********************************************************************
+Classement=Classement Courrier
+ClassementCourrierSucces=Le classement de ce Courrier a été effectuée avec succès.
+ClassementCourrierErreur=Echec de l'op\u00E9ration, veuillez r\u00E9essayer encore. 
+ClassementCourrierFait=Ce Courrier a été déjà classé dans :
+ClassementCourrierNonFait=Ce Courrier n'est pas encore classé. Voulez-vous le classer ?
+#------------------------------------------------------------------------------------
+# *** Sauvgarde *********************************************************************
+SauvgardeLibelle=Sauvegarde
+SauvgardeStart=Commencer Sauvegarde
+InfoSauvgarde=Opération de Sauvegarde a été effectuée avec succès.
+InfoDerniereSauvgarde=Derni\u00E9re op\u00E9ration de sauvegarde a \u00E9t\u00E9 effectu\u00E9e le \:
+restauration=Choisir date de Restauration
+RestaurationLibelle=Restauration
+InfoRestauration=Opération de Restauration a été effectuée avec succès.
+restaurationDatechoix=Merci de choisir une date
+#------------------------------------------------------------------------------------
+# *** recherche *********************************************************************
+critereRecherche = Critères de recherche
+resultatRecherhe = Résultat de la recherche
+unitName = Nom unité
+responsableUnit = Responsable unité
+secretaryUnit = Secrétaire unité
+rechercheAvance = Recherche avancée
+detailsUnite = Détails unité
+detailsUser = Détails utilisateur
+ajoutDestinataire = Ajouter destinataire
+msgAffectDestinataireUserErreur = Vous n'avez pas le droit de choisir cette personne comme destinataire.
+msgAffectDestinataireUnitErreur = Vous n'avez pas le droit de choisir cette unité comme destinataire.
+detailsPp = Détails personne physique
+detailsPm = Détails personne morale
+#------------------------------------------------------------------------------------
+# *** LienCourrier ******************************************************************
+liaisonCourrier = Liens courrier
+confirmLiaisonCourrier = Le lien a été effectué avec succès
+lienCourrierfacet = Lien des courriers
+listCourrierLie = Liste des courriers liés
+uniteCourante = Unité courante :
+aucunLienMsg = Aucun courrier lié
+lienMsg = Lier des courriers
+courriersLies = Courrier(s) lié(s)
+delinkMsg = Supprimer le lien avec le courrier en cours
+linkMsg = Lier ce courrier avec le courrier en cours
+#------------------------------------------------------------------------------------
+# *** accuseReception ***************************************************************
+accuseReception=Information Accusé de Réception
+accuseReceptionCourrierSucces=L' accusé de réception pour ce Courrier a été ajouté.
+ajoutaccuseReception=Ajouter accusé de réception
+suiviTransmissionCourrierCommantaire=Commentaire
+suiviTransmissionCourrierDateSysteme=Date insertion
+suiviTransmissionCourrierDateMaj=Date réception accusé
+raison=Raison
+AccuseReceptionVerificationTraitement=Veuillez assurer d'abord que le courrier est traité par le BOC
+#------------------------------------------------------------------------------------
+# *** Suivi *************************************************************************
+suiviDestinataire = Suivi des destinataires
+dateConsultation =Consultation
+dateTransfert = Date de transfert
+reponseDansDelais = Réponse dans les délais
+reponseApresDelais = Réponse après les délais
+necessiteReponse = Nécessite une réponse
+dateTransfertCourrier=Transfert
+necessiteNoReponse = Ne nécessite pas une réponse
+abreviation = Abréviation
+erreurInsertUserDuplicateShortName = Cette abréviation existe déjà.Veuillez choisir une autre.
+delais = Délais
+ajoutUtilisateur = Ajout utilisateur
+consultUtilisateur = Consultation utilisateur
+delaiDepasse = Nécessite une réponse avec délai dépassé
+#------------------------------------------------------------------------------------
+# *** Relance *************************************************************************
+bouttonRelancerTout = Relancer tous
+bouttonRelancerUnJour = Courriers nécessitant une réponse demain
+bouttonRelancerUneSemaine = Courriers nécessitant une réponse cette semaine
+bouttonRelancerDepasse = Courriers dont la date de réponse a été dépassée
+boostMailFacet = Relance des courriers
+result = Résultat
+colonneDestExp = Expéditeur/Destinataire
+boostButton = Notifier l'expediteur
+boostButtonAll = Notifier tous
+listCourriersNecessitantReponse = Liste des courriers nécessitant une réponse
+confirmNotify = Etes-vous s\u00FBr de vouloir notifier cette personne/unit\u00E9 ?
+confirmBoost = L'expediteur a été bien notifié.
+confirmBoostALL = Tous les expediteurs ont été bien notifié
+#------------------------------------------------------------------------------------
+# *** workflow **********************************************************************
+circuitWorkflow=Courrier suit un workflow
+cannotModifyMail =Vous n'avez pas le droit de modifier ce courrier.Vous n'êtes pas son éditeur.
+cannotModifyDoc = Vous n'avez pas le droit d'ajouter un document à ce courrier.vous n'êtes pas son Editeur.
+modificationCourrier = Modification courrier
+tous = Tous
+autre = Autre
+autreCommentaireObligatoire = * Autres annotations est un champ obligatoire
+#------------------------------------------------------------------------------------
+# *** statistique *******************************************************************
+etatStatistique = Etats statistiques
+apercu = Visualiser
+reinitialiser = Réinitialiser
+statistiqueCourrier = Statistique des courriers
+datePeriode = Date/Période
+statistiqueDate = Statistique des courriers arrivés/départs du
+statistiqueMois = Statistique des courriers arrivés/départs du mois
+statistiqueAnnee = Statistique des courriers arriv\u00E9s/d\u00E9parts de l\\'une periode
+statistiqueNatureDate = Statistique des courriers par nature du
+statistiqueNatureMois = Statistique des courriers par nature du mois
+statistiqueNatureAnnee = Statistique des courriers par nature de l\\'ann\u00E9e
+statistiqueModeReceptionDate = Statistique des courriers par mode de réception du
+statistiqueModeReceptionMois = Statistique des courriers par mode de réception du mois
+statistiqueModeReceptionAnnee = Statistique des courriers par mode de r\u00E9ception de l\\'ann\u00E9e
+statistiqueDelaiReponseDate = Statistique des délais de réponse en fonction de nombre des jours du
+statistiqueDelaiReponseMois = Statistique des délais de réponse en fonction de nombre des jours du mois
+statistiqueDelaiReponseAnnee = Statistique des d\u00E9lais de r\u00E9ponse en fonction de nombre des jours de l\\'ann\u00E9e
+statistiqueReponseDepartementDate = Statistique des courriers répondus par département du
+statistiqueReponseDepartementMois = Statistique des courriers répondus par département du mois
+statistiqueReponseDepartementAnnee = Statistique des courriers r\u00E9pondus par d\u00E9partement de l\\'ann\u00E9e
+statistiqueUrgenceDate = Statistique des courriers par degr\u00E9 d\\'urgence du
+statistiqueUrgenceMois = Statistique des courriers par degr\u00E9 d\\'urgence du mois
+statistiqueUrgenceAnnee = Statistique des courriers par degr\u00E9 d\\'urgence de l\\'annee
+statistiqueAnnotationDate = Statistique des courriers par annotation du
+statistiqueAnnotationMois = Statistique des courriers par annotation du mois
+statistiqueAnnotationAnnee = Statistique des courriers par annotation de l\\'annee
+statistiqueDepart=D\\351part
+statistiqueArrive=Arriv\\351e
+boostAllList = Liste de tous les courriers nécessitant une réponse
+boostTomorrowList = Liste des courriers nécessitant une réponse demain
+boostWeekList = Liste des courriers nécessitant une réponse cette semaine
+boostOutOfDateList = Liste des courriers dont la date de réponse a été dépassée
+#Gestion des rôles
+ajoutRole = Ajout rôle
+ajouterRole = Ajouter rôle
+listRoleFacet = Liste des rôles
+erreurInsertion = Erreur d'insertion
+consultationRole = Consultation rôle
+listMenu = Liste des menus/sous-menus
+libelleArabe = Libellé arabe
+ordreMenu = Ordre
+erreurUpdateRole = Erreur de mise à jour
+comfirmDeleteRole1 = Etes-vous sûr de vouloir supprimer ce rôle ?
+comfirmDeleteRole2 = Ce rôle contient un/ou plusieurs menu(s). Voulez vous le supprimer ?
+group = Groupe :
+listAffectedRole = Liste des rôles affectés
+role = Rôle :
+listMenuAffected = Liste des menus/sous-menus affectés
+labelMenuAffecte = Menu affecté en totalité
+labelMenuNonAffecte = Menu non affecté en totalité
+labelSousMenuAffecte = Sous menu affecté
+labelSousMenuNonAffecte = Sous menu non affecté
+headerListUsers = La liste des utilisteurs courants du
+headerListUsersDisponibles = La liste des utilisteurs disponibles
+labelAffectDesaffect = Affecter/Désaffecter les membres
+consultGroupe = Consultation groupe
+affectDesaffectFacet = Affectation et désaffectation des rôles
+rolesCourants = Rôles courants
+rolesDisponibles = Rôles disponibles
+labelAffectDesaffectRole = Affecter/Désaffecter les rôles
+tousCourriers = Tous les courriers
+courriersRecus = Courriers reçus
+courriersEnvoyes = Courriers envoyés
+courriersValidation = Courriers de validation
+valide = Validé
+nonValide = Non validé
+traite = Traité
+arrive = Arrivé
+depart = Départ
+nonTraite = Non traité
+tousDossiers = Tout les dossiers
+dossiersRecus = Dossiers reçus
+dossiersEnvoyes = Dossiers envoyés
+pasDeDossiers = Pas de dossiers
+pasDeCourriers = Pas de courriers
+pp = Pp
+pm = Pm
+choixPays = Choix pay
+choixGouvernorats = Choix gouvernorat
+choixVilles = Choix ville
+aMonPropreNom = A mon propre Nom
+auNomDeMonUnite = Au nom de mon Unité
+auNomDeMonBO = Au nom de mon BO
+liensCourriers = Liens courriers
+tousHistorique = Tout l'historique
+ColonneTransmission = Transmission
+ColonneConfidentialte = Confidentialité
+courrier = Courrier :
+dossier = Dossier 
+recus = Reçus
+envoyes = Envoyés
+intervalle = Intervalle
+exp = Expéditeur :
+destt = Destinataire(s) :
+tousCourrierNecessitantReponse = Tous les courriers nécessitant une réponse
+courrierRecusNecessitantReponse = Courriers reçus nécessitant une réponse
+courrierEnvoyesNecessitantReponse = Courriers envoyés nécessitant une réponse
+choixDestinataires = Choix destinataires
+structureHierarchique =Liens bureau d'ordre
+listeDestChoisis = Liste de destinataires choisis
+utilisateur = Utilisateur
+unit = Unité
+ajoutDossier = Ajout dossier
+dateCreationLabel = Date de création :
+consultationDossier = Consultation dossier
+partageDossier = Partage dossier
+informationDossier = Informations dossier
+nbrCourriers = Nombre des Courriers :
+transfertDossier = Transfert dossier
+structureHierarchiquePrincipale = Noeud Principal
+consultationBO = Consultation bureau d'ordre
+aucunBO = Aucun bureau d'ordre associé
+aucunUnite= Aucune structure associée
+consultationUnit = Consultation unité
+ajoutSousUnite = Ajout sous-unité
+modificationUnite = Modification unité
+modificationBO = Modification bureau d'ordre
+boName = Nom bureau d'ordre
+ajoutBO = Ajout bureau d'ordre
+mesPropresCourriers = A. Mes Propres Courriers
+mesPropresDossiers = A. Mes Propres Dossiers
+DcourriersMesSubordonnees = D. Les Courriers de Mes Subordonnées
+DdossiersMesSubordonnees = D. Les Dossiers de Mes Subordonnées
+EcourriersMesSubordonnees = E. Les Courriers de Mes Subordonnées
+EdossiersMesSubordonnees = E. Les Dossiers de Mes Subordonnées
+FcourriersMesSubordonnees = F. Les Courriers de Mes Subordonnées
+FdossiersMesSubordonnees = F. Les Dossiers de Mes Subordonnées
+courriersMonUnite = B. Les Courriers de Mon Unité
+dossiersMonUnite = B. Les Dossiers de Mon Unité
+courriersMesSousUnites = C. Les Courriers de Mes Sous-Unités
+dossiersMesSousUnites = C. Les Dossiers de Mes Sous-Unités
+DcourriersMesSousUnites = D. Les Courriers de Mes Sous-Unités
+DdossiersMesSousUnites = D. Les Dossiers de Mes Sous-Unités
+EcourriersMesSousUnites = E. Les Courriers de Mes Sous-Unités
+EdossiersMesSousUnites = E. Les Dossiers de Mes Sous-Unités
+courriersMaSecretaire = C. Les Courriers de Ma Secrétaire
+dossiersMaSecretaire = C. Les Dossiers de Ma Secrétaire
+courriersMesAgents = C. Les Courriers de Mes Agents
+dossiersMesAgents = C. Les Dossiers de Mes Agents
+DcourriersMesAgents = D. Les Courriers de Mes Agents
+DdossiersMesAgents = D. Les Dossiers de Mes Agents
+courriersBO = A. Les Courriers du Bureau d'Ordre
+courriers = Courriers
+dossiers = Dossiers
+# *** Groupe Mailing ****************************************************************
+groupecontactlibelleLabel=Libelle
+groupecontactAjouterLabel=Ajouter un groupe de contact
+Confirmation=Confirmation
+Informations=L'ajout a été effectuée avec succès
+Avertissement=Avertissement
+Alert=Alerte
+MessageSuppression=Etes-vous sur de vouloir supprimer cet enregistrement ?
+TitreDetail=Informations groupe de contact 
+listegroupecontact=Liste des Groupes
+groupecontactDescription=Description
+groupecontactDateCreation=Date création
+gestionAffectationContact=Gestion affectation des contacts
+affectgroupecontactsfacet=Affectation/Désaffectation des contacts
+erreurDeletegroupeContact=Le groupe sélectionné contient déjà des contacts, Veuillez les désaffecter avant.
+gestionmailingContact=Choix sujet de Mailing
+gestionhistoriqueContact=Consulter historique Mailing
+gestionhistoriqueContactDateEnvoie=Date envoi
+labelChoisirSujet=Envoyer ce Sujet de Mailing
+listContatsNotifier=Liste des contacts à notifier
+echeanceReponse = Echéance de réponse
+dateTransfertReponse =Traitement
+repondreCourrier = Répondre au courrier
+#------------------------------------------------------------------------------------
+# *** Sujet Mailing ****************************************************************
+sujetmailinglibelleLabel=Libelle
+sujetmailingAjouterLabel=Ajouter un sujet mailing
+listesujetmailing=Liste des sujets mailing
+sujetmailingDescription=Contenu
+sujetmailingDateCreation=Date creation
+erreurDeletesujetmailing=Vous ne pouvez pas supprimer ce sujet de Mailing.
+TitreDetailsujetMailing=Information sujet mailing
+modeTransmission = Mode d'envoi
+titre = Titre
+objet = Objet
+confirmDeleteSujetMailing = Le sujet selectionné conteint un/plusieurs groupes de contact. Veuillez les désaffecter avant.
+listeContactAffecte = Liste des contacts affectés
+attachement = Attachement
+dateCloture = Date fin
+#A ajouter
+bonjour = Bonjour
+personNotAffected1 = Jusqu'à présent, vous êtes consideré en tant que visiteur.
+personNotAffected2 = Veuillez contacter votre administateur.
+message = Message
+ajouterMenuSousMenu = Ajouter Menu/Sous-Menu
+ajoutMenuSousMenu = Ajout Menu/Sous-Menu
+menu = Menu
+sousMenu = Sous-Menu
+classe = Classe
+methode = Méthode
+menuParent = Menu parent :
+consultationMenuSousMenu = Consultation Menu/Sous-Menu
+comfirmDeleteMenu1 = Etes-vous sûr de vouloir supprimer ce menu ?
+comfirmDeleteMenu2 = Ce menu contient un/ou plusieurs sous menu(s), sa suppression entra\u00EEne la suppression de ces derniers. Voulez vous continuer ?
+comfirmDeleteSousMenu = Etes-vous sûr de vouloir supprimer ce sous menu ?
+listSousMenuNonAffectes = Liste des sous menus non affectés à un menu
+#------------------------------------------------------------------------------------
+# *** Modificationmot de passe ******************************************************
+modificationMotDePasse = Modification mot de passe
+ancienMotDePasse = Ancien mot de passe
+nouveauMotDePasse = Nouveau mot de passe
+confirmUpdatePwd = La modification du mot de passe a été effectué avec succès.
+erreurUpdatePwd = Erreur de modification de mot de passe.
+ancienMotDePasseIncorrecte = Ancien mot de passe incorrecte
+#------------------------------------------------------------------------------------
+# *** Reinitialisation Mot de passe *************************************************
+infoUtilisateur = Informations sur l'utilisateur :
+rinitialisationMoDePasse = Réinitialisation du mot de passe
+buttonReinitialize =Réinitialiser
+reinialisationMotDePasseMsg = La réinialisation du mot de passe à été effectuée avec succès
+#------------------------------------------------------------------------------------
+# *** Archivage *********************************************************************
+confirmArchivage = L'archivage est effectué avec succès.
+confirmArchivage1 = courrier(s) vont être archivé(s) depuis
+confirmArchivage2 = Voulez vous les archiver ?
+confirmArchivage3 = L'opération d'archivage est dejà faite.
+#------------------------------------------------------------------------------------
+# *** Code erreur *********************************************************************
+errorCodeLdapConnexion = * Erreur 2115. Erreur de connexion au serveur d'authentification.
+errorCodeGedConnexion = * Erreur 2118. Erreur de connexion au serveur de document.
+errorCodeMailConnexion = * Erreur 2122. Erreur de connexion au serveur de messagerie.
+errorCodeFaxConnexion = * Erreur 2124. Erreur de connexion au serveur de fax.
+errorCodeBDConnexion = * Erreur 2114. Erreur de connexion au serveur de Base de Données.
+tooltipRecherche = Rechercher
+envoyer = Envoyer
+numFax = Numéro du fax
+labelAjoutEtat = Ajout Appel d'Offres/Consultation
+monPropreNom=A mon propre Nom
+nomUnite=Nom structure
+nomBO=Au nom de mon BO
+help=Aide
+codeStructure=Code Structure
+codeStructureParente=Code Structure Parente
+choixDestinataire=Choix des destinataires
+choixExpediteur=Choix des expéditeurs
+listeChoisie=Liste des destinataires choisis
+msgChooseRecipien=Veuillez sélectionner au moins un expéditeur/destinataire.
+pmAffectation=Cette personne morale contient un/plusieurs personne(s) physique(s). Veuillez les désaffecter avant.
+#-------------------------------------- Achref --------------------------------------
+confidentialiteGestionLibelle=Libellé
+confidentialiteGestionDescription=Description
+etatGestionLibelle=Libellé
+etatGestionCategorie=Catégorie
+etatGestionDescription=Description
+gestionGBO0Parametrages=Paramétrages
+gestionGBO0GestionNature=Gestion Nature
+gestionGBO0GestionConfidentailite=Gestion Confidentialité
+gestionGBO0GestionUrgence=Gestion Urgence
+gestionGBO0GestionAnnotations=Gestion Annotations
+gestionGBO0GestionTypeTransaction=Gestion Type Transaction
+gestionGBO0GestionEtat=Gestion Etat
+gestionGBO0GestionTransmission=Gestion Transmission
+gestionGBO0GestionVariables=Gestion Variables
+gestionBBO0GestionArmoire=Gestion Armoire
+gestionGBO0GestionBoiteArchive=Gestion Boite d'Archive
+gestionGBO0GestionTrace=Gestion Trace
+gestionGBO0GestionEvenements=Gestion Evenements
+gestionGBO0GestionMessage=Gestion Message
+gestionGBO0GestionMenu=Gestion Menu
+gestionGBO0GestionGroupeMailing=Gestion Groupe Mailing
+gestionGBO0GestionSujetMailing=Gestion Sujet Mailing
+gestionGBO0ReinitialisationMotDePasse=Réinitialisation Mot De Passe
+natureGestionAideInterface=Aide : Interface
+natureGestionLibelle=Libellé
+natureGestionDescription=Description
+roleGestionAideInterface=Aide : Interface
+transmissionGestionLibelle=Libellé
+transmissionGestionDescription=Description
+typeTransactionGestionLibelle=Libellé
+typeTransactionGestionDescription=Description
+urgenceGestionLibelle=Libelle
+urgenceGestionDescription=Description
+typeTransactionLibelle=Libell\u00E9 
+typeTransactionDescription=Description 
+variablesGestionLibelle=Libelle
+variablesGestionValeur=Valeur
+variablesGestionContenu=Contenu
+parametrageCodeUnique=Parametrage Code Courrier Unique
+gestionGBO0GestionEmpoyeur=Gestion Compte Employe
+#-------------------------- Achref 2 -------------------------
+groupeAffectationRoleAide=Aide : Interface
+roleListAide=Aide : Interface
+uniteBocGestionAide=Aide : Interface
+uniteBocGestionResponsable=Responsable
+uniteBocGestionAgent=Agent
+#----------------------------------Ines-----------------------------------
+gestionRelance=Gestion Relance
+statistiqueLabel=Statistiques
+archivageLabel=Archivage
+courriersLabel=Courriers
+annéecourranteLabel=Année Courante
+arrivéesLabel=Arrivés
+aValiderLabel=A valider
+totalLabel=Total
+dossiersLabel=Dossiers
+mesDossiersLabel=Mes dossiers
+arrivésLabel=Arrivés
+départsLabel=Départs
+rappelsLabel=Rappels
+nécéssiteUneRéponseLabel=Nécessitant une réponse
+aujourdhuiLabel=Aujourd\u0027hui
+demainLabel=Demain
+dateReponseDepasser=Date de réponse a été depassé
+cetteSemaineLabel=Cette semaine
+ceMoisLabel=Ce mois
+qualificationCourrierLabel=Qualification du Courrier
+urgenceLabel=Urgence
+accueiltoutLescourriersLabel=Tous les courriers
+acceuilcourriersRecuLabel=Courriers reçus
+acceuilcourriersenvoyésLabel=Courriers envoyés
+acceuilcourriersDeValidationLbel=Courriers de validation
+acceuilTousLabel=Tous
+acceuilNonValidéLabel=Non validé
+acceuilTraitéLabel=Traité
+acceuilarrivéLabel=Arrivé
+acceuildépartLabel=Départ
+acceuilNonTraitéLabel=Non traité
+acceuilValidéLabel=Validé
+acceuilToutLesdossiersLabel=Tout les dossiers
+acceuilDossiersRecuLabel=Dossiers reçus
+acceuilDossierEnvoyéLabel=Dossiers envoyés
+acceuilAideLabel=Aide
+acceuilDossiersLabel=Dossiers
+acceuilPasDecourriersLabel=Pas de courrier
+acceuilConfidentialitelabel=Confidentialité
+annuaireRechercheMulticritéreUtilisateurLabel=Utilisateur
+annuaireRechercheMulticritéreUnitéLabel=Unité
+contactPersonnePhysiqueLabel=Personne Physique
+contactPersonneMoraleLabel=Personne Morale
+contactPaysLabel=Pays
+contactGouvernoratLabel=Gouvernorat
+contactVilleLabel=Ville
+contactCodePostale=Code Postale
+ajoutcourrierPrédéfiniLabel=Prédéfini
+ajoutcourrierLibreLabel=Libre
+ajoutcourrierdestinataiteinvalideLabel=destinataite invalide
+ajoutcourrierNonLabeNon=Non
+msgajoutcourrierNonLabeOui=Oui
+courrierRecherMultiTousLabel=Tous
+courrierRecherMultiTousLabelReçusLabel=Reçus
+courrierRecherMultiTousLabelEnvoyés=Envoyés
+courrierRecherMultiIntervalleLabel=Intervalle
+courrierRecherExpéditeurLabel=Expéditeur
+courrierRechercheDéstinataireLabel=Destinataire 
+dossierGestionDescriptionLabel=Description
+dossierGestionTransmissionLabel=Transmission
+dossierGestionDateReceptionLabel=Date Réception
+dossierGestionNatureLabel=Nature
+dossierTransfereDateCréationLabel=Date Création
+dossierTransfereNombredesCourriersLabel=Nombre des Courriers
+envoieFaxLabel=Envoi Fax
+utilisateurGestionRetourLabel=Retour
+#----------------------Mohamed---------------------------
+EvenementType= Type
+detailsUtilisateur = Détails Utilisateur
+courrierRelanceBeanItemReponse= Tous les courriers nécessitant une réponse
+courrierRelanceBeanItemRecusReponse= Courriers re\u00E7us n\u00E9cessitant une r\u00E9ponse\t\t\t\t\t\t\t\t
+courrierRelanceBeanItemEnvoyesReponse= Courriers envoyés nécessitant une réponse
+listeEvenement= Liste des Evènements
+listeInterfacesGNL=Liste des interfaces GNL
+lienGestionEvenements=Gestion des évenements
+lienConsultationEvenements=Consultation des évenements
+listeMessages=Liste des Messages
+idMessagedt= ID
+userMessagedt= User
+notificationMessagedt= Notification
+contenuEmailmMessagedt= Contenu d'Email
+listeTraces=Liste des traces
+dateTrace=Date du trace
+TypeLOG=Type LOG
+traceUser=User
+traceContenu=Contenue de la trace
+nombreCourriersTotal=Nombre de courriers total
+nombreCourriersNature=Pourcentage des courriers par nature
+nombreCourrierModeReception=Pourcentage des courriers par mode de réception
+delaisReponseCourrier=Délai de réponse par courriers
+tempsMoyenReponseDepartement=Temps moyen de réponse par département
+listeEvenements=Liste des évènements
+#---------------------------------------------INES 2----------------------------------------
+AcceuilGBOdontLabel=dont
+AcceuilGBOnouveauxLabel=nouveaux
+AcceuilGBODépartsLabel=Départs
+destinataiteinvalideLabel= destinataire invalide
+Nepasjoindrelabel=Document physique 
+ApartirdudisquelocalLabel=A partir du disque local
+ApartirduscannerLabel=A partir du scanner
+MessageNeRpenJoindreLabel=Vous avez choisi de ne pas joindre aucun document.
+MessageAjoutDocumentLabel=Appuyez sur le bouton Add puis choisissez le document a joindre.
+MessageAjoutScanLabel=Appuyer sur le bouton Scanner pour lancer le scan du document
+ListedesrôlesLabel=Liste des rôles
+courrierRechercheLabelDate=Date
+infomDossier=Information Dossier
+#---------------------------------------- INES 3 -------------------------------------------
+Ajouterdocument=Gestion document
+#---------------------------------------- KS Statistique -------------------------------------------
+statistiqueAucunCourrier=Aucun courrier trouvé pour
+statistiqueAucunCourrierAnne=Aucun courrier trouvé.
+ceJour=le jour :
+ceMois=le mois :
+cetteAnnees=Année :
+#------------------------------------------Ines 03/09/2014-----------------------------------------
+RafListeLabel=Rafraichir Liste
+EnvoiFaxLabel=Envoi Fax
+listemailFaxLabel=Liste des mails et des faxes reçus
+transfoemerencourrier=Transformer en courruier
+DetailsFaxLabel=Détails Fax
+ReferenceFax=Reference Fax :
+ImportanceLabel=Importance
+HauteLabel=Haute
+MoyenneLabel=Moyenne
+FaibleLabel=Faible
+TransfertMailLabel=Transférer Mail
+DetailsMailLabel=Détails Mail
+NumMailLabel=Numero mail :
+AttachmentsLabel=Attachments :
+#----------------------------------Ines 08/09/2014--------------------------------------
+Datedereception=Date Réception courrier
+ObjetLabel=Objet
+DestinataireLabel=Destinataire
+expediteurLabel=Nom expéditeur
+expediteurMail=Mail expéditeur
+RefMailLabel=Ref.Mail
+#----------------------------------Ines 09/09/2014--------------------------------------
+toutCourrier=Tous les courriers
+AutreLabel=Autre
+#----------------------------------Ines 10/09/2014-----------------------------------
+Ajoutnature=Ajout nature
+Consultationnature=Consultation nature
+Modificationnature=Modification nature
+Consultationdegrdeconfidentialit=Consultation degré de confidentialité
+AjoutdegresConf=Ajout degré de confidentialité
+Ajoutannotation=Ajout annotation
+Consultationannotation=Consultation annotation
+Consultationtypetransaction= Consultation type transaction
+Ajouttypetransaction=Ajout type transaction
+Ajoutetat=Ajout etat
+Ajouttransmission=Ajout transmission
+Consultationtransmission=Consultation transmission
+Consultationvariable= Consultation variable
+Ajoutvariable=Ajout variable
+Ajoutarmoire=Ajout armoire
+Consultationarmoire=Modification armoire
+Ajoutboitedarchive=Ajout Boite d'Archive
+Consultationboitedarchive=Modification Boite d'Archive
+Modificationevenement=Modification evenement
+
+Consultationetat=Consultation état
+Detailsevenement=Details evenement
+Ajoutevenement=Ajout evenement
+Modificationgroupedecontact=Modification groupe de contact
+Ajoutgroupedecontact=Ajout groupe de contact
+Consultationgroupedecontact=Consultation groupe de contact
+ModificationsujetdeMailing=Modification sujet de Mailing
+ConsultationsujetdeMailing=Consultation sujet de Mailing
+AjoutsujetdeMailing =Ajout sujet de Mailing 
+MailsLabel=Mails
+FaxLabel=Fax
+#----------------------Ines 3 ------------------
+Ajoutdegrdurgence=Ajout degrès d'urgence
+Consultationdegredurgence=Consultation degrés d'urgence
+#-----------------------Khaled 11/09/2014 TreeBean------------------------------
+msgAvertMaxUnExpediteur=vous ne pouvez pas selectionnez plus qu'un expediteur
+msgAvertMaxUnDestinataire=vous ne pouvez pas selectionnez plus qu'un destinataire
+Detailevenement=Detail evenement
+Listedesnotifications=Liste des notifications
+EtatLabel=Etat
+#-----------------------------Ines 12/09/2014-----------------------------
+PasDeDossier= Pas de dossiers 
+PartageDossier=Partage Dossier
+InformationDossier=Information Dossier
+notifMailingContactSuccess=Tous les contacts sont notifié
+#-----------------------------------2014-10-20-------------------------------
+inteditSupressionDossier=Vous ne pourvez pas supprimer ce dossier
+#--------------------------2014-10-29-----------------------------
+mesCourriers=Mes Courriers
+courrierMonUnite=C. de mon unité
+courrierMesSubordonne=C. de mes subordonnées
+courrierMaSecretaire=C. de ma secretaire
+courrierMesSousUnite=C. de mes sous unités
+mesDossiers=Mes Dossiers
+dossierMonUnite=dossiers de mon unité
+dossierMesSubordonne=dossiers de mes subordonnées
+dossierMaSecretaire=dossiers de ma secretaire
+dossierMesSousUnite=dossiers de mes sous unités
+etatValidationWF=Etat
+accepter=Accepté
+refuser=Refusé
+enCours=En cours
+#-------------------------------2014-11-10------------------------
+erreurModificationCourrier=La Modification n'a pas été efféctué
+validatorCin=CIN ne peut pas contenir que des chiffres de 0 à 9
+#------------------------------2014-11-26------------------------------------
+Changer=Changer
+Declasser=Déclasser
+changerClassementCourrierSucces=Le changement de classement de courrier a été éfféctué avec succes
+changerClassementCourrierErreur=Echec de L'opération de changement de classement de courrier
+declassementCourrierSucces=le déclassement de ce courrier a été éfféctué avec succès
+declassementCourrierErreur=Echec de l'operation de déclassement de ce courrier
+declassementConfirmation=Etes vous sure de déclasser ce courrier ?
+confirmSynchroniseLdapList=Voulez vous synchroniser la liste des utilisateurs du systeme avec la base de données, cette opération peut prendre quelques minutes ?
+synchroniser=Synchroniser
+#------------------------------2014-12-04--------FAHD----------------------------
+confirmUpdateEtDeconnecter=La mise à jour a été effectuée avec succès. Ce changement nécessite l'authentification
+erreurEnvoieMailing=La liste de contact est vide
+#---------------------------------2014-12-10-------------------------------------
+ppAffectation=Cet contact a été affecté a des groupes de mailing ou a été déjà concerné par des courriers. Veuillez les désaffecter avant.
+confirmRestauration=Cette opération supprimera toutes les sauvegardes que vous avez effectué apres la date choisie ! Voulez vous continuer ?
+Nessecit_Rep= Nécessite une réponse
+Nessecit_Rep_Delais_Dépasse= Nécessite une réponse avec délai dépassé
+Repondu_Ds_Delai=Répondu dans les délais
+Repondu_Pas_Ds_Delai=Répondu après les délais
+Nessecit_Pas_Rep= Ne nécessite pas une réponse
+#-----------------------Le 17/12/2014----------------
+descriptionAr=Description en Arabe
+#-------------------------Le 18/12/2014-------------
+errorDroitConnexion = * Utilisateur n est pas affecté à une unité il ne peut pas se connecter à l application.
+confirmDeleteGroupeMailing=Ce groupe contact Contient des Sujet Mailing.Etes-vous sûr de vouloir supprimer cet enregistrement ?
+requiredMessageDestinataireAjoutCourrier=Vous n'avez pas selectionner un destinataire pour ce courrier
+#------------------25/12/2014------------
+confirmAffectation2=Contact(s) desaffecté(s) avec succès.
+#----------------------29/12/2014------------
+labelEcheance=Echéance
+cantModifyCourrierWorkflow=Ce courrier suit un workflow, Vous ne pouvez pas le modifier
+MessageSuppCourrier=Ce courrier est déjà envoyé, vous ne pouvez pas le supprimer.
+#----------------------2015/12/02------------
+cantDeleteBoiteArchive=Cette boite d'archive contient des courriers ,Vous ne pouvez pas la supprimer avant de les désaffectés
+CourrierDestReel=Destinataire Final :
+notAutorizedToConnect=Vous n'étes pas autorisé de connecté
+numeroOrdreTransaction=Ordre
+accuserDoc=Accusé de réception
+responseResponsible=Responsable Réponse
+responseResponsibleMustBeSelected=Veuillez selectionner le reponsable de reponse a ce courrier avant de l'executer
+expediteurReelListeCourrier=Expéditeur
+courrierAjoutNatureWorkFlowSelected=attention \: vous avez d\u00E9j\u00E0 saisi un destinataire. En changeons le courrier \u00E0 cette nature, le destinataire sera automatiquement chang\u00E9. Voulez vous continuer ?
+statistiqueDegreeUrgence=Pourcentage des courriers par degr\u00E9e d'urgence  
+statistiqueAnnotation=Pourcentage des courriers par annotation
+statistiqueOrganisme=Pourcentage des courriers par organisme
+statistiqueStructure=Pourcentage des courriers par structure
+#--------------------------2015-02-09---------------------------
+statistiqueOrganismeExpediteur=Selon organisme expéditeur (Arrivé)
+statistiqueOrganismeDestinataire=Selon organisme destinataire (Départ)
+statistiqueOrganismeLibelle=Organisme
+statistiqueStructureExpediteur=Selon structure expéditeur (Départ)
+statistiqueStructureDestinataire=Selon structure destinataire (Arrivé)
+statistiqueStructureLibelle=Structure
+statistiquePourcentage=Pourcentage
+#---------------SuiviCourrier----------
+dureeTotalTraitement=Durée Total de traitement
+jour=Jour
+compostage=Compostage
+statistiqueTooLong=Le sch\u00E9ma devient illisible plus la dur\u00E9e est longue. Etes-vous s\u00FBr?
+statistiqueModeReceptionPeriode=Statistique des courriers par mode de r\u00E9ception de la periode
+statistiqueDelaiReponsePeriode=Statistique des d\u00E9lais de r\u00E9ponse en fonction de nombre des jours de la periode
+statistiqueReponseDepartementPeriode=Statistique des courriers r\u00E9pondus par d\u00E9partement de la periode
+statistiqueUrgencePeriode=Statistique des courriers par degr\u00E9 d\\'urgence de la periode
+statistiqueAnnotationPeriode=Statistique des courriers par annotation de la periode
+oldRef=R\u00E9f exp\u00E9diteur
+OldRef=Ancienne R\u00E9f
+rechRefCourrier = R\u00E9f\u00E9rence courrier \: 
+courrierRecherMultiTousLabelInternes = Internes
+infA = <= à
+courrierResetExpDest=Le changement de type de courrier (arrivé/départ) entrainera la réinitialisation des champs Expéditeur et Destinataire. Voulez vous continuer ?
+courrierReponseDocument=L'ajout de la r\u00E9ponse a \u00E9t\u00E9 effectu avec succ\u00E8s. Voulez-vous ajouter des documents?
+requiredMessageExpediteurAjoutCourrier=Vous n'avez pas selectionn\u00E9 un expediteur pour ce courrier
+courrierRecherMultiAnneeLabel=Ann\u00E9e
+###################################################Marqueur#######################################################
+descriptionMarqueur1=Cette interface vous permet de personnaliser le code unique pour chaque courrier.
+descriptionMarqueur2=Vous pouvez sélectionner un ou plusieurs paramètres depuis la colonne « Variables ».  Un exemple de valeur automatique que le système pourra utiliser pour chacune des variables est disponible dans la colonne « Valeur Test » correspondante.
+exempleMarqueur1=A titre d\u2019exemple, construisez \u00E0 l\u2019aide des boutons de la colonne \u00AB Variables \u00BB une chaine comme la suivante \:
+exempleMarqueur2=[Annee][Mois]/[SRV]/[Sens]/[ID] pour avoir le code unique de courrier suivant 201605/DGEN/D/2454
+variable=Variables
+valeurTest=Valeur Test
+valId=2454
+valService=DGEN
+valSens=D
+btnAnnee=[Année]
+btnMois=[Mois]
+btnSens=[Sens]
+btnService=[SRV]
+btnId=[ID]
+descVariable=Description
+parametrageCode=Paramétrage Code Unique Courrier
+descID=Identifiant unique du courrier attribué par le système.
+descSRV=Unit\u00E9 \u00E0 laquelle est affect\u00E9 l\u2019exp\u00E9diteur du courrier.
+descSENS=Sens du courrier (Départ / Arrivée).
+descMois=Mois en cours du système.
+descAnnee=Année en cours du système.
+btnSaveCode=Enregistrer
+btnModifCode=Modifier
+
+
+###################################################Courrier Cloturer ##################################################
+
+cantModifyCourrierCloturer=Ce courrier est Clôturé. Vous ne pouvez pas le modifier.
+etatCloturer=Courriers Clôturés
+etatTransfere=Courriers Transférés
+etatCopier=Courriers Copiés
+reception=Information Accus\u00E9 de R\u00E9ception 
+codeUnique=Code Unique
+testerCode=Tester le code param\u00E9tr\u00E9
+################################################ordre###########
+ordre=Ordre
+labelMessage=Pour changer l'ordre d'apparition des Documents de ce Courrier, il faut changer les valeurs disponibles dans la colonne "Ordre". Cliquez ensuite sur le bouton suivant :
+bouttonOrdre= Enregistrer l'Ordre des documents
+
+cantModifyCourrier=Ce courrier est déja consulté par le detinataire, vous ne pouvez pas le modifier.
+cantDelete=Ce courrier est déja consulter par le detinataire, Vous ne pouvez pas le supprimer
+changerDoc=Changer Document
+notChangerDoc=Garder le meme document
+CombinaisonIncorrecte=Combinaison Incorrecte
+Contactadmin=Le syst\u00E8me a rencontr\u00E9 un Probl\u00E8me. Merci de contacter l\u2019administrateur.
+#-----------------------------------------------------------------------------------------
+# *** Catégorie Nature ****************************************************************************
+labelAjoutNatureCategorie=Ajouter Cat\u00E9gorie Nature 
+natureCategorieGestionLibelle=Libellé
+natureCategorieGestionDescription=Description
+natureCategorieLibelleAr=Libellé en Arabe
+natureCategorieDescriptionAr=Description en Arabe
+listnaturecategoriefacet=Liste des Catégories de Nature
+gestionGBO0GestionCategorieNature=Gestion Catégorie Nature
+ajoutcategorienature=Ajout Catégorie Nature
+consultationcategorienature=Modifier Catégorie Nature
+consultcategoriefacet = Informations sur le catégorie
+confirmGetDeleteCategorie = Ce cat\u00E9gorie contient une/plusieurs nature(s).\r\nVeuillez supprimer ces derni\u00E8res avant \!.
+CourrierCategorie=Catégorie
+
+### KHA Ajouter le 01-03-2019 ##################################################
+###################################################Courrier Reception Physique##################################################
+avecReceptionPhysique=Réception Physique
+receptionPhysique=Information R\u00E9ception Physique
+
+listNatureLibelle=Liste Des Natures
+consultnaturefacet=Détails Nature
+listChampsAffectes=Liste des Champs Affectés
+listChampsNonAffectes=Liste des Champs à Affecter
+champsLabel=Champs
+typeChampsLabel=Type Champs
+libelleLabel=Libellé
+ordreLabel=Ordre
+obligatoireLabel=Obligatoire
+numCheq=N° Chèque
+beneficiaire=Bénéficiaire
+dateCheq=Date Chèque
+numBordereau=N°Bordereau
+banqueLibelle=Banque
+barreCheque=Barré
+montant=Montant
+bordereauDeTransmission=Bordereau de Transmission
+BanqueConcerneeParRetrait=Banque Concernée
+DateCheque=Date Chèque
+numPoliceReclamation=N\u00B0 Police d'abonnement 
+adresseMailReclamation=E-mail
+adresseReclamation=Adresse
+numTeleReclamation=N° Tel
+dateReclamation=Date R\u00E9clamation
+matriculeAgentRH=Matricule Agent
+numAppelOffre=N° Appel d'Offres
+objetAppelOfrre=Objet Appel d'Offres
+dateLimitteReception=Date Limitte Réception
+numValiseLabel=N° Valise
+prenomUtilisateurAr=Prénom en Arabe
+nomUtilisateurAr=Nom en Arabe
+passageParBoLabel=Passage par Bureau Ordre
+passageParBoOui=Oui
+detailsValiseLabel=Détails Valise
+dateValiseLabel=Date Valise
+etatValiseLabel=Etat Valise
+employe=Employe
+employeAR=Employe en Arabe
+#================================================
+# Gestion Unité
+#================================================
+listUnites= Liste des Structures
+nomUniteAr=Nom Structure en Arabe
+abreviationUnite=Abréviation
+abreviationUniteAr=Abréviation en Arabe
+parametresMail=Paramètres e-Mail
+uniteMailHost=Adresse e-Mail
+uniteMailUser=Utilisateur
+uniteMailPass=Mot de Passe
+parametreFax=Paramètres Fax
+uniteFaxHost=N° fax
+uniteFaxUser=Utilisateur
+gestionUnite=Gestion Structure
+erreurUpdateUnite=Erreur de mise à jour de la Structure.
+admnistarationNature=Admnistaration Nature
+passageParBoNon=Non
+actuelle= affectées
+aAffecter=à affecter
+modifees=Modifées
+############################## Rapport Courrier KHA ###################################
+noteTransmission=Exporter Note de Transmission
+etatsuivireclamations=Etat de suivi des r\u00E9clamations
+listecourriersRapideposte=Liste des courriers Rapide poste et lettre recommand\u00E9
+bordereauCourrierArriveeExterne=Bordereau du courrier arriv\u00E9e externe
+etatCheques=Etat des ch\u00E8ques
+pdfExportDechargeAR=\ Exporter D\u00E9charge Courrier Arabe sous format PDF
+######### Statistique ##############
+nombreCourriersParUtilisateur=Nombre de courriers Par Utilisateurs
+nombreCourriersParStructureParNature=Nombre de courriers Par Structures Et Nature
+statistiqueUtilisareurLibelle= Utilisateur
+statistiqueNbreCourrierParUtilisateur= Nombre des Courriers
+deuxpointsLabel= \:
+courrierStatStructureTousLabel=Tous les Structures
+courrierStatTopVingtLabel=Top 20
+statistiqueNbreCourriersPourcentage=Nombre des Courriers
+courrierStatSupVingtLabel=>=20%
+######### KHA : rapide poste/lettre recommande ##############
+refPosteRapide=R\u00E9f\u00E9rence Rapide Poste
+refLettreRecommandee=R\u00E9f\u00E9rence Lettre Recommand\u00E9
+pourcentageLabel=%
+tempsMoyenReponseDepartementNature=Temps moyen de réponse par département et nature
+categorieNature=Cat\u00E9gorie Nature 
+gestionValidationMultiple= Gestion Validité Multiple
+natureValide = Validation hi\u00E9rarchique
+listeAOConsultationLabel=Liste Appels d'Offres / Consultations
+aoConsultationTypeLabel=Type
+dateReceptionCourrier= Date Réception
+numero=Numéro
+dateReceptionOffre= Date et Heure limite de la réception des offres
+labelAjoutaoConsultation=Ajouter Appel d'Offres/Consultation
+labelModifaoConsultation=Modifier Appel d'Offres/Consultation
+typeLabel=Type
+ao=Appel d'Offres
+consultation=Consultation
+aoConsultation=Consultation
+numeroLabel=Numero AO/Consultation
+dateProlongation=Date et Heure prolongation délais
+dateSeanceCommission= Date et Heure de fin de séance commission
+aoconsultation= Appels d'Offres/Consultation
+nombreCourriers=Nombre de courriers
+destinataire=Destinataire
+msgerreur=Cet Appel d'Offres / Consultation contient des courriers
+listedesvalises=Liste des Valises
+labelAjoutValise= Ajouter Valise
+dateValise=Date Valise
+numeroValise= Numéro Valise
+listeCourriersAffectes= Liste Courriers Affectés
+detailsValise=Détails Valise
+etatValise=Etat Valise
+nature=Nature
+listeCourriersAffectesLabel=Liste Courriers Affectés
+listeCourrierNonAffectesLabel=Liste Courriers Non Affectés
+
+nomEmploye=Nom Employe
+nomEmployeAR=Nom Employe Arab
+listEmployeAvecCompte=Liste Employe avec Compte
+listEmployeSansCompte=Liste Employe Sans Compte
+dateReceptionLabel=Date R\u00E9ception 
+commentaireReceptionLabel=Commentaire
+dateCourrierReel=Date Courrier Réel
+borMinistre=Bordereau d'envoie au ministre d'agriculture
+
+listCourriersParAOC=Liste des Offres
+destfinal=Destinataire Final
+numFacture=Num\u00E9ro facture
+dateFacture=Date facture
+numValise=Num\u00E9ro Valise
+matAgent=Matricule agent 
+listeCourriersPointes=Liste des Courriers Point\u00E9s
+labelPointer=Pointer
+consulttransfacet=D\u00E9tails Transmission
+confirmPointage=Courrier Point\u00E9 avec succ\u00E8s
+bouttonPointer=Pointer
+messageproblemexistanceStructure=La structure à laquelle il est affecté n'existe pas dans la liste des Structures
+messageproblemeAffectationStructure=L'employé n'est affecté à aucune Structure
+messageproblemeStructureLDAP=La Sructure à la quelle l'employé est affecté n'est pas ajoutée à l'organigramme
+nombreOffres=Nombre des Offres
+numeroAOC=N\u00B0 de l\u2019appel d\u2019offre / consultation
+objetAOC=Objet de l\u2019appel d\u2019offre / consultation
+dateReceptionOff= Date limite de la réception des offres
+rapport1=Etat d'Appels d'Offres / Consultations re\u00E7us avant ou lors commision
+rapport2=Etat Appels d'Offres  / Consultations  re\u00E7us apr\u00E8s ouverture comission
+rapport3=Etat d'Appels d'Offres  / Consultations  re\u00E7us dans delais
+rapport4=Etat d'Appels d'Offres re\u00E7u sans r\u00E9f\u00E9rences
+transmetreValise=Voulez vous vraiment transmètre la valise ? Si la Valise est transmise, vous ne pouvez plus ajouter d'autres Courriers.
+confirmationTransmissionValise=Valise est transmise au detinataire
+msgFinPointageValise=Vous avez pointé tous les Courriers de la Valise. En Validant, l'état de la valise devient validé et vous ne pouvez plus annuler le pointage d'un Courrier.
+receptionValise=Réception Valise
+dateReceptionValise=Date Réception
+askReceptionValise=voulez-vous confirmer la r\u00E9ception de la Valise ? Cette action entraine le changement de l'\u00E9tat de la Valise.  
+confirmationReceptionValise=La valise est bien réceptionnée
+affectationCourrierValise=Affectation Courrier valise
+pointageValise=Pointage Valise
+transmettreValise=Transmettre Valise
+nomDeposant=Nom et pr\u00E9nom du d\u00E9posant 
+cinDeposant=CIN du d\u00E9posant 
+nbrPages=Nombre de pages
+heureArrivee=Heure d\u2019arriv\u00E9e
+heureDepart=Heure d\u00E9part
+refPostale=R\u00E9f\u00E9rence postale
+nomMedia=Nom m\u00E9dia
+datePub=Date publication
+msgAskPointageValise=Voulez-vous valider le pointage de la Valise ?
+datePointage=Date pointage
+dateTransmissionValise=Date Transmission
+msgBOSansMembre=Vous ne pouvez pas transférer ce courrier car existe des destinataires qui n'ont pas des membres dans leur bureau d'ordre pour le réceptionner. Veuillez contacter votre administrateur.
+msgResptionPhysiqueNonFaite=Veuillez confirmer la r\u00E9ception physique du Courrier avant de le transf\u00E9rer. 
+erreurDateSaisie = La date courrier Réelle doit être inférieure à la date réception courrier.
+courrierEffectueAvecSucce= R\u00E9ception enregistr\u00E9e avec succ\u00E8s 
+messageDate=dddddddddddddddd
+lienDocument=Lien
+etatChequesImpayes=Etat des ch\u00E8ques impay\u00E9s
+etatChequesAgent=Etat des ch\u00E8ques agent
+documentNombreCopie = Nombre de copie
+erreurFormatMontant= Le montant doit être numérique
+erreurMontantZero=* Tous les montants doivent être supérieur à 0
+erreurUploadFichier=L'extension du fichier non permise. Les extensions permises sont : pdf,png,jpg,jpeg,gif,xls,xlsx,doc,docx.
+btnBoc=[BOC]
+descBoc=L'acronyme de bureau d'ordre qui a ajouté ou exécuté le courrier.
+valBOC=BOCT
+courrierRefOriginaleLabel=Référence Originale :
+uniteBocGestionNoMember=Pas de membres affectés
+boRattachement=BO de rattachement
+uniteRattachementObligatoire=Structure de rattachement est un champ obligatoire
+annotationsPour=Annotations pour 
+msgPointageCourrierNonFaite=Veuillez confirmer le pointage du Courrier avant de l'ex\u00E9cuter . 
+requiredMessageAOCAjoutCourrier=Vous n'avez pas selectionner un Appel d'offre ou une Consultation pour ce courrier
+requiredMessageAOC=Appel d'offre/Consultation
+labelAjoutBO=Ajouter Bureau d\u2019Ordre
+####################################################################
+niv_01_nom=Boite Archive
+niv_02_nom=Armoire
+actionAjout=Ajout
+actionModification=Modifier
+actionSuppression=Suppression
+actionConsultation=Consultation
+actionList=Liste des
+nombre=Nombre
+niv_01_DateCreation=Date création
+#####################################################################
+aunomdelastructure = Au nom de la Structure
+infosSpecifiques=Informations Spécifiques
+erreurNumCheq=* Tous les numéros de chèques doivent être des nombres
+initialize= Pour validator
+numCin = * Numéro CIN ne peut contenir que des chiffres
+nombrePage = * Nombre de pages ne peut contenir que des chiffres
+csvExportContact=Exporter Liste Contacts sous format CSV
+csvExportCourrier=Exporter Liste courriers sous format CSV

@@ -1,0 +1,220 @@
+package xtensus.beans.common.GBO;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.faces.context.FacesContext;
+
+import org.ajax4jsf.model.DataVisitor;
+import org.ajax4jsf.model.Range;
+import org.ajax4jsf.model.SequenceRange;
+import org.ajax4jsf.model.SerializableDataModel;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Nature;
+
+
+
+public abstract class TestPaginatingDataModel<T,U> extends SerializableDataModel{
+	
+	    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2187370008561003132L;
+
+		protected U currentPk;
+	    
+	    protected int rowIndex;
+
+	    protected boolean descending = true;
+
+	    protected String sortField = null;
+	    
+	    protected HashMap<String,Object> filterMap = new HashMap<String,Object>();
+
+	    protected boolean detached = false;
+
+	    protected List<U> wrappedKeys = new ArrayList<U>();
+
+	    protected Integer rowCount;
+
+	    protected Map<U, T> wrappedData = new HashMap<U, T>();
+
+	    public TestPaginatingDataModel()  {
+	                        System.out.println("constructor TestPaginatingDataModel");
+	    }
+	    
+//		@Override
+//		public void modify(List<FilterField> arg0, List<SortField2> arg1) {
+//			System.out.println("-----------modify");
+//			
+//		}
+
+		@Override
+		public void update() {
+			System.out.println("-----------update");
+			detached = false;
+		}
+
+		@Override
+		public Object getRowKey() {
+			System.out.println("-----------getRowKey");
+			return currentPk;
+		}
+
+		@Override
+		public void setRowKey(Object arg0) {
+			System.out.println("-----------setRowKey");
+			//rowIndex = (Integer) arg0;
+			// ** KS
+			if(arg0 == null){
+				rowIndex = 0;
+			}else{
+				rowIndex = (Integer) arg0;
+			}
+			// ** KS
+		}
+
+		@Override
+		public void walk(FacesContext context, DataVisitor visitor, Range range,
+				Object argument) throws IOException {
+			System.out.println("-----------walk");
+			final int firstRow = ((SequenceRange) range).getFirstRow();
+	        final int numberOfRows = ((SequenceRange) range).getRows();
+	        if (detached) {
+	            for (final U key : wrappedKeys) {
+	                setRowKey(key);
+	                visitor.process(context, key, argument);
+	            }
+	        } else { // if not serialized, than we request data from data provider
+	            wrappedKeys = new ArrayList<U>();
+	            for (final T object : findObjects(firstRow, numberOfRows, sortField, filterMap, descending)) {
+	                wrappedKeys.add(getId(object));
+	                wrappedData.put(getId(object), object);
+	                visitor.process(context, getId(object), argument);
+	            }
+	        }
+			
+		}
+
+		@Override
+		public int getRowCount() {
+			System.out.println("-----------getRowCount");
+			  if (rowCount == null) {
+		            rowCount = getNumRecords(filterMap).intValue();
+		        }
+		        return rowCount;
+		}
+
+		@Override
+		public Object getRowData() {
+			System.out.println("------------getRowData");
+			 if (currentPk == null) {
+		            return null;
+		        }
+		        T object = wrappedData.get(currentPk);
+		        if (object == null) {
+		            object = getObjectById(currentPk);
+		            wrappedData.put(currentPk, object);
+		        }
+		        return object;
+		}
+
+		@Override
+		public int getRowIndex() {
+			System.out.println("------------getRowIndex");
+			return rowIndex;
+		}
+
+		@Override
+		public Object getWrappedData() {
+			System.out.println("------------getWrappedData");
+			 return wrappedData;
+		}
+
+		@Override
+		public boolean isRowAvailable() {
+			System.out.println("------------isRowAvailable");
+			if (currentPk == null) {
+	            return false;
+	        }
+	        if (wrappedKeys.contains(currentPk)) {
+	            return true;
+	        }
+	        if (wrappedData.entrySet().contains(currentPk)) {
+	            return true;
+	        }
+	        try {
+	            if (getObjectById(currentPk) != null) {
+	                return true;
+	            }
+	        } catch (final Exception e) {
+	        	e.printStackTrace();
+	        }
+	        return false;
+		}
+
+		@Override
+		public void setRowIndex(int arg0) {
+			System.out.println("------------setRowIndex");
+			rowIndex = arg0;
+			
+		}
+
+		@Override
+		public void setWrappedData(Object arg0) {
+			System.out.println("------------setWrappedData");
+			  throw new UnsupportedOperationException();
+			
+		}
+	    
+	    
+	    
+		/**
+	     * @param object
+	     * 
+	     * @return U
+	     */
+	    public abstract U getId(T object);
+
+	    /**
+	     * 
+	     * @param firstRow
+	     * 
+	     * @param numberOfRows
+	     * 
+	     * @param sortField
+	     * 
+	     * @param descending
+	     * 
+	     * @return List<T>
+	     */
+	    public abstract List<T> findObjects(int firstRow, int numberOfRows, String sortField, HashMap<String,Object> filterMap, boolean descending);
+
+	    /**
+	     * 
+	     * @param id
+	     * 
+	     * @return T
+	     */
+	    public abstract T getObjectById(U id);
+
+	    /**
+	     * 
+	     * @return Long
+	     */
+	    public abstract Long getNumRecords(HashMap<String,Object> filterMap);
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+}

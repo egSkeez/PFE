@@ -1,0 +1,23 @@
+#mail.smtp.host=172.16.31.71
+#mail.session.user=boc_test@sonede.com.tn
+#mail.session.pass=Sonede2019*
+#mail.smtp.auth=true
+#mail.smtp.port=25
+#mail.smtp.starttls.enable = true
+#mail.smtp.starttls.required = true
+#mail.smtp.ssl.trust = *
+#mailFrom=boc_test@sonede.com.tn
+#mail.smtp.connectiontimeout=2000
+
+mail.smtp.host=mail.xtensus.com
+mail.session.user=gbo.mail@xtensus.net
+mail.session.pass=j^3vf0G2
+#mail.smtp.socketFactory.port=465
+#mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+mail.smtp.auth=true
+mail.smtp.port=25
+mailFrom=gbo.mail@xtensus.net
+mail.smtp.connectiontimeout=2000
+#smtp.gmail.com
+#AGH652$$GDF
+#smtp.gmail.com

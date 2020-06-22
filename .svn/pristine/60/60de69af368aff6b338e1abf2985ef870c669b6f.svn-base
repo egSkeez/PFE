@@ -1,0 +1,40 @@
+package xtensus.beans.common.GBO;
+
+import java.io.Serializable;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.services.ApplicationManager;
+
+
+
+@Component
+@Scope("session")
+public class TestNatureExample implements Serializable{
+	
+	
+	@Autowired
+	TestNaturePaginatingDataModel test ;
+
+	
+	@Autowired
+	public TestNatureExample(@Qualifier("testNaturePaginatingDataModel") TestNaturePaginatingDataModel test){
+		this.test = test;
+	}
+	
+	
+	
+	
+	public TestNaturePaginatingDataModel getTest() {
+		return test;
+	}
+
+	public void setTest(TestNaturePaginatingDataModel test) {
+		this.test = test;
+	}
+	
+
+}

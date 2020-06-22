@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<documents rootPath="/GBO" byHomeFolder="no"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="config.xsd">
+
+
+	<document name="doc" mimetype="application/pdf">
+		<parameters>
+			<parameter name="courrier" />
+			<parameter name="document" />
+		</parameters>
+		<documentname separator="_">
+			<nameElement parameterRef="courrier" paramLenght="3">Courrier</nameElement>
+			<nameElement parameterRef="document" paramLenght="3">Doc</nameElement>
+		</documentname>
+		<parentpath>
+			<pathElement parameterRef="courrier" paramLenght="3">Courrier</pathElement>
+			<pathElement parameterRef="document" paramLenght="3">Doc</pathElement>
+		</parentpath>
+		<backuppath>
+			<backupElement parameterRef="courrier" paramLenght="3">Courrier</backupElement>
+			<backupElement parameterRef="document" paramLenght="3">Doc</backupElement>
+			<folder name="backups" />
+		</backuppath>
+	</document>
+	<document name="docPhysique" mimetype="application/pdf">
+		<parameters>
+			<parameter name="transaction" />
+			<parameter name="document" />
+		</parameters>
+		<documentname separator="_">
+			<nameElement parameterRef="transaction" paramLenght="3">Transaction</nameElement>
+			<nameElement parameterRef="document" paramLenght="3">Doc</nameElement>
+		</documentname>
+		<parentpath>
+			<pathElement parameterRef="transaction" paramLenght="3">Transaction</pathElement>
+			<pathElement parameterRef="document" paramLenght="3">Doc</pathElement>
+		</parentpath>
+		<backuppath>
+			<backupElement parameterRef="transaction" paramLenght="3">Transaction</backupElement>
+			<backupElement parameterRef="document" paramLenght="3">Doc</backupElement>
+			<folder name="backups" />
+		</backuppath>
+	</document>
+
+</documents>

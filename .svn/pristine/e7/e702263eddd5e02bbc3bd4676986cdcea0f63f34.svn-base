@@ -1,0 +1,453 @@
+package xtensus.TEST;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.math.BigInteger;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+
+import javax.swing.JFileChooser;
+
+import org.apache.commons.codec.binary.Hex;
+import org.springframework.core.io.*;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.PageSize;
+
+public class Test {
+	 public static void printBytes(byte[] array, String name) {
+	      for (int k = 0; k < array.length; k++) {
+	         System.out.println(name + "[" + k + "] = " + "0x" +
+	            UnicodeFormatter.byteToHex(array[k]));
+	      }
+	   }
+	
+	// janvier 2015
+	public static void main(String[] args) {
+		  // Ask user to enter an Hexadecimal number in Console
+        System.out.println("Please enter Hexadecimal number : ");
+        Scanner scanner = new Scanner(System.in);
+     
+        String hexadecimal = scanner.next();
+     
+        //Converting Hexa decimal number to Decimal in Java
+        int decimal = Integer.parseInt(hexadecimal, 16);
+     
+        System.out.println("Converted Decimal number is : " + decimal);
+   
+        //Converting hexa decimal number to binary in Java      
+        String binary = Integer.toBinaryString(decimal);
+        System.out.printf("Hexadecimal to Binary conversion of %s is %s %n", hexadecimal, binary );
+     
+        // Converting Hex String to Octal in Java
+        String octal = Integer.toOctalString(decimal);
+        System.out.printf("Hexadecimal to Octal conversion of %s is %s %n", hexadecimal, octal );
+		
+//		String s ="Bonjour,\r\n\r\nbonne anné";
+//		s = s.replaceAll("\r\n", "<br/>");
+//		System.out.println(s);
+//		try {
+//			String titre = "é"; 
+//			 byte[] utf8Bytes = titre.getBytes("UTF8");
+//			 String resultUtf8 = new String(utf8Bytes, "UTF8");
+//			 System.out.println(resultUtf8);
+//			 
+//			 
+//			 byte[] isoBytes = titre.getBytes("ISO-8859-1");
+//			 String resultIso = new String(utf8Bytes, "ISO-8859-1");
+//			 System.out.println(resultIso);
+//			String original = new String("A" + "\u00ea" + "\u00f1" + "\u00fc" + "C");
+//			String original = new String("é");
+//			System.out.println(original);
+////			try {
+//			    byte[] utf8Bytes = original.getBytes("UTF8");
+//			    byte[] defaultBytes = original.getBytes();
+//			    String roundTrip = new String(utf8Bytes, "UTF8");
+//			    
+//			    int intST = Integer.parseInt(roundTrip, 36);
+//			    String res = Integer.toOctalString(intST);
+//			    System.out.println(res);
+//			    System.out.println("roundTrip = " + roundTrip);
+//			    System.out.println();
+//			    printBytes(utf8Bytes, "utf8Bytes");
+//			    System.out.println();
+//			    printBytes(defaultBytes, "defaultBytes");
+//			} 
+//			catch (UnsupportedEncodingException e) {
+//			    e.printStackTrace();
+//			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+//			String s ="é";
+			
+			
+			
+//			Byte b = Byte.decode("1");
+//			System.out.println(b.byteValue());
+//			for (int i = 0; i < s.length(); i++) {
+//				Character c = s.charAt(i);
+//				System.out.println(Character.digit(c, 1));
+//			}
+//			String su = new String(s.getBytes(), "UTF-8");
+//			String suAsc = new String(s.getBytes(), "US-ASCII");
+			
+//			System.out.println(s);
+//			System.out.println(su);
+//			System.out.println(suAsc);
+////			new BigInteger(s.getBytes()).
+//			Integer i =1;
+//			Integer.toOctalString(i);
+//			System.out.println(Integer.toOctalString(i));
+//		
+//		String s = "Abé";
+//		Charset charset = Charset.forName("UTF-8");
+//		   CharsetDecoder decoder = charset.newDecoder();
+//		   CharsetEncoder encoder = charset.newEncoder();
+//			ByteBuffer bbuf = encoder.encode(CharBuffer.wrap("courriéeré"));
+//			String f = new String(bbuf.array());
+//			System.out.println(f);
+//			System.out.println("courriéeré");
+//			CharBuffer cbuf = decoder.decode(bbuf);
+//			String s = cbuf.toString();
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//			e.printStackTrace();
+//		}
+	}
+	
+	/**
+	 * @param args
+	 */
+	
+	//2014
+//	public static void main(String[] args) {
+
+	
+		//        Integer an = 2014;
+//        
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(an, 0, 1);
+//        
+//        System.out.println("Calendar :  " + calendar.getTime());
+		
+		
+//		Calendar calendar = Calendar.getInstance();
+//		System.out.println("9bal kol chay : " + calendar.getTime());
+////     
+////		/*** Cette Semaine****/ 
+//		System.out.println(calendar.getFirstDayOfWeek());
+//		calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+//		System.out.println("Debut " + calendar.getTime());
+//		calendar.add(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek()+4);
+//		System.out.println("Fin "  + calendar.getTime());
+		
+		
+		/*** Ce Mois****/ 
+//		int nbDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+//		System.out.println(calendar.getTime());
+//		System.out.println(nbDay);
+//		calendar.set(Calendar.DAY_OF_MONTH, 1);
+//		System.out.println(calendar.getTime());
+//		calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+//		System.out.println(calendar.getTime());
+//		
+//		calendar.set(Calendar.MONTH, 0);
+//		calendar.set(Calendar.DAY_OF_MONTH, 1);
+//		System.out.println(calendar.getTime());
+		
+		
+		
+		
+		
+		
+		
+		
+//		
+//		System.out.println(calendar.getTime());
+//		
+//		calendar.add(Calendar.DATE, -1);
+//		
+//		System.out.println(calendar.getTime());
+		
+//		try {
+//			
+//		
+//		
+//		File file = new File("C:\\workspaceGPR\\GPR_v1.d\\WebContent\\framGraphique\\images\\vehiculeMaintenance.png");
+//		
+//	    FileInputStream b = new FileInputStream(file);
+//		
+//	    byte[] fileContent = new byte[(int)file.length()];
+//	
+//	    b.read(fileContent);
+//	    
+//	    System.out.println("go");
+//	    for (int i = 0; i < fileContent.length; i++) {
+//			System.out.print(fileContent[i]);
+//		}
+//		
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+		
+		
+//		System.out.println("BEGIN");
+//		try {
+//
+//			JFileChooser dialogue = new JFileChooser(new File("."));
+//			PrintWriter sortie;
+//			File fichier;
+//
+//			if (dialogue.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+//				fichier = dialogue.getSelectedFile();
+//				sortie = new PrintWriter(
+//						new FileWriter(fichier.getPath(), true));
+//				sortie.println(args[0]);
+//				sortie.close();
+//			}
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
+		
+//		JFileChooser dialogue = new JFileChooser();
+//		int s = dialogue.showOpenDialog(null);
+		
+		
+		
+//		Timer timer = new Timer();
+//		timer.schedule(new TimerTask() {
+//			
+//			@Override
+//			public void run() {
+//				System.out.println("Run me ...");
+//			}
+//		}, 0, 2000);
+//		
+		
+	    //LOCALE JSF
+//		System.out.println(Locale.getAvailableLocales());
+//		Locale  l = new Locale("arabe");
+//		System.out.println(l.getDisplayName());
+//		for (Locale loc : Locale.getAvailableLocales()) {
+//			System.out.print(loc.getDisplayName() + " * " + loc.getDisplayLanguage() + " _ ");
+//			if(loc.getLanguage().toString().equals("ar")){
+//				System.out.println("YES:");
+//				System.out.print(loc.getDisplayName() + " * " + loc.getDisplayLanguage() + " _ ");
+//				return;
+//			}
+//		}
+		
+		
+		
+//		**A
+//		StringBuilder s = new StringBuilder("<html>Bonjour #p,<p>Vous avez 1 courrier qui necessite une reponse avant le #d.<br/>Réference Courrier : #r <br/>Bonne réception. </p><p>NB: Ce mail est envoyé directement par le systéme. Merci de ne pas y répondre directement. </p></html>");
+//		System.out.println(s);
+//		Map<String,String> m = new HashMap<String,String>();
+//		m.put("#p", "********");
+//		m.put("#d", "--------");
+//		m.put("#r", "@@@@@@@@");
+//		System.out.println(replaceME(m, s));
+//		**A
+		
+		
+//		
+//		ClassLoader cl = ClassLoader.getSystemClassLoader();
+//		 
+//        URL[] urls = ((URLClassLoader)cl).getURLs();
+// 
+//        for(URL url: urls){
+//        	System.out.println(url.getFile());
+//        }
+//        
+//		Resource rsrc = new ClassPathResource("/resources/paramDataBase.properties");
+//	     try {
+//			String s = rsrc.getFile().getAbsolutePath();
+//			System.out.println(s);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+        
+//		SimpleDateFormat  formaterDateHeure = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+//		String dateLog = formaterDateHeure.format(new Date());
+//        
+//        System.out.println(new Date());
+//        System.out.println(dateLog);
+        
+//        Calendar calendar = Calendar.getInstance();
+//		calendar.set(Calendar.HOUR_OF_DAY, 0);
+//		calendar.set(Calendar.MINUTE, 0);
+//		calendar.set(Calendar.SECOND, 0);
+//		calendar.set(Calendar.MILLISECOND, 0);
+//		Date dateDebut = calendar.getTime();
+//
+//
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//
+//        String s = sdf.format(dateDebut);
+//        try {
+//        	
+//        	System.out.println("--" + sdf.parse(s));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+        
+//		dateDebut.setHours(00);
+//		dateDebut.setMinutes(00);
+//		dateDebut.setSeconds(00);
+//        dateDebut.setTime(00);
+//        System.out.println(dateDebut);
+		
+		
+		// Heap Memory 
+		
+//		System.out.println("heap : " + Runtime.getRuntime().totalMemory()); //heap : 16252928
+//		try {
+//			
+//		Calendar cal = Calendar.getInstance();
+//		System.out.println(cal.getTime());
+//		SimpleDateFormat formatter = new SimpleDateFormat("d MMM yyyy H:m:s", Locale.ENGLISH);
+//		String dateInString = "17 July 2013 11:22:33";
+//		Date date = formatter.parse(dateInString);
+//		System.out.println("date : " + date);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.setTime(new Date());
+//		calendar.set(Calendar.HOUR_OF_DAY, 0);
+//		calendar.set(Calendar.MINUTE, 0);
+//		calendar.set(Calendar.SECOND, 0);
+//		calendar.set(Calendar.MILLISECOND, 0);
+//		System.out.println(calendar.getTime());
+		
+		
+		/**  #################------Threading-------################  **/
+//		for (int i = 0; i < 10; i++) {
+//			System.out.print(i);
+//		}
+//		Runnable r = new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				for (int i = 0; i < 100; i++) {
+//					System.out.print("###" + i);
+//				}
+//			}
+//		};
+//		new Thread(r).start();
+//		for (int i = 0; i < 10; i++) {
+//			System.out.print(i);
+//		}
+		
+		
+		
+//		Date date = new Date();
+//		System.out.println("# " + date.getYear());
+		
+//		Calendar cal = Calendar.getInstance();
+//		System.out.println("# " + cal.get(Calendar.YEAR));
+		
+//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//		String content = "text contenu \n text contenu 2";
+//		String pageDelimiter ="##EOFpage";
+//		baos.write(content.getBytes(), 0,content.getBytes().length);
+//		baos.write(pageDelimiter.getBytes(), baos.size(),pageDelimiter.getBytes().length);
+//		
+//		String pageDelimiterConverted = new String(baos.toByteArray());
+//		System.out.println(pageDelimiterConverted);
+		
+		
+		
+//		try {
+//			String s = "12345678912";
+//			Integer i1 = Integer.valueOf(s, 10);
+//			System.out.println(i1);
+//			Integer i = new Integer(s);
+//			System.out.println(i);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
+		
+//		Document d = new Document();
+//		System.out.println("default : " + d.getPageSize());
+//		Document d2 = new Document(PageSize.A2);
+//		System.out.println("A2 : " + d2.getPageSize());
+//		Document d3 = new Document(PageSize.A3);
+//		System.out.println("A3 : " + d3.getPageSize());
+//		Document d4 = new Document(PageSize.A4);
+//		System.out.println("A4 : " + d4.getPageSize());
+//		Document d4landScape = new Document(PageSize.A4_LANDSCAPE);
+//		System.out.println("A4_LANDSCAPE : " + d4landScape.getPageSize());
+//		
+		
+//	}
+	// **A
+//    public static String replaceME(Map<String,String> ma,StringBuilder matcher){
+//    	Pattern p;
+//    	Matcher m;
+//    	StringBuffer sb = null;
+//    	
+//    	
+//    	
+//    	for (Entry<String, String> entry : ma.entrySet()) {
+//    		 p = Pattern.compile(entry.getKey());
+//        	 m = p.matcher(matcher);
+//        	 sb = new StringBuffer();
+//        	while (m.find()) {
+//    			m.appendReplacement(sb, entry.getValue());
+//    		}
+//        	m.appendTail(sb);
+//        	matcher = new StringBuilder(sb);
+//		}
+//    	
+//    	
+//    	return sb.toString();
+//    }
+	
+	
+	
+	
+	
+	
+}

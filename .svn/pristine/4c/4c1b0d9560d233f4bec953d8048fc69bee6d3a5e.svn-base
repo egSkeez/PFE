@@ -1,0 +1,220 @@
+package xtensus.beans.utils;
+
+import java.util.List;
+
+import xtensus.entity.Entite;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+
+public class RapportExpediteurType extends Entite {
+	private String type;
+	private Expdestexterne expdestexterne;
+	private String societe;
+	private Pp pp;
+	private Pm pm;
+	private boolean sentByEmail;
+	private boolean sentByFax;
+	private boolean sentByPorter;
+	private boolean sentByPostal;
+	private  Integer numero;
+// generale
+	
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	private	String adresse;
+	List<RapportSociete>listeSociete;
+	private boolean showRaisonSociale;
+	private boolean showPersonnePhysique;
+	private boolean showAdresse;
+	private boolean showCodePostale;
+	private boolean showGouvernorat;
+	//
+	
+	//
+
+	public String getSociete() {
+		return societe;
+	}
+
+	public String getAdresse() {
+		return adresse;
+	}
+
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+
+	public void setSociete(String societe) {
+		this.societe = societe;
+	}
+	public Integer getnumero() {
+		return numero;
+	}
+
+	public void  setnumero(Integer numero) {
+		this.numero = numero ;
+	}
+	public Expdestexterne getExpdestexterne() {
+		return expdestexterne;
+	}
+
+	public void setExpdestexterne(Expdestexterne expdestexterne) {
+		this.expdestexterne = expdestexterne;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setPp(Pp pp) {
+		this.pp = pp;
+	}
+
+	public Pp getPp() {
+		return pp;
+	}
+
+	public void setPm(Pm pm) {
+		this.pm = pm;
+	}
+
+	public Pm getPm() {
+		return pm;
+	}
+
+	public void setSentByEmail(boolean sentByEmail) {
+		this.sentByEmail = sentByEmail;
+	}
+
+	public boolean isSentByEmail() {
+		return sentByEmail;
+	}
+
+	public void setSentByFax(boolean sentByFax) {
+		this.sentByFax = sentByFax;
+	}
+
+	public boolean isSentByFax() {
+		return sentByFax;
+	}
+
+	public void setSentByPorter(boolean sentByPorter) {
+		this.sentByPorter = sentByPorter;
+	}
+
+	public boolean isSentByPorter() {
+		return sentByPorter;
+	}
+
+	public void setSentByPostal(boolean sentByPostal) {
+		this.sentByPostal = sentByPostal;
+	}
+
+	public boolean isSentByPostal() {
+		return sentByPostal;
+	}
+	public String getSocieteNom() {
+		return societeNom;
+	}
+
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+
+	public String getSocieteVille() {
+		return societeVille;
+	}
+
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public Integer getNumero() {
+		return numero;
+	}
+
+	public void setNumero(Integer numero) {
+		this.numero = numero;
+	}
+
+	public boolean isShowRaisonSociale() {
+		return showRaisonSociale;
+	}
+
+	public void setShowRaisonSociale(boolean showRaisonSociale) {
+		this.showRaisonSociale = showRaisonSociale;
+	}
+
+	public boolean isShowPersonnePhysique() {
+		return showPersonnePhysique;
+	}
+
+	public void setShowPersonnePhysique(boolean showPersonnePhysique) {
+		this.showPersonnePhysique = showPersonnePhysique;
+	}
+
+	public boolean isShowAdresse() {
+		return showAdresse;
+	}
+
+	public void setShowAdresse(boolean showAdresse) {
+		this.showAdresse = showAdresse;
+	}
+
+	public boolean isShowCodePostale() {
+		return showCodePostale;
+	}
+
+	public void setShowCodePostale(boolean showCodePostale) {
+		this.showCodePostale = showCodePostale;
+	}
+
+	public boolean isShowGouvernorat() {
+		return showGouvernorat;
+	}
+
+	public void setShowGouvernorat(boolean showGouvernorat) {
+		this.showGouvernorat = showGouvernorat;
+	}
+
+}

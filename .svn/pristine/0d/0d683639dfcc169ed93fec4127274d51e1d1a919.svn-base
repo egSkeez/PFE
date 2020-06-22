@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<table width="100%">
+		<tr>
+			<td width="50%"><h:panelGrid columns="4">
+					<h:column>
+						<h:outputText value="#{msg.CourrierExp}"
+							styleClass="xteDetailLabel" />
+					</h:column>
+					<h:panelGrid columns="2">
+									<h:column>
+										<h:selectOneRadio 
+											styleClass="xteDetailLabelOutput"
+											value="#{courrierConsultationBean.typeCourrierJour}"
+											layout="lineDirection">
+											<a4j:support event="onchange" reRender="data,scroller,record" ajaxSingle="true"
+												actionListener="#{courrierConsultationBean.eventChooseTypeCourrierJour}" />
+											<f:selectItem itemLabel="Tout les courriers" itemValue="Tous" />
+											<f:selectItem itemLabel="Courriers reçus" itemValue="Reçus" />
+											<f:selectItem itemLabel="Courriers envoyés" itemValue="Envoyés" />
+										</h:selectOneRadio>
+									</h:column>
+								</h:panelGrid>
+					<h:outputText value="#{variableGlobale.person.prenom} #{variableGlobale.person.nom}"
+						styleClass="xteDetailLabelOutput" />
+				</h:panelGrid></td>
+			<td width="50%"><h:panelGrid columns="4">
+					<a4j:commandLink 
+						onclick="document.location.href='courrierUtilisateurTree.jsf'"
+						ajaxSingle="true">
+						<h:graphicImage
+							value="../framGraphique/images/Loupe-2---26pix.png" />
+					</a4j:commandLink>
+					<h:column>
+						<rich:spacer width="10px" />
+						<h:outputText value="#{msg.CourrierDest}"
+							styleClass="xteDetailLabel" style=" width :100px;" />
+						<rich:spacer width="10px" />
+						<h:outputText value="*" styleClass="error" />
+					</h:column>
+					<h:inputTextarea value="#{variableGlobale.destNom}" required="true"
+						styleClass="xteDetailLabelOutput"
+						style="margin-left: 2px; margin-right: 2px; width: 221px; margin-top: 2px; margin-bottom: 2px; height: 46px; "
+						requiredMessage="* #{msg.ColonneDest} #{msg.champsobligatoire}" />
+				</h:panelGrid>
+			</td>
+		</tr>
+	</table>
+
+</ui:composition>

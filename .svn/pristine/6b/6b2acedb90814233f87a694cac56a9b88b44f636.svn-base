@@ -1,0 +1,902 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierConsulterInformations;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.entity.Annotation;
+import xtensus.entity.Classement_archivage_niveau_02;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.CourrierLiens;
+import xtensus.entity.Dossier;
+import xtensus.entity.Classement_archivage_niveau_01;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Lienscourriers;
+import xtensus.entity.Nature;
+import xtensus.entity.TransactionAnnotation;
+import xtensus.entity.TransactionAnnotationId;
+import xtensus.entity.Transmission;
+import xtensus.entity.Urgence;
+import xtensus.entity.Utilisateur;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierAffecteDetailsBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private Dossier dossier;
+	private TransactionAnnotation cA;
+	private TransactionAnnotationId cI;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+	private Date date;
+	private Date date1;
+	private Nature nature;
+	private Transmission transmission;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private Expdestexterne expdestexterne;
+	private List<Expdestexterne> listDestExpdestexternes;
+	private Utilisateur utilisateur;
+	private List<CourrierConsulterInformations> courrierConsulterInformations;
+	private Date dateReception;
+	private Date dateReponse;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+
+	private String etatTransaction;
+	private List<String> selectedItemsAnnotation;
+	List<Annotation> listAnnotations;
+	private String reponse1;
+	private String annotationResult;
+	private boolean select1 = false;
+
+	private boolean statusClassement;
+	private boolean statusNonClasse;
+	private boolean statusClasseSucces;
+	private boolean statusClasseErreur;
+	private String messageInfoCourrierClassement;
+	private String selectedItemArmoire;
+	private String selectedItemEtages;
+	private List<Classement_archivage_niveau_02> listArmoire;
+	private List<Classement_archivage_niveau_01> listEtages;
+
+	private boolean etatDescription;
+	private boolean etatEnvoyerAuxAutre;
+	private boolean etatDateReponse;
+	private boolean etatDescriptionTransaction;
+	private boolean etatkeywords;
+	private boolean accuseReception;
+	private String lienOutput;
+	private boolean showMonitoringButton;
+	private LdapOperation ldapOperation;
+
+	private boolean notLinkedMail;
+	private boolean linkedMail;
+	private long nbrCourrierLies;
+	private String align;
+	private boolean affichageDocument;
+	private boolean affichageDetailsAccuse;
+	private boolean statusAccuseReception;
+	
+	private boolean showResponseButton;
+	private boolean hideResponseButton;
+
+	
+
+	@Autowired
+	public CourrierAffecteDetailsBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		courrier = new Courrier();
+		dossier = new Dossier();
+		nature = new Nature();
+		transmission = new Transmission();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		expdestexterne = new Expdestexterne();
+		listDestExpdestexternes = new ArrayList<Expdestexterne>();
+		utilisateur = new Utilisateur();
+		courrierConsulterInformations = new ArrayList<CourrierConsulterInformations>();
+		listArmoire = new ArrayList<Classement_archivage_niveau_02>();
+		listEtages = new ArrayList<Classement_archivage_niveau_01>();
+		date = new Date();
+		date1 = new Date();
+		selectedItemsAnnotation = new ArrayList<String>();
+		cA = new TransactionAnnotation();
+		cI = new TransactionAnnotationId();
+		listAnnotations = new ArrayList<Annotation>();
+		ldapOperation = new LdapOperation();
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		
+		
+		if (vb.getLocale().equals("ar")) {
+			setAlign("right");
+		} else {
+			setAlign("left");
+		}
+		setEtatDescription(false);
+		setEtatEnvoyerAuxAutre(false);
+		etatDateReponse = false;
+		etatDescriptionTransaction = false;
+		etatkeywords = false;
+		accuseReception = false;
+		showMonitoringButton = vb.isShowMonitoringButtonForDest();
+		affichageDocument = false;
+		affichageDetailsAccuse = false;
+		try {
+			annotationResult = "";
+			courrier = vb.getCourrier();
+
+			nature = appMgr.getNatureById(courrier.getNature().getNatureId())
+					.get(0);
+			vb.setNature(nature);
+
+			confidentialite = appMgr.getConfidentialiteById(
+					courrier.getConfidentialite().getConfidentialiteId())
+					.get(0);
+			vb.setConfidentialite(confidentialite);
+
+			urgence = appMgr.getUrgenceById(
+					courrier.getUrgence().getUrgenceId()).get(0);
+			vb.setUrgence(urgence);
+
+			transmission = appMgr.getTransmissionById(
+					courrier.getTransmission().getTransmissionId()).get(0);
+			vb.setTransmission(transmission);
+
+			listArmoire = appMgr.listArmoireByEtat("Libre");
+
+			CourrierDossier courrierDossier = new CourrierDossier();
+			courrierDossier = appMgr.getCourrierDossierByIdCourrier(
+					courrier.getIdCourrier()).get(0);
+			int refDossier = courrierDossier.getId().getDossierId();
+			/***** Affichage listDocument *******/
+
+			int nbDoc = appMgr
+					.getDocumentByIdCourrier(courrier.getIdCourrier()).size();
+			if (nbDoc != 0) {
+				setAffichageDocument(true);
+			}
+
+			reponse1 = courrier.getCourrierNecessiteReponse();
+
+			if (reponse1.equals("Oui")) {
+				etatDateReponse = true;
+			}
+			if (courrier.getCourrierCommentaire() != null) {
+				if (!(courrier.getCourrierCommentaire().equals(""))) {
+					setEtatDescription(true);
+				}
+			}
+			if (courrier.getKeywords() != null) {
+				if (!(courrier.getKeywords().equals(""))) {
+					etatkeywords = true;
+				}
+			}
+			verificationLienCourrier();
+
+			System.out
+					.println("*******ChargementAvecSucces   CourrierConsultationBen******");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement CourrierConsultationBen*******");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void verificationLienCourrier() {
+		Courrier courrier1;
+		nbrCourrierLies = 0;
+		vb.setListCourriersAffectes(new ArrayList<CourrierDossierListe>());
+		List<Lienscourriers> liensCourriers = new ArrayList<Lienscourriers>();
+		List<CourrierLiens> courrierLiens;
+		liensCourriers = appMgr.getListCourrierLiensByIdCourrier(courrier
+				.getIdCourrier());
+		if (!liensCourriers.isEmpty()) {
+			notLinkedMail = false;
+			linkedMail = true;
+			CourrierDossierListe courrierDossierListe;
+			System.out.println("size Lien1 : " + liensCourriers.size());
+			for (Lienscourriers lienscourriers : liensCourriers) {
+				courrierLiens = new ArrayList<CourrierLiens>();
+				courrierLiens = appMgr
+						.getListLiensCourrierByIdCourrierLien(lienscourriers
+								.getLiensCourrier());
+				for (CourrierLiens courrierLiens2 : courrierLiens) {
+					courrierDossierListe = new CourrierDossierListe();
+					nbrCourrierLies = nbrCourrierLies + 1;
+					courrier1 = new Courrier();
+					courrier1 = appMgr.getCourrierByIdCourrier(
+							courrierLiens2.getId().getIdCourrier()).get(0);
+					System.out.println("Courrier ref : "
+							+ courrier1.getCourrierReferenceCorrespondant());
+					System.out.println("Courrier Id  : "
+							+ courrier1.getIdCourrier());
+					courrierDossierListe.setCourrier(courrier1);
+					courrierDossierListe.setConfidentialite(appMgr
+							.getConfidentialiteById(
+									courrier1.getConfidentialite()
+											.getConfidentialiteId()).get(0));
+					courrierDossierListe.setUrgence(appMgr.getUrgenceById(
+							courrier1.getUrgence().getUrgenceId()).get(0));
+					courrierDossierListe.setTransmission(appMgr
+							.getTransmissionById(
+									courrier1.getTransmission()
+											.getTransmissionId()).get(0));
+					courrierDossierListe.setNature(appMgr.getNatureById(
+							courrier1.getNature().getNatureId()).get(0));
+					vb.getListCourriersAffectes().add(courrierDossierListe);
+				}
+			}
+			if (nbrCourrierLies == 0) {
+				notLinkedMail = true;
+				linkedMail = false;
+			}
+		} else {
+			notLinkedMail = true;
+			linkedMail = false;
+		}
+	}
+
+
+	public void classement() {
+		statusClassement = false;
+		statusNonClasse = false;
+		selectedItemArmoire = "";
+		selectedItemEtages = "";
+		if (courrier.getEtages() == null) {
+			setMessage(messageSource.getMessage("ClassementCourrierNonFait",
+					new Object[] {}, lm.createLocal()));
+			statusNonClasse = true;
+		} else {
+			Classement_archivage_niveau_01 etages = new Classement_archivage_niveau_01();
+			Classement_archivage_niveau_02 armoire = new Classement_archivage_niveau_02();
+			int refEtage = courrier.getEtages().getIdetages();
+			etages = appMgr.listEtagesById(refEtage).get(0);
+			vb.setEtages(etages);
+			int refArmoire = etages.getArmoire().getIdarmoire();
+			armoire = appMgr.listArmoireById(refArmoire).get(0);
+			vb.setArmoire(armoire);
+			setMessage(messageSource.getMessage("ClassementCourrierFait",
+					new Object[] {}, lm.createLocal()));
+			String ar = messageSource.getMessage("Armoire", new Object[] {},
+					lm.createLocal());
+			String et = messageSource.getMessage("Etages", new Object[] {},
+					lm.createLocal());
+
+			messageInfoCourrierClassement = ar + " : "
+					+ armoire.getArmoireLibelle() + " => " + et + " : "
+					+ etages.getEtagesLibelle();
+			statusClassement = true;
+		}
+
+	}
+
+	// fonction de selection des armoire
+	public List<SelectItem> getSelectItemsArmoire() {
+
+		List<SelectItem> selectItemsArmoire = new ArrayList<SelectItem>();
+		selectItemsArmoire.add(new SelectItem(""));
+		for (int j = 0; j <= listArmoire.size() - 1; j++) {
+			selectItemsArmoire.add(new SelectItem(listArmoire.get(j)
+					.getArmoireLibelle()));
+		}
+		return selectItemsArmoire;
+	}
+
+	public void chargerEtages(ActionEvent evt) {
+
+		String armoire = selectedItemArmoire.toString();
+		Classement_archivage_niveau_02 ar = new Classement_archivage_niveau_02();
+		ar = appMgr.listArmoireByLibelle(armoire).get(0);
+		int refar = ar.getIdarmoire();
+		listEtages = appMgr.listEtagesByIdArmoire(refar);
+		System.out.println(listEtages.size());
+	}
+
+	public void chargerSelectedEtages(ActionEvent evt) {
+
+		String etage = selectedItemEtages.toString();
+		Classement_archivage_niveau_01 et = new Classement_archivage_niveau_01();
+		et = appMgr.listEtagesByLibelle(etage).get(0);
+		courrier.setEtages(et);
+
+	}
+
+	public List<SelectItem> getSelectItemsEtages() {
+
+		List<SelectItem> selectItemsEtages = new ArrayList<SelectItem>();
+		selectItemsEtages.add(new SelectItem(""));
+		for (int j = 0; j <= listEtages.size() - 1; j++) {
+			int refetage = listEtages.get(j).getIdetages();
+			int nbDossier = listEtages.get(j).getEtagesNombreDossiers();
+			int nb = appMgr.listCourrierByIdEtages(refetage).size();
+			if (nb < nbDossier) {
+				selectItemsEtages.add(new SelectItem(listEtages.get(j)
+						.getEtagesLibelle()));
+			}
+		}
+		// The values are the keys passed to the selectItem property.
+		// The labels are those what you see on the menu.
+		return selectItemsEtages;
+
+	}
+
+	public void classementCourrier() {
+		statusClasseSucces = false;
+		statusClasseErreur = false;
+		String etat = "Occuper";
+		if (selectedItemArmoire != "" && selectedItemEtages != "") {
+			try {
+				appMgr.update(courrier);
+				/******************** Changement etat Etages && Armoires ***********************/
+				int refetage = courrier.getEtages().getIdetages();
+				Classement_archivage_niveau_01 et = new Classement_archivage_niveau_01();
+				int refEtage = courrier.getEtages().getIdetages();
+				et = appMgr.listEtagesById(refEtage).get(0);
+				int nbDossier = et.getEtagesNombreDossiers();
+				int nb = appMgr.listCourrierByIdEtages(refetage).size();
+				if (nb == nbDossier) {
+					et.setEtagesEtat(etat);
+					appMgr.update(et);
+				}
+				int refArmoire = et.getArmoire().getIdarmoire();
+				Classement_archivage_niveau_02 ar = new Classement_archivage_niveau_02();
+				ar = appMgr.listArmoireById(refArmoire).get(0);
+				int refar = ar.getIdarmoire();
+				int nbetageOccuper = appMgr.listEtagesByIdArmoireAndEtat(refar,
+						etat).size();
+				if (nbetageOccuper == ar.getArmoireNombreEtage()) {
+					ar.setArmoireEtat(etat);
+					appMgr.update(ar);
+				}
+			} catch (Exception e) {
+				System.out.println("erreur mettre ajour courrier");
+				e.printStackTrace();
+			}
+			setMessage(messageSource.getMessage("ClassementCourrierSucces",
+					new Object[] {}, lm.createLocal()));
+			statusClasseSucces = true;
+		} else {
+			setMessage(messageSource.getMessage("ClassementCourrierErreur",
+					new Object[] {}, lm.createLocal()));
+			statusClasseErreur = true;
+		}
+
+	}
+
+	public void evenementChoixTransfert(ActionEvent evt) {
+		if (reponse1.equals("Non")) {
+			setSelect1(false);
+		} else {
+			setSelect1(true);
+		}
+	}
+
+	public String accesAccuseReception() {
+		String res = "NoPass";
+		courrier = vb.getCourrier();
+		statusAccuseReception = false;
+		if (etatTransaction.equals("Traité")) {
+			if (appMgr.accuseReceptionByIdCourrier(courrier.getIdCourrier())
+					.size() == 0) {
+				res = "passAjouter";
+			} else {
+				res = "passConsulter";
+			}
+		} else {
+			setMessage(messageSource.getMessage(
+					"AccuseReceptionVerificationTraitement", new Object[] {},
+					lm.createLocal()));
+			statusAccuseReception = true;
+		}
+		return res;
+	}
+
+	// ************Getter & Setter********************
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Nature getNature() {
+		return nature;
+	}
+
+	public void setNature(Nature nature) {
+		this.nature = nature;
+	}
+
+	public Transmission getTransmission() {
+		return transmission;
+	}
+
+	public void setTransmission(Transmission transmission) {
+		this.transmission = transmission;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Expdestexterne getExpdestexterne() {
+		return expdestexterne;
+	}
+
+	public void setExpdestexterne(Expdestexterne expdestexterne) {
+		this.expdestexterne = expdestexterne;
+	}
+
+	public List<Expdestexterne> getListDestExpdestexternes() {
+		return listDestExpdestexternes;
+	}
+
+	public void setListDestExpdestexternes(
+			List<Expdestexterne> listDestExpdestexternes) {
+		this.listDestExpdestexternes = listDestExpdestexternes;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Date getDateReception() {
+		return dateReception;
+	}
+
+	public void setDateReception(Date dateReception) {
+		this.dateReception = dateReception;
+	}
+
+	public Date getDateReponse() {
+		return dateReponse;
+	}
+
+	public void setDateReponse(Date dateReponse) {
+		this.dateReponse = dateReponse;
+	}
+
+	public void setUtilisateur(Utilisateur utilisateur) {
+		this.utilisateur = utilisateur;
+	}
+
+	public Utilisateur getUtilisateur() {
+		return utilisateur;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setCourrierConsulterInformations(
+			List<CourrierConsulterInformations> courrierConsulterInformations) {
+		this.courrierConsulterInformations = courrierConsulterInformations;
+	}
+
+	public List<CourrierConsulterInformations> getCourrierConsulterInformations() {
+		return courrierConsulterInformations;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setSelectedItemsAnnotation(List<String> selectedItemsAnnotation) {
+		this.selectedItemsAnnotation = selectedItemsAnnotation;
+	}
+
+	public List<String> getSelectedItemsAnnotation() {
+		return selectedItemsAnnotation;
+	}
+
+	public void setDate1(Date date1) {
+		this.date1 = date1;
+	}
+
+	public Date getDate1() {
+		return date1;
+	}
+
+	public void setReponse1(String reponse1) {
+		this.reponse1 = reponse1;
+	}
+
+	public String getReponse1() {
+		return reponse1;
+	}
+
+	public void setSelect1(boolean select1) {
+		this.select1 = select1;
+	}
+
+	public boolean isSelect1() {
+		return select1;
+	}
+
+	public TransactionAnnotation getcA() {
+		return cA;
+	}
+
+	public void setcA(TransactionAnnotation cA) {
+		this.cA = cA;
+	}
+
+	public TransactionAnnotationId getcI() {
+		return cI;
+	}
+
+	public void setcI(TransactionAnnotationId cI) {
+		this.cI = cI;
+	}
+
+	public List<Annotation> getListAnnotations() {
+		return listAnnotations;
+	}
+
+	public void setListAnnotations(List<Annotation> listAnnotations) {
+		this.listAnnotations = listAnnotations;
+	}
+
+	public void setAnnotationResult(String annotationResult) {
+		this.annotationResult = annotationResult;
+	}
+
+	public String getAnnotationResult() {
+		return annotationResult;
+	}
+
+	public void setEtatTransaction(String etatTransaction) {
+		this.etatTransaction = etatTransaction;
+	}
+
+	public String getEtatTransaction() {
+		return etatTransaction;
+	}
+
+	public void setStatusClassement(boolean statusClassement) {
+		this.statusClassement = statusClassement;
+	}
+
+	public boolean isStatusClassement() {
+		return statusClassement;
+	}
+
+	public void setStatusNonClasse(boolean statusNonClasse) {
+		this.statusNonClasse = statusNonClasse;
+	}
+
+	public boolean isStatusNonClasse() {
+		return statusNonClasse;
+	}
+
+	public void setMessageInfoCourrierClassement(
+			String messageInfoCourrierClassement) {
+		this.messageInfoCourrierClassement = messageInfoCourrierClassement;
+	}
+
+	public String getMessageInfoCourrierClassement() {
+		return messageInfoCourrierClassement;
+	}
+
+	public void setStatusClasseSucces(boolean statusClasseSucces) {
+		this.statusClasseSucces = statusClasseSucces;
+	}
+
+	public boolean isStatusClasseSucces() {
+		return statusClasseSucces;
+	}
+
+	public void setSelectedItemArmoire(String selectedItemArmoire) {
+		this.selectedItemArmoire = selectedItemArmoire;
+	}
+
+	public String getSelectedItemArmoire() {
+		return selectedItemArmoire;
+	}
+
+	public void setSelectedItemEtages(String selectedItemEtages) {
+		this.selectedItemEtages = selectedItemEtages;
+	}
+
+	public String getSelectedItemEtages() {
+		return selectedItemEtages;
+	}
+
+	public void setListArmoire(List<Classement_archivage_niveau_02> listArmoire) {
+		this.listArmoire = listArmoire;
+	}
+
+	public List<Classement_archivage_niveau_02> getListArmoire() {
+		return listArmoire;
+	}
+
+	public void setListEtages(List<Classement_archivage_niveau_01> listEtages) {
+		this.listEtages = listEtages;
+	}
+
+	public List<Classement_archivage_niveau_01> getListEtages() {
+		return listEtages;
+	}
+
+	public void setStatusClasseErreur(boolean statusClasseErreur) {
+		this.statusClasseErreur = statusClasseErreur;
+	}
+
+	public boolean isStatusClasseErreur() {
+		return statusClasseErreur;
+	}
+
+	public void setEtatDescription(boolean etatDescription) {
+		this.etatDescription = etatDescription;
+	}
+
+	public boolean isEtatDescription() {
+		return etatDescription;
+	}
+
+	public void setEtatEnvoyerAuxAutre(boolean etatEnvoyerAuxAutre) {
+		this.etatEnvoyerAuxAutre = etatEnvoyerAuxAutre;
+	}
+
+	public boolean isEtatEnvoyerAuxAutre() {
+		return etatEnvoyerAuxAutre;
+	}
+
+	public void setEtatDateReponse(boolean etatDateReponse) {
+		this.etatDateReponse = etatDateReponse;
+	}
+
+	public boolean isEtatDateReponse() {
+		return etatDateReponse;
+	}
+
+	public void setEtatDescriptionTransaction(boolean etatDescriptionTransaction) {
+		this.etatDescriptionTransaction = etatDescriptionTransaction;
+	}
+
+	public boolean isEtatDescriptionTransaction() {
+		return etatDescriptionTransaction;
+	}
+
+	public void setEtatkeywords(boolean etatkeywords) {
+		this.etatkeywords = etatkeywords;
+	}
+
+	public boolean isEtatkeywords() {
+		return etatkeywords;
+	}
+
+	public void setLienOutput(String lienOutput) {
+		this.lienOutput = lienOutput;
+	}
+
+	public String getLienOutput() {
+		return lienOutput;
+	}
+
+	public void setAccuseReception(boolean accuseReception) {
+		this.accuseReception = accuseReception;
+	}
+
+	public boolean isAccuseReception() {
+		return accuseReception;
+	}
+
+	public void setShowMonitoringButton(boolean showMonitoringButton) {
+		this.showMonitoringButton = showMonitoringButton;
+	}
+
+	public boolean isShowMonitoringButton() {
+		return showMonitoringButton;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public void setNotLinkedMail(boolean notLinkedMail) {
+		this.notLinkedMail = notLinkedMail;
+	}
+
+	public boolean isNotLinkedMail() {
+		return notLinkedMail;
+	}
+
+	public void setLinkedMail(boolean linkedMail) {
+		this.linkedMail = linkedMail;
+	}
+
+	public boolean isLinkedMail() {
+		return linkedMail;
+	}
+
+	public void setNbrCourrierLies(long nbrCourrierLies) {
+		this.nbrCourrierLies = nbrCourrierLies;
+	}
+
+	public long getNbrCourrierLies() {
+		return nbrCourrierLies;
+	}
+
+	public void setAffichageDocument(boolean affichageDocument) {
+		this.affichageDocument = affichageDocument;
+	}
+
+	public boolean isAffichageDocument() {
+		return affichageDocument;
+	}
+
+	public void setAffichageDetailsAccuse(boolean affichageDetailsAccuse) {
+		this.affichageDetailsAccuse = affichageDetailsAccuse;
+	}
+
+	public boolean isAffichageDetailsAccuse() {
+		return affichageDetailsAccuse;
+	}
+
+	public void setStatusAccuseReception(boolean statusAccuseReception) {
+		this.statusAccuseReception = statusAccuseReception;
+	}
+
+	public boolean isStatusAccuseReception() {
+		return statusAccuseReception;
+	}
+
+	public void setShowResponseButton(boolean showResponseButton) {
+		this.showResponseButton = showResponseButton;
+	}
+
+	public boolean isShowResponseButton() {
+		return showResponseButton;
+	}
+
+	public void setHideResponseButton(boolean hideResponseButton) {
+		this.hideResponseButton = hideResponseButton;
+	}
+
+	public boolean isHideResponseButton() {
+		return hideResponseButton;
+	}
+
+	public void setAlign(String align) {
+		this.align = align;
+	}
+
+	public String getAlign() {
+		return align;
+	}
+
+}

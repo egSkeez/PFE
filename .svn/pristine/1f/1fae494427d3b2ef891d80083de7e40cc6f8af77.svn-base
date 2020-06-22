@@ -1,0 +1,370 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RoleModel;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+public class GroupeAffectationRoleBean {
+	
+	private ApplicationManager appMgr;
+	private String nomGroupe;
+	private String descriptionGroupe;
+	private List<RoleModel> listRoles;
+	private List<RoleModel> listAffectedRole;
+	private List<RoleModel> listAvailableRole;
+	private DataModel roleAffectedDataModel;
+	private DataModel roleAvailableDataModel;
+	private String showButtonValidate;
+	private int records1;
+	private int records2;
+	public boolean status;
+	public boolean status1;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	@Autowired
+	private VariableGlobale vb;
+	private LdapOperation ldapOperation;
+	
+	@Autowired
+	public GroupeAffectationRoleBean(@Qualifier("applicationManager") ApplicationManager appMgr){
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		showButtonValidate="true";
+		listRoles = new ArrayList<RoleModel>();
+		listAffectedRole = new ArrayList<RoleModel>();
+		listAvailableRole = new ArrayList<RoleModel>();
+		roleAffectedDataModel = new ListDataModel();
+		roleAvailableDataModel = new ListDataModel();
+		status = false;
+		status1 = false;
+	}
+	
+	
+	@PostConstruct
+	public void initialize(){
+		nomGroupe = vb.getGroup().getCn();
+		String pathGroup = "cn="+nomGroupe+","+ldapOperation.CONTEXT_GROUP;
+		descriptionGroupe = vb.getGroup().getDescription();
+		listRoles = new ArrayList<RoleModel>();
+		listAffectedRole = new ArrayList<RoleModel>();
+		listAvailableRole = new ArrayList<RoleModel>();
+		roleAffectedDataModel = new ListDataModel();
+		roleAvailableDataModel = new ListDataModel();
+		ldapOperation.getListRole(listRoles);
+		listAffectedRole = ldapOperation.getListRoleByPathGroup(pathGroup);
+		
+		boolean findUser;
+		int j;
+		for (int i = 0; i < listRoles.size(); i++) {
+			listAvailableRole.add(listRoles.get(i));
+		}
+		if(!listAffectedRole.isEmpty()){
+			for (int i = 0; i < listAffectedRole.size(); i++) {
+				findUser = false;
+				j = 0;
+				do {
+					if(listAffectedRole.get(i).getReferenceRole() == listAvailableRole.get(j).getReferenceRole()){
+						listAvailableRole.remove(listAvailableRole.get(j));
+						findUser = true;
+					}else {
+						j++;
+					}
+				} while (!findUser && j<listAvailableRole.size());
+			}
+		}
+		
+		roleAffectedDataModel.setWrappedData(listAffectedRole);
+		roleAvailableDataModel.setWrappedData(listAvailableRole);
+		
+	}
+	
+	public void affectRole(){
+		RoleModel roleModel = new RoleModel();
+		try {
+			 showButtonValidate="false";
+			 roleModel = (RoleModel) roleAvailableDataModel.getRowData();
+			 listAvailableRole.remove(roleModel);
+			 listAffectedRole.add(0, roleModel);
+			 roleAffectedDataModel.setWrappedData(listAffectedRole);
+			 roleAvailableDataModel.setWrappedData(listAvailableRole);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+		
+	}
+	
+	public void desaffectRole(){
+		RoleModel roleModel = new RoleModel();
+		try {
+			 showButtonValidate="false";
+			 roleModel = (RoleModel) roleAffectedDataModel.getRowData();
+			 listAffectedRole.remove(roleModel);
+			 listAvailableRole.add(0, roleModel);
+			 roleAffectedDataModel.setWrappedData(listAffectedRole);
+			 roleAvailableDataModel.setWrappedData(listAvailableRole);
+		} catch (Exception e) {
+			System.out.println("*******ErreurDeSelection*******");
+		}
+	}
+	
+	public void validAffectation(){
+		String pathGroup = "cn="+vb.getGroup().getCn()+","+ldapOperation.CONTEXT_GROUP;
+		status = false;
+		status1 = false;
+		DirContext dirContext;
+		Attributes attributes;
+		Attribute attribut;
+		List<RoleModel> listRealAffectedRole = new ArrayList<RoleModel>();
+		listRealAffectedRole = ldapOperation.getListRoleByPathGroup(pathGroup);
+		try {
+			dirContext = ldapOperation.getDirContext();
+			for (RoleModel roleModel : listRealAffectedRole) {
+				attributes = new BasicAttributes(true);
+				attribut = new BasicAttribute("sn",roleModel.getNomRole());
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathGroup,DirContext.REMOVE_ATTRIBUTE,attributes);
+			}
+			for (RoleModel roleModel : listAffectedRole) {
+				attributes = new BasicAttributes(true);
+				attribut = new BasicAttribute("sn",roleModel.getNomRole());
+				attributes.put(attribut);
+				dirContext.modifyAttributes(pathGroup,DirContext.ADD_ATTRIBUTE,attributes);
+			}
+			status = true;
+			setMessage(messageSource.getMessage("confirmAffectation",
+					new Object[] {}, lm.createLocal()));
+			LogClass logClass = new LogClass();
+			logClass.addTrack("affectation", "Evénement de log d'affectation des réles au groupe "+vb.getGroup().getId()+"-"+vb.getGroup().getCn(), vb.getPerson(), "INFO", appMgr);
+		} catch (NamingException e) {
+			System.out.println("erreur de suppression");
+			status1 = true;
+			setMessage(messageSource.getMessage("ErreurAffectation",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("Erreur lors de l'accés au serveur LDAPé"+e);
+				e.printStackTrace();
+		}
+	}
+	
+	public void getSelectedRowRole1(){
+		RoleModel roleModel = new RoleModel();
+		roleModel = (RoleModel) roleAvailableDataModel.getRowData();
+		vb.setRoleModel(roleModel);
+		vb.setRedirect("redirectFromGARToDetailsRole");
+	}
+	
+	public void getSelectedRowRole2(){
+		RoleModel roleModel = new RoleModel();
+		roleModel = (RoleModel) roleAffectedDataModel.getRowData();
+		vb.setRoleModel(roleModel);
+		vb.setRedirect("redirectFromGARToDetailsRole");
+	}
+	
+	public void initializeaffect(){
+		showButtonValidate="true";
+		status=false;
+		status1=false;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords1() {
+		if(roleAvailableDataModel==null && roleAvailableDataModel.getWrappedData()==null)
+			records1=0;
+		else
+			records1=((List<RoleModel>)roleAvailableDataModel.getWrappedData()).size();
+		return records1;
+	}
+
+	public void setRecords1(int records1) {
+		this.records1 = records1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords2() {
+		if(roleAffectedDataModel==null && roleAffectedDataModel.getWrappedData()==null)
+			records2=0;
+		else 
+			records2=((List<RoleModel>)roleAffectedDataModel.getWrappedData()).size();
+		
+		return records2;
+	}
+
+	public void setRecords2(int records2) {
+		this.records2 = records2;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setShowButtonValidate(String showButtonValidate) {
+		this.showButtonValidate = showButtonValidate;
+	}
+
+	public String getShowButtonValidate() {
+		return showButtonValidate;
+	}
+
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+
+	public void setNomGroupe(String nomGroupe) {
+		this.nomGroupe = nomGroupe;
+	}
+
+
+	public String getNomGroupe() {
+		return nomGroupe;
+	}
+
+
+	public void setDescriptionGroupe(String descriptionGroupe) {
+		this.descriptionGroupe = descriptionGroupe;
+	}
+
+
+	public String getDescriptionGroupe() {
+		return descriptionGroupe;
+	}
+
+
+	public void setListRoles(List<RoleModel> listRoles) {
+		this.listRoles = listRoles;
+	}
+
+
+	public List<RoleModel> getListRoles() {
+		return listRoles;
+	}
+
+
+	public void setListAffectedRole(List<RoleModel> listAffectedRole) {
+		this.listAffectedRole = listAffectedRole;
+	}
+
+
+	public List<RoleModel> getListAffectedRole() {
+		return listAffectedRole;
+	}
+
+
+	public void setListAvailableRole(List<RoleModel> listAvailableRole) {
+		this.listAvailableRole = listAvailableRole;
+	}
+
+
+	public List<RoleModel> getListAvailableRole() {
+		return listAvailableRole;
+	}
+
+
+	public DataModel getRoleAffectedDataModel() {
+		return roleAffectedDataModel;
+	}
+
+
+	public void setRoleAffectedDataModel(DataModel roleAffectedDataModel) {
+		this.roleAffectedDataModel = roleAffectedDataModel;
+	}
+
+
+	public DataModel getRoleAvailableDataModel() {
+		return roleAvailableDataModel;
+	}
+
+
+	public void setRoleAvailableDataModel(DataModel roleAvailableDataModel) {
+		this.roleAvailableDataModel = roleAvailableDataModel;
+	}
+
+	
+}

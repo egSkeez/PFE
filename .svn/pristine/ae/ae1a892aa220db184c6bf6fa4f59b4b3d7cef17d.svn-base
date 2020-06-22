@@ -1,0 +1,948 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Rechercher Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+				<rich:panel styleClass="rich-panel">
+						<h:form>
+							<div id="barreIcone">
+								
+								<div id="barreIconeGauche">
+									
+									<rich:toolTip for="csvButton" value="Fichier CSV" />
+								</div>
+								<div id="barreIconeDroite">
+								<h:commandLink id="pdf"
+										action="#{courrierRechercheMultiCriteresBean.printPDFFR2}"
+										status="ajaxStatusRapport2">
+										<h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf" />
+									</h:commandLink>
+									
+									<a4j:commandLink id="helpButton"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+								</div>
+							</div>
+						</h:form>
+						<!-- ********************AIDE********************** -->
+						<rich:modalPanel id="aidePanal" autosized="true" height="500"
+							width="800">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:graphicImage value="../framGraphique/images/help_16.png"
+										id="help" />
+									<h:outputText
+										value="#{msg.acceuilAideLabel} : Interface #{aideEnLigneBean.titreInterface}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="aidehidelink" />
+									<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="scroll_div">
+								<h:form>
+									<a4j:keepAlive beanName="aideEnLigneBean" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Recherche-Multicriteres-FR.png"
+										width="750" height="490" id="aidehidelink" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+										value="../framGraphique/images/AideEnLigne/GBO-Recherche-Multicriteres-AR.png"
+										width="750" height="490" id="aidehidelinkAR" />
+									<rich:spacer height="10" />
+									<table align="center">
+										<tr>
+											<td align="center"><a4j:commandButton
+													value="#{msg.bouttonOk}"
+													oncomplete="Richfaces.hideModalPanel('aidePanal');"
+													type="submit" ajaxSingle="true" styleClass="submitButton" />
+											</td>
+										</tr>
+									</table>
+
+								</h:form>
+							</div>
+						</rich:modalPanel>
+					</rich:panel>
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="2">
+								<h:outputText value="#{msg.RechercheCourrier}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<h:form id="formRecherche">
+							<rich:spacer width="2px" height="10px" />
+							<rich:messages ajaxRendered="true" errorClass="msgError"
+								styleClass="error" />
+							<h:outputText value="#{msg.rechercheCr}"
+								styleClass="xteDetailLabel" />
+							<rich:spacer width="5px" />
+							<table width="100%">
+								<tr>
+									<td width="50%" style="vertical-align: top;">
+										<table width="100%">
+											<tr><td>
+											<h:outputText value="#{msg.CourrierObjet}"
+												styleClass="xteDetailLabel" /></td><td>
+											<h:inputText id="oldRef" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierObjet}">
+												<a4j:support id="objetSupp" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}" />
+											</h:inputText></td></tr>
+											<tr><td>
+												<h:outputText value="#{msg.courrierFacet}"
+													styleClass="xteDetailLabel" /></td><td>
+												<h:selectOneRadio id="checkTransfert1"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.typeCourrier}"
+													layout="lineDirection">
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="tous" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabelReçusLabel}" itemValue="recus" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabelEnvoyés}" itemValue="envoyes" />
+												<a4j:support id="typeCourrierSupp" 
+													event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</h:selectOneRadio>
+											</td></tr>
+											<tr><td colspan="2">
+											<h:panelGroup id="facet1">
+												<h:selectOneRadio id="checkTransfertDate"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.typeDate}"
+													layout="lineDirection">
+													<a4j:support event="onchange" reRender="facet2,facet3" action="#{courrierRechercheMultiCriteresBean.saveTempValue}"
+														ajaxSingle="true"
+														actionListener="#{courrierRechercheMultiCriteresBean.evenementChoixTypeDate}" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="tous" />
+													<f:selectItem itemLabel="#{msg.courrierRechercheLabelDate}" itemValue="dateUnique" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiIntervalleLabel}" itemValue="intervalle" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiAnneeLabel}" itemValue="annee" />
+												</h:selectOneRadio>
+											</h:panelGroup></td></tr>
+											<tr>
+											<td colspan="2">
+											<h:panelGroup id="facet2">
+												<h:outputText value="#{msg.dateReceptionLabel} : "
+													rendered="#{courrierRechercheMultiCriteresBean.showFirstCase}"
+													styleClass="xteDetailLabelOutput" />
+												
+												<rich:calendar id="dRU" inputClass="richInputCalendar"
+													value="#{courrierRechercheMultiCriteresBean.criteres.dateRecep}"
+													datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+													rendered="#{courrierRechercheMultiCriteresBean.showFirstCase}"
+													monthLabels="#{calendarBean.listMois}" 
+											
+													inputSize="8">
+												<a4j:support id="dateLeSupp" 
+													event="onchanged" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</rich:calendar>
+											<h:outputText value="#{msg.dateReceptionLabel} : " styleClass="xteDetailLabelOutput" rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"></h:outputText>
+												
+												<h:outputText value=" #{msg.de}"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													styleClass="xteDetailLabelOutput" />
+												<h:outputText value="* " styleClass="error"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}" />
+												<rich:calendar id="dR" inputClass="richInputCalendar"
+													value="#{courrierRechercheMultiCriteresBean.criteres.dateRecep}"
+													datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													monthLabels="#{calendarBean.listMois}" required="true"
+													requiredMessage="* #{msg.dateDebut} #{msg.champsobligatoire}"
+													inputSize="8">
+												<a4j:support id="dateDeSupp" 
+													event="onchanged" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</rich:calendar>
+												<h:outputText value=" #{msg.a}"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													styleClass="xteDetailLabelOutput" />
+												<h:outputText value="* " styleClass="error"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}" />
+												<rich:calendar id="dRF" inputClass="richInputCalendar"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													value="#{courrierRechercheMultiCriteresBean.criteres.dateRecepFin}"
+													datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+													required="true"
+													requiredMessage="* #{msg.dateFin} #{msg.champsobligatoire}"
+													monthLabels="#{calendarBean.listMois}" inputSize="8">
+												<a4j:support id="dateASupp" 
+													event="onchanged" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</rich:calendar>
+												<h:selectManyListbox
+													value="#{courrierRechercheMultiCriteresBean.criteres.annees}"
+													rendered="#{courrierRechercheMultiCriteresBean.showThirdCase}"
+													label="Choisir les annees" style="height : 75px; width : 100px;">
+													<f:selectItems
+														value="#{courrierRechercheMultiCriteresBean.selectItemsAnnees}" />
+													<a4j:support id="anneeSupp" 
+														event="onchange"
+														ajaxSingle="true" 
+														action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</h:selectManyListbox>
+											</h:panelGroup></td></tr>
+											
+											<tr>
+											<td colspan="2">
+											<h:panelGroup id="facet3">
+												<h:outputText value="#{msg.dateCourrierReel} : "
+													rendered="#{courrierRechercheMultiCriteresBean.showFirstCase}"
+													styleClass="xteDetailLabelOutput" />
+												<h:outputText value="* " styleClass="error"
+													rendered="#{courrierRechercheMultiCriteresBean.showFirstCase}" />
+												<rich:calendar id="dateReel" inputClass="richInputCalendar"
+													value="#{courrierRechercheMultiCriteresBean.criteres.dateCourrierReel}"
+													datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+													rendered="#{courrierRechercheMultiCriteresBean.showFirstCase}"
+													monthLabels="#{calendarBean.listMois}" required="true"
+													requiredMessage="* #{msg.date} #{msg.champsobligatoire}"
+													inputSize="8">
+												<a4j:support id="dateReelSupp" 
+													event="onchanged" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</rich:calendar>
+											<h:outputText value="#{msg.dateCourrierReel} : " styleClass="xteDetailLabelOutput" rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"></h:outputText>
+											<h:outputText value=" #{msg.de}"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													styleClass="xteDetailLabelOutput" />
+												<h:outputText value="* " styleClass="error"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}" />
+												<rich:calendar id="dRelleDebut" inputClass="richInputCalendar"
+													value="#{courrierRechercheMultiCriteresBean.criteres.dateCourrierReel}"
+													datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													monthLabels="#{calendarBean.listMois}" required="true"
+													requiredMessage="* #{msg.dateDebut} #{msg.champsobligatoire}"
+													inputSize="8">
+												<a4j:support id="dateCourrierReelSupp" 
+													event="onchanged" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</rich:calendar>
+												<h:outputText value=" #{msg.a}"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													styleClass="xteDetailLabelOutput" />
+												<h:outputText value="* " styleClass="error"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}" />
+												<rich:calendar id="dReelFin" inputClass="richInputCalendar"
+													rendered="#{courrierRechercheMultiCriteresBean.showSecondCase}"
+													value="#{courrierRechercheMultiCriteresBean.criteres.dateCourrierReelFin}"
+													datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+													required="true"
+													requiredMessage="* #{msg.dateFin} #{msg.champsobligatoire}"
+													monthLabels="#{calendarBean.listMois}" inputSize="8">
+												<a4j:support id="dateCourrierReelSupprim" 
+													event="onchanged" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</rich:calendar>
+												<h:selectManyListbox
+													value="#{courrierRechercheMultiCriteresBean.criteres.annees}"
+													rendered="#{courrierRechercheMultiCriteresBean.showThirdCase}"
+													label="Choisir les annees" style="height : 75px; width : 100px;">
+													<f:selectItems
+														value="#{courrierRechercheMultiCriteresBean.selectItemsAnnees}" />
+													<a4j:support id="anneeDateSupp" 
+														event="onchange"
+														ajaxSingle="true" 
+														action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</h:selectManyListbox>
+											
+											</h:panelGroup>							
+											</td></tr>
+											<tr><td><h:outputText value="#{msg.CourrierKey}"
+												styleClass="xteDetailLabel" /></td><td>
+											<h:inputTextarea   id="motCle" style=" width : 140px;"
+												styleClass="textarea" value="#{courrierRechercheMultiCriteresBean.criteres.motCle}">
+												<a4j:support id="motCleSupp" 
+													event="onchange" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+											</h:inputTextarea></td></tr>
+											<tr><td><h:outputText value="#{msg.courrierRecherExpéditeurLabel} :"
+												styleClass="xteDetailLabel" /></td>
+											<td>
+												<h:inputText id="exp"
+													value="#{courrierRechercheMultiCriteresBean.criteres.expediteur}"
+													style=" width : 140px; float:left;">
+												</h:inputText>
+												<a4j:commandLink
+													action="#{courrierRechercheMultiCriteresBean.goToListSender}"
+													ajaxSingle="true">
+													<h:graphicImage value="../framGraphique/images/Loupe.png" />
+												</a4j:commandLink>
+											</td></tr>
+											<tr><td><h:outputText value="#{msg.courrierRechercheDéstinataireLabel} :"
+												styleClass="xteDetailLabel" /></td>
+											<td>
+												<h:inputText id="dest"
+													value="#{courrierRechercheMultiCriteresBean.criteres.destinataire}"
+													style=" width : 140px; float:left;">
+												</h:inputText>
+												<a4j:commandLink
+													action="#{courrierRechercheMultiCriteresBean.goToListSender1}"
+													ajaxSingle="true">
+													<h:graphicImage value="../framGraphique/images/Loupe.png" />
+												</a4j:commandLink>
+											</td></tr>
+											<tr><td>
+												<h:outputText value="#{msg.CourrierMode}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+												<rich:spacer width="10px" />
+											</td><td>
+											<h:selectOneMenu
+												value="#{courrierRechercheMultiCriteresBean.criteres.selectedItemsTr}"
+												label="Choisir le mode" style=" width : 140px;">
+												<f:selectItems
+													value="#{courrierRechercheMultiCriteresBean.selectItemsTr}" />
+												<a4j:support id="transmissionSupp" 
+													event="onchange"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+											</h:selectOneMenu></td></tr>
+											<tr>
+											<td >
+											<h:outputText value="#{msg.CourrierCategorie}" rendered="#{courrierRechercheMultiCriteresBean.natureParCategorie eq 'Oui' }"
+																	styleClass="xteDetailLabel" style=" width :100px;" />																					
+											</td>
+											<td>											
+											<h:selectOneMenu id="rdBtnCat" rendered="#{courrierRechercheMultiCriteresBean.natureParCategorie eq 'Oui' }"
+																value="#{courrierRechercheMultiCriteresBean.criteres.selectedItemCategorie}"																
+																style=" width : 140px;">
+																<f:selectItems
+																	value="#{courrierRechercheMultiCriteresBean.selectItemsCategorie}" />
+																<a4j:support event="onchange" ajaxSingle="true"
+																	reRender="rdBtnNature"
+																	actionListener="#{courrierRechercheMultiCriteresBean.chargerNature}" />
+															</h:selectOneMenu>
+											</td>
+											</tr>
+											<tr><td>
+												<h:outputText value="#{msg.CourrierNature}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+												<rich:spacer width="10px" />
+											</td><td>
+											<h:selectOneMenu id="rdBtnNature"
+												value="#{courrierRechercheMultiCriteresBean.criteres.selectedItemNature}"
+												style=" width : 140px;">
+												<f:selectItems   
+													value="#{courrierRechercheMultiCriteresBean.selectItemsNat}" />
+												<a4j:support id="natureCatgSupp" 
+													event="onchange"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"
+													reRender="monPanneauCheque1,monPanneauCheque2"/>
+											</h:selectOneMenu>
+										
+											</td></tr>
+											<tr>
+										    <td>
+											<a4j:outputPanel  id="monPanneauCheque1" >	
+											<a4j:repeat
+													value="#{courrierRechercheMultiCriteresBean.listComposantDynamique}"
+													var="field" >																
+													<table border="0" >
+														<tr>
+															<td width="100px"><h:outputText
+															value="#{field.name} : "
+															styleClass="xteDetailLabel" />
+															</td>
+															</tr>
+													</table>
+											</a4j:repeat>
+											</a4j:outputPanel>
+										    
+										    </td>
+										    <td>
+										   	<a4j:outputPanel  id="monPanneauCheque2">	
+											<a4j:repeat
+													value="#{courrierRechercheMultiCriteresBean.listComposantDynamique}"
+													var="field" >																
+													<table border="0" >
+														<tr>
+															<td width="100px"><h:inputText value="#{field.colonne}"
+																					rendered="#{field.type=='TEXT'}" style=" width : 140px;"/> 
+																					<h:inputTextarea
+																					value="#{field.colonne}"
+																					rendered="#{field.type== 'TEXTAREA'}" style=" width : 140px;"/>
+																					 <rich:calendar
+																					value="#{field.colonne}" datePattern="dd/MM/yyyy"
+																					rendered="#{field.type== 'DATE'}"  style=" width : 140px;"/>
+																					 <h:selectOneRadio style=" width : 140px;"
+																					value="#{field.colonne}"
+																					styleClass="xteDetailLabelOutput"
+																					id="chequePanneau"
+																					rendered="#{field.type=='RADIO'}"
+																					layout="lineDirection">
+
+																					<f:selectItem
+																						itemLabel="#{msg.ajoutcourrierNonLabeNon}"
+																						itemValue="False" rendered="#{field.type=='RADIO'}" />
+																					<f:selectItem
+																						itemLabel="#{msg.msgajoutcourrierNonLabeOui}"
+																						itemValue="True" rendered="#{field.type=='RADIO'}" />
+
+																				</h:selectOneRadio>
+															</td>
+															</tr>
+													</table>
+											</a4j:repeat>
+											</a4j:outputPanel>
+										    </td>	
+											
+											
+											</tr>
+											<tr><td>
+											<h:outputText value="#{msg.rechRefCourrier}"
+												styleClass="xteDetailLabel" /></td>
+											<td>
+											<h:inputText id="ref" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierReference}">
+												<a4j:support id="refSupp" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}" />
+											</h:inputText></td></tr>
+											<tr><td>
+											<h:outputText value="#{msg.oldRef}"
+												styleClass="xteDetailLabel" /></td><td>
+											<h:inputText id="oldref" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.oldRef}"
+												converter="javax.faces.Integer" converterMessage="#{msg.oldRef} #{msg.validatorchampsentier}">
+												<a4j:support id="oldRefSupp" event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}" />
+											</h:inputText></td></tr>
+											
+										</table>
+									</td>
+									<td width="50%" style="vertical-align: top;">
+										<table width="100%">
+											<tr><td>
+												<h:outputText value="#{msg.CourrierNecessite}"
+													styleClass="xteDetailLabel" />
+											</td>
+											<td>
+												<h:selectOneRadio id="checkTransfert" style=" float:left;"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.criteres.necessiteReponse}"
+													layout="lineDirection">
+													<a4j:support event="onchange" reRender="calendarId"
+														ajaxSingle="true" action="#{courrierRechercheMultiCriteresBean.saveTempValue}"
+														actionListener="#{courrierRechercheMultiCriteresBean.evenementChoix}" />
+													<f:selectItem itemLabel="#{msg.msgajoutcourrierNonLabeOui}"  itemValue="Oui" />
+													<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}" itemValue="Non" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="Tous" />
+												</h:selectOneRadio>
+												<h:panelGroup id="calendarId">
+													<h:outputText value="* " styleClass="error"
+														rendered="#{courrierRechercheMultiCriteresBean.showCalendar}" />
+													<rich:calendar inputClass="richInputCalendar"
+														rendered="#{courrierRechercheMultiCriteresBean.showCalendar}"
+														value="#{courrierRechercheMultiCriteresBean.criteres.dateNecessiteRep}"
+														datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+														required="true"
+														requiredMessage="* #{msg.dateReponse} #{msg.champsobligatoire}"
+														monthLabels="#{calendarBean.listMois}" inputSize="10">
+													<a4j:support id="dateRepSupp" 
+													event="onchanged"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+													</rich:calendar>
+												</h:panelGroup>
+											</td></tr>
+											<tr><td colspan="2">
+											<h:outputText value="#{msg.CourrierAnnot}"
+												styleClass="xteDetailLabel" /></td></tr>
+											<tr><td colspan="2"><rich:pickList listsHeight="90px" sourceListWidth="160"
+												targetListWidth="160" styleClass="xteDetailLabelOutput"
+												copyAllControlLabel="#{msg.PickListCopierTout}"
+												copyControlLabel="#{msg.PickListCopier}"
+												removeAllControlLabel="#{msg.PickListEnleverTout}"
+												removeControlLabel="#{msg.PickListEnlever}"
+												value="#{courrierRechercheMultiCriteresBean.criteres.selectedItemsAnnotation}"
+												showButtonsLabel="false" id="annot">
+												<f:selectItems
+													value="#{courrierRechercheMultiCriteresBean.selectItemsAnnotation}" />
+												<a4j:support id="annotationSupp" 
+													event="onlistchanged"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+											</rich:pickList></td></tr>
+											<tr><td><h:outputText value="#{msg.CourrierDes}"
+												styleClass="xteDetailLabel" style=" width :100px;" /></td>
+											<td><h:inputTextarea id="desc" styleClass="textarea"
+												value="#{courrierRechercheMultiCriteresBean.criteres.courrierDescription}"
+												style=" width : 140px;">
+												<a4j:support id="descriptionSupp" 
+													event="onchange"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+											</h:inputTextarea></td></tr>
+											<tr><td>
+												<h:outputText value="#{msg.CourrierConfidentialite}"
+													style=" width :100px;" styleClass="xteDetailLabel" />
+											</td><td>
+											<h:selectOneMenu id="conf" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.selectedItemConf}">
+												<f:selectItems
+													value="#{courrierRechercheMultiCriteresBean.selectItemsConf}" />
+												<a4j:support id="confidentialiteSupp" 
+													event="onchange"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+											</h:selectOneMenu></td></tr>
+											<tr><td>
+												<h:outputText value="#{msg.CourrierUrgence}"
+													styleClass="xteDetailLabel" />
+											</td>
+											<td><h:selectOneMenu id="urg" style=" width : 140px;"
+												value="#{courrierRechercheMultiCriteresBean.criteres.selectedItemUg}">
+												<f:selectItems
+													value="#{courrierRechercheMultiCriteresBean.selectItemsUg}" />
+													<a4j:support id="urgenceSupp" 
+													event="onchange"
+													ajaxSingle="true" 
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+											</h:selectOneMenu></td></tr>
+											<tr><td><h:outputText value="#{msg.etatCloturer}"
+													styleClass="xteDetailLabel" /></td>
+													<td>
+														<h:selectOneRadio id="cloturer"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.criteres.etatCloturer}"
+													layout="lineDirection" converter="javax.faces.Integer">
+													
+											
+											<f:selectItem itemLabel="#{msg.msgajoutcourrierNonLabeOui}"  itemValue="1" />
+													<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}" itemValue="0" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="2" />
+												<a4j:support id="etatCourrier" 
+													event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</h:selectOneRadio>
+													</td></tr>
+											<tr><td><h:outputText value="#{msg.etatTransfere}"
+													styleClass="xteDetailLabel" /></td>
+													<td>
+														<h:selectOneRadio id="transfere"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.criteres.courrierCopyTransfere}"
+													layout="lineDirection" >
+													
+											
+											<f:selectItem itemLabel="#{msg.msgajoutcourrierNonLabeOui}"  itemValue="TR" />
+													<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}" itemValue="Non" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="" />
+												<a4j:support id="etatCourrierTr" 
+													event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</h:selectOneRadio>
+													</td></tr>
+											<tr><td><h:outputText value="#{msg.etatCopier}"
+													styleClass="xteDetailLabel" /></td>
+													<td>
+														<h:selectOneRadio id="copie"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.criteres.courrierCopy}"
+													layout="lineDirection" >
+													
+											
+											<f:selectItem itemLabel="#{msg.msgajoutcourrierNonLabeOui}"  itemValue="CP" />
+													<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}" itemValue="Non" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="" />
+												<a4j:support id="etatCopie" 
+													event="onblur" ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.saveTempValue}"/>
+												</h:selectOneRadio>
+													</td></tr>
+											<tr><td><h:outputText value="Courriers Internes"
+													styleClass="xteDetailLabel" /></td>
+													<td>
+														<h:selectOneRadio id="etatInterneRadio"
+													styleClass="xteDetailLabelOutput"
+													value="#{courrierRechercheMultiCriteresBean.courrierInterneFlag}"
+													layout="lineDirection" >
+													
+											
+											<f:selectItem itemLabel="#{msg.msgajoutcourrierNonLabeOui}"  itemValue="1" />
+													<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}" itemValue="0" />
+													<f:selectItem itemLabel="#{msg.courrierRecherMultiTousLabel}" itemValue="Tous" />
+												<a4j:support id="etatInterne" 
+													event="onclick" ajaxSingle="true"
+													actionListener="#{courrierRechercheMultiCriteresBean.choixCourrierInterne}"/>
+												</h:selectOneRadio>
+													</td></tr>
+										</table>
+									</td>
+								</tr>
+							</table>
+							<a4j:keepAlive beanName="courrierRechercheMultiCriteresBean"
+								ajaxOnly="true" />
+							<div align="center">
+								<a4j:commandButton value="#{msg.bouttonChercher}" type="submit"
+									process="ajaxStatus" styleClass="submitButton"
+									status="ajaxStatus"
+									action="#{courrierRechercheDataModel.permitionWalkVisit}"
+									reRender="data,scroller,record" />
+								<rich:spacer width="5" />
+								<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+									styleClass="submitButton" ajaxSingle="true"
+									action="#{courrierRechercheMultiCriteresBean.reset}"
+									reRender="formRecherche,data,scroller,annot,checkTransfert,dRep,dR,ref,motCle" />
+							</div>
+							<rich:spacer height="10" />
+							<div align="left">
+								<h:outputText value="#{msg.infoChampObligatoir}" />
+							</div>
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+
+							<rich:modalPanel id="waitPanel" style="text-align:center"
+								autosized="true">
+								<h:outputText value="#{msg.messageRecherche}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+
+						</h:form>
+					</rich:panel>
+					<!-- tableau courrier  -->
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.RechercherCourrierfacet}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<style>
+							.extdt-menu-div-out, .extdt-menu-div-on { display:none !important; }
+							</style>
+							<rich:extendedDataTable noDataLabel="#{msg.acceuilPasDecourriersLabel}"
+								var="cr" id="data" rows="10" width="100%"
+								height="358"
+								value="#{courrierRechercheDataModel}"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<f:facet name="header">
+									<h:outputText value="#{msg.RechercherCourrierfacet}" />
+								</f:facet>
+								<rich:column label="#{msg.Reference}" width="5%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneRef}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierReference}" />
+								</rich:column>
+								<rich:column label="#{msg.ColonneObjet}" width="28%" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneObjet}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierObjet}" />
+								</rich:column>
+								<rich:column label="#{msg.ColonneNature}" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneNature}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierNature}" />
+								</rich:column>
+								<rich:column label="#{msg.dateReception}" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.dateReception}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierDateReceptionEnvoi}" />
+								</rich:column>
+									<rich:column label="#{msg.dateReception}" width="12%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.dateCourrierReel}" />
+									</f:facet>
+									<h:outputText value="" />
+								</rich:column>
+								<rich:column label="#{msg.expediteur}" width="17%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.expediteurReelListeCourrier}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierExpediteur}" />
+								</rich:column>
+								<rich:column label="#{msg.destReelle}" width="16%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.destfinal}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierDestinataireReelle}" />
+								</rich:column>
+								<rich:column width="9%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneOperation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="4">
+											<h:column>
+												<a4j:commandLink id="consult" status="ajaxStatus"
+													ajaxSingle="true"
+													action="#{courrierRechercheMultiCriteresBean.getSelectionRow}"
+													oncomplete="document.location.href='courrierConsulterDetails.jsf'"
+													reRender="msgPanal">
+													<f:setPropertyActionListener value="#{cr}"
+															target="#{courrierRechercheMultiCriteresBean.selectedCourrier}"></f:setPropertyActionListener>
+													<h:graphicImage
+														value="../framGraphique/images/icone-detail.png"
+														alt="Consulter" />
+												</a4j:commandLink>
+												<rich:toolTip for="consult" value="#{msg.Consult}"
+													direction="top-left" />
+											</h:column>
+										</h:panelGrid>
+									</div>
+								</rich:column>
+							</rich:extendedDataTable>
+
+							<div align="center">
+								<rich:datascroller for="data" id="scroller"
+									page="#{courrierRechercheDataModel.firstPage}"
+									stepControls="hide" status="ajaxStatus"
+									actionListener="#{courrierRechercheDataModel.permitionWalkScroller}" />
+								<h:outputText value="#{msg.NbrCourrier}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{courrierRechercheDataModel.rowCount}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+						<!-- *****popup Info******* -->
+						<rich:modalPanel id="msgPanal" autosized="true" height="100"
+							width="800">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink1" />
+									<rich:componentControl for="msgPanal" attachTo="hidelink1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheMultiCriteresBean" />
+								<table width="100%">
+									<tr>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+
+												<h:outputText value="#{msg.referenceCourrier}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.idCourrier}"
+													styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+												<h:outputText value="#{msg.CourrierDateRecep}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.courrierDateReception}"
+													styleClass="xteDetailLabelOutput" style=" width : 128px;">
+
+												</h:outputText>
+												<h:outputText value="#{msg.CourrierObjet}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.courrierObjet}"
+													styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+
+												<h:outputText value="#{msg.CourrierNature}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.nature.natureLibelle}"
+													styleClass="xteDetailLabelOutput" style=" width : 128px;" />
+												<h:outputText value="#{msg.CourrierKey}"
+													styleClass="xteDetailLabel" style=" width :100px;"
+													rendered="#{courrierRechercheMultiCriteresBean.etatkeywords}" />
+												<h:outputLabel
+													value="#{courrierRechercheMultiCriteresBean.courrier.keywords}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput"
+													rendered="#{courrierRechercheMultiCriteresBean.etatkeywords}" />
+												<h:outputText value="#{msg.CourrierLiens}"
+													styleClass="xteDetailLabel" />
+												<h:column
+													rendered="#{courrierRechercheMultiCriteresBean.linkedMail}">
+													<h:panelGrid columns="6">
+														<a4j:commandLink id="lienCourrier1"
+															title="#{msg.liaisonCourrier}"
+															onclick="document.location.href='courrierDetailsLien.jsf'">
+															<h:outputText
+																value="(#{courrierRechercheMultiCriteresBean.nbrCourrierLies}) #{msg.courriersLies}" />
+														</a4j:commandLink>
+														<rich:spacer width="5" />
+														<a4j:commandLink id="lienC1" title="Liens courriers"
+															onclick="document.location.href='courrierLiensCourrier.jsf'">
+															<h:graphicImage
+																value="../framGraphique/images/lienCourrierIcon.png" />
+														</a4j:commandLink>
+														<rich:toolTip for="lienC1" value="#{msg.lienMsg}" />
+													</h:panelGrid>
+												</h:column>
+												<h:column
+													rendered="#{courrierRechercheMultiCriteresBean.notLinkedMail}">
+													<h:panelGrid columns="6">
+														<h:outputText value="#{msg.aucunLienMsg}"
+															styleClass="xteDetailLabelOutput" />
+														<rich:spacer width="5" />
+														<a4j:commandLink id="lienC" title="Liens courriers"
+															onclick="document.location.href='courrierLiensCourrier.jsf'">
+															<h:graphicImage
+																value="../framGraphique/images/lienCourrierIcon.png" />
+														</a4j:commandLink>
+														<rich:toolTip for="lienC" value="#{msg.lienMsg}" />
+													</h:panelGrid>
+												</h:column>
+											</h:panelGrid>
+										</td>
+										<td width="50%" valign="top"><h:panelGrid columns="2">
+
+												<h:outputText value="#{msg.CourrierMode}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.transmission.transmissionLibelle}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+
+												<h:outputText value="#{msg.CourrierConfidentialite}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.confidentialite.confidentialiteLibelle}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+												<h:outputText value="#{msg.CourrierUrgence}"
+													styleClass="xteDetailLabel" style=" width :100px;" />
+
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.urgence.urgenceLibelle}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+												<h:outputText value="#{msg.CourrierNecessite}"
+													styleClass="xteDetailLabel" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.courrierNecessiteReponse}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+												<h:outputText value="#{msg.CourrierDateRep}"
+													styleClass="xteDetailLabel" style=" width :100px;"
+													rendered="#{courrierRechercheMultiCriteresBean.etatDateReponse}" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.courrierDateReponse}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput"
+													rendered="#{courrierRechercheMultiCriteresBean.etatDateReponse}" />
+
+												<h:outputText value="#{msg.CourrierCircuit}"
+													styleClass="xteDetailLabel" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.courrierCircuit}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput" />
+												<h:outputText value="#{msg.CourrierDes}"
+													styleClass="xteDetailLabel" style=" width :100px;"
+													rendered="#{courrierRechercheMultiCriteresBean.etatDescription}" />
+												<h:outputText
+													value="#{courrierRechercheMultiCriteresBean.courrier.courrierCommentaire}"
+													style=" width : 128px;" styleClass="xteDetailLabelOutput"
+													rendered="#{courrierRechercheMultiCriteresBean.etatDescription}"
+													escape="false" />
+											</h:panelGrid>
+										</td>
+									</tr>
+								</table>
+								<rich:spacer height="20px"/>
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}" type="submit" ajaxSingle="true"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('msgPanal')" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+						</rich:modalPanel>
+					</rich:panel>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

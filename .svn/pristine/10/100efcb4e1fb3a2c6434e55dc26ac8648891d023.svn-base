@@ -1,0 +1,17 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Entite;
+
+public class AnnotationModel extends Entite{
+	public 	String annotation;
+
+	public String getAnnotation() {
+		return annotation;
+	}
+
+	public void setAnnotation(String annotation) {
+		this.annotation = annotation;
+	}
+	
+
+}

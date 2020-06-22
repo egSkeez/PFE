@@ -1,0 +1,295 @@
+package xtensus.beans.common.GBO_LDAP;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.RoleModel;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class RoleListBean {
+
+	private int referenceRole;
+	private String nomRole;
+	private String descriptionRole;
+	private DataModel roleDataModel;
+	private List<RoleModel> listRoles;
+	private String hideAccor;
+	private long records = 0;
+	private LdapOperation ldapOperation;
+	
+	private List<Integer> OrdreIdRole = new ArrayList<Integer>();
+	@Autowired
+	private VariableGlobale vb;
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public RoleListBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		roleDataModel = new ListDataModel();
+		listRoles = new ArrayList<RoleModel>();
+		
+		roleDataModel.setWrappedData(listRoles);
+		OrdreIdRole = new ArrayList<Integer>();
+		hideAccor = "none";
+		System.out
+				.println("*************Bean RoleGestionBean Injected***************");
+	}
+
+	@PostConstruct
+	public void initialize() {
+		referenceRole = ldapOperation.getListRole(listRoles);
+		
+		for(int i=0;i<listRoles.size();i++){
+			int ref=listRoles.get(i).getReferenceRole();
+			System.out.println(ref);
+			OrdreIdRole.add(ref);
+		}
+		Collections.sort(OrdreIdRole);
+		List<RoleModel> listRoles1=new ArrayList<RoleModel>();
+		for (int j = OrdreIdRole.size(); j > 0; j--) {
+			int x=OrdreIdRole.get(j-1);
+			for(int i=0;i<listRoles.size();i++){
+				int reference=listRoles.get(i).getReferenceRole();
+				if(x==reference){
+					listRoles1.add(listRoles.get(i));
+				}
+			}
+		}
+			
+		roleDataModel.setWrappedData(listRoles1);
+	}
+
+	public void save() {
+		status = false;
+		status1 = false;
+		DirContext dirContext = ldapOperation.getDirContext();
+		try {
+			referenceRole++;
+			String entryDN = "cn=" + nomRole + "," + ldapOperation.CONTEXT_ROLE;
+			Attribute objectClass = new BasicAttribute("objectClass");
+			objectClass.add("top");
+			objectClass.add("posixGroup");
+			objectClass.add("extensibleObject");
+			RoleModel roleModel = new RoleModel();
+
+			BasicAttributes entry = new BasicAttributes();
+			entry.put(objectClass);
+			entry.put("gidNumber", String.valueOf(referenceRole));
+			roleModel.setReferenceRole(referenceRole);
+			entry.put("cn", nomRole);
+			roleModel.setNomRole(nomRole);
+			if (descriptionRole.equals("")) {
+				entry.put("description", " ");
+				roleModel.setDescriptionRole("");
+			} else {
+				entry.put("description", descriptionRole);
+				roleModel.setDescriptionRole(descriptionRole);
+			}
+			dirContext.createSubcontext(entryDN, entry);
+
+			listRoles.add(0, roleModel);
+			roleDataModel.setWrappedData(listRoles);
+			//LogClass logClass = new LogClass();
+			//logClass.addTrack(
+			//		"ajout",
+				//	"Evénement de log d'ajout du réle "
+				//			+ roleModel.getReferenceRole() + "-"
+				//			+ roleModel.getNomRole(), vb.getPerson(), "INFO",
+				//	appMgr);
+
+			status = true;
+			System.out
+					.println("***************Succes d'ajout role***************");
+		} catch (Exception e) {
+			status1 = true;
+			referenceRole--;
+			System.out
+					.println("***************Erreur ajout role***************");
+		}
+		
+	}
+
+	public void getSelectionRow() {
+		RoleModel roleModel = new RoleModel();
+		roleModel = (RoleModel) roleDataModel.getRowData();
+		vb.setRoleModel(roleModel);
+		vb.setRedirect("redirectFromRLToDetailsRole");
+
+		LogClass logClass = new LogClass();
+		logClass.addTrack(
+				"consultation",
+				"Evénement de log de consultation du réle"
+						+ roleModel.getReferenceRole() + "-"
+						+ roleModel.getNomRole(), vb.getPerson(), "INFO",
+				appMgr);
+
+	}
+
+	public void showAddForm() {
+		status = false;
+		status1 = false;
+		nomRole = "";
+		descriptionRole = "";
+		hideAccor = "inline";
+	}
+
+	public void cleanAll() {
+		status = false;
+		status1 = false;
+		nomRole = "";
+		descriptionRole = "";
+		hideAccor = "none";
+	}
+
+	// **************************** Getter && Setter********************
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (roleDataModel == null && roleDataModel.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<RoleModel>) roleDataModel.getWrappedData()).size();
+		return records;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setNomRole(String nomRole) {
+		this.nomRole = nomRole;
+	}
+
+	public String getNomRole() {
+		return nomRole;
+	}
+
+	public void setDescriptionRole(String descriptionRole) {
+		this.descriptionRole = descriptionRole;
+	}
+
+	public String getDescriptionRole() {
+		return descriptionRole;
+	}
+
+	public void setListRoles(List<RoleModel> listRoles) {
+		this.listRoles = listRoles;
+	}
+
+	public List<RoleModel> getListRoles() {
+		return listRoles;
+	}
+
+	public DataModel getRoleDataModel() {
+		return roleDataModel;
+	}
+
+	public void setRoleDataModel(DataModel roleDataModel) {
+		this.roleDataModel = roleDataModel;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setReferenceRole(int referenceRole) {
+		this.referenceRole = referenceRole;
+	}
+
+	public int getReferenceRole() {
+		return referenceRole;
+	}
+
+}

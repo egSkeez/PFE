@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="statistiqueStructure" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1d154685-4c48-4446-b8ac-110784591122">
+	<property name="ireport.zoom" value="1.1000000000000005"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="listStatistiqueCourrierStructureArrive" class="java.util.List">
+		<fieldDescription><![CDATA[listStatistiqueCourrierStructureArrive]]></fieldDescription>
+	</field>
+	<field name="listStatistiqueCourrierStructureDepart" class="java.util.List">
+		<fieldDescription><![CDATA[listStatistiqueCourrierStructureDepart]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="adresse" class="java.lang.String"/>
+	<field name="listeSociete" class="java.util.List"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="89" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="128" y="61" width="307" height="15" uuid="1fb89e27-01cd-4168-9da2-26e355fa921f"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Rapport de Statistique Selon Structures]]></text>
+			</staticText>
+			<subreport>
+				<reportElement x="0" y="0" width="551" height="58" uuid="00208740-ec83-4216-9b85-e481a72cdb6c"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<detail>
+		<band height="73" splitType="Stretch">
+			<staticText>
+				<reportElement x="426" y="39" width="111" height="20" uuid="8050cea1-dac2-4f22-af69-bee07a4798ca"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pourcentage]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="10" width="256" height="15" uuid="b13f32bc-4826-4903-826c-44400f8abbf9"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Selon Structure expéditeur (Départ)]]></text>
+			</staticText>
+			<line direction="BottomUp">
+				<reportElement positionType="FixRelativeToBottom" x="282" y="4" width="1" height="66" uuid="aac68020-1cf0-4a29-9fbf-68689fbebad7"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="295" y="39" width="131" height="20" uuid="8050cea1-dac2-4f22-af69-bee07a4798ca"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Structure]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="24" y="38" width="131" height="20" uuid="8050cea1-dac2-4f22-af69-bee07a4798ca"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Structure]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="295" y="10" width="242" height="15" uuid="b13f32bc-4826-4903-826c-44400f8abbf9"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Selon Structure déstinataire (Arrivée)]]></text>
+			</staticText>
+			<line>
+				<reportElement x="10" y="24" width="256" height="1" uuid="d83084a3-ebc5-4620-9e6e-dacad2344405"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="295" y="24" width="242" height="1" uuid="d83084a3-ebc5-4620-9e6e-dacad2344405"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<subreport>
+				<reportElement x="295" y="59" width="242" height="12" uuid="f6e1b382-785b-484f-90d9-94ad4f8abefd"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listStatistiqueCourrierStructureArrive})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$F{pathJasper}+"statistiqueStructureExpediteur.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="24" y="58" width="242" height="12" uuid="f6e1b382-785b-484f-90d9-94ad4f8abefd"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listStatistiqueCourrierStructureDepart})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$F{pathJasper}+"statistiqueStructureExpediteur.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="155" y="38" width="111" height="20" uuid="8050cea1-dac2-4f22-af69-bee07a4798ca"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pourcentage]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50" splitType="Stretch">
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="3" y="0" width="552" height="34" uuid="f3e48870-9137-4c11-9927-eb106424f3a5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adresse}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="3" y="34" width="552" height="15" uuid="8f99080d-9fa8-47a3-ba5e-c89d191a97fc"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

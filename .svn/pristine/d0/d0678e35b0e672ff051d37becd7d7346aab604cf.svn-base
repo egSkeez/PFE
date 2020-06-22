@@ -1,0 +1,229 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.AoConsultation;
+import xtensus.services.ApplicationManager;
+
+
+@Component
+@Scope("request")
+	public class AoConsultationBean {
+	private ApplicationManager appMgr;
+	private AoConsultation aoConsultation;
+	private DataModel listAoConsultationDM;
+	private List<AoConsultation> listAoConsultation;
+	private boolean succesAjout;
+	private boolean succesSelectDel;
+
+
+	@SuppressWarnings("unused")
+	
+	private long records = 0;
+	@Autowired
+	private VariableGlobale vb;
+	private boolean flagAjout;
+	private String redirectLink;
+	
+	public AoConsultationBean(){
+		
+	}
+	@Autowired
+	public AoConsultationBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+
+		this.appMgr = appMgr;
+		aoConsultation = new AoConsultation();
+		listAoConsultationDM = new ListDataModel();
+		listAoConsultation = new ArrayList<AoConsultation>();
+		vb = new VariableGlobale();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		System.out.println("Dans goToListAoConsultation vb.setFlagAjout ==  " +vb.isFlagAjout());
+		listAoConsultation = new ArrayList<AoConsultation>();
+		aoConsultation = new AoConsultation();
+		try {
+			flagAjout=vb.isFlagAjout();
+			listAoConsultation= appMgr.getList(AoConsultation.class);
+			listAoConsultationDM.setWrappedData(listAoConsultation);
+		} catch (Exception e) {		
+			e.printStackTrace();
+		}
+	}
+	
+	public void save() {
+		succesAjout=false;
+		try {
+			if (flagAjout){
+				System.out.println("Dans save flagAjout  ==  " + flagAjout);
+				redirectLink = "courrierAjout.jsf";
+			}
+			appMgr.insert(aoConsultation);
+			vb.setAoConsultation(aoConsultation);
+			succesAjout=true;
+			Initialize();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+		public void getSelectedRow(){
+			aoConsultation = new AoConsultation();
+			try {
+				
+				aoConsultation = (AoConsultation) listAoConsultationDM.getRowData();
+				vb.setAoConsultation(aoConsultation);
+				
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public void getSelectionRow() {
+
+				this.getSelectedRow();
+				aoConsultation = new AoConsultation();
+				Initialize();
+		}
+		
+		
+		public void deleteSelectedRow() {
+
+			try {
+				appMgr.delete(aoConsultation);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			listAoConsultationDM = new ListDataModel();
+			listAoConsultation = new ArrayList<AoConsultation>();
+
+			Initialize();
+		}
+		
+		public void getDeleteSelectionRow() {
+			
+			
+			try {
+				aoConsultation = (AoConsultation) listAoConsultationDM.getRowData();
+				appMgr.delete(aoConsultation);
+				succesSelectDel= true;
+				
+							} catch (Exception e)
+			
+			{
+				e.printStackTrace();
+				succesSelectDel= false;
+			}
+		}
+	
+	public void viderchamp() {
+		aoConsultation = new AoConsultation();
+		Initialize();
+
+	}
+
+	public void hidechamp() {
+
+		viderchamp();
+
+	}
+	public String retour(){
+	
+		System.out.println("##############isFlagAjout === " + vb.isFlagAjout());
+		System.out.println("##############vb.getPagePrecedente() === " + vb.getPagePrecedente());
+		System.out.println("##############vb.getPagePrecedente() === " + vb.getPagePrecedente());
+		if (vb.isFlagAjout()== true) {
+			return "true";
+		}else if (vb.getPagePrecedente() != null && vb.getPagePrecedente().equals("modif")){
+			return "modif";}
+		else{
+			return "false";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+
+		return (listAoConsultationDM != null && listAoConsultationDM.getWrappedData() != null) ? ((List<AoConsultation>) listAoConsultationDM
+				.getWrappedData()).size() : 0;
+	}
+	
+	
+	/**
+	 * Getter and Setter
+	 */
+
+	public AoConsultation getAoConsultation() {
+		return aoConsultation;
+	}
+
+	public void setAoConsultation(AoConsultation aoConsultation) {
+		this.aoConsultation = aoConsultation;
+	}
+
+	public DataModel getListAoConsultationDM() {
+		return listAoConsultationDM;
+	}
+
+	public void setListAoConsultationDM(DataModel listAoConsultationDM) {
+		this.listAoConsultationDM = listAoConsultationDM;
+	}
+
+	public List<AoConsultation> getListAoConsultation() {
+		return listAoConsultation;
+	}
+
+	public void setListAoConsultation(List<AoConsultation> listAoConsultation) {
+		this.listAoConsultation = listAoConsultation;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+
+	public boolean isSuccesAjout() {
+		return succesAjout;
+	}
+
+	public void setSuccesAjout(boolean succesAjout) {
+		this.succesAjout = succesAjout;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	public boolean isSuccesSelectDel() {
+		return succesSelectDel;
+	}
+	public void setSuccesSelectDel(boolean succesSelectDel) {
+		this.succesSelectDel = succesSelectDel;
+	}
+	public boolean isFlagAjout() {
+		return flagAjout;
+	}
+	public void setFlagAjout(boolean flagAjout) {
+		this.flagAjout = flagAjout;
+	}
+	public String getRedirectLink() {
+		return redirectLink;
+	}
+	public void setRedirectLink(String redirectLink) {
+		this.redirectLink = redirectLink;
+	}
+
+}

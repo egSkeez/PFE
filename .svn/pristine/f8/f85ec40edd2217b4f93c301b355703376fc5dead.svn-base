@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoi_FR" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="d579d32f-2abd-40fa-a4c8-822573c166c1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseAujourdhui" class="java.lang.Integer">
+		<fieldDescription><![CDATA[necessitnatReponseAujourdhui]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseAujourdhuiLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[necessitnatReponseAujourdhuiLibelle]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseMois" class="java.lang.Integer">
+		<fieldDescription><![CDATA[necessitnatReponseMois]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseMoisLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[necessitnatReponseMoisLibelle]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseSemaine" class="java.lang.Integer">
+		<fieldDescription><![CDATA[necessitnatReponseSemaine]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseSemaineLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[necessitnatReponseSemaineLibelle]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseTotal" class="java.lang.Integer">
+		<fieldDescription><![CDATA[necessitnatReponseTotal]]></fieldDescription>
+	</field>
+	<field name="necessitnatReponseTotalLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[necessitnatReponseTotalLibelle]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="user" class="java.lang.String">
+		<fieldDescription><![CDATA[user]]></fieldDescription>
+	</field>
+	<title>
+		<band height="57" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="dbb042a5-fcea-49d9-bd04-73852c313482" x="492" y="0" width="63" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f38b1133-89b3-427d-aea6-b2cd7c321737" stretchType="RelativeToBandHeight" x="0" y="16" width="369" height="15"/>
+				<box topPadding="0" bottomPadding="2"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeOrganismeParent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="d57095fa-4776-4f29-9d0f-2107e108e9a3" stretchType="RelativeToBandHeight" x="0" y="31" width="370" height="15"/>
+				<box topPadding="0"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeRepublique}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f9471ffe-87d2-436a-b9f9-afc0d3cbd393" stretchType="RelativeToBandHeight" x="0" y="0" width="369" height="16"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="dcb8b277-3510-4d9f-8db5-df546ab9e6e1" x="410" y="0" width="82" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{societeVille}+ ", le "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="de7e5669-428c-4f4b-978c-d1c63f029752" stretchType="RelativeToBandHeight" x="472" y="20" width="106" height="15"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{user}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="72d1b999-1a25-4059-a779-0e4e95df442d" x="410" y="20" width="60" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Top"/>
+				<text><![CDATA[Utilisateur :]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="373">
+			<stackedBar3DChart>
+				<chart>
+					<reportElement uuid="0901dedf-eaf8-493e-b30d-ebf03d90b4d7" x="44" y="39" width="488" height="181"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend>
+						<font size="8"/>
+					</chartLegend>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{necessitnatReponseAujourdhuiLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{necessitnatReponseAujourdhui}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseAujourdhui}]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{necessitnatReponseSemaineLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{necessitnatReponseSemaine}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseSemaine}]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{necessitnatReponseMoisLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{necessitnatReponseMois}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseMois}]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{necessitnatReponseTotalLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{necessitnatReponseTotal}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseTotal}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<bar3DPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat>
+							<labelFont>
+								<font size="8"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="8"/>
+							</tickLabelFont>
+						</axisFormat>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat>
+							<labelFont>
+								<font size="8"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="8"/>
+							</tickLabelFont>
+						</axisFormat>
+					</valueAxisFormat>
+				</bar3DPlot>
+			</stackedBar3DChart>
+			<staticText>
+				<reportElement uuid="a27466fc-a214-4ac6-b6d4-137d22952735" x="0" y="19" width="270" height="20"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Statistique Courriers nécessitant une réponse :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="aef5aaae-894f-44cd-af6e-d0b4f3afaa70" x="270" y="19" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{necessitnatReponseTotalLibelle}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f3583385-17e0-4374-9b3f-e99c7163b878" x="303" y="19" width="83" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{necessitnatReponseTotal}]]></textFieldExpression>
+			</textField>
+			<pieChart>
+				<chart>
+					<reportElement uuid="62bd8b7d-7fc1-4461-b12f-24f440ec6f8c" x="94" y="220" width="378" height="153"/>
+					<chartTitle>
+						<font size="8"/>
+					</chartTitle>
+					<chartSubtitle>
+						<font size="8"/>
+					</chartSubtitle>
+					<chartLegend>
+						<font size="8"/>
+					</chartLegend>
+				</chart>
+				<pieDataset>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{necessitnatReponseAujourdhuiLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseAujourdhui}]]></valueExpression>
+					</pieSeries>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{necessitnatReponseSemaineLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseSemaine}]]></valueExpression>
+					</pieSeries>
+					<pieSeries>
+						<keyExpression><![CDATA[$F{necessitnatReponseMoisLibelle}]]></keyExpression>
+						<valueExpression><![CDATA[$F{necessitnatReponseMois}]]></valueExpression>
+					</pieSeries>
+				</pieDataset>
+				<piePlot>
+					<plot/>
+					<itemLabel/>
+				</piePlot>
+			</pieChart>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="20">
+			<textField>
+				<reportElement uuid="2a04ee4a-3e19-4374-982d-599de648ceb7" x="0" y="0" width="555" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+</jasperReport>

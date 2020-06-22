@@ -1,0 +1,67 @@
+package xtensus.beans.utils;
+
+import xtensus.ldap.model.Unit;
+
+public class StatistiqueCourrierTempsReponseParUniteNature {
+	
+	private Unit unite;
+	private Integer nbreCourrierTraiteHorsDelai;
+	private Integer nbreCourrieTraiteDansDelai;
+	private Integer nbreCourrierPasencoreTraite;
+	private Integer pourcentageCourrierTraiteHorsDelai;
+	private Integer pourcentageCourrieTraiteDansDelai;
+	private Integer pourcentageCourrierPasencoreTraite;
+	
+	public Unit getUnite() {
+		return unite;
+	}
+	public void setUnite(Unit unite) {
+		this.unite = unite;
+	}
+	public Integer getNbreCourrierTraiteHorsDelai() {
+		return nbreCourrierTraiteHorsDelai;
+	}
+	public void setNbreCourrierTraiteHorsDelai(Integer nbreCourrierTraiteHorsDelai) {
+		this.nbreCourrierTraiteHorsDelai = nbreCourrierTraiteHorsDelai;
+	}
+	public Integer getNbreCourrieTraiteDansDelai() {
+		return nbreCourrieTraiteDansDelai;
+	}
+	public void setNbreCourrieTraiteDansDelai(Integer nbreCourrieTraiteDansDelai) {
+		this.nbreCourrieTraiteDansDelai = nbreCourrieTraiteDansDelai;
+	}
+	public Integer getNbreCourrierPasencoreTraite() {
+		return nbreCourrierPasencoreTraite;
+	}
+	public void setNbreCourrierPasencoreTraite(Integer nbreCourrierPasencoreTraite) {
+		this.nbreCourrierPasencoreTraite = nbreCourrierPasencoreTraite;
+	}
+	public Integer getPourcentageCourrierTraiteHorsDelai() {
+		return pourcentageCourrierTraiteHorsDelai;
+	}
+	public void setPourcentageCourrierTraiteHorsDelai(
+			Integer pourcentageCourrierTraiteHorsDelai) {
+		this.pourcentageCourrierTraiteHorsDelai = pourcentageCourrierTraiteHorsDelai;
+	}
+	public Integer getPourcentageCourrieTraiteDansDelai() {
+		return pourcentageCourrieTraiteDansDelai;
+	}
+	public void setPourcentageCourrieTraiteDansDelai(
+			Integer pourcentageCourrieTraiteDansDelai) {
+		this.pourcentageCourrieTraiteDansDelai = pourcentageCourrieTraiteDansDelai;
+	}
+	public Integer getPourcentageCourrierPasencoreTraite() {
+		return pourcentageCourrierPasencoreTraite;
+	}
+	public void setPourcentageCourrierPasencoreTraite(
+			Integer pourcentageCourrierPasencoreTraite) {
+		this.pourcentageCourrierPasencoreTraite = pourcentageCourrierPasencoreTraite;
+	}
+	
+	
+	
+	
+	
+	
+
+}

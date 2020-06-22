@@ -1,0 +1,327 @@
+package xtensus.beans.common.GNL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.EvenementConsulter;
+import xtensus.services.ApplicationManager;
+import xtensus.gnl.entity.Evenement;
+import xtensus.gnl.entity.TypeEvenement;
+import xtensus.ldap.model.Person;
+
+
+
+@Component()
+@Scope("request")
+public class ConsultEvenementBean {
+
+	private Evenement evenement;
+	private Person user;
+	private DataModel listevenementDM;
+	private List<Evenement> listN;
+	private int compteur;
+	
+	private List<TypeEvenement> listTypeEvenement;
+	private TypeEvenement typeEvent;
+	private EvenementConsulter eventConsult;
+	private List<EvenementConsulter> listEventConsult;
+	private String type;
+
+	private long records = 0;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+
+	@Autowired
+	public ConsultEvenementBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+	
+		this.appMgr = appMgr;
+		user = new Person();
+		evenement = new Evenement();
+		listevenementDM = new ListDataModel();		
+		listN = new ArrayList<Evenement>();
+		eventConsult = new EvenementConsulter();
+		listEventConsult = new ArrayList<EvenementConsulter>();
+		listTypeEvenement = new ArrayList<TypeEvenement>();
+		typeEvent = new TypeEvenement();
+
+		System.out
+				.println("*************Bean EvenementGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		
+		user = vb.getPerson();
+		
+		try {
+			listTypeEvenement = appMgr.getList(TypeEvenement.class);
+			listN = appMgr.getList(Evenement.class);
+			for (int i = 0; i < listN.size(); i++) {
+				eventConsult.setEvenement(listN.get(i));
+				eventConsult.setType(appMgr
+						.listTypeEvenementByRef(
+								listN.get(i).getTypeEvenement()
+										.getTypeEvenementId()).get(0)
+						.getTypeEvenementLibelle());
+				listEventConsult.add(eventConsult);
+				eventConsult = new EvenementConsulter();
+			}
+		} catch (Exception e) {
+			System.out.println("erreur");
+		}
+		listevenementDM.setWrappedData(listEventConsult);
+	}
+
+	// Get Selection Rows
+			
+			public void getSelectedRowForDelete(){
+				try {
+					eventConsult = (EvenementConsulter) listevenementDM.getRowData();
+					vb.setEvenement(eventConsult.getEvenement());
+					evenement = eventConsult.getEvenement();
+
+					System.out.println("*******SelectionEvenementConsulterBean*********");
+					Initialize();
+
+				} catch (Exception e) {
+					System.out
+							.println("*******ErreurDeSelectionEvenementConsulterBean*******");
+				}
+			}
+			
+
+		public void getSelectedRowForDetails(){
+			try {
+				eventConsult = (EvenementConsulter) listevenementDM.getRowData();
+				vb.setEvenement(eventConsult.getEvenement());
+				evenement = eventConsult.getEvenement();
+				System.out.println("*******SelectionEvenementConsulterBean*********");
+
+			} catch (Exception e) {
+				System.out
+						.println("*******ErreurDeSelectionEvenementConsulterBean*******");
+			}
+
+		}
+
+	public void updateSelectedRow() {
+		status1 = false;
+
+		try {
+			//evenement = vb.getEvenement();
+			appMgr.update(evenement);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+			listN = new ArrayList<Evenement>();
+			Initialize();
+		} catch (Exception e) {
+			
+		}
+
+	}
+
+	public void deleteSelectedRow() {
+		try {
+			//evenement = vb.getEvenement();
+			appMgr.delete(evenement);
+			System.out.println("DeleteTerminee");
+
+		} catch (Exception e) {
+
+		}
+		listevenementDM = new ListDataModel();
+		listN = new ArrayList<Evenement>();
+		Initialize();
+		// evenement = new Evenement();
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listevenementDM == null && listevenementDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Evenement>) listevenementDM.getWrappedData()).size();
+		return records;
+	}
+
+	public Evenement getEvenement() {
+		return evenement;
+	}
+
+	public void setEvenement(Evenement evenement) {
+		this.evenement = evenement;
+	}
+
+	public DataModel getListevenementDM() {
+		return listevenementDM;
+	}
+
+	public void setListevenementDM(DataModel listevenementDM) {
+		this.listevenementDM = listevenementDM;
+	}
+
+	public List<Evenement> getListN() {
+		return listN;
+	}
+
+	public void setListN(List<Evenement> listN) {
+		this.listN = listN;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	@SuppressWarnings("unchecked")
+	public int getCompteur() {
+		try {
+			compteur = ((List<Evenement>) listevenementDM.getWrappedData())
+					.size();
+			return compteur;
+		} catch (NullPointerException n) {
+			compteur = 0;
+			return compteur;
+		}
+	}
+
+	public void setUser(Person user) {
+		this.user = user;
+	}
+
+	public Person getUser() {
+		return user;
+	}
+
+	public List<TypeEvenement> getListTypeEvenement() {
+		return listTypeEvenement;
+	}
+
+	public void setListTypeEvenement(List<TypeEvenement> listTypeEvenement) {
+		this.listTypeEvenement = listTypeEvenement;
+	}
+
+	public TypeEvenement getTypeEvent() {
+		return typeEvent;
+	}
+
+	public void setTypeEvent(TypeEvenement typeEvent) {
+		this.typeEvent = typeEvent;
+	}
+
+	public EvenementConsulter getEventConsult() {
+		return eventConsult;
+	}
+
+	public void setEventConsult(EvenementConsulter eventConsult) {
+		this.eventConsult = eventConsult;
+	}
+
+	public List<EvenementConsulter> getListEventConsult() {
+		return listEventConsult;
+	}
+
+	public void setListEventConsult(List<EvenementConsulter> listEventConsult) {
+		this.listEventConsult = listEventConsult;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+
+}

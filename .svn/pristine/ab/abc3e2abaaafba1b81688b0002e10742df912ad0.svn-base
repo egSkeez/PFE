@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoi_FR" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="d579d32f-2abd-40fa-a4c8-822573c166c1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="confidentialite" class="xtensus.entity.Confidentialite">
+		<fieldDescription><![CDATA[confidentialite]]></fieldDescription>
+	</field>
+	<field name="courrierAValider" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierAValider]]></fieldDescription>
+	</field>
+	<field name="courrierAValiderLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierAValiderLibelle]]></fieldDescription>
+	</field>
+	<field name="courrierArrivee" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierArrivee]]></fieldDescription>
+	</field>
+	<field name="courrierArriveeLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierArriveeLibelle]]></fieldDescription>
+	</field>
+	<field name="courrierDepart" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierDepart]]></fieldDescription>
+	</field>
+	<field name="courrierDepartLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierDepartLibelle]]></fieldDescription>
+	</field>
+	<field name="courrierNouveaux" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierNouveaux]]></fieldDescription>
+	</field>
+	<field name="courrierNouveauxLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierNouveauxLibelle]]></fieldDescription>
+	</field>
+	<field name="courrierTotal" class="java.lang.Integer">
+		<fieldDescription><![CDATA[courrierTotal]]></fieldDescription>
+	</field>
+	<field name="courrierTotalLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[courrierTotalLibelle]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="nomProjet" class="java.lang.String">
+		<fieldDescription><![CDATA[nomProjet]]></fieldDescription>
+	</field>
+	<field name="pathJasper" class="java.lang.String">
+		<fieldDescription><![CDATA[pathJasper]]></fieldDescription>
+	</field>
+	<field name="pourcentageCourrierArrivee" class="java.lang.Float">
+		<fieldDescription><![CDATA[pourcentageCourrierArrivee]]></fieldDescription>
+	</field>
+	<field name="pourcentageCourrierArriveeLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[pourcentageCourrierArriveeLibelle]]></fieldDescription>
+	</field>
+	<field name="pourcentageCourrierDepart" class="java.lang.Float">
+		<fieldDescription><![CDATA[pourcentageCourrierDepart]]></fieldDescription>
+	</field>
+	<field name="pourcentageCourrierDepartLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[pourcentageCourrierDepartLibelle]]></fieldDescription>
+	</field>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="societeOrganismeParent" class="java.lang.String">
+		<fieldDescription><![CDATA[societeOrganismeParent]]></fieldDescription>
+	</field>
+	<field name="societeRepublique" class="java.lang.String">
+		<fieldDescription><![CDATA[societeRepublique]]></fieldDescription>
+	</field>
+	<field name="societeVille" class="java.lang.String">
+		<fieldDescription><![CDATA[societeVille]]></fieldDescription>
+	</field>
+	<field name="statistiqueConfidentialite" class="xtensus.beans.utils.StatistiqueConfidentialite">
+		<fieldDescription><![CDATA[statistiqueConfidentialite]]></fieldDescription>
+	</field>
+	<field name="statistiqueConfidentialites" class="java.util.List">
+		<fieldDescription><![CDATA[statistiqueConfidentialites]]></fieldDescription>
+	</field>
+	<field name="statistiqueUrgence" class="xtensus.beans.utils.StatistiqueUrgence">
+		<fieldDescription><![CDATA[statistiqueUrgence]]></fieldDescription>
+	</field>
+	<field name="statistiqueUrgences" class="java.util.List">
+		<fieldDescription><![CDATA[statistiqueUrgences]]></fieldDescription>
+	</field>
+	<field name="urgence" class="xtensus.entity.Urgence">
+		<fieldDescription><![CDATA[urgence]]></fieldDescription>
+	</field>
+	<title>
+		<band height="57" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement uuid="dbb042a5-fcea-49d9-bd04-73852c313482" x="492" y="0" width="63" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f38b1133-89b3-427d-aea6-b2cd7c321737" stretchType="RelativeToBandHeight" x="0" y="16" width="369" height="15"/>
+				<box topPadding="0" bottomPadding="2"/>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeOrganismeParent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="d57095fa-4776-4f29-9d0f-2107e108e9a3" stretchType="RelativeToBandHeight" x="0" y="31" width="370" height="15"/>
+				<box topPadding="0"/>
+				<textElement>
+					<font fontName="Arial" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeRepublique}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f9471ffe-87d2-436a-b9f9-afc0d3cbd393" stretchType="RelativeToBandHeight" x="0" y="0" width="369" height="16"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{societeNom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="dcb8b277-3510-4d9f-8db5-df546ab9e6e1" x="410" y="0" width="82" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{societeVille}+ ", le "]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="233">
+			<bar3DChart>
+				<chart>
+					<reportElement uuid="6ec0a538-265a-48c3-a795-6107e0b06316" x="0" y="25" width="555" height="208"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{courrierTotalLibelle}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{courrierTotal}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{courrierTotal}]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{statistiqueUrgence}.getUrgence().getUrgenceLibelle()]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{statistiqueUrgence}.getCount()]]></categoryExpression>
+						<valueExpression><![CDATA[$F{statistiqueUrgence}.getCount()]]></valueExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{statistiqueConfidentialite}.getConfidentialite().getConfidentialiteLibelle()]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{statistiqueConfidentialite}.getCount()]]></categoryExpression>
+						<valueExpression><![CDATA[$F{statistiqueConfidentialite}.getCount()]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<bar3DPlot>
+					<plot/>
+					<itemLabel/>
+				</bar3DPlot>
+			</bar3DChart>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="149">
+			<textField>
+				<reportElement uuid="2a04ee4a-3e19-4374-982d-599de648ceb7" x="0" y="129" width="555" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomProjet}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+</jasperReport>

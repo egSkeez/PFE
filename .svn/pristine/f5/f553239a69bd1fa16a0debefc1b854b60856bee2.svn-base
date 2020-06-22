@@ -1,0 +1,113 @@
+
+<!-- Upload -->
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+
+	<script type="text/javascript" src="http://java.com/js/dtjava.js"></script>
+
+
+	<div>
+
+		<h:panelGrid columns="2">
+
+			<h:column>
+				<h:outputText value="Modifier un document"
+					styleClass="xteDetailLabel" />
+				<h:graphicImage value="../framGraphique/images/attach-icon.png"
+					width="18" height="20" />
+				<rich:spacer width="10" />
+				<h:outputText value="*" styleClass="error" />
+			</h:column>
+
+			<h:column>
+
+				<h:selectOneRadio value="#{variableGlobale.uploadType}"
+					layout="lineDirection" styleClass="xteDetailLabel" required="true"
+					requiredMessage="* #{msg.joindreDocument} #{msg.champsobligatoire}">
+					<a4j:support ajaxSingle="true" event="onchange"
+						reRender="attachfile,appletPanel" />
+
+					<f:selectItem itemValue="non" itemLabel="Ne pas modifier" />
+					<f:selectItem itemValue="local"
+						itemLabel="A partir du disque local" />
+					<f:selectItem itemValue="scanner" itemLabel="A partir du scanner" />
+				</h:selectOneRadio>
+			</h:column>
+
+			<h:column>
+			</h:column>
+
+			<h:column>
+				<div style="width: 410px; height: 150px; background-color: #F5F5F5;">
+					<a4j:outputPanel id="attachfile">
+
+
+						<rich:panel
+							style="border:0;text-align:center; background-color:  #F5F5F5 ;"
+							rendered="#{variableGlobale.uploadType =='non' }">
+							<h:outputText
+								value="Vous avez choisi de ne pas joindre aucun document." />
+						</rich:panel>
+
+
+						<rich:panel
+							style="border:0;align:center; background-color:  #F5F5F5 ;"
+							rendered="#{variableGlobale.uploadType == 'local' }">
+							<h:outputText
+								value="Appuyez sur le bouton Add puis choisissez le document à joindre." />
+							<br />
+							<rich:fileUpload fileUploadListener="#{fileUploadBean.listener}"
+								maxFilesQuantity="#{fileUploadBean.uploadsAvailable}"
+								id="upload" immediateUpload="#{fileUploadBean.autoUpload}"
+								acceptedTypes="jpg, gif, png, pdf"
+								allowFlash="#{fileUploadBean.useFlash}" listHeight="59px">
+								<a4j:support event="onclear" reRender="upload" ajaxSingle="true" />
+							</rich:fileUpload>
+						</rich:panel>
+
+
+						<rich:panel id="scan"
+							style="border:0;text-align:center; background-color:  #F5F5F5 ; "
+							rendered="#{variableGlobale.uploadType =='scanner' }">
+							<h:outputText
+								value="#{scannerService.scanned ? 'Appuyer sur le bouton Re-Scanner pour recommencer le scan :' : 'Appuyer sur le bouton Scanner pour commencer le scan :'}" />
+							<rich:spacer width="10" />
+						</rich:panel>
+
+
+						<a4j:outputPanel id="appletPanel">
+
+							<rich:panel id="buttonScan"
+								style="border:0;text-align:center;background-color:  #F5F5F5 ;"
+								rendered="#{variableGlobale.uploadType =='scanner' }">
+
+								<script type="text/javascript" src="../ScannerApplet/scanner.js">getButton();</script>
+								<div id='javafx-app-placeholder'></div>
+							</rich:panel>
+
+
+						</a4j:outputPanel>
+
+
+					</a4j:outputPanel>
+
+
+
+				</div>
+			</h:column>
+		</h:panelGrid>
+
+	</div>
+</ui:composition>
+
+<!-- Upload -->
+
+
+
+

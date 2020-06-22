@@ -1,0 +1,414 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Liens Courrier</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<!-- ************************************************* -->
+					<h:form>
+						<rich:panel styleClass="rich-panel" style=" height : 30px;">
+							<h:panelGrid columns="2">
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='courrierConsulterDetails.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onclick="this.src='../framGraphique/images/retourClick.png'"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.buttonRetour}" />
+							</h:panelGrid>
+						</rich:panel>
+  <div>
+								<ui:include src="../GBO/courrierDetailsInclude.xhtml"></ui:include>
+							</div>
+
+						<a4j:keepAlive beanName="courrierLiensCourrierBean" />
+
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.liaisonCourrierLabel}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+
+							<rich:dataTable
+								value="#{courrierLiensCourrierBean.listCourrierInfoNonAffecteDM}"
+								var="cr" id="dataNonAffecte" rows="10"
+								styleClass="rich-datatable"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<f:facet name="header">
+									<h:outputText value="#{msg.RechercherCourrierfacet}" />
+								</f:facet>
+								<rich:column
+									sortBy=" #{cr.courrierDestinataireReelleDirection}"
+									filterBy=" #{cr.courrierDestinataireReelleDirection}"
+									filterEvent="onkeyup" label="CIN" width="13%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneRef}" />
+									</f:facet>
+									<h:outputText
+										value=" #{cr.courrierDestinataireReelleDirection}  " />
+								</rich:column>
+								<rich:column sortBy="#{cr.courrierObjet}" filterBy="#{cr.courrierObjet}"
+									filterEvent="onkeyup" label="dateReception" width="14%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneObjet}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierObjet}">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column sortBy="#{cr.courrierNature}" filterBy="#{cr.courrierNature}" filterEvent="onkeyup"
+									label="Nature" width="12%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneNature}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierNature}">
+									</h:outputText>
+								</rich:column>
+									<rich:column label="#{msg.CourrierMode}" width="12%"  filterBy="#{cr.courrierNature}" filterEvent="onkeyup">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneMode}" />
+										</f:facet>
+										<h:outputText value="#{cr.transmission.transmissionLibelle}"/>
+									</rich:column>
+								<rich:column width="12%" sortBy="#{cr.courrierDateReceptionEnvoi}" filterBy="#{cr.courrierDateReceptionEnvoi}">
+									<f:facet name="header">
+										<h:outputText value="#{msg.dateReception}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierDateReceptionEnvoi}" />
+								</rich:column>
+									
+								<rich:column sortBy="#{cr.courrierExpediteur}" filterBy="#{cr.courrierExpediteur}" filterEvent="onkeyup"
+									label="Urgence" width="12%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.expediteurReelListeCourrier}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierExpediteur}">
+									</h:outputText>
+								</rich:column>
+								
+								<rich:column sortBy="#{cr.courrierDestinataireReelle}" filterBy="#{cr.courrierDestinataireReelle}" filterEvent="onkeyup"
+									label="Urgence" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.destReelle}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierDestinataireReelle}">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="link"
+												action="#{courrierLiensCourrierBean.getSelectedRowDM1}"
+												oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="link" value="#{msg.Consult}" />
+
+											<a4j:commandLink id="upd1"
+												action="#{courrierLiensCourrierBean.affect}"
+												reRender="dataNonAffecte,scroller1,dataAffecte,scroller2,records1,records2,buttonValidateUp,buttonValidateDown">
+												<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+													alt="details" style="height : 16px; width : 16px;" />
+											</a4j:commandLink>
+											<rich:toolTip for="upd1" value="#{msg.linkMsg}" />
+										</h:panelGrid>
+									</div>
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="dataNonAffecte" id="scroller1" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="records1"
+									value="#{courrierLiensCourrierBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+							<rich:spacer width="100%" height="8" />
+							
+							<rich:spacer width="100%" height="20" />
+							<rich:dataTable
+								value="#{courrierLiensCourrierBean.listCourrierInfoAffecteDM}"
+								var="cr" id="dataAffecte" rows="5" styleClass="rich-datatable"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+								<f:facet name="header">
+									<h:outputText value="#{msg.courriersLies}" />
+								</f:facet>
+								<rich:column
+									sortBy="#{cr.courrierDestinataireReelleDirection}"
+									filterBy="#{cr.courrierDestinataireReelleDirection}"
+									filterEvent="onkeyup" label="CIN" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneRef}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.courrierDestinataireReelleDirection}" />
+								</rich:column>
+								<rich:column sortBy="#{cr.courrierObjet}"
+									filterBy="#{cr.courrierObjet}" filterEvent="onkeyup"
+									label="dateReception" width="14%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneObjet}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierObjet}">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column sortBy="#{cr.courrierNature}"
+									filterBy="#{cr.courrierNature}" filterEvent="onkeyup"
+									label="Nature" width="12%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneNature}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierNature}">
+									</h:outputText>
+								</rich:column>
+								<rich:column label="#{msg.CourrierMode}" width="12%"
+									filterBy="#{cr.courrierNature}" filterEvent="onkeyup">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneMode}" />
+									</f:facet>
+									<h:outputText value="#{cr.transmission.transmissionLibelle}"
+										 />
+								</rich:column>
+								<rich:column sortBy="#{cr.courrierDateReceptionEnvoi}"
+									filterBy="#{cr.courrierDateReceptionEnvoi}"
+									filterEvent="onkeyup" label="Transmission" width="12%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.dateReception}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierDateReceptionEnvoi}">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column
+									sortBy="#{cr.courrierExpediteur}"
+									filterBy="#{cr.courrierExpediteur}"
+									filterEvent="onkeyup" label="Confidentialite" width="12%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.expediteurReelListeCourrier}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.courrierExpediteur}">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column sortBy="#{cr.courrierDestinataireReelle}"
+									filterBy="#{cr.courrierDestinataireReelle}" filterEvent="onkeyup"
+									label="Urgence" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.destReelle}" />
+									</f:facet>
+									<h:outputText value="#{cr.courrierDestinataireReelle}">
+									</h:outputText>
+								</rich:column>
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<div align="center">
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="link1"
+												action="#{courrierLiensCourrierBean.getSelectedRowDM2}"
+												oncomplete="document.location.href='courrierConsulterDetails.jsf'">
+												<h:graphicImage
+													value="../framGraphique/images/icone-detail.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="link1" value="#{msg.Consult}" />
+											<a4j:commandLink id="delete"
+												action="#{courrierLiensCourrierBean.desaffect}"
+												reRender="dataNonAffecte,scroller1,dataAffecte,scroller2,records1,records2,buttonValidateUp,buttonValidateDown">
+												<h:graphicImage value="../framGraphique/images/Delete.png"
+													alt="details" />
+											</a4j:commandLink>
+											<rich:toolTip for="delete" value="#{msg.delinkMsg}" />
+										</h:panelGrid>
+									</div>
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="dataAffecte" id="scroller2" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="records2"
+									value="#{courrierLiensCourrierBean.records2}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+							<rich:spacer width="100%" height="10" />
+							<div align="center">
+								<rich:spacer width="100%" height="10" />
+								<a4j:commandButton value="#{msg.buttonValidate}" type="submit"
+									disabled="#{courrierLiensCourrierBean.showButtonValidate}"
+									id="buttonValidateDown"
+									action="#{courrierLiensCourrierBean.saveChange}"
+									oncomplete="if(#{courrierLiensCourrierBean.status}==true) #{rich:component('msgPanal')}.show(); if(#{courrierLiensCourrierBean.status1}==true) #{rich:component('msgPanal2')}.show();"
+									reRender="msgPanal,msgPanal2">
+								</a4j:commandButton>
+							</div>
+							<rich:spacer width="100%" height="20" />
+<!--							 *********popupinfo**************** -->
+							<rich:modalPanel id="msgPanal" autosized="true" height="90"
+								width="350">
+								<a4j:keepAlive beanName="courrierLiensCourrierBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelInfo}"
+											styleClass="xtePopupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink1" />
+										<rich:componentControl for="msgPanal" attachTo="hidelink1"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/information.png" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{courrierLiensCourrierBean.message}" />
+											</td>
+										</tr>
+									</table>
+									<div align="center">
+										<a4j:commandButton value="#{msg.buttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											type="submit" ajaxSingle="true" styleClass="submitButton"
+											onclick="document.location.href='courrierConsulterDetails.jsf'" />
+									</div>
+								</h:form>
+							</rich:modalPanel>
+							<!-- *****popup Erreur****** -->
+							<rich:modalPanel id="msgPanal2" autosized="true" height="90"
+								width="350">
+								<a4j:keepAlive beanName="courrierLiensCourrierBean" />
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<rich:spacer width="2" />
+										<h:outputText value="#{msg.labelError}"
+											styleClass="xtePopupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="hidelink2" />
+										<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<h:form>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreur.png" />
+											</td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{courrierLiensCourrierBean.message}" />
+											</td>
+										</tr>
+									</table>
+									<div align="center">
+										<a4j:commandButton value="#{msg.buttonOk}"
+											onclick="Richfaces.hideModalPanel('msgPanal2');"
+											type="submit" ajaxSingle="true" styleClass="submitButton" />
+									</div>
+								</h:form>
+							</rich:modalPanel>
+						</rich:panel>
+					</h:form>
+
+					<!-- ************************************************* -->
+				</div>
+				<div id="inter" />
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

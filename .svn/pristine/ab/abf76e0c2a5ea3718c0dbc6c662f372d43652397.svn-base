@@ -1,0 +1,196 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Transaction;
+import xtensus.entity.Urgence;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class DossierCourrierAffecterConsulterBean {
+
+	private ApplicationManager appMgr;
+	private List<CourrierDossier> listCourrierDossier;
+	private List<CourrierDossierListe> listToDisplay;
+	private DataModel listCourrierAffecteDM;
+	private Dossier dossier;
+	private long records;
+	@Autowired
+	private VariableGlobale vb;
+	private boolean showOutPutText;
+	private boolean showResponseIcon;
+	private Transaction transaction;
+	public DossierCourrierAffecterConsulterBean() {
+	}
+
+	@Autowired
+	public DossierCourrierAffecterConsulterBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		listToDisplay = new ArrayList<CourrierDossierListe>();
+//		 listCourrierAffecteDM = new ListDataModel();
+		setListCourrierAffecteDM(new ListDataModel());
+		dossier = new Dossier();
+		transaction = new Transaction();
+	}
+
+	@PostConstruct
+	public void initialize() {
+		try {
+			dossier = vb.getDossier();
+			if (vb.getRedirect().equals("acceuil")) {
+				showOutPutText = true;
+				//*Récupération des données: confidentialité, urgence et transaction
+				if (dossier.getConfidentialite() != null) {
+					Confidentialite confidentialite = appMgr
+							.getConfidentialiteById(
+									dossier.getConfidentialite()
+											.getConfidentialiteId()).get(0);
+					Urgence urgence = appMgr.getUrgenceById(
+							dossier.getUrgence().getUrgenceId()).get(0);
+					dossier.setConfidentialite(confidentialite);
+					dossier.setUrgence(urgence);
+				}
+				if(vb.getTransaction() != null){
+					transaction = appMgr.getListTransactionByIdTransaction(vb.getTransaction().getTransactionId()).get(0);
+				}
+			} else {
+				showOutPutText = false;
+			}
+			listCourrierDossier = new ArrayList<CourrierDossier>();
+			//*L'icon de la reponse dossier n'est pas visible é la proprietaire du dossier
+			if(vb.getPerson().getId() == dossier.getDossierProprietaireId()){
+				showResponseIcon = false;
+			}else{
+				showResponseIcon = true;
+			}
+
+			listCourrierDossier = appMgr.getCourrierDossierByIdDossier(dossier
+					.getDossierId());
+			if (!listCourrierDossier.isEmpty()) {
+				for (CourrierDossier cd : listCourrierDossier) {
+					CourrierDossierListe courrierDossierListe = new CourrierDossierListe();
+					Courrier courrier = new Courrier();
+					courrier = appMgr.getCourrierByIdCourrier(
+							cd.getId().getIdCourrier()).get(0);
+					courrierDossierListe.setCourrier(courrier);
+					courrierDossierListe.setDossier(dossier);
+					int refNature = courrier.getNature().getNatureId();
+					courrierDossierListe.setNature(appMgr.getNatureById(
+							refNature).get(0));
+					listToDisplay.add(courrierDossierListe);
+				}
+			}
+			// records = listToDisplay.size();
+			listCourrierAffecteDM.setWrappedData(listToDisplay);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void getSelectionRow() {
+		CourrierDossierListe courrierDossierListe = new CourrierDossierListe();
+		courrierDossierListe = (CourrierDossierListe) listCourrierAffecteDM
+				.getRowData();
+		vb.setCourrier(courrierDossierListe.getCourrier());
+	}
+
+	/*** fonction pour le retour é la page précédante ***/
+	public String retourPage() {
+		if (vb.getRedirect().equals("acceuil")) {
+			return "acceuil";
+		} else {
+			vb.setRedirect("fromDossierGestion");
+			return "fromDossierGestion";
+		}
+	}
+
+	/************ gestters && Setters **************/
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listCourrierAffecteDM == null
+				&& listCourrierAffecteDM.getWrappedData() == null) {
+			records = 0;
+		} else
+			records = ((List<CourrierDossierListe>) listCourrierAffecteDM.getWrappedData()).size();
+		return records;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+
+	public void setListCourrierDossier(List<CourrierDossier> listCourrierDossier) {
+		this.listCourrierDossier = listCourrierDossier;
+	}
+
+	public List<CourrierDossier> getListCourrierDossier() {
+		return listCourrierDossier;
+	}
+
+	public void setListCourrierAffecteDM(DataModel listCourrierAffecteDM) {
+		this.listCourrierAffecteDM = listCourrierAffecteDM;
+	}
+
+	public DataModel getListCourrierAffecteDM() {
+		return listCourrierAffecteDM;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public boolean isShowOutPutText() {
+		return showOutPutText;
+	}
+
+	public void setShowOutPutText(boolean showOutPutText) {
+		this.showOutPutText = showOutPutText;
+	}
+
+	public boolean isShowResponseIcon() {
+		return showResponseIcon;
+	}
+
+	public void setShowResponseIcon(boolean showResponseIcon) {
+		this.showResponseIcon = showResponseIcon;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+}

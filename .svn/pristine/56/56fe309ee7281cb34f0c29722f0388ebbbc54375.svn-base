@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Supprimer Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<a4j:keepAlive beanName="documentConsultationBean" />
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.RechercherDocumentfacet}"
+										style="font-family:Calibri;" />
+
+								</h:panelGrid>
+							</f:facet>
+							<div align="center">
+								<rich:dataTable value="#{documentConsultationBean.listDDM}"
+									var="document" id="data" rows="10" style=" width : 100%;">
+
+									<rich:column
+										sortBy="#{courrierConsultationBean.vb.crr.referenceCorrespondant}"
+										filterBy="#{courrierConsultationBean.vb.crr.referenceCorrespondant}"
+										filterEvent="onkeyup" label="CIN">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneDocRefCourrier}" />
+										</f:facet>
+										<h:outputText
+											value="#{courrierConsultationBean.vb.crr.referenceCorrespondant}" />
+									</rich:column>
+
+									<rich:column sortBy="#{document.reference}"
+										filterBy="#{document.reference}" filterEvent="onkeyup"
+										label="id2">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneDocRef}" />
+										</f:facet>
+										<h:outputText value="#{document.reference}" />
+									</rich:column>
+
+
+
+									<rich:column sortBy="#{document.nomDocument}"
+										filterBy="#{document.nomDocument}" filterEvent="onkeyup"
+										label="nom">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneDocNom}" />
+										</f:facet>
+										<h:outputText value="#{document.nomDocument}" />
+									</rich:column>
+
+
+									<rich:column sortBy="#{document.objet}"
+										filterBy="#{document.objet}" filterEvent="onkeyup" label="obj">
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneDocObjet}" />
+										</f:facet>
+										<h:outputText value="#{document.objet}" />
+									</rich:column>
+
+									<rich:column>
+										<f:facet name="header">
+											<h:outputText value="#{msg.ColonneOperation}" />
+										</f:facet>
+										<center>
+											<h:panelGrid columns="4">
+
+												<a4j:commandLink id="consult"
+													action="#{documentConsultationBean.getSelectionRow}"
+													oncomplete="document.location.href='DocumentConsultation.jsf'">
+													<h:graphicImage
+														value="../framGraphique/images/icone-detail.png"
+														alt="Consulter" />
+
+												</a4j:commandLink>
+												<rich:toolTip for="consult" value="#{msg.Consult}" />
+
+												<a4j:commandLink id="deletelink"
+													action="#{documentConsultationBean.deleteSelectedRow}"
+													oncomplete="#{rich:component('askDelete')}.show();">
+
+													<h:graphicImage value="../framGraphique/images/Delete.png"
+														alt="Delete" />
+												</a4j:commandLink>
+												<rich:toolTip for="deletelink" value="#{msg.Supprim}" />
+
+
+
+											</h:panelGrid>
+										</center>
+									</rich:column>
+
+								</rich:dataTable>
+							</div>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.NbrDoc}"
+									style="color:blue;font-family:Calibri;" />
+								<h:outputText id="records"
+									value="#{documentConsultationBean.records}"
+									style="color:blue; font-family:Calibri;" />
+							</div>
+						</rich:panel>
+					</h:form>
+					<!-- ************ -->
+					<h:form>
+						<a4j:keepAlive beanName="documentConsultationBean" />
+						<rich:modalPanel id="askDelete" autosized="true" height="90"
+							width="300">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink1" />
+									<rich:componentControl for="askDelete" attachTo="hidelink1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText"
+												value="#{msg.confirmDelete}" />
+										</td>
+									</tr>
+									<h:form>
+										<a4j:keepAlive beanName="documentConsultationBean" />
+										<table align="center">
+											<tr>
+												<td align="center"><a4j:commandButton
+														value="#{msg.bouttonOui}"
+														action="#{documentConsultationBean.deleteSelectedRow}"
+														onclick="Richfaces.hideModalPanel('askDelete');"
+														oncomplete="if(#{documentConsultationBean.n}==1) 
+										#{rich:component('askDeleteCourrier')}.show();
+										else #{rich:component('ConfirmDelete')}.show();"
+														type="submit" ajaxSingle="true" styleClass="submitButton"
+														reRender="data,scroller,list," />
+												</td>
+												<td><a4j:commandButton value="#{msg.bouttonNon}"
+														styleClass="submitButton"
+														onclick="Richfaces.hideModalPanel('askDelete');"
+														oncomplete="document.location.href='DocumentSupression.jsf'" />
+												</td>
+											</tr>
+										</table>
+									</h:form>
+								</table>
+							</h:form>
+						</rich:modalPanel>
+						<rich:modalPanel id="askDeleteCourrier" autosized="true"
+							height="100" width="420">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink2" />
+									<rich:componentControl for="askDeleteCourrier"
+										attachTo="hidelink2" operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText"
+												value="#{msg.confirmDeleteCourrier}" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOui}"
+												action="#{documentConsultationBean.SuppCourrier}"
+												onclick="Richfaces.hideModalPanel('askDeleteCourrier');"
+												oncomplete="document.location.href='CourrierRecherche.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="data,scroller,list" />
+										</td>
+										<td><a4j:commandButton value="#{msg.bouttonNon}"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('askDeleteDoc');"
+												oncomplete="document.location.href='CourrierRecherche.jsf'" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+
+						</rich:modalPanel>
+
+
+						<rich:modalPanel id="ConfirmDelete" autosized="true" height="100"
+							width="420">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink3" />
+									<rich:componentControl for="ConfirmDelete" attachTo="hidelink3"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText" value="#{msg.msgDelete}" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												
+												oncomplete="Richfaces.hideModalPanel('ConfirmDelete');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												onclick="document.location.href='DocumentSuppression.jsf'"
+												reRender="data,scroller,formulaireUtilisateur" /></td>
+
+										
+									</tr>
+								</table>
+							</h:form>
+
+						</rich:modalPanel>
+
+
+<rich:modalPanel id="ConfirmDeleteCourrier" autosized="true" height="100"
+							width="420">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink4" />
+									<rich:componentControl for="ConfirmDeleteCourrier" attachTo="hidelink4"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText" value="#{msg.msgDelete}" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+							<h:form>
+								<a4j:keepAlive beanName="documentConsultationBean" />
+								<table align="center">
+									<tr>
+
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												
+												oncomplete="Richfaces.hideModalPanel('ConfirmDeleteCourrier');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												onclick="document.location.href='CourrierRecherche.jsf'"
+												reRender="data,scroller,formulaireUtilisateur" /></td>
+
+										
+									</tr>
+								</table>
+							</h:form>
+
+						</rich:modalPanel>
+
+
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+				</div>
+
+
+
+
+				<div id="footer">
+					<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+				</div>
+
+			</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

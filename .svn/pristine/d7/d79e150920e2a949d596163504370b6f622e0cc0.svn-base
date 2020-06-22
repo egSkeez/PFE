@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FicheDossier-FR_Documents" language="groovy" columnCount="6" printOrder="Horizontal" pageWidth="555" pageHeight="802" columnWidth="85" leftMargin="40" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e16d2053-d16a-40ce-99f9-82ed3ebc3bd0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="documentNom" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="16" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="73c1b5e8-49ea-49e4-850b-0e981e0393d9" positionType="Float" stretchType="RelativeToTallestObject" x="-36" y="1" width="70" height="15"/>
+				<textElement markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentNom} +","+ " "]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

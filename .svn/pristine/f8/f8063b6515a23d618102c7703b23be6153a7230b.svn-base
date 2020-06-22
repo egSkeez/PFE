@@ -1,0 +1,131 @@
+package xtensus.entity;
+
+import static javax.persistence.GenerationType.IDENTITY;
+
+import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+
+
+@Entity
+@Table(name = "cheque")
+public class Cheque extends Entite implements java.io.Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5109888493616261512L;
+	private Integer chequeId;
+	private String chequeNum;
+	private Date chequeDate;
+	private String chequeBeneficiaire;
+	private String chequeBanque;
+	private long chequeMontant;
+	private Boolean chequeBarre;
+	private Courrier chequeBordereauTransmission;
+	
+	public Cheque() {
+	}
+	public Cheque(Integer chequeId, String chequeNum, Date chequeDate,
+			String chequeBeneficiaire,String chequeBanque, long chequeMontant, Boolean chequeBarre,
+			Courrier chequeBordereauTransmission) {
+		this.chequeId = chequeId;
+		this.chequeNum = chequeNum;
+		this.chequeDate = chequeDate;
+		this.chequeBeneficiaire = chequeBeneficiaire;
+		this.chequeBanque = chequeBanque;
+		this.chequeMontant = chequeMontant;
+		this.chequeBarre = chequeBarre;
+		this.chequeBordereauTransmission = chequeBordereauTransmission;
+	}
+	
+	
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "chequeId", unique = true)
+	public Integer getChequeId() {
+		return chequeId;
+	}
+	public void setChequeId(Integer chequeId) {
+		this.chequeId = chequeId;
+	}
+	
+	
+	@Column(name = "chequeNum", length = 45)
+	public String getChequeNum() {
+		return chequeNum;
+	}
+	public void setChequeNum(String chequeNum) {
+		this.chequeNum = chequeNum;
+	}
+	
+	
+	@Temporal(TemporalType.DATE)
+	@Column(name = "chequeDate", length = 100)
+	public Date getChequeDate() {
+		return chequeDate;
+	}
+	public void setChequeDate(Date chequeDate) {
+		this.chequeDate = chequeDate;
+	}
+	
+	
+	@Column(name = "chequeBeneficiaire", length = 100)
+	public String getChequeBeneficiaire() {
+		return chequeBeneficiaire;
+	}
+	public void setChequeBeneficiaire(String chequeBeneficiaire) {
+		this.chequeBeneficiaire = chequeBeneficiaire;
+	}
+	
+	
+	@Column(name = "chequeBanque", length = 100)
+	public String getChequeBanque() {
+		return chequeBanque;
+	}
+	public void setChequeBanque(String chequeBanque) {
+		this.chequeBanque = chequeBanque;
+	}
+	
+	
+	@Column(name = "chequeMontant")
+	public long getChequeMontant() {
+		return chequeMontant;
+	}
+	public void setChequeMontant(long chequeMontant) {
+		this.chequeMontant = chequeMontant;
+	}
+	
+	
+	@Column(name = "chequeBarre", length = 1)
+	public Boolean getChequeBarre() {
+		return chequeBarre;
+	}
+	public void setChequeBarre(Boolean chequeBarre) {
+		this.chequeBarre = chequeBarre;
+	}
+	
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "chequeBordereauTransmission")
+	public Courrier getChequeBordereauTransmission() {
+		return chequeBordereauTransmission;
+	}
+	public void setChequeBordereauTransmission(Courrier chequeBordereauTransmission) {
+		this.chequeBordereauTransmission = chequeBordereauTransmission;
+	}
+	
+	
+}

@@ -1,0 +1,21 @@
+package xtensus.beans.utils;
+
+public class RapportCourrierUrgence {
+	private long nombre;
+	private String UrgenceLibelle;
+	public void setNombre(long nombre) {
+		this.nombre = nombre;
+	}
+	public long getNombre() {
+		return nombre;
+	}
+	public void setUrgenceLibelle(String urgenceLibelle) {
+		UrgenceLibelle = urgenceLibelle;
+	}
+	public String getUrgenceLibelle() {
+		return UrgenceLibelle;
+	}
+	
+	
+	
+}

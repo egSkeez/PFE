@@ -1,0 +1,138 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Unite;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class UniteGestionMailBean {
+	
+	@Autowired
+	private ApplicationManager appMgr;
+	@Autowired
+	private VariableGlobale vb;
+	private Unite unite;
+	private boolean updateOk;
+	private boolean updateKO;
+	private String message;
+	
+	@Autowired
+	public UniteGestionMailBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	
+	@PostConstruct
+	public void initialize() {
+		//Si le membre connecté n'est pas un BO
+		if(!vb.getPerson().isBoc()){
+		Unit uniteLDAP=vb.getPerson().getAssociatedDirection();
+		//récupérer l'unité par son centre de cout / ID
+		System.out.println("ID Unite "+uniteLDAP.getIdUnit().toString());
+		String CodeString = uniteLDAP.getIdUnit().toString();
+		
+		for(int i=CodeString.length();i<8;i++)
+			CodeString="0"+CodeString;
+		for(int i=CodeString.length();i<12;i++)
+			CodeString=" "+CodeString;
+		
+		List<Unite> unites=appMgr.getUniteByCodeSONEDE(CodeString);
+		if(unites!=null && unites.size()>0){
+			unite=unites.get(0);
+			System.out.println(unite);
+		}
+		}else{
+			System.out.println("ID Boc Connecté::"+vb.getPerson().getAssociatedBOC().getIdBOC());
+			List<Unite> bo=appMgr.getListeBoParId(vb.getPerson().getAssociatedBOC().getIdBOC()+"");
+			
+			if(bo!=null && bo.size()>0){
+				unite=bo.get(0);
+				System.out.println(unite);
+			
+			}
+			else{
+				 unite=new Unite();
+				 unite.setUniteType(1);
+				 unite.setUniteCodeSonede(vb.getPerson().getAssociatedBOC().getIdBOC()+"");
+				 try {
+					appMgr.insert(unite);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		
+	}
+	public void update() {
+		System.out.println("UPDATE  UNITE");
+		updateOk=false;
+		updateKO=false;
+		try {
+			appMgr.update(unite);
+			updateOk=true;
+		} catch (Exception e) {
+			updateKO=true;
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	public Unite getUnite() {
+		return unite;
+	}
+
+	public void setUnite(Unite unite) {
+		this.unite = unite;
+	}
+
+
+
+
+
+	public boolean isUpdateOk() {
+		return updateOk;
+	}
+
+
+	public void setUpdateOk(boolean updateOk) {
+		this.updateOk = updateOk;
+	}
+
+
+	public boolean isUpdateKO() {
+		return updateKO;
+	}
+
+
+	public void setUpdateKO(boolean updateKO) {
+		this.updateKO = updateKO;
+	}
+
+
+	public String getMessage() {
+		return message;
+	}
+
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	
+	
+	
+}

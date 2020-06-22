@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion Des groupes de contact : Choix Sujet</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel" style=" height : 30px;">
+							<h:panelGrid columns="2">
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='groupeMailingGestion.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.buttonRetour}" />
+							</h:panelGrid>
+						</rich:panel>
+
+						<rich:simpleTogglePanel switchType="client"
+							styleClass="rich-panel" label="#{msg.TitreDetail}" opened="true">
+							<table width="100%">
+								<tr>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+											<h:column>
+												<h:outputText
+													value="#{msg.groupecontactlibelleLabel} :"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:outputText
+												value="#{groupeMailingChoixSujetBean.groupecontact.groupecontactLibelle}"
+												styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+											<h:column>
+												<h:outputText
+													value="#{msg.groupecontactDescription} :"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:outputText
+												value="#{groupeMailingChoixSujetBean.groupecontact.groupecontactDescription}"
+												styleClass="xteDetailLabelOutput" />
+										</h:panelGrid></td>
+								</tr>
+							</table>
+						</rich:simpleTogglePanel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.listesujetmailing}"
+										styleClass="banner-software-second-name" />
+								</h:panelGrid>
+							</f:facet>
+
+							<rich:dataTable
+								value="#{groupeMailingChoixSujetBean.listsujetmailing}"
+								var="sujetmailing" id="data" rows="10"
+								styleClass="rich-datatable">
+								<rich:column width="5%" sortBy="#{sujetmailing.idsujetmailing}"
+									filterBy="#{sujetmailing.idsujetmailing}" filterEvent="onkeyup" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.reference}" />
+									</f:facet>
+									<h:outputText value="#{sujetmailing.idsujetmailing}" />
+								</rich:column>
+
+								<rich:column sortBy="#{sujetmailing.sujetmailingLibelle}"
+									filterBy="#{sujetmailing.sujetmailingLibelle}"
+									filterEvent="onkeyup" label="sujetmailing" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.titre}" />
+									</f:facet>
+									<h:outputText value="#{sujetmailing.sujetmailingLibelle}" />
+								</rich:column>
+								
+								<rich:column width="15%"
+									sortBy="#{sujetmailing.sujetmailingObjet}"
+									filterBy="#{sujetmailing.sujetmailingObjet}"
+									filterEvent="onkeyup">
+									<f:facet name="header">
+										<h:outputText value="#{msg.objet}" />
+									</f:facet>
+									<h:outputText value="#{sujetmailing.sujetmailingObjet}" />
+								</rich:column>
+
+								<rich:column sortBy="#{sujetmailing.sujetmailingDescription}"
+									filterBy="#{sujetmailing.sujetmailingDescription}"
+									filterEvent="onkeyup" label="sujetmailing">
+									<f:facet name="header">
+										<h:outputText value="#{msg.sujetmailingDescription}" />
+									</f:facet>
+									<h:outputText value="#{sujetmailing.sujetmailingDescription}"
+										escape="false" />
+								</rich:column>
+
+								<rich:column sortBy="#{sujetmailing.sujetmailingDatecreation}"
+									filterBy="#{sujetmailing.sujetmailingDatecreation}"
+									filterEvent="onkeyup" label="sujetmailing" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.sujetmailingDateCreation}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{sujetmailing.sujetmailingDatecreation}" />
+									</div>
+								</rich:column>
+
+								<rich:column width="7%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="groupeMailingChoixSujetBean" />
+									<center>
+
+										<a4j:commandLink id="cl"
+											action="#{groupeMailingChoixSujetBean.getSelectionRow}"
+											oncomplete="document.location.href='groupeMailingChoixSujetValidation.jsf'">
+											<h:graphicImage
+												value="../framGraphique/images/nextmailing.png"
+												alt="consulter" />
+										</a4j:commandLink>
+										<rich:toolTip for="cl" value="#{msg.labelChoisirSujet}"
+											direction="top-right" />
+
+									</center>
+
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{groupeMailingChoixSujetBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+					</h:form>
+
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(monthi8[w4s.getMonth()]); //]]>
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(s6ix[s3x]); //]]>
+						</script>
+						<div class="dateenc">
+							<a href="document.location.href='accueil.jsf'"><script
+									type="text/javascript">
+								//<![CDATA[
+								document.write(w4s.getDate()); //]]>
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="document.location.href='accueil.jsf'"><script
+								type="text/javascript">
+							//<![CDATA[
+							document.write(s0x[w4s.getDay()]); //]]>
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(w4s.getFullYear()); //]]>
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

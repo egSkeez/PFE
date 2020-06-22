@@ -1,0 +1,95 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Nature;
+import xtensus.services.ApplicationManager;
+
+
+
+@Component(value="testBean1")
+@Scope("request")
+public class TestBean {
+
+	private DataModel listnature;
+	private List<Nature> listN;
+	private ApplicationManager appMgr;
+	
+	@Autowired
+	public TestBean(@Qualifier("applicationManager") ApplicationManager appMgr){
+		this.appMgr = appMgr;
+		listnature = new ListDataModel();
+		
+	}
+	
+	
+	
+	
+	@PostConstruct
+	public void Initialize() {
+		try {
+			listN = appMgr.getList(Nature.class);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		listnature.setWrappedData(listN);
+	
+	}
+
+
+
+
+	public DataModel getListnature() {
+		return listnature;
+	}
+
+
+
+
+	public void setListnature(DataModel listnature) {
+		this.listnature = listnature;
+	}
+
+
+
+
+	public List<Nature> getListN() {
+		return listN;
+	}
+
+
+
+
+	public void setListN(List<Nature> listN) {
+		this.listN = listN;
+	}
+
+
+
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+
+
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+	
+	
+	
+	
+}

@@ -1,0 +1,348 @@
+package xtensus.beans.common.GBO;
+
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.Ged;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.dao.utils.DMSConnexionImplement;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.DocumentCategorie;
+import xtensus.entity.Etat;
+import xtensus.entity.Raisonnontransmission;
+import xtensus.entity.Suivitransmissioncourrier;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierAjouterAccuseReceptionBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private LdapOperation ldapOperation;
+	private Suivitransmissioncourrier suivitransmissioncourrier;
+	private String selectedItemsEtat;
+	private List<Raisonnontransmission> raisonnontransmissions;
+	private String selectedItemRaisonNonTransmission;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private Date date;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private Ged ged;
+
+	private boolean status;
+
+	private boolean etatListRaison;
+	
+	
+	private boolean showGedErrorMessage;
+
+	public boolean isShowGedErrorMessage() {
+		return showGedErrorMessage;
+	}
+
+	public void setShowGedErrorMessage(boolean showGedErrorMessage) {
+		this.showGedErrorMessage = showGedErrorMessage;
+	}
+
+	@Autowired
+	public CourrierAjouterAccuseReceptionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		courrier = new Courrier();
+		suivitransmissioncourrier = new Suivitransmissioncourrier();
+		raisonnontransmissions = new ArrayList<Raisonnontransmission>();
+		date = new Date();
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+		Resource rsrc = new ClassPathResource("/paramAlfresco.properties");
+		String pathConfigFile = rsrc.getFile().getAbsolutePath();
+		Properties props = new Properties();
+		props.load(new FileInputStream(pathConfigFile));
+		String URL = props.getProperty("alfresco.Url");
+		String namingConfigFilePath = vb.getNamingConfigFilePath();
+		String login = props.getProperty("alfresco.login");
+		String mdp = props.getProperty("alfresco.password");
+		vb.setDmsAccessLayer(DMSConnexionImplement.getConnexionGed(login, mdp,
+				URL, namingConfigFilePath));
+		showGedErrorMessage = DMSConnexionImplement.connetionStatus;
+		courrier = vb.getCourrier();
+		suivitransmissioncourrier.setSuiviTransmissionCourrierDateSysteme(date);
+		suivitransmissioncourrier.setSuiviTransmissionCourrierDateMaj(date);
+		setEtatListRaison(false);
+		int refTransmission = courrier.getTransmission().getTransmissionId();
+		if (refTransmission == 3) {
+			raisonnontransmissions = appMgr.listRaisonByCategorie("Fax");
+
+		} else if (refTransmission == 4) {
+			raisonnontransmissions = appMgr.listRaisonByCategorie("Mail");
+		}
+		raisonnontransmissions.addAll(appMgr.listRaisonByCategorie("Autre"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<SelectItem> getSelectItemsRaisonNonTransmissions() {
+		String libelle;
+		List<SelectItem> selectItemsRaisonNonTransmissions = new ArrayList<SelectItem>();
+		selectItemsRaisonNonTransmissions.add(new SelectItem(""));
+		// selectItemsRaisonNonTransmissions.add(new SelectItem("Autre"));
+		for (int j = 0; j <= raisonnontransmissions.size() - 1; j++) {
+			Integer idRaison = raisonnontransmissions.get(j)
+					.getIdraisonnontransmission();
+			if (vb.getLocale().equals("ar")) {
+				libelle = raisonnontransmissions.get(j)
+						.getRaisonnontransmissionLibelleAr();
+			} else {
+				libelle = raisonnontransmissions.get(j)
+						.getRaisonnontransmissionLibelle();
+			}
+			// selectItemsRaisonNonTransmissions.add(new SelectItem(
+			// raisonnontransmissions.get(j)
+			// .getRaisonnontransmissionLibelle()));
+			selectItemsRaisonNonTransmissions.add(new SelectItem(String
+					.valueOf(idRaison), libelle));
+		}
+		return selectItemsRaisonNonTransmissions;
+	}
+
+	public void changeListRaison(ActionEvent evt) {
+
+		if (Integer.valueOf(selectedItemsEtat).equals(9)) {
+			setEtatListRaison(true);
+		} else {
+			setEtatListRaison(false);
+		}
+	}
+
+	// fonction de selection des etat
+	public List<SelectItem> getSelectItemsEtat() {
+		String libelle;
+		List<Etat> etats = new ArrayList<Etat>();
+		etats = appMgr.listEtatByCategorie(4);
+		List<SelectItem> selectItemsEtat = new ArrayList<SelectItem>();
+		selectItemsEtat.add(new SelectItem(""));
+		for (int j = 0; j <= etats.size() - 1; j++) {
+			Integer idEtat = etats.get(j).getEtatId();
+			if (vb.getLocale().equals("ar")) {
+				libelle = etats.get(j).getEtatLibelleAr();
+			} else {
+				libelle = etats.get(j).getEtatLibelle();
+			}
+			// selectItemsEtat.add(new
+			// SelectItem(etats.get(j).getEtatLibelle()));
+			selectItemsEtat
+					.add(new SelectItem(String.valueOf(idEtat), libelle));
+		}
+		return selectItemsEtat;
+	}
+
+	public void save() {
+		status = false;
+		try {
+			// String raisonlibelle = "Autre";
+			// String etatlibelle = selectedItemsEtat.toString();
+			// if (selectedItemsEtat.equals("Non livré")) {
+			// raisonlibelle = selectedItemRaisonNonTransmission.toString();
+			// }
+			// raisonnontransmission = appMgr.listRaisonByLibelle(raisonlibelle)
+			// .get(0);
+			Raisonnontransmission raisonnontransmission;
+			if (Integer.valueOf(selectedItemsEtat).equals(8)) {
+				raisonnontransmission = appMgr.listRaisonById(1).get(0);
+			} else {
+				raisonnontransmission = appMgr.listRaisonById(
+						Integer.valueOf(selectedItemRaisonNonTransmission))
+						.get(0);
+			}
+			Etat etat = appMgr
+					.listEtatByRef(Integer.valueOf(selectedItemsEtat)).get(0);
+			suivitransmissioncourrier
+					.setRaisonnontransmission(raisonnontransmission);
+			suivitransmissioncourrier.setEtat(etat);
+			suivitransmissioncourrier.setUserId(vb.getPerson().getId());
+			suivitransmissioncourrier.setCourrier(courrier);
+			appMgr.insert(suivitransmissioncourrier);
+			// documment de l'accusé
+			Document AccuseReception = new Document();
+			DocumentCategorie docCategorie = appMgr.getDocumentCategorieById(4);
+			if (vb.getUploadType().equals("scanner")) {
+				AccuseReception.setDocumentType(".pdf");
+			} else {
+				AccuseReception.setDocumentType(vb.getDocumentType());
+			}
+			AccuseReception.setCourrier(vb.getCourrier());
+			AccuseReception.setDocumentCategorie(docCategorie);
+			AccuseReception.setDocumentDateInsertion(new Date());
+			AccuseReception.setDocumentProprietaire(vb.getPerson().getId());
+			AccuseReception.setDocumentSupprime(true);
+			AccuseReception.setDocumentParent(AccuseReception);
+			appMgr.insert(AccuseReception);
+			// ----------------COUCHE ACCES GED ----------------
+			ged.uploadDocument(AccuseReception);
+			// ----------------COUCHE ACCES GED ----------------
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+		} catch (Exception e) {
+			System.out.println("*****erreur");
+			e.printStackTrace();
+		}
+
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Courrier getCourrier() {
+		return courrier;
+	}
+
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public Suivitransmissioncourrier getSuivitransmissioncourrier() {
+		return suivitransmissioncourrier;
+	}
+
+	public void setSuivitransmissioncourrier(
+			Suivitransmissioncourrier suivitransmissioncourrier) {
+		this.suivitransmissioncourrier = suivitransmissioncourrier;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setSelectedItemsEtat(String selectedItemsEtat) {
+		this.selectedItemsEtat = selectedItemsEtat;
+	}
+
+	public String getSelectedItemsEtat() {
+		return selectedItemsEtat;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setRaisonnontransmissions(
+			List<Raisonnontransmission> raisonnontransmissions) {
+		this.raisonnontransmissions = raisonnontransmissions;
+	}
+
+	public List<Raisonnontransmission> getRaisonnontransmissions() {
+		return raisonnontransmissions;
+	}
+
+	public void setSelectedItemRaisonNonTransmission(
+			String selectedItemRaisonNonTransmission) {
+		this.selectedItemRaisonNonTransmission = selectedItemRaisonNonTransmission;
+	}
+
+	public String getSelectedItemRaisonNonTransmission() {
+		return selectedItemRaisonNonTransmission;
+	}
+
+	public void setEtatListRaison(boolean etatListRaison) {
+		this.etatListRaison = etatListRaison;
+	}
+
+	public boolean isEtatListRaison() {
+		return etatListRaison;
+	}
+
+}

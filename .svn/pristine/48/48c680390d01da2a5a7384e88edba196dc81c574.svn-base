@@ -1,0 +1,236 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.BordereauEnvoi;
+import xtensus.beans.utils.RapportPiedDePage;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.entity.Annotation;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Direction;
+import xtensus.entity.Societe;
+import xtensus.entity.Transaction;
+import xtensus.entity.Urgence;
+import xtensus.entity.Variables;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class RapportBordereauEnvoiInterneCourrier {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Courrier courrier;
+	private Direction direction;
+	
+	private List<RapportSociete>listeSociete= new ArrayList<RapportSociete>();
+	private List<RapportPiedDePage>piedDePage = new ArrayList<RapportPiedDePage>();
+	private String adresse ;
+
+	List<Annotation> listAnnotations;
+	@Autowired
+	private VariableGlobale vb;
+
+	@Autowired
+	public RapportBordereauEnvoiInterneCourrier(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		courrier = new Courrier();
+		direction = new Direction();
+		listAnnotations = new ArrayList<Annotation>();
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+
+	/******************************** Bordereau d'Envoi ************************************************/
+	@SuppressWarnings("unchecked")
+	public void printPDF() {
+		// courrier = vb.getCourrier();
+		try {
+			List<BordereauEnvoi> listBordereau = new ArrayList<BordereauEnvoi>();
+			BordereauEnvoi bordereau = new BordereauEnvoi();
+
+			courrier = vb.getCourrier();
+			// Annotations
+			List<Annotation> listAnnotation = new ArrayList<Annotation>();
+			listAnnotation = appMgr.listAnnotationByOrdre();
+			bordereau.setAnnotation(listAnnotation);
+
+			// Urgences
+			List<Urgence> listUrgence = new ArrayList<Urgence>();
+			listUrgence = appMgr.listUrgenceByOrdre();
+			bordereau.setUrgence(listUrgence);
+
+			// Confidentialite
+			List<Confidentialite> listConfidentialite = new ArrayList<Confidentialite>();
+			listConfidentialite = appMgr.ConfidentialiteByOrdre();
+			bordereau.setConfidentialite(listConfidentialite);
+			bordereau.setCourrier(courrier);
+
+			// Societe
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			bordereau.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			bordereau.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			bordereau.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			bordereau.setSocieteVille(societeVille);
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			bordereau.setNomProjet(nomProjet);
+			
+			String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+			.get(0).getSocieteLibelle();
+			bordereau.setAdresse(adr);
+			
+			RapportSociete rs = new RapportSociete();
+			if(vb.getPerson().isBoc()){
+				System.out.println("BOCT");
+				rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}
+			else{
+				System.out.println("Agent || Responsable || Secretaire");
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+			rs.setSocieteNom("aaaa");
+			rs.setSocieteOrganismeParent("bbbbb");
+			rs.setSocieteRepublique("ccccc");
+			rs.setSocieteVille("dddddd");
+			listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(bordereau.getSocieteNom());
+			listeSociete.get(0).setSocieteRepublique(bordereau.getSocieteRepublique());
+			listeSociete.get(0).setSocieteVille(bordereau.getSocieteVille());
+			listeSociete.get(0).setSocieteOrganismeParent(bordereau.getSocieteOrganismeParent());
+
+			Unit unit = new Unit();
+			if(vb.getPerson().isBoc()){
+			      vb.getPerson().getAssociatedBOC().getNameBOC();
+			}else{
+				unit = vb.getPerson().getAssociatedDirection();
+			}
+			direction.setDirectionIntitule(unit.getNameUnit());
+			bordereau.setDirection(direction);
+			if(vb.getDestinataireReel()!= null){
+			int index = vb.getDestinataireReel().indexOf("[");
+			System.out.println("#### index == " + index);
+			String res="";
+			if(index<0){
+				res=vb.getDestinataireReel();
+			}else{
+			 res = vb.getDestinataireReel().substring(0, index);
+			}
+			bordereau.setDestinataire("<b>Destinataire : </b>"+ res);
+			}else {
+			bordereau.setDestinataire("");
+		}
+//			bordereau.setDestinataire(vb.getDestinataireReel());
+			bordereau.setPathJasper(vb.getPathJasper());
+			String test = vb.getCodeUniqueCourrier();
+			if(test!=null){
+			test = test.replaceAll(" ", "");
+			bordereau.setCodeUnique(test);
+			}else{
+			test="";
+			bordereau.setCodeUnique(test);	
+			}
+			// Liste Direction
+			List<Unit> units = new ArrayList<Unit>();
+			if(vb.getPerson().isBoc()){
+			   units =  vb.getPerson().getAssociatedBOC().getListDirectionsChildBOC();
+			}else{
+				units = vb.getPerson().getAssociatedDirection()
+				.getListUnitsChildUnit();
+			}
+			
+
+			for (Unit u : units) {
+				bordereau.setNomProjet(nomProjet);
+				Direction d = new Direction();
+				d.setDirectionIntitule(u.getNameUnit());
+				bordereau.setDirection(d);
+				List<Unit> sousUnits = new ArrayList<Unit>();
+				sousUnits = u.getListUnitsChildUnit();
+				List<Direction> listSousDirection = new ArrayList<Direction>();
+				for (Unit su : sousUnits) {
+					Direction sd = new Direction();
+					sd.setDirectionIntitule(su.getNameUnit());
+					listSousDirection.add(sd);
+				}
+				bordereau.setDirections(listSousDirection);
+				bordereau.setPathJasper(vb.getPathJasper());
+				listBordereau.add(bordereau);
+				bordereau = new BordereauEnvoi();
+
+			}				
+			//////////////KBS Transaction
+			
+			CourrierDossier courrierDossier = appMgr.getCourrierDossierByIdCourrier(courrier.getIdCourrier()).get(0);
+			int refdossier = courrierDossier.getId().getDossierId();
+			Transaction transaction = new Transaction();
+			transaction = appMgr.getTransactionByIdDossier(refdossier).get(0);
+			String nouvelleRefCourrier=transaction.getCourrierReferenceCorrespondant();
+			courrier.setCourrierReferenceCorrespondant(test);
+			System.out.println("/////////// printPDF Rapport Courriers liste  getCourrierReferenceCorrespondant"+ transaction.getCourrierReferenceCorrespondant());
+			bordereau.setCourrier(courrier);
+			//////////////KBS Transaction
+			listBordereau.get(0).setListeSociete(listeSociete);
+			RapportPiedDePage rpdp= new RapportPiedDePage();
+			rpdp.setAdresse("test");
+			piedDePage.add(rpdp);
+			
+			System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+			listBordereau.get(0).setPiedDePage(piedDePage);
+			export.exportToPDF(listBordereau, "BordereauEnvoiCourrierFR",
+					"Bordereau Envoi_FR");
+		} catch (Exception e) {
+			System.out.println("*******Erreur Export pdf*******");
+			e.printStackTrace();
+		}
+	}
+
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+
+	public void setPiedDePage(List<RapportPiedDePage> piedDePage) {
+		this.piedDePage = piedDePage;
+	}
+
+	public List<RapportPiedDePage> getPiedDePage() {
+		return piedDePage;
+	}
+
+	public void setAdresse(String adresse) {
+		this.adresse = adresse;
+	}
+
+	public String getAdresse() {
+		return adresse;
+	}
+
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Historique de Mailing</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel" style=" height : 30px;">
+							<h:panelGrid columns="2">
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='groupeMailingGestion.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.buttonRetour}" />
+							</h:panelGrid>
+						</rich:panel>
+
+						<rich:simpleTogglePanel switchType="client" styleClass="rich-panel"
+							label="#{msg.TitreDetail}" opened="true">
+							<table width="100%">
+								<tr>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+											<h:column>
+												<h:outputText
+													value="#{msg.groupecontactlibelleLabel} :"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:outputText
+												value="#{groupeMailingHistoriqueBean.groupecontact.groupecontactLibelle}"
+												styleClass="xteDetailLabelOutput" />
+										</h:panelGrid>
+									</td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid
+											columns="2">
+											<h:column>
+												<h:outputText
+													value="#{msg.groupecontactDescription} :"
+													styleClass="xteDetailLabel" />
+												<rich:spacer width="5" />
+											</h:column>
+											<h:outputText
+												value="#{groupeMailingHistoriqueBean.groupecontact.groupecontactDescription}"
+												styleClass="xteDetailLabelOutput" />
+										</h:panelGrid>
+									</td>
+								</tr>
+							</table>
+						</rich:simpleTogglePanel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.listesujetmailing}"
+										styleClass="banner-software-second-name" />
+								</h:panelGrid>
+							</f:facet>
+
+							<rich:dataTable
+								value="#{groupeMailingHistoriqueBean.listSujetMailingDM}"
+								var="sm" id="data" rows="10" styleClass="rich-datatable">
+								<rich:column width="5%"
+									sortBy="#{sm.sujetmailing.idsujetmailing}"
+									filterBy="#{sm.sujetmailing.idsujetmailing}"
+									filterEvent="onkeyup" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.reference}" />
+									</f:facet>
+									<h:outputText value="#{sm.sujetmailing.idsujetmailing}" />
+								</rich:column>
+
+								<rich:column sortBy="#{sm.sujetmailing.sujetmailingLibelle}"
+									filterBy="#{sm.sujetmailing.sujetmailingLibelle}"
+									filterEvent="onkeyup" label="sujetmailing" width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.titre}" />
+									</f:facet>
+									<h:outputText value="#{sm.sujetmailing.sujetmailingLibelle}" />
+								</rich:column>
+								
+								<rich:column sortBy="#{sm.sujetmailing.sujetmailingObjet}"
+									filterBy="#{sm.sujetmailing.sujetmailingObjet}"
+									filterEvent="onkeyup" label="sujetmailing" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.objet}" />
+									</f:facet>
+									<h:outputText value="#{sm.sujetmailing.sujetmailingObjet}" />
+								</rich:column>
+
+								<rich:column sortBy="#{sm.sujetmailing.sujetmailingDescription}"
+									filterBy="#{sm.sujetmailing.sujetmailingDescription}"
+									filterEvent="onkeyup" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.sujetmailingDescription}" />
+									</f:facet>
+									<h:outputText
+										value="#{sm.sujetmailing.sujetmailingDescription}"
+										escape="false" />
+								</rich:column>
+
+								<rich:column
+									sortBy="#{sm.sujetmailing.sujetmailingDatecreation}"
+									filterBy="#{sm.sujetmailing.sujetmailingDatecreation}"
+									filterEvent="onkeyup" label="sujetmailing" width="8%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.sujetmailingDateCreation}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText
+											value="#{sm.sujetmailing.sujetmailingDatecreation}" />
+									</div>
+								</rich:column>
+
+								<rich:column sortBy="#{sm.dateEnvoie}"
+									filterBy="#{sm.dateEnvoie}" filterEvent="onkeyup"
+									label="sujetmailing" width="12%">
+									<f:facet name="header">
+										<h:outputText
+											value="#{msg.gestionhistoriqueContactDateEnvoie}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{sm.dateEnvoie}" />
+									</div>
+								</rich:column>
+								
+								<rich:column sortBy="#{sm.dateFin}"
+									filterBy="#{sm.dateFin}" filterEvent="onkeyup"
+									label="sujetmailing" width="12%">
+									<f:facet name="header">
+										<h:outputText
+											value="#{msg.dateCloture}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{sm.dateFin}" />
+									</div>
+								</rich:column>
+
+
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{groupeMailingHistoriqueBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+
+						</rich:panel>
+
+
+					</h:form>
+
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(monthi8[w4s.getMonth()]); //]]>
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(s6ix[s3x]); //]]>
+						</script>
+						<div class="dateenc">
+							<a href="document.location.href='accueil.jsf'"><script
+									type="text/javascript">
+								//<![CDATA[
+								document.write(w4s.getDate()); //]]>
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="document.location.href='accueil.jsf'"><script
+								type="text/javascript">
+							//<![CDATA[
+							document.write(s0x[w4s.getDay()]); //]]>
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//<![CDATA[
+							document.write(w4s.getFullYear()); //]]>
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

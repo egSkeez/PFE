@@ -1,0 +1,72 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags" >
+	<style>
+	#indicateurs {
+		border-collapse: collapse;
+	}
+	#indicateurs td {
+		border: 1px solid green;
+		font-size: 13px !important;
+		width: 86px;
+	}
+	#indicateurs span {
+		font-family: Arial,Verdana,sans-serif;
+		margin:0px auto;
+		padding-bottom: 3px;
+	}
+	</style>
+	<h:form id="statusForm">
+		<table id="indicateurs" style="margin: 0 auto;" border="1">
+			<tr><td align="center">
+				<h:outputText id="ldapStatus"
+					value="Annuaire"
+					style="color:#{accueilGBOBean.ldapErrorColor};" />
+			</td><td align="center">
+				<h:outputText id="mailStatus"
+					value="Messagerie"
+					style="color:#{accueilGBOBean.mailErrorColor};" />
+			</td></tr>
+			<tr><td align="center">
+				<h:outputText id="dbStatus"
+					value="BD"
+					style="color:#{accueilGBOBean.dbErrorColor};" />
+			</td><td align="center">
+				<h:outputText id="gedStatus"
+					value="GED"
+					style="color:#{accueilGBOBean.gedErrorColor};" />
+			</td></tr>
+		</table>
+	</h:form>
+	<div class="monthenc">
+		<script type="text/javascript">
+			document.write(monthi8[w4s.getMonth()]);
+		</script>
+	</div>
+	<div class="datebx">
+		<script type="text/javascript">
+			document.write(s6ix[s3x]);
+		</script>
+		<div class="dateenc">
+			
+				<script type="text/javascript">
+				document.write(w4s.getDate());
+			</script> 
+		</div>
+	</div>
+	<div class="dayenc">
+		
+			<script type="text/javascript">
+			document.write(s0x[w4s.getDay()]);
+		</script> 
+	</div>
+	<div class="yearenc">
+		<script type="text/javascript">
+			document.write(w4s.getFullYear());
+		</script>
+	</div>
+</ui:composition>

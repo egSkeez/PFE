@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FicheSuivi-AR_Transactions" language="groovy" pageWidth="555" pageHeight="802" columnWidth="520" leftMargin="0" rightMargin="35" topMargin="0" bottomMargin="0" uuid="a108f934-93fd-4723-93eb-1782e78fbf76">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="expdestexterne" class="xtensus.entity.Expdestexterne"/>
+	<field name="transactionDateTransaction" class="java.lang.String"/>
+	<field name="transactionCommentaire" class="java.lang.String"/>
+	<field name="transactionDateReponse" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="60" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="dc7731e4-c577-46b0-aac9-62c0c4c67bb2" x="479" y="1" width="41" height="15"/>
+				<box topPadding="1" bottomPadding="0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المرسل :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="7c6f8c91-5fbe-49ff-99df-1c9d22f40647" stretchType="RelativeToBandHeight" x="-42" y="30" width="521" height="15"/>
+				<box topPadding="1" rightPadding="3"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transactionCommentaire}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6ffe8382-6e28-41cf-baec-d03071ee1536" x="465" y="15" width="54" height="15"/>
+				<box topPadding="1" bottomPadding="0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[تاريخ الإرسال : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="106a9a6f-a1fa-434e-a1fa-be6ec212bad3" x="479" y="30" width="40" height="15"/>
+				<box topPadding="1" bottomPadding="0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الملاحظات :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="565ac4e5-edc9-4c90-83a7-2bc1b48b6a70" x="113" y="0" width="376" height="15"/>
+				<box topPadding="1" rightPadding="3"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{expdestexterne}.getExpDestExternePrenomAR()+" " + $F{expdestexterne}.getExpDestExterneNomAR()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="1a13e8e5-767b-4f2c-b27b-b96aa2b7f2e3" x="152" y="15" width="55" height="15"/>
+				<box topPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transactionDateReponse}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="407d9960-6db5-44ef-b425-cef179c08ed3" x="410" y="15" width="55" height="15"/>
+				<box topPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transactionDateTransaction}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6b99caa0-6c2d-43d7-83d1-b4a9d842f03a" x="207" y="15" width="55" height="15"/>
+				<box topPadding="1" bottomPadding="0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[تاريخ الإستلام : ]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="ebf0400d-0c50-4f80-b5c6-58c6f91fa186" x="5" y="51" width="515" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+</jasperReport>

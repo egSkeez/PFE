@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BordereauEnvoi_FR_CofidentialiteFR" language="groovy" columnCount="4" printOrder="Horizontal" pageWidth="555" pageHeight="802" columnWidth="138" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c2fa6a97-135d-444d-94f5-7f7d4d383fce">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="confidentialiteDescription" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentialiteDescription]]></fieldDescription>
+	</field>
+	<field name="confidentialiteDescriptionAr" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentialiteDescriptionAr]]></fieldDescription>
+	</field>
+	<field name="confidentialiteId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[confidentialiteId]]></fieldDescription>
+	</field>
+	<field name="confidentialiteLibelle" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentialiteLibelle]]></fieldDescription>
+	</field>
+	<field name="confidentialiteLibelleAr" class="java.lang.String">
+		<fieldDescription><![CDATA[confidentialiteLibelleAr]]></fieldDescription>
+	</field>
+	<field name="confidentialiteOrdre" class="java.lang.Integer">
+		<fieldDescription><![CDATA[confidentialiteOrdre]]></fieldDescription>
+	</field>
+	<field name="courriers" class="java.util.Set">
+		<fieldDescription><![CDATA[courriers]]></fieldDescription>
+	</field>
+	<field name="dossiers" class="java.util.Set">
+		<fieldDescription><![CDATA[dossiers]]></fieldDescription>
+	</field>
+	<field name="id" class="java.io.Serializable">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<ellipse>
+				<reportElement uuid="a2d8247c-39c4-4b9d-81e3-bb5f1079501b" x="0" y="5" width="5" height="5"/>
+			</ellipse>
+			<textField>
+				<reportElement uuid="2193ea1e-f83a-4669-a2ea-46785cdfd5e1" x="5" y="1" width="130" height="20"/>
+				<box leftPadding="2"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{confidentialiteLibelle}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

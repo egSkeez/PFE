@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<html>
+<head>
+<title>Paramétrage Code Unique</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/calander.js" type="text/javascript"></script>
+<script>
+function addText(variable,newText){
+	var el = document.getElementById(variable);
+	
+	  var start = el.selectionStart
+	  var end = el.selectionEnd
+	  var text = el.value
+	  var before = text.substring(0, start)
+	  var after  = text.substring(end, text.length)
+	  el.value = (before + newText + after)
+	  el.selectionStart = el.selectionEnd = start + newText.length
+	  el.focus()
+}
+function doGetCaretPosition (ctrl) {
+
+	var CaretPos = 0;
+	// IE Support
+	if (document.selection) {
+
+		ctrl.focus ();
+		var Sel = document.selection.createRange ();
+
+		Sel.moveStart ('character', -ctrl.value.length);
+
+		CaretPos = Sel.text.length;
+	}
+	// Firefox support
+	else if (ctrl.selectionStart || ctrl.selectionStart == '0')
+		CaretPos = ctrl.selectionStart;
+
+	return (CaretPos);
+
+}
+
+function init(){
+	var now = new Date;
+	var annee   = now.getFullYear();
+	var mois = now.getMonth()+1;
+	
+	mois = mois.toString().replace(/^(\d)$/,'0$1')
+	
+	document.getElementById("an").innerHTML = annee;
+	document.getElementById("mois").innerHTML = mois;
+}
+
+function retournerAnnee(){
+	
+	return(mois);
+}
+
+function chargementCode(){
+
+	code = "ceci est un code javascript...";
+	document.getElementById("myform:codeUnique").innerHTML = code;
+}
+
+function testercode(identifiant,service,sens,bo){
+	
+	var v= document.getElementById("myform:get").value;
+
+	var now = new Date;
+	
+	var myRegEx=new RegExp("\\[ID\\]","gm");
+	var str1=v.replace(myRegEx ,identifiant);
+	
+   	var myRegEx2=new RegExp("\\[SRV\\]","gm");
+   	var str2=str1.replace(myRegEx2 ,service);
+
+   	var myRegEx3=new RegExp("\\[Sens\\]","gm");
+   	var str3=str2.replace(myRegEx3 ,sens);
+
+    var mois = now.getMonth()+1;
+	mois = mois.toString().replace(/^(\d)$/,'0$1')
+   	var myRegEx4=new RegExp("\\[Mois\\]","gm");
+   	var str4=str3.replace(myRegEx4 ,mois);
+
+   	var annee   = now.getFullYear();
+   	var myRegEx5=new RegExp("\\[Annee\\]","gm");
+   	var str5=str4.replace(myRegEx5 ,annee);
+
+
+ 	var myRegEx6=new RegExp("\\[BOC\\]","gm");
+   	var str6=str5.replace(myRegEx6 ,bo);
+	
+	alert("Code non param\351tr\351 :\n"+v+"\n Code param\351tr\351 :\n"+str6);
+	
+}
+
+</script>
+
+
+<style type="text/css">
+table.myTable {
+	border-collapse: collapse;
+}
+
+table.myTable td, table.myTable th {
+	border: 1px solid yellowgreen;
+	padding: 5px;
+}
+
+.desc{
+	
+	font-size: 80%;
+}
+
+.descriptionMarq {
+	font-family: verdana;
+	font-size: 80%;
+}
+</style>
+
+</head>
+<body onload="init()">
+
+
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/xte-style-gbo.css" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+<rich:panel styleClass="rich-panel">
+						<h:form>
+							<div id="barreIcone">
+								
+									<a4j:commandLink id="retour"
+										onclick="document.location.href='GestionGBO0.jsf'">
+										<h:graphicImage
+											value="../framGraphique/images/retour.png"
+											onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+											onmouseout="this.src='../framGraphique/images/retour.png'" />
+									</a4j:commandLink>
+									<rich:toolTip for="retour" value="#{msg.Retour}"
+										direction="top-right" />
+									<rich:spacer width="5px" />
+									
+									<rich:toolTip for="upd1" direction="top-right"
+										value="#{msg.labelAjoutNature}" />
+								
+							
+							</div>
+							
+						</h:form>
+						
+					</rich:panel>
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="100">
+								<h:outputText value="#{msg.parametrageCode}"
+									styleClass="banner-software-second-name" />
+							</h:panelGrid>
+						</f:facet>
+
+						<h:panelGrid>
+						<a4j:keepAlive beanName="marqueurBean" />
+							<h:column>
+								<h:outputText value="#{msg.descriptionMarqueur1}"
+									styleClass="descriptionMarq" />
+							</h:column>
+
+							<h:column>
+								<h:outputText value="#{msg.descriptionMarqueur2}"
+									styleClass="descriptionMarq" />
+							</h:column>
+
+							<h:column>
+								<h:outputText value="#{msg.exempleMarqueur1}"
+									styleClass="descriptionMarq" />
+							</h:column>
+							<h:column>
+								<h:outputText value="#{msg.exempleMarqueur2}"
+									styleClass="descriptionMarq" />
+							</h:column>
+						</h:panelGrid>
+						
+						<br />
+						<br />
+
+<a4j:keepAlive beanName="marqueurBean" />
+<h:form id="myform">
+
+<a4j:keepAlive beanName="marqueurBean" ajaxOnly="true" />
+<rich:messages ajaxRendered="true" errorClass="msgError" styleClass="error" />
+						<table class="myTable"  width="100%"
+							border="1 ">
+							<tr>
+
+							</tr>
+							<tr style="text-align: center">
+								<td rowspan="7">
+								
+							 <h:inputTextarea value="#{marqueurBean.c}" id="get"  style="font-size: 18px;resize: none;"  
+										name="get" rows="5" cols="30" required="true"
+													requiredMessage="* Code #{msg.champsobligatoire}"
+													maxlength="100" /> 
+										
+								</td>
+								<td><i>#{msg.variable}</i></td>
+								<td><i>#{msg.descVariable}</i></td>
+								<td width="15%"><i>#{msg.valeurTest}</i></td>
+								
+							</tr>
+							<tr>
+								<td style="text-align: center"><input type="button" style="width: 100"
+									onclick="addText('myform:get','[ID]')" value="#{msg.btnId}" /></td>
+									<td class="desc"><i>#{msg.descID}</i></td>
+								<td  class="desc" style="text-align: center">#{msg.valId}</td>
+							</tr>
+							<tr>
+								<td style="text-align: center"><input type="button" style="width: 100"
+									onclick="addText('myform:get','[SRV]')" value="#{msg.btnService}" /></td>
+									<td class="desc"><i>#{msg.descSRV}</i></td>
+								<td class="desc" style="text-align: center">#{msg.valService}</td>
+							</tr>
+							<tr>
+								<td style="text-align: center"><input type="button" style="width: 100"
+									onclick="addText('myform:get','[Sens]')" value="#{msg.btnSens}" /></td>
+									<td class="desc"><i>#{msg.descSENS}</i></td>
+								<td class="desc" style="text-align: center">#{msg.valSens}</td>
+							</tr>
+							<tr>
+								<td style="text-align: center"><input type="button" style="width: 100"
+									onclick="addText('myform:get','[Mois]')" value="#{msg.btnMois}" /></td>
+									<td class="desc"><i>#{msg.descMois}</i></td>
+								<td class="desc" style="text-align: center" id="mois"></td>
+							</tr>
+							<tr>
+								<td style="text-align: center"><input type="button" style="width: 100"
+									onclick="addText('myform:get','[Annee]')" value="#{msg.btnAnnee}" /></td>
+									<td class="desc"><i>#{msg.descAnnee}</i></td>
+								<td class="desc" style="text-align: center" id="an"></td>
+							</tr>
+						
+							<tr>
+								<td style="text-align: center"><input type="button" style="width: 100"
+									onclick="addText('myform:get','[BOC]')" value="#{msg.btnBoc}" /></td>
+									<td class="desc"><i>#{msg.descBoc}</i></td>
+								<td class="desc" style="text-align: center">#{msg.valBOC}</td>
+							</tr>
+							
+												
+						</table>
+
+						<br />
+						<center>
+						<h:panelGrid columns="2">
+							<h:column>
+								<input type="button" style="width: 150"
+									onclick="testercode('2454','DGEN','D','BOCT')"
+									value="#{msg.testerCode}" />
+							</h:column>
+							<h:column>
+							
+								<a4j:commandButton id="btnAjout" rendered="#{marqueurBean.modeAjout}" value="#{msg.btnSaveCode}" type="submit" style="width: 150"
+												 styleClass="submitButton"
+												action="#{marqueurBean.ajouter_code}"
+												
+												reRender="get"
+												oncomplete="if(#{marqueurBean.status}==true) #{rich:component('ajout_code')}.show();"
+												
+												/>
+												
+											
+												<a4j:commandButton id="btnModif" rendered="#{marqueurBean.modeModif}"
+										
+										value="#{msg.buttonModifier}" type="submit"
+										action="#{marqueurBean.modifierCode}"
+										oncomplete="if(#{marqueurBean.modeModif}==true) #{rich:component('askUpdate')}.show();"
+										></a4j:commandButton>
+												
+											
+												
+							</h:column>
+						</h:panelGrid></center>
+						
+						</h:form>
+<!-- popup ajout -->
+<rich:modalPanel id="ajout_code" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="marqueurBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage
+												value="../framGraphique/images/closePopup.png" width="15"
+												height="15" id="hidelinkv2" />
+											<rich:componentControl for="ajout"
+												attachTo="hidelinkv2" operation="hide" event="onClick" />
+										</h:panelGroup>
+									</f:facet>
+
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmInsert}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+
+											<a4j:commandButton value="#{msg.buttonOk}" ajaxSingle="true"
+												styleClass="submitButton"
+												oncomplete="javascript:Richfaces.hideModalPanel('ajout_code');" 
+												onclick="document.location.href='paramCodeUnique.jsf'" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+	<!-- popup Modifier -->								<!-- ***************************popup Update ************************** -->
+
+								<rich:modalPanel id="askUpdate" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="marqueurBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage
+												value="../framGraphique/images/closePopup.png" width="15"
+												height="15" id="hidelink3" alt="Fermer" />
+											<rich:componentControl for="askUpdate" attachTo="hidelink3"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmUpdate}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												
+												oncomplete="Richfaces.hideModalPanel('askUpdate');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" 
+												reRender="btnModif ,btnAjout" onclick="document.location.href='paramCodeUnique.jsf'"/>
+										</div>
+										<rich:spacer width="10" />
+
+									</h:form>
+								</rich:modalPanel>
+<!-- fin popup -->
+					</rich:panel>
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="document.location.href='accueil.jsf'"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="document.location.href='accueil.jsf'"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+
+</body>
+	</html>
+</ui:composition>

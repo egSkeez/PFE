@@ -1,0 +1,692 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Gestion Employe</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+	<script> 
+function allerVersPanel() { 
+	window.location.href = "#accoruser1";
+} 
+ </script>
+</head>
+<body>
+	<!-- ********************************* -->
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel"
+						style="height:30px; padding-top:5px;">
+						<h:form>
+							<div>
+								<rich:spacer width="5px" />
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='GestionGBO0.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}"
+									direction="top-right" />
+								<rich:spacer width="5px" />
+
+
+							</div>
+							<a4j:keepAlive beanName="employeGestionBean" />
+						</h:form>
+					</rich:panel>
+					<div>
+						<h:form id="accoruser1"
+							style="display:#{employeGestionBean.hideAccor};">
+							<a4j:keepAlive beanName="employeGestionBean" ajaxOnly="true" />
+
+							<rich:panel id="accor1" styleClass="rich-panel">
+								<f:facet name="header">
+									<h:panelGrid columns="2">
+										<h:outputText value="#{msg.labelAjoututilisateur}"
+											styleClass="xteEnregistrementLabelOutput" />
+										<h:column>
+
+										</h:column>
+									</h:panelGrid>
+								</f:facet>
+								<rich:messages ajaxRendered="true" errorClass="msgError"
+									styleClass="error" />
+								<table width="100%" border="0">
+									<tr ><td colspan="2">
+									<h:panelGrid columns="2">
+												
+												<h:column>	<h:outputText styleClass="xteDetailLabel"
+																	value="#{msg.uniteRattachement}#{msg.pointvirgule}"
+																	/>
+																	</h:column>
+												<h:column>	<h:outputText
+																	value="#{employeGestionBean.utilisateurStructure}"
+																	style="color: #2F3030;font-family: Arial, Helvetica, sans-serif;font-size: 12px;splay: inline-block;padding: 5px 0;"
+																	 />
+																	</h:column>	
+																	</h:panelGrid>
+									</td></tr>
+									<tr>
+										<td style="width: 50%; padding-top: px; vertical-align: top;">
+											<h:panelGrid columns="2">
+															
+												<h:column>
+													<h:outputText value="#{msg.employe} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in1" disabled="true"
+														value="#{employeGestionBean.utilisateur.nom}"
+														required="true"
+														requiredMessage="* #{msg.nom} #{msg.champsobligatoire}"
+														maxlength="25">
+													</h:inputText>
+												</h:column>
+
+												<h:column>
+													<h:outputText value="#{msg.matricule}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column>
+													<h:inputText id="inAbr"  disabled="true"
+														value="#{employeGestionBean.utilisateur.shortName}"
+														maxlength="25" />
+												</h:column>
+												<h:column rendered="#{employeGestionBean.ficheMembreArabe}">
+													<h:outputText
+														value="#{msg.employeAR} #{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+														<rich:spacer width="5" />
+													<h:outputText id="champOb222" value="*" styleClass="error" />
+												</h:column>
+												<h:column rendered="#{employeGestionBean.ficheMembreArabe}">
+													<h:inputText id="inPrenomUserAr" required="true" requiredMessage="#{msg.employeAR} #{msg.champsobligatoire}"
+														value="#{employeGestionBean.utilisateur.prenomUserAr}"
+														maxlength="25" />
+												</h:column>
+												<h:column rendered="#{employeGestionBean.ficheMembreArabe and false}">
+													<h:outputText
+														value="#{msg.nomUtilisateurAr}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+												</h:column>
+												<h:column rendered="#{employeGestionBean.ficheMembreArabe and false}">
+													<h:inputText id="inNomUserAr" 
+														value="#{employeGestionBean.utilisateur.nomUserAr}"
+														maxlength="25" />
+												</h:column>
+
+												<h:column>
+													<h:outputText value="#{msg.login}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb2" value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in9"
+														value="#{employeGestionBean.utilisateur.login}"
+														required="true"
+														requiredMessage="* #{msg.login} #{msg.champsobligatoire}" />
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.pwd}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb3" value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputSecret id="in10"
+														value="#{employeGestionBean.utilisateur.pwd}"
+														required="true"
+														requiredMessage="* #{msg.pwd} #{msg.champsobligatoire}"
+														validatorMessage="* #{msg.confirmpwd} #{msg.incorrect}">
+														<f:validator validatorId="passwordValidator" />
+														<f:attribute name="confirm" value="#{confirm}" />
+													</h:inputSecret>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.retapepwd}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText id="champOb4" value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputSecret id="confirm" binding="#{confirm}"
+														required="true"
+														requiredMessage="* #{msg.confirmpwd} #{msg.champsobligatoire}" />
+												</h:column>
+											</h:panelGrid>
+										</td>
+										<td style="width: 50%;" valign="top"><h:panelGrid
+												columns="2">
+												<h:column>
+													<h:outputText value="#{msg.email}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in6"
+														value="#{employeGestionBean.utilisateur.email}"
+														required="true"
+														requiredMessage="* #{msg.email} #{msg.champsobligatoire}"
+														validatorMessage="* #{msg.email} #{msg.invalid}"
+														maxlength="50">
+														<f:validator validatorId="checkvalidemail" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.telephone}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+													<h:outputText value="*" styleClass="error" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in3"
+														value="#{employeGestionBean.utilisateur.telephoneNumber}"
+														required="true"
+														requiredMessage="* #{msg.telephone} #{msg.champsobligatoire}"
+														label="#{msg.telephone}" maxlength="25">
+														<f:validator validatorId="checkvalideTel" />
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.Expfax}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in4"
+														value="#{employeGestionBean.utilisateur.fax}"
+														required="false" maxlength="25">
+
+													</h:inputText>
+												</h:column>
+
+												<h:column>
+													<h:outputText value="#{msg.postalCode}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputText id="in7"
+														value="#{employeGestionBean.utilisateur.codePostal}"
+														required="false"
+														requiredMessage="* #{msg.postalCode} #{msg.champsobligatoire}"
+														label="#{msg.postalCode}"
+														validatorMessage="* #{msg.postalCode} #{msg.validatorchampsentier}"
+														converterMessage="* #{msg.postalCode} #{msg.validatorchampsentier}">
+													</h:inputText>
+												</h:column>
+												<h:column>
+													<h:outputText value="#{msg.adresse}#{msg.pointvirgule}"
+														styleClass="xteDetailLabel" />
+													<rich:spacer width="5" />
+												</h:column>
+												<h:column>
+													<h:inputTextarea id="in5"
+														value="#{employeGestionBean.utilisateur.adresse}"
+														styleClass="xteDetailLabelTextArea"
+														style="width : 145px; height : 47px;" />
+												</h:column>
+
+
+
+											</h:panelGrid>
+										</td>
+									</tr>
+								</table>
+								<rich:spacer height="10" />
+								<div align="center">
+									<div id="buttonValidateUser">
+										<a4j:commandButton value="#{msg.buttonValidate}"
+											action="#{employeGestionBean.affecterCompte}"
+											oncomplete="if(#{employeGestionBean.ajoutCompteOK}==true) #{rich:component('msgPanal')}.show();
+											if(#{employeGestionBean.structureExiste}==false) #{rich:component('msgPanalStructureExiste')}.show();
+											if(#{employeGestionBean.affecteStructure}==false) #{rich:component('msgPanalAffecteStructure')}.show();
+											if(#{employeGestionBean.structureExisteLDAP}==false) #{rich:component('msgPanalStructureExisteLDAP')}.show();"></a4j:commandButton>
+										<a4j:commandButton value="#{msg.bouttonAnnuler}" type="submit"
+											onclick="document.location.href='EmployeGestion.jsf'">
+										</a4j:commandButton>
+
+
+									</div>
+								</div>
+								<rich:spacer height="10" />
+								<div align="left">
+									<h:outputText value="#{msg.infoChampObligatoir}" />
+								</div>
+							</rich:panel>
+						</h:form>
+					</div>
+					<!-- *******popup Info Validation d'ajout -->
+					<rich:modalPanel id="msgPanal" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="employeGestionBean" ajaxOnly="true" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkCA" />
+								<rich:componentControl for="msgPanal" attachTo="hidelinkCA"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.confirmAjout}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									oncomplete="document.location.href='EmployeGestion.jsf'"
+									type="submit" ajaxSingle="true" styleClass="submitButton"
+									reRender="msgPanal" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+<rich:modalPanel id="msgPanalStructureExiste" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="employeGestionBean" ajaxOnly="true" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkCA2" />
+								<rich:componentControl for="msgPanalStructureExiste" attachTo="hidelinkCA2"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.messageproblemexistanceStructure}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									onclick="Richfaces.hideModalPanel('msgPanalStructureExiste');"
+									type="submit" ajaxSingle="true" styleClass="submitButton"
+									reRender="msgPanalStructureExiste" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+
+
+<rich:modalPanel id="msgPanalAffecteStructure" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="employeGestionBean" ajaxOnly="true" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkCA3" />
+								<rich:componentControl for="msgPanalAffecteStructure" attachTo="hidelinkCA3"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.messageproblemeAffectationStructure}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									onclick="Richfaces.hideModalPanel('msgPanalAffecteStructure');"
+									type="submit" ajaxSingle="true" styleClass="submitButton"
+									reRender="msgPanalAffecteStructure" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+					
+<rich:modalPanel id="msgPanalStructureExisteLDAP" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="employeGestionBean" ajaxOnly="true" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelinkCA4" />
+								<rich:componentControl for="msgPanalStructureExisteLDAP" attachTo="hidelinkCA4"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.messageproblemeStructureLDAP}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									onclick="Richfaces.hideModalPanel('msgPanalStructureExisteLDAP');"
+									type="submit" ajaxSingle="true" styleClass="submitButton"
+									reRender="msgPanalStructureExisteLDAP" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+					
+					
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listEmployeAvecCompte}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="employeGestionBean" />
+						<h:form>
+							<rich:dataTable
+								value="#{employeGestionBean.listEmployesUtilisateurDM}"
+								var="emp" id="data1" rows="10" styleClass="rich-panel">
+								<rich:column width="10%" sortBy="#{emp.employeMatricule}"
+									filterBy="#{emp.employeMatricule}" filterEvent="onkeyup" label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{emp.employeMatricule}" />
+									</div>
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{emp.employerNom}"
+									filterBy="#{emp.employerNom}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomEmploye}" />
+									</f:facet>
+									<h:outputText value="#{emp.employerNom}" />
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{emp.employerNomAr}"
+									filterBy="#{emp.employerNomAr}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomEmployeAR}" />
+									</f:facet>
+									<h:outputText value="#{emp.employerNomAr}" />
+
+								</rich:column>
+								
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data1" id="scroller1" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record1"
+									value="#{employeGestionBean.listEmployesUtilisateurNbr}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+
+
+					</rich:panel>
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="Liste Employés Modifiés"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="employeGestionBean" />
+						<h:form>
+							<rich:dataTable
+								value="#{employeGestionBean.listEmployesUtilisateurModifieDM}"
+								var="emp" id="data2" rows="10" styleClass="rich-panel">
+								<rich:column width="10%" sortBy="#{emp.employeMatricule}"
+									filterBy="#{emp.employeMatricule}" filterEvent="onkeyup" label="ref">
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{emp.employeMatricule}" />
+									</div>
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{emp.employerNom}"
+									filterBy="#{emp.employerNom}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomEmploye}" />
+									</f:facet>
+									<h:outputText value="#{emp.employerNom}" />
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{emp.employerNomAr}"
+									filterBy="#{emp.employerNomAr}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomEmployeAR}" />
+									</f:facet>
+									<h:outputText value="#{emp.employerNomAr}" />
+
+								</rich:column>
+
+
+								<rich:column width="10%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="employeGestionBean" />
+									<center>
+										<h:panelGrid columns="6">
+											<a4j:commandLink id="synch"
+												action="#{employeGestionBean.synchronisation}">
+												<h:graphicImage value="../framGraphique/images/reload.png" />
+											</a4j:commandLink>
+											<rich:toolTip for="synch" value="#{msg.synchroniser}"
+												direction="top-right" />
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data2" id="scroller2" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record2"
+									value="#{employeGestionBean.listEmployesUtilisateurModifieNbr}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+
+
+					</rich:panel>
+
+
+					<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+							<h:panelGrid columns="3">
+								<h:outputText value="#{msg.listEmployeSansCompte}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</h:panelGrid>
+						</f:facet>
+						<a4j:keepAlive beanName="employeGestionBean" />
+						<h:form>
+							<rich:dataTable value="#{employeGestionBean.listEmployesDM}"
+								var="emp" id="data" rows="10" styleClass="rich-panel">
+								<rich:column width="10%" sortBy="#{emp.employeMatricule}" id="col1"
+									filterBy="#{emp.employeMatricule}" filterEvent="onkeyup" label="ref" >
+									<f:facet name="header">
+										<h:outputText value="#{msg.matricule}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{emp.employeMatricule}" />
+									</div>
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{emp.employerNom}" id="col2"
+									filterBy="#{emp.employerNom}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomEmploye}" />
+									</f:facet>
+									<h:outputText value="#{emp.employerNom}" />
+
+								</rich:column>
+
+								<rich:column width="40%" sortBy="#{emp.employerNomAr}" id="col3"
+									filterBy="#{emp.employerNomAr}" filterEvent="onkeyup"
+									label="label">
+									<f:facet name="header">
+										<h:outputText value="#{msg.nomEmployeAR}" />
+									</f:facet>
+									<h:outputText value="#{emp.employerNomAr}" />
+
+								</rich:column>
+
+
+								<rich:column width="10%" id="col4">
+									<f:facet name="header">
+										<h:outputText value="#{msg.operation}" />
+									</f:facet>
+									<a4j:keepAlive beanName="employeGestionBean" />
+									<center>
+										<h:panelGrid columns="6" >
+											<a4j:commandLink id="ed"
+												action="#{employeGestionBean.getSelectionRowEmployes}"
+												reRender="accor1,accoruser1,accor2,accoruser2"
+											oncomplete="allerVersPanel();"
+												>
+											
+												<h:graphicImage 
+													value="../framGraphique/images/icone-detail.png"
+													alt="editer" />
+											
+											</a4j:commandLink>
+										
+										</h:panelGrid>
+									</center>
+									<rich:toolTip for="upd" direction="top-right"
+										value="#{msg.labelConsulter}" />
+								</rich:column>
+							</rich:dataTable>
+							<div align="center">
+								<rich:datascroller for="data" id="scroller" />
+								<h:outputText value="#{msg.nbEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="record"
+									value="#{employeGestionBean.listEmployesNbr}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</h:form>
+
+
+					</rich:panel>
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

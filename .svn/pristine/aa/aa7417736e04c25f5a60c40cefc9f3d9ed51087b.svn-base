@@ -1,0 +1,307 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierConsulterInformations;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Transaction;
+import xtensus.entity.Urgence;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class DossierDetailsBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Dossier dossier;
+	public boolean status;
+	public boolean status1;
+	public boolean status2;
+	public boolean status3;
+	private Date date;
+	private Date date1;
+	private Transaction transaction;
+	private DataModel listCourrierAffecteDM;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private List<CourrierDossierListe> listCourrierDossierListeAffecte;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private long records;
+	
+	public DossierDetailsBean() {
+	}
+
+
+	@Autowired
+	public DossierDetailsBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export){
+		this.appMgr = appMgr;
+		this.export = export;
+		dossier = new Dossier();
+		transaction = new Transaction();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		listCourrierAffecteDM = new ListDataModel();
+		listCourrierDossierListeAffecte = new ArrayList<CourrierDossierListe>();
+		listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+		date = new Date();
+		date1 = new Date();
+		System.out
+				.println("**************BeanInjecte CourrierConsultationBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			List<CourrierDossier> listDossierCourrier = new ArrayList<CourrierDossier>();
+			List<Courrier> listCourrierAffecte = new ArrayList<Courrier>();
+			CourrierDossierListe courrierDossierListe;
+			dossier = vb.getDossier();
+			confidentialite = appMgr.getConfidentialiteById(dossier.getConfidentialite().getConfidentialiteId()).get(0);
+			vb.setConfidentialite(confidentialite);
+			urgence = appMgr.getUrgenceById(dossier.getUrgence().getUrgenceId()).get(0);
+			vb.setUrgence(urgence);
+			transaction = vb.getTransaction();
+			listDossierCourrier = appMgr.getCourrierDossierByIdDossier(dossier.getDossierId());
+			for (CourrierDossier cd : listDossierCourrier) {
+				Courrier cr = appMgr.getCourrierByIdCourrier(
+				cd.getId().getIdCourrier()).get(0);
+				listCourrierAffecte.add(cr);
+			}
+			for (Courrier cr : listCourrierAffecte) {
+				courrierDossierListe = new CourrierDossierListe();
+				courrierDossierListe.setDossier(dossier);
+				courrierDossierListe.setCourrier(cr);
+				courrierDossierListe.setNature(appMgr.getNatureById(cr.getNature().getNatureId()).get(0));
+				courrierDossierListe.setConfidentialite(appMgr.getConfidentialiteById(cr.getConfidentialite().getConfidentialiteId()).get(0));
+				courrierDossierListe.setTransmission(appMgr.getTransmissionById(cr.getTransmission().getTransmissionId()).get(0));
+				courrierDossierListe.setUrgence(appMgr.getUrgenceById(cr.getUrgence().getUrgenceId()).get(0));
+				listCourrierDossierListeAffecte.add(courrierDossierListe);
+			}
+			listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+			vb.setListCourriesrAffectes(listCourrierDossierListeAffecte);
+			System.out.println("*******ChargementAvecSucces   CourrierConsultationBen******");
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement CourrierConsultationBen*******");
+			e.printStackTrace();
+		}
+
+	}
+	
+	public void deleteSelectedCourrier(){
+		
+	}
+	
+	public void reply(){
+		try{
+			// modifier a cause de redeveloppement de la liste courriers
+			CourrierInformations consulterInformations = new CourrierInformations();
+			consulterInformations = vb.getCourDossConsulterInformations();
+			// fin modifier a cause de redeveloppement de la liste courriers
+			//dossier = consulterInformations.getDossier();
+			dossier = new Dossier(); //  Remplacer a cause de redeveloppement de la liste courriers , temporairement
+			vb.setDossier(dossier);
+			if (consulterInformations.getCourrierExpediteurObjet() instanceof Person) {
+				Person person = new Person();
+				person = (Person) consulterInformations.getCourrierExpediteurObjet();
+				vb.setCopyListSelectedPerson(new ArrayList<Person>());
+				vb.getCopyListSelectedPerson().add(person);
+				vb.setDestNom(person.getCn());
+			} else if (consulterInformations.getCourrierExpediteurObjet() instanceof Unit){
+				Unit unit = new Unit();
+				unit = (Unit) consulterInformations.getCourrierExpediteurObjet();
+				vb.setCopyListSelectedUnit(new ArrayList<Unit>());
+				vb.getCopyListSelectedUnit().add(unit);
+				vb.setDestNom(unit.getNameUnit());
+			}
+			vb.setCopyDestNom(consulterInformations.getCourrierDestinataireReelle());
+			vb.setCopyExpNom(consulterInformations.getCourrierExpediteur());
+			vb.setCopyCourrierCommentaire(consulterInformations.getCourrierCommentaire());
+			vb.setToReplay(true);
+			System.out.println("*******SelectionSucces courrierConslterBeanJour*********");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// ************Getter & Setter********************
+	
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listCourrierAffecteDM == null && listCourrierAffecteDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<CourrierDossierListe>) listCourrierAffecteDM.getWrappedData()).size();
+		return records;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setDate1(Date date1) {
+		this.date1 = date1;
+	}
+
+	public Date getDate1() {
+		return date1;
+	}
+
+	public void setListCourrierAffecteDM(DataModel listCourrierAffecteDM) {
+		this.listCourrierAffecteDM = listCourrierAffecteDM;
+	}
+
+	public DataModel getListCourrierAffecteDM() {
+		return listCourrierAffecteDM;
+	}
+
+	public void setListCourrierDossierListeAffecte(
+			List<CourrierDossierListe> listCourrierDossierListeAffecte) {
+		this.listCourrierDossierListeAffecte = listCourrierDossierListeAffecte;
+	}
+
+	public List<CourrierDossierListe> getListCourrierDossierListeAffecte() {
+		return listCourrierDossierListeAffecte;
+	}
+
+}

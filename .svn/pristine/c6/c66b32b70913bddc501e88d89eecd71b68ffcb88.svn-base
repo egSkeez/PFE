@@ -1,0 +1,44 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Confidentialite;
+
+public class StatistiqueConfidentialite {
+
+	private int count;
+	private Confidentialite confidentialite;
+
+	public StatistiqueConfidentialite() {
+
+	}
+
+	public StatistiqueConfidentialite(int count,
+			Confidentialite confidentialite) {
+		this.count = count;
+		this.confidentialite = confidentialite;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	@Override
+	public String toString() {
+		return "StatistiqueConfidentialite [count=" + count
+				+ ", confidentialite=" + confidentialite + "]";
+	}
+
+	
+
+}

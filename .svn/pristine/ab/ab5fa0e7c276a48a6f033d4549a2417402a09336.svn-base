@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2019-12-03T14:21:59 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="entete_Ar" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="20" bottomMargin="20" uuid="205bd98b-866c-4427-a9de-b6eed3104a94">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="societeNom" class="java.lang.String">
+		<fieldDescription><![CDATA[societeNom]]></fieldDescription>
+	</field>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="103" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<staticText>
+				<reportElement x="100" y="10" width="40" height="20" uuid="81678a4e-a21c-4e18-a3e6-09f6087886c1"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<text><![CDATA[تونس في:]]></text>
+			</staticText>
+			<textField pattern="yyyy/MM/dd">
+				<reportElement x="0" y="10" width="101" height="20" uuid="abe42c55-aecf-4285-9fcf-7dd0884b2bf3"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="480" y="-4" width="50" height="40" uuid="e05a6db9-9ce7-4d1d-9a06-996aa3fd24b2"/>
+				<imageExpression><![CDATA["../../framGraphique/images/logoSonede.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="320" y="80" width="210" height="23" uuid="c27cd898-f9ca-434b-a53e-b971c59046fb"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uniteConnecte}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="340" y="37" width="190" height="20" uuid="501e0bd0-b6b4-4d09-8886-1b78703f0d46"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الشركة الوطنية لاستغلال وتوزيع المياه]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="340" y="58" width="190" height="20" uuid="33aa825d-b8e9-4ac4-a91c-b13b3e4c8551"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الادارةالعامة / مصلحةالضبط المركزي]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

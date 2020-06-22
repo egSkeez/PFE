@@ -1,0 +1,75 @@
+package xtensus.beans.common.GBO;
+
+import java.util.Date;
+import java.util.List;
+
+public class RapportCourrierCheque {
+// KHA : rapport courrier cheque 
+	
+	
+	private String numeroCheq;
+	private Date dateCheq;
+	private String beneficiaire;
+    private String banque;
+    private boolean barree;
+    private String referenceCourrier;
+    //private Object montantCheq;
+    private Double montantCheq;
+    private String objetCourrier;
+    private String chequeStringBarre;
+	public String getNumeroCheq() {
+		return numeroCheq;
+	}
+	public void setNumeroCheq(String numeroCheq) {
+		this.numeroCheq = numeroCheq;
+	}
+	public Date getDateCheq() {
+		return dateCheq;
+	}
+	public void setDateCheq(Date dateCheq) {
+		this.dateCheq = dateCheq;
+	}
+	public String getBeneficiaire() {
+		return beneficiaire;
+	}
+	public void setBeneficiaire(String beneficiaire) {
+		this.beneficiaire = beneficiaire;
+	}
+	public String getBanque() {
+		return banque;
+	}
+	public void setBanque(String banque) {
+		this.banque = banque;
+	}
+	public boolean isBarree() {
+		return barree;
+	}
+	public void setBarree(boolean barree) {
+		this.barree = barree;
+	}
+	public String getReferenceCourrier() {
+		return referenceCourrier;
+	}
+	public void setReferenceCourrier(String referenceCourrier) {
+		this.referenceCourrier = referenceCourrier;
+	}
+	public Double getMontantCheq() {
+		return montantCheq;
+	}
+	public void setMontantCheq(Double montantCheq) {
+		this.montantCheq = montantCheq;
+	}
+	public String getObjetCourrier() {
+		return objetCourrier;
+	}
+	public void setObjetCourrier(String objetCourrier) {
+		this.objetCourrier = objetCourrier;
+	}
+	public String getChequeStringBarre() {
+		return chequeStringBarre;
+	}
+	public void setChequeStringBarre(String chequeStringBarre) {
+		this.chequeStringBarre = chequeStringBarre;
+	}
+    
+}

@@ -1,0 +1,152 @@
+package xtensus.beans.utils;
+
+import xtensus.entity.Courrier;
+import xtensus.entity.Entite;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.Typetransaction;
+
+public class RapportSuiviCourrier extends Entite{
+
+	private Courrier courrier;
+	private Transaction transaction;
+	private Typetransaction typeTransaction;
+	private String destinataireReelle;
+	private String expediteur;
+	private String listDestinataire;
+	private TransactionDestination transactionDestination;
+	private String dateConsultation;
+	private String dateTransfert;
+	private String dateReception;
+	private String dateReponse;
+	private boolean requireResponse;
+	private boolean doNotRequireResponse;
+	private boolean timelyResponse;
+	private boolean notTimelyResponse;
+	private boolean notYetResponded;
+	private String toleranceRange;
+	private boolean mailSent;
+	private String align;
+	
+	
+	
+	
+	
+	public Courrier getCourrier() {
+		return courrier;
+	}
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+	public Transaction getTransaction() {
+		return transaction;
+	}
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+	public Typetransaction getTypeTransaction() {
+		return typeTransaction;
+	}
+	public void setTypeTransaction(Typetransaction typeTransaction) {
+		this.typeTransaction = typeTransaction;
+	}
+	public String getDestinataireReelle() {
+		return destinataireReelle;
+	}
+	public void setDestinataireReelle(String destinataireReelle) {
+		this.destinataireReelle = destinataireReelle;
+	}
+	public String getExpediteur() {
+		return expediteur;
+	}
+	public void setExpediteur(String expediteur) {
+		this.expediteur = expediteur;
+	}
+	public String getListDestinataire() {
+		return listDestinataire;
+	}
+	public void setListDestinataire(String listDestinataire) {
+		this.listDestinataire = listDestinataire;
+	}
+	public TransactionDestination getTransactionDestination() {
+		return transactionDestination;
+	}
+	public void setTransactionDestination(
+			TransactionDestination transactionDestination) {
+		this.transactionDestination = transactionDestination;
+	}
+	public String getDateConsultation() {
+		return dateConsultation;
+	}
+	public void setDateConsultation(String dateConsultation) {
+		this.dateConsultation = dateConsultation;
+	}
+	public String getDateTransfert() {
+		return dateTransfert;
+	}
+	public void setDateTransfert(String dateTransfert) {
+		this.dateTransfert = dateTransfert;
+	}
+	public String getDateReception() {
+		return dateReception;
+	}
+	public void setDateReception(String dateReception) {
+		this.dateReception = dateReception;
+	}
+	public String getDateReponse() {
+		return dateReponse;
+	}
+	public void setDateReponse(String dateReponse) {
+		this.dateReponse = dateReponse;
+	}
+	public boolean isRequireResponse() {
+		return requireResponse;
+	}
+	public void setRequireResponse(boolean requireResponse) {
+		this.requireResponse = requireResponse;
+	}
+	public boolean isDoNotRequireResponse() {
+		return doNotRequireResponse;
+	}
+	public void setDoNotRequireResponse(boolean doNotRequireResponse) {
+		this.doNotRequireResponse = doNotRequireResponse;
+	}
+	public boolean isTimelyResponse() {
+		return timelyResponse;
+	}
+	public void setTimelyResponse(boolean timelyResponse) {
+		this.timelyResponse = timelyResponse;
+	}
+	public boolean isNotTimelyResponse() {
+		return notTimelyResponse;
+	}
+	public void setNotTimelyResponse(boolean notTimelyResponse) {
+		this.notTimelyResponse = notTimelyResponse;
+	}
+	public boolean isNotYetResponded() {
+		return notYetResponded;
+	}
+	public void setNotYetResponded(boolean notYetResponded) {
+		this.notYetResponded = notYetResponded;
+	}
+	public String getToleranceRange() {
+		return toleranceRange;
+	}
+	public void setToleranceRange(String toleranceRange) {
+		this.toleranceRange = toleranceRange;
+	}
+	public boolean isMailSent() {
+		return mailSent;
+	}
+	public void setMailSent(boolean mailSent) {
+		this.mailSent = mailSent;
+	}
+	public String getAlign() {
+		return align;
+	}
+	public void setAlign(String align) {
+		this.align = align;
+	}
+	
+	
+}

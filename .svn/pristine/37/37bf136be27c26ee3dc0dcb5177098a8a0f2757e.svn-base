@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Consulter Dossier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<rich:panel styleClass="rich-panel" style="height:30px;">
+						<h:form>
+							<h:panelGrid columns="20">
+								<a4j:commandLink id="retour"
+									oncomplete="document.location.href='dossierCourrierAffecter.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png" 
+										onclick="this.src='../framGraphique/images/retourClick.png'"
+										onmouseover="this.src='../framGraphique/images/retourMouseOver.png'"
+										onmouseout="this.src='../framGraphique/images/retour.png'"/>
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.Retour}" />
+								
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<h:form>
+						<rich:simpleTogglePanel styleClass="rich-panel" switchType="client" label="#{msg.ConsultDossierfacet}" >
+							<table width="100%">
+								<tr>
+									<td width="50%" valign="top"><h:panelGrid columns="2" >
+										<h:column ><h:outputText value="#{msg.Reference}" 
+												styleClass="xteDetailLabel" style=" width :120px;" /></h:column>
+											
+											<h:outputText
+												value="#{dossierSuiviBean.dossier.dossierReference}"
+												styleClass="xteDetailLabelOutput" style=" width : 138px;" />
+											<h:outputText value="#{msg.Intitule}"
+												styleClass="xteDetailLabel" style=" width :120px;" />
+											<h:outputText
+												value="#{dossierSuiviBean.dossier.dossierIntitule}"
+												styleClass="xteDetailLabelOutput" style=" width : 138px;" />
+											
+											<h:outputText value="#{msg.dossierDateCreation}"
+												styleClass="xteDetailLabel" style=" width : 120px;" />
+
+											<h:outputText
+												value="#{dossierSuiviBean.dossier.dossierDateCreation}"
+												styleClass="xteDetailLabelOutput" style=" width : 138px;">
+											</h:outputText>
+											<h:column>
+													<h:outputText value="#{msg.CourrierConfidentialite}" 
+														styleClass="xteDetailLabel" style=" width :100px;" />
+												</h:column>
+												<h:outputText
+													value="#{dossierSuiviBean.confidentialite.confidentialiteLibelle}"
+													styleClass="xteDetailLabelOutput" />
+												<h:column>
+													<h:outputText value="#{msg.CourrierUrgence}"
+														styleClass="xteDetailLabel" style=" width :100px;" />
+												</h:column>
+												<h:outputText
+													value="#{dossierSuiviBean.urgence.urgenceLibelle}"
+													styleClass="xteDetailLabelOutput" />
+												<h:column>
+													<h:outputText value="#{msg.DocumentCommentaire}"
+														styleClass="xteDetailLabel" style=" width :100px;" />
+												</h:column>
+												<h:outputText
+													value="#{dossierSuiviBean.transaction.transactionCommentaire}"
+													styleClass="xteDetailLabelOutput" />
+												<h:column>
+													<h:outputText value="#{msg.CourrierAnnot}"
+														styleClass="xteDetailLabel" style=" width :100px;" />
+												</h:column>
+												<h:outputText
+													value="#{variableGlobale.copyAnnotationResult}"
+													styleClass="xteDetailLabelOutput" />
+											
+											
+										</h:panelGrid>
+									</td>
+									<td width="50%" style="vertical-align: top;"><h:panelGrid columns="2">
+
+											<h:outputText value="#{msg.CourrierDes}"
+												styleClass="xteDetailLabel" style=" width : 120px;" />
+											<h:outputText />
+											<h:outputLabel
+												value="#{dossierSuiviBean.dossier.dossierDescription}"
+												style=" width : 138px;" styleClass="xteDetailLabelOutput" />
+											
+											
+										</h:panelGrid>
+									</td>
+								</tr>
+							</table>
+						</rich:simpleTogglePanel>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:outputText value="#{msg.SuiviDossierfacet}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+							<rich:dataTable width="100%"
+								value="#{dossierSuiviBean.listTransactionCourrier}" var="cr"
+								id="data" rows="10" styleClass="rich-datatable">
+								<rich:column sortBy="#{cr.expediteur}"
+									filterBy="#{cr.expediteur}"
+									filterEvent="onkeyup" label="id2">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneExp}" />
+									</f:facet>
+									<h:outputText value="#{cr.expediteur}" />
+								</rich:column>
+								<rich:column sortBy="#{cr.listDestinataire}"
+									filterBy="#{cr.listDestinataire}"
+									filterEvent="onkeyup" label="nom">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDest}" />
+									</f:facet>
+									<h:outputText value="#{cr.listDestinataire}" />
+								</rich:column>
+								<rich:column sortBy="#{cr.destinataireReelle}"
+									filterBy="#{cr.destinataireReelle}"
+									filterEvent="onkeyup" label="nom">
+									<f:facet name="header">
+										<h:outputText value="#{msg.destReelle}" />
+									</f:facet>
+									<h:outputText value="#{cr.destinataireReelle}" />
+								</rich:column>
+
+								<rich:column
+									sortBy="#{cr.transaction.transactionDateTransaction}"
+									filterBy="#{cr.transaction.transactionDateTransaction}"
+									filterEvent="onkeyup" label="obj">
+									<f:facet name="header">
+										<h:outputText value="#{msg.SuiviDate}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.transaction.transactionDateTransaction}" />
+								</rich:column>
+
+								<rich:column sortBy="#{cr.transaction.transactionCommentaire}"
+									filterBy="#{cr.transaction.transactionCommentaire}"
+									filterEvent="onkeyup" label="CIN">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ColonneDocCommentaire}" />
+									</f:facet>
+									<h:outputText value="#{cr.transaction.transactionCommentaire}" />
+								</rich:column>
+
+								<rich:column
+									sortBy="#{cr.typeTransaction.typeTransactionLibelle}"
+									filterBy="#{cr.typeTransaction.typeTransactionLibelle}"
+									filterEvent="onkeyup" label="CIN">
+									<f:facet name="header">
+										<h:outputText value="#{msg.TypeTransaction}" />
+									</f:facet>
+									<h:outputText
+										value="#{cr.typeTransaction.typeTransactionLibelle}" />
+								</rich:column>
+<!--								<rich:column>-->
+<!--									<f:facet name="header">-->
+<!--										<h:outputText value="#{msg.ColonneOperation}" />-->
+<!--									</f:facet>-->
+<!--									<div align="center">-->
+<!--										<h:panelGrid columns="2">-->
+<!--											<a4j:commandLink id="consult"-->
+<!--												action="#{dossierSuiviBean.getSelectionRow}"-->
+<!--												oncomplete="document.location.href='courrierTransactionDetails.jsf'">-->
+<!--												<h:graphicImage-->
+<!--													value="../framGraphique/images/icone-detail.png"-->
+<!--													alt="Consulter" />-->
+<!--											</a4j:commandLink>-->
+<!--											<rich:toolTip for="consult" value="#{msg.Consult}" />-->
+<!--										</h:panelGrid>-->
+<!--									</div>-->
+<!--								</rich:column>-->
+							</rich:dataTable>
+							<rich:datascroller for="data" id="scroller" />
+							<div align="center">
+								<h:outputText value="#{msg.NombreEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="compt" value="#{dossierSuiviBean.records}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+						<rich:modalPanel id="askDelete" autosized="true" height="100"
+							width="350">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<rich:spacer width="2" />
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="xtePopupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/close.png"
+										width="15" height="15" id="hidelink" />
+									<rich:componentControl for="askDelete" attachTo="hidelink"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+							<h:form>
+								<a4j:keepAlive beanName="dossierSuiviBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="xtePopupInformationText"
+												value="#{msg.confirmDelete}" />
+										</td>
+									</tr>
+								</table>
+
+								<div align="center">
+									<a4j:commandButton value="#{msg.buttonOui}" type="submit"
+										action="#{dossierSuiviBean.deleteSelectedDocument}"
+										oncomplete="document.location.href='accueil.jsf'"
+										ajaxSingle="true" styleClass="submitButton" />
+
+									<rich:spacer width="5" />
+									<a4j:commandButton value="#{msg.buttonNon}"
+										onclick="Richfaces.hideModalPanel('askDelete');" type="submit"
+										ajaxSingle="true" styleClass="submitButton" />
+								</div>
+							</h:form>
+						</rich:modalPanel>
+
+
+
+					</h:form>
+				</div>
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(monthi8[w4s.getMonth()]); //]]>
+            </script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(s6ix[s3x]); //]]>
+            </script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getDate()); //]]>
+            </script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+//<![CDATA[
+            document.write(s0x[w4s.getDay()]); //]]>
+            </script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+//<![CDATA[
+            document.write(w4s.getFullYear()); //]]>
+            </script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,222 @@
+package xtensus.beans.utils;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import xtensus.entity.Entite;
+import xtensus.faxmail.beans.AttachmentFileBean;
+
+public class RapportFaxBean extends Entite{
+
+	private Integer idFax;
+	private String fromName;
+	private String fromAddress;
+	private String fromOrganization;
+	private String toAddress;
+	private String subject;
+	private Date ReceivedDate;
+	private String content;
+	private String originalContent;
+	private String replyTo;
+	private String priority;
+	private Map<String, String> headerMap;
+	private Map<String, Integer> attachmentFileMap;
+	private List<AttachmentFileBean> attachmentFileList;
+	
+	
+	// generale
+	
+	private String societeNom;
+	private String societeOrganismeParent;
+	private String societeRepublique;
+	private String societeVille;
+	private String nomProjet;
+	//
+	
+	
+	
+	
+	
+	public RapportFaxBean(){
+		
+	}
+
+	public RapportFaxBean(String fromName, String fromAddress,
+			String fromOrganization, String toAddress, String subject,
+			Date receivedDate, String content, String originalContent,
+			String replyTo, String priority, Map<String, String> headerMap,
+			Map<String, Integer> attachmentFileMap,
+			List<AttachmentFileBean> attachmentFileList) {
+		super();
+
+		this.fromName = fromName;
+		this.fromAddress = fromAddress;
+		this.fromOrganization = fromOrganization;
+		this.toAddress = toAddress;
+		this.subject = subject;
+		this.ReceivedDate = receivedDate;
+		this.content = content;
+		this.originalContent = originalContent;
+		this.replyTo = replyTo;
+		this.headerMap = headerMap;
+		this.priority = priority;
+		this.attachmentFileMap = attachmentFileMap;
+		this.attachmentFileList = attachmentFileList;
+
+	}
+
+	public String getFromName() {
+		return fromName;
+	}
+
+	public void setFromName(String fromName) {
+		this.fromName = fromName;
+	}
+
+	public String getFromAddress() {
+		return fromAddress;
+	}
+
+	public void setFromAddress(String fromAddress) {
+		this.fromAddress = fromAddress;
+	}
+
+	public String getToAddress() {
+		return toAddress;
+	}
+
+	public void setToAddress(String toAddress) {
+		this.toAddress = toAddress;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public Date getReceivedDate() {
+		return ReceivedDate;
+	}
+
+	public void setReceivedDate(Date receivedDate) {
+		ReceivedDate = receivedDate;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getOriginalContent() {
+		return originalContent;
+	}
+
+	public void setOriginalContent(String originalContent) {
+		this.originalContent = originalContent;
+	}
+
+	public String getReplyTo() {
+		return replyTo;
+	}
+
+	public void setReplyTo(String replyTo) {
+		this.replyTo = replyTo;
+	}
+
+	public Map<String, String> getHeaderMap() {
+		return headerMap;
+	}
+
+	public void setHeaderMap(Map<String, String> headerMap) {
+		this.headerMap = headerMap;
+	}
+
+	public String getPriority() {
+		return priority;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+
+	public String getFromOrganization() {
+		return fromOrganization;
+	}
+
+	public void setFromOrganization(String fromOrganization) {
+		this.fromOrganization = fromOrganization;
+	}
+
+	public Map<String, Integer> getAttachmentFileMap() {
+		return attachmentFileMap;
+	}
+
+	public void setAttachmentFileMap(Map<String, Integer> attachmentFileMap) {
+		this.attachmentFileMap = attachmentFileMap;
+	}
+
+	public List<AttachmentFileBean> getAttachmentFileList() {
+		return attachmentFileList;
+	}
+
+	public void setAttachmentFileList(
+			List<AttachmentFileBean> attachmentFileList) {
+		this.attachmentFileList = attachmentFileList;
+	}
+
+	public String getSocieteNom() {
+		return societeNom;
+	}
+
+	public void setSocieteNom(String societeNom) {
+		this.societeNom = societeNom;
+	}
+
+	public String getSocieteOrganismeParent() {
+		return societeOrganismeParent;
+	}
+
+	public void setSocieteOrganismeParent(String societeOrganismeParent) {
+		this.societeOrganismeParent = societeOrganismeParent;
+	}
+
+	public String getSocieteRepublique() {
+		return societeRepublique;
+	}
+
+	public void setSocieteRepublique(String societeRepublique) {
+		this.societeRepublique = societeRepublique;
+	}
+
+	public String getSocieteVille() {
+		return societeVille;
+	}
+
+	public void setSocieteVille(String societeVille) {
+		this.societeVille = societeVille;
+	}
+
+	public String getNomProjet() {
+		return nomProjet;
+	}
+
+	public void setNomProjet(String nomProjet) {
+		this.nomProjet = nomProjet;
+	}
+
+	public void setIdFax(Integer idFax) {
+		this.idFax = idFax;
+	}
+
+	public Integer getIdFax() {
+		return idFax;
+	}
+
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pieddepage" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f09f8dec-e9a1-47eb-842c-9f16c8fc5491">
+	<property name="ireport.zoom" value="1.1000000000000005"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="adresse" class="java.lang.String"/>
+	<background>
+		<band/>
+	</background>
+	<detail>
+		<band height="59">
+			<line>
+				<reportElement x="57" y="11" width="442" height="1" forecolor="#98B954" uuid="bd1ea32d-70cb-4401-a32b-8af9c561d513"/>
+			</line>
+			<textField>
+				<reportElement x="47" y="12" width="432" height="39" uuid="0c08fa33-0012-433e-8956-87a7843d03f5"/>
+				<textElement textAlignment="Center">
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adresse}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

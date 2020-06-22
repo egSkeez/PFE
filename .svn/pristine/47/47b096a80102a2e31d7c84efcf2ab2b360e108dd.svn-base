@@ -1,0 +1,802 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Rechercher Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}" type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="3">
+									<h:outputText value="#{msg.RechercheCourrier}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:spacer width="2px" />
+							<h:outputText value="#{msg.rechercheCr}"
+								styleClass="xteDetailLabel" />
+							<h:panelGrid columns="4">
+								<h:column>
+									<rich:spacer width="2px" />
+									<h:outputText value="Période :" styleClass="xteDetailLabel" />
+								</h:column>
+								<h:selectOneRadio id="date" styleClass="xteDetailLabelOutput"
+									value="#{courrierRechercheBean.reponse1}"
+									layout="lineDirection">
+									<a4j:support event="onchange"
+										reRender="jour, semaine, mois, durée, duréDate, monPanneau"
+										ajaxSingle="true"
+										actionListener="#{courrierRechercheBean.evenementChoixTransfert}" />
+									<f:selectItem itemLabel="Jour" itemValue="Jour" />
+									<f:selectItem itemLabel="Semaine" itemValue="Semaine" />
+									<f:selectItem itemLabel="Mois" itemValue="Mois" />
+									<f:selectItem itemLabel="Durée" itemValue="Durée" />
+								</h:selectOneRadio>
+								<rich:spacer width="5px" />
+								<h:column>
+									<h:panelGroup id="monPanneau" style=" width : 100%;">
+										<h:panelGrid id="panelInstalle" columns="5"
+											rendered="#{courrierRechercheBean.select4}">
+											<h:outputText value="#{msg.SuiviDateDebut}" id="date1"
+												styleClass="xteDetailLabel" />
+											<rich:calendar id="Cal1"
+												value="#{courrierRechercheBean.dateD}"
+												datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+												monthLabels="#{calendarBean.listMois}">
+												<a4j:support ajaxSingle="true" event="onchanged"
+													reRender="dataDuré, scrollerDurée" />
+											</rich:calendar>
+											<h:outputText value="#{msg.SuiviDateFin}" id="date2"
+												styleClass="xteDetailLabel" />
+											<rich:calendar id="Cal2"
+												value="#{courrierRechercheBean.dateF}"
+												datePattern="dd/MM/yyyy" locale="#{calendarBean.locale}"
+												monthLabels="#{calendarBean.listMois}">
+												<a4j:support ajaxSingle="true" event="onchange"
+													reRender="dataDuré, scrollerDurée" />
+											</rich:calendar>
+											<h:commandLink id="ok"
+												oncomplete="if(#{courrierRechercheBean.status4}==true) 
+								                                  #{rich:component('confirmDate')}.show();"
+												action="#{courrierRechercheBean.DateDébut}">
+												<h:graphicImage value="../framGraphique/images/valider.gif"
+													alt="Valider" />
+											</h:commandLink>
+										</h:panelGrid>
+									</h:panelGroup>
+								</h:column>
+							</h:panelGrid>
+							<!-- tableau courrier du jour -->
+							<h:panelGroup id="jour" style=" width : 100%;margin-left:-3px;">
+								<h:panelGrid id="jr" columns="1"
+									rendered="#{courrierRechercheBean.select1}"
+									style=" width : 100%;">
+									<rich:panel styleClass="rich-panel">
+										<f:facet name="header">
+											<h:panelGrid columns="3">
+												<h:outputText value="#{msg.RechercherCourrierfacet}"
+													styleClass="xteEnregistrementLabelOutput" />
+											</h:panelGrid>
+										</f:facet>
+
+										<rich:dataTable value="#{courrierRechercheBean.listJ}"
+											var="courrier" id="data" rows="10"
+											styleClass="rich-datatable"
+											onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+											onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+											<rich:column
+												sortBy="#{courrier.courrierReferenceCorrespondant}"
+												filterBy="#{courrier.courrierReferenceCorrespondant}"
+												filterEvent="onkeyup" label="CIN">
+												<f:facet name="header">
+													<h:outputText value="#{msg.ColonneRef}" />
+												</f:facet>
+												<h:outputText
+													value="#{courrier.courrierReferenceCorrespondant}" />
+											</rich:column>
+											<rich:column
+												filterMethod="#{courrierRechercheBean.filterDateRecep}">
+												<f:facet name="header">
+													<h:panelGroup>
+														<h:outputText value="#{msg.ColonneDateRecep}" />
+														<br />
+														<rich:calendar value="#{courrierRechercheBean.dateRecep}"
+															id="dateFilter" datePattern="dd/MM/yyyy"
+															locale="#{calendarBean.locale}"
+															monthLabels="#{calendarBean.listMois}">
+															<a4j:support ajaxSingle="true" event="onchanged"
+																reRender="data, scroller" />
+														</rich:calendar>
+													</h:panelGroup>
+												</f:facet>
+												<h:outputText value="#{courrier.courrierDateReception}" />
+											</rich:column>
+
+											<rich:column
+												filterMethod="#{courrierRechercheBean.filterDateRep}">
+												<f:facet name="header">
+													<h:panelGroup>
+														<h:outputText value="#{msg.ColonneDateRep}" />
+														<br />
+														<rich:calendar value="#{courrierRechercheBean.dateRep}"
+															id="dateRepFilter" datePattern="dd/MM/yyyy"
+															locale="#{calendarBean.locale}"
+															monthLabels="#{calendarBean.listMois}">
+															<a4j:support ajaxSingle="true" event="onchanged"
+																reRender="data, scroller" />
+														</rich:calendar>
+													</h:panelGroup>
+												</f:facet>
+												<h:outputText value="#{courrier.courrierDateReponse}" />
+											</rich:column>
+											<rich:column sortBy="#{courrier.courrierObjet}"
+												filterBy="#{courrier.courrierObjet}" filterEvent="onkeyup"
+												label="obj">
+												<f:facet name="header">
+													<h:outputText value="#{msg.ColonneObjet}" />
+												</f:facet>
+												<h:outputText value="#{courrier.courrierObjet}" />
+											</rich:column>
+											<rich:column>
+												<f:facet name="header">
+													<h:outputText value="#{msg.ColonneOperation}" />
+												</f:facet>
+												<div align="center">
+													<h:panelGrid columns="3">
+														<h:column>
+															<a4j:commandLink id="consult"
+																action="#{courrierRechercheBean.getSelectionRow}"
+																oncomplete="document.location.href='courrierConsulterDetailsRecherche.jsf'">
+																<h:graphicImage
+																	value="../framGraphique/images/icone-detail.png"
+																	alt="Consulter" />
+															</a4j:commandLink>
+															<rich:toolTip for="consult" value="#{msg.Consult}" />
+														</h:column>
+														<h:column>
+															<a4j:commandLink id="ajout"
+																action="#{courrierRechercheBean.getSelectionRow}"
+																oncomplete="document.location.href='documentAjout.jsf'"
+																reRender="askAdd">
+																<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+																	alt="Add" />
+															</a4j:commandLink>
+															<rich:toolTip for="ajout" value="#{msg.Affecter}" />
+														</h:column>
+													</h:panelGrid>
+												</div>
+											</rich:column>
+										</rich:dataTable>
+										<div align="center">
+											<rich:datascroller for="data" id="scroller" />
+											<h:outputText value="#{msg.NbrCourrier}"
+												styleClass="xteNombreEnregistrementLabelOutput" />
+											<h:outputText id="recordsJ"
+												value="#{courrierRechercheBean.recordsJ}"
+												styleClass="xteNombreEnregistrementLabelOutput" />
+										</div>
+									</rich:panel>
+								</h:panelGrid>
+							</h:panelGroup>
+
+							<!-- tableau courrier de semaine -->
+							<h:panelGroup id="semaine" style=" width : 100%;">
+								<h:panelGrid id="sem" columns="1" style=" width : 100%;"
+									rendered="#{courrierRechercheBean.select2}">
+									<rich:panel styleClass="rich-panel">
+										<f:facet name="header">
+											<h:panelGrid columns="3">
+												<h:outputText value="#{msg.RechercherCourrierfacet}"
+													styleClass="xteEnregistrementLabelOutput" />
+											</h:panelGrid>
+										</f:facet>
+										<div align="center">
+											<rich:dataTable value="#{courrierRechercheBean.listSem}"
+												var="courrier" id="dataSem" rows="10"
+												styleClass="rich-datatable"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+
+												<rich:column
+													sortBy="#{courrier.courrierReferenceCorrespondant}"
+													filterBy="#{courrier.courrierReferenceCorrespondant}"
+													filterEvent="onkeyup" label="CIN">
+													<f:facet name="header">
+														<h:outputText value="#{msg.ColonneRef}" />
+													</f:facet>
+													<h:outputText
+														value="#{courrier.courrierReferenceCorrespondant}" />
+												</rich:column>
+												<rich:column
+													filterMethod="#{courrierRechercheBean.filterDateRecep}">
+													<f:facet name="header">
+														<h:panelGroup>
+															<h:outputText value="#{msg.ColonneDateRecep}" />
+															<br />
+															<rich:calendar value="#{courrierRechercheBean.dateRecep}"
+																id="dateFilter" datePattern="dd/MM/yyyy"
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}">
+																<a4j:support ajaxSingle="true" event="onchanged"
+																	reRender="dataSem, scrollerSem" />
+															</rich:calendar>
+														</h:panelGroup>
+													</f:facet>
+													<h:outputText value="#{courrier.courrierDateReception}" />
+												</rich:column>
+												<rich:column
+													filterMethod="#{courrierRechercheBean.filterDateRep}">
+													<f:facet name="header">
+														<h:panelGroup>
+															<h:outputText value="#{msg.ColonneDateRep}" />
+															<br />
+															<rich:calendar value="#{courrierRechercheBean.dateRep}"
+																id="dateRepFilter" datePattern="dd/MM/yyyy"
+																locale="#{calendarBean.locale}"
+																monthLabels="#{calendarBean.listMois}">
+																<a4j:support ajaxSingle="true" event="onchanged"
+																	reRender="dataSem, scrollerSem" />
+															</rich:calendar>
+														</h:panelGroup>
+													</f:facet>
+													<h:outputText value="#{courrier.courrierDateReponse}" />
+												</rich:column>
+												<rich:column sortBy="#{courrier.courrierObjet}"
+													filterBy="#{courrier.courrierObjet}" filterEvent="onkeyup"
+													label="obj">
+													<f:facet name="header">
+														<h:outputText value="#{msg.ColonneObjet}" />
+													</f:facet>
+													<h:outputText value="#{courrier.courrierObjet}" />
+												</rich:column>
+												<rich:column>
+													<f:facet name="header">
+														<h:outputText value="#{msg.ColonneOperation}" />
+													</f:facet>
+													<div align="center">
+														<h:panelGrid columns="3">
+															<h:column>
+																<a4j:commandLink id="consult"
+																	action="#{courrierRechercheBean.getSelectionRow}"
+																	oncomplete="document.location.href='courrierConsulterDetailsRecherche.jsf'">
+																	<h:graphicImage
+																		value="../framGraphique/images/icone-detail.png"
+																		alt="Consulter" />
+																</a4j:commandLink>
+																<rich:toolTip for="consult" value="#{msg.Consult}" />
+															</h:column>
+															<h:column>
+																<a4j:commandLink id="ajout"
+																	action="#{courrierRechercheBean.getSelectionRow}"
+																	oncomplete="document.location.href='documentAjout.jsf'"
+																	reRender="askAdd">
+																	<h:graphicImage value="../framGraphique/images/hc_Add.jpg"
+																		alt="Add" />
+																</a4j:commandLink>
+																<rich:toolTip for="ajout" value="#{msg.Affecter}" />
+															</h:column>
+														</h:panelGrid>
+													</div>
+												</rich:column>
+											</rich:dataTable>
+										</div>
+										<div align="center">
+											<rich:datascroller for="dataSem" id="scrollerSem" />
+											<h:outputText value="#{msg.NbrCourrier}"
+												styleClass="xteNombreEnregistrementLabelOutput" />
+											<h:outputText id="recordsSem"
+												value="#{courrierRechercheBean.recordsSem}"
+												styleClass="xteNombreEnregistrementLabelOutput" />
+										</div>
+									</rich:panel>
+								</h:panelGrid>
+
+								<!-- tableau de courrier de mois -->
+								<h:panelGroup id="mois" style=" width : 100%;">
+									<h:panelGrid id="moi" columns="1" style=" width : 100%;"
+										rendered="#{courrierRechercheBean.select3}">
+										<rich:panel styleClass="rich-panel">
+											<f:facet name="header">
+												<h:panelGrid columns="3">
+													<h:outputText value="#{msg.RechercherCourrierfacet}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<div align="center">
+												<rich:dataTable value="#{courrierRechercheBean.listMois}"
+													var="courrier" id="dataMois" rows="10"
+													styleClass="rich-datatable"
+													onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+													onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+													<rich:column
+														sortBy="#{courrier.courrierReferenceCorrespondant}"
+														filterBy="#{courrier.courrierReferenceCorrespondant}"
+														filterEvent="onkeyup" label="CIN">
+														<f:facet name="header">
+															<h:outputText value="#{msg.ColonneRef}" />
+														</f:facet>
+														<h:outputText
+															value="#{courrier.courrierReferenceCorrespondant}" />
+													</rich:column>
+													<rich:column
+														filterMethod="#{courrierRechercheBean.filterDateRecep}">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="#{msg.ColonneDateRecep}" />
+																<br />
+																<rich:calendar
+																	value="#{courrierRechercheBean.dateRecep}"
+																	id="dateFilter" datePattern="dd/MM/yyyy"
+																	locale="#{calendarBean.locale}"
+																	monthLabels="#{calendarBean.listMois}">
+																	<a4j:support ajaxSingle="true" event="onchanged"
+																		reRender="dataMois, scrollerMois" />
+																</rich:calendar>
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{courrier.courrierDateReception}" />
+													</rich:column>
+													<rich:column
+														filterMethod="#{courrierRechercheBean.filterDateRep}">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="#{msg.ColonneDateRep}" />
+																<br />
+																<rich:calendar value="#{courrierRechercheBean.dateRep}"
+																	id="dateRepFilter" datePattern="dd/MM/yyyy"
+																	locale="#{calendarBean.locale}"
+																	monthLabels="#{calendarBean.listMois}">
+																	<a4j:support ajaxSingle="true" event="onchanged"
+																		reRender="dataMois, scrollerMois" />
+																</rich:calendar>
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{courrier.courrierDateReponse}" />
+													</rich:column>
+													<rich:column sortBy="#{courrier.courrierObjet}"
+														filterBy="#{courrier.courrierObjet}" filterEvent="onkeyup"
+														label="obj">
+														<f:facet name="header">
+															<h:outputText value="#{msg.ColonneObjet}" />
+														</f:facet>
+														<h:outputText value="#{courrier.courrierObjet}" />
+													</rich:column>
+													<rich:column>
+														<f:facet name="header">
+															<h:outputText value="#{msg.ColonneOperation}" />
+														</f:facet>
+														<div align="center">
+															<h:panelGrid columns="3">
+																<h:column>
+																	<a4j:commandLink id="consult"
+																		action="#{courrierRechercheBean.getSelectionRow}"
+																		oncomplete="document.location.href='courrierConsulterDetailsRecherche.jsf'">
+																		<h:graphicImage
+																			value="../framGraphique/images/icone-detail.png"
+																			alt="Consulter" />
+																	</a4j:commandLink>
+																	<rich:toolTip for="consult" value="#{msg.Consult}" />
+																</h:column>
+																<h:column>
+																	<a4j:commandLink id="ajout"
+																		action="#{courrierRechercheBean.getSelectionRow}"
+																		oncomplete="document.location.href='documentAjout.jsf'"
+																		reRender="askAdd">
+																		<h:graphicImage
+																			value="../framGraphique/images/hc_Add.jpg" alt="Add" />
+																	</a4j:commandLink>
+																	<rich:toolTip for="ajout" value="#{msg.Affecter}" />
+																</h:column>
+															</h:panelGrid>
+														</div>
+													</rich:column>
+												</rich:dataTable>
+											</div>
+											<div align="center">
+												<rich:datascroller for="dataMois" id="scrollerMois" />
+												<h:outputText value="#{msg.NbrCourrier}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="recordsMois"
+													value="#{courrierRechercheBean.recordsMois}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+										</rich:panel>
+									</h:panelGrid>
+								</h:panelGroup>
+
+								<!-- tableau courrier personalisee -->
+
+								<h:panelGroup id="durée" style=" width : 100%;">
+									<h:panelGrid id="duré" columns="1" style=" width : 100%;"
+										rendered="#{courrierRechercheBean.select4}">
+										<rich:panel styleClass="rich-panel" style=" width : 100%;">
+											<f:facet name="header">
+												<h:panelGrid columns="3">
+													<h:outputText value="#{msg.RechercherCourrierfacet}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<div align="center">
+												<rich:dataTable value="#{courrierRechercheBean.listDurée}"
+													var="courrier" id="dataDuré" rows="10"
+													styleClass="rich-datatable"
+													onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+													onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+													<rich:column
+														sortBy="#{courrier.courrierReferenceCorrespondant}"
+														filterBy="#{courrier.courrierReferenceCorrespondant}"
+														filterEvent="onkeyup" label="CIN">
+														<f:facet name="header">
+															<h:outputText value="#{msg.ColonneRef}" />
+														</f:facet>
+														<h:outputText
+															value="#{courrier.courrierReferenceCorrespondant}" />
+													</rich:column>
+													<rich:column
+														filterMethod="#{courrierRechercheBean.filterDateRecep}">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="#{msg.ColonneDateRecep}" />
+																<br />
+																<rich:calendar
+																	value="#{courrierRechercheBean.dateRecep}"
+																	id="dateFilter" datePattern="dd/MM/yyyy"
+																	locale="#{calendarBean.locale}"
+																	monthLabels="#{calendarBean.listMois}">
+																	<a4j:support ajaxSingle="true" event="onchanged"
+																		reRender="dataDuré, scrollerDurée" />
+																</rich:calendar>
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{courrier.courrierDateReception}" />
+													</rich:column>
+													<rich:column
+														filterMethod="#{courrierRechercheBean.filterDateRep}">
+														<f:facet name="header">
+															<h:panelGroup>
+																<h:outputText value="#{msg.ColonneDateRep}" />
+																<br />
+																<rich:calendar value="#{courrierRechercheBean.dateRep}"
+																	id="dateRepFilter" datePattern="dd/MM/yyyy"
+																	locale="#{calendarBean.locale}"
+																	monthLabels="#{calendarBean.listMois}">
+																	<a4j:support ajaxSingle="true" event="onchanged"
+																		reRender="dataDuré, scrollerDurée" />
+																</rich:calendar>
+															</h:panelGroup>
+														</f:facet>
+														<h:outputText value="#{courrier.courrierDateReponse}" />
+													</rich:column>
+													<rich:column sortBy="#{courrier.courrierObjet}"
+														filterBy="#{courrier.courrierObjet}" filterEvent="onkeyup"
+														label="obj">
+														<f:facet name="header">
+															<h:outputText value="#{msg.ColonneObjet}" />
+														</f:facet>
+														<h:outputText value="#{courrier.courrierObjet}" />
+													</rich:column>
+													<rich:column>
+														<f:facet name="header">
+															<h:outputText value="#{msg.ColonneOperation}" />
+														</f:facet>
+														<div align="center">
+															<h:panelGrid columns="3">
+																<h:column>
+																	<a4j:commandLink id="consult"
+																		action="#{courrierRechercheBean.getSelectionRow}"
+																		oncomplete="document.location.href='courrierConsulterDetailsRecherche.jsf'">
+																		<h:graphicImage
+																			value="../framGraphique/images/icone-detail.png"
+																			alt="Consulter" />
+																	</a4j:commandLink>
+																	<rich:toolTip for="consult" value="#{msg.Consult}" />
+																</h:column>
+																<h:column>
+																	<a4j:commandLink id="ajout"
+																		action="#{courrierRechercheBean.getSelectionRow}"
+																		oncomplete="document.location.href='documentAjout.jsf'"
+																		reRender="askAdd">
+																		<h:graphicImage
+																			value="../framGraphique/images/hc_Add.jpg" alt="Add" />
+																	</a4j:commandLink>
+																	<rich:toolTip for="ajout" value="#{msg.Affecter}" />
+																</h:column>
+															</h:panelGrid>
+														</div>
+													</rich:column>
+												</rich:dataTable>
+											</div>
+											<div align="center">
+												<rich:datascroller for="dataDuré" id="scrollerDuré" />
+												<h:outputText value="#{msg.NbrCourrier}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="recordsDuré"
+													value="#{courrierRechercheBean.nbrCrDuré}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+										</rich:panel>
+									</h:panelGrid>
+								</h:panelGroup>
+							</h:panelGroup>
+						</rich:panel>
+					</h:form>
+					<!-- ************ -->
+					<h:form>
+						<a4j:keepAlive beanName="courrierRechercheBean" />
+						<rich:modalPanel id="askDelete" autosized="true" height="90"
+							width="300">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink1" />
+									<rich:componentControl for="askDelete" attachTo="hidelink1"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png"
+												alt="confirm" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText"
+												value="#{msg.confirmDelete}" /></td>
+									</tr>
+								</table>
+
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOui}"
+												action="#{courrierRechercheBean.suppCourrier}"
+												onclick="Richfaces.hideModalPanel('askDelete');"
+												oncomplete="#{rich:component('ConfirmDeleteCourrier')}.show();"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="data,scroller,list," /></td>
+										<td><a4j:commandButton value="#{msg.bouttonNon}"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('askDelete');"
+												oncomplete="document.location.href='CourrierRecherche.jsf'" />
+										</td>
+									</tr>
+								</table>
+
+							</h:form>
+						</rich:modalPanel>
+						<rich:modalPanel id="askDeleteDoc" autosized="true" height="90"
+							width="300">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink2" />
+									<rich:componentControl for="askDeleteDoc" attachTo="hidelink2"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png"
+												alt="confirm" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText"
+												value="#{msg.confirmDeleteDoc}" /></td>
+									</tr>
+								</table>
+							</h:form>
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOui}"
+												action="#{courrierRechercheBean.suppDoc}"
+												onclick="Richfaces.hideModalPanel('askDeleteDoc');"
+												oncomplete="document.location.href='DocumentSuppression.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="data,scroller,list" /></td>
+										<td><a4j:commandButton value="#{msg.bouttonNon}"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('askDeleteDoc');"
+												oncomplete="document.location.href='CourrierRecherche.jsf'" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+
+						</rich:modalPanel>
+
+						<a4j:keepAlive beanName="courrierRechercheBean" />
+						<rich:modalPanel id="confirmDate" autosized="true" height="90"
+							width="300">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelConfirmation}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink6" />
+									<rich:componentControl for="askDelete" attachTo="hidelink6"
+										operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/interrogation.png"
+												alt="confirm" /></td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText" value="Date" /></td>
+									</tr>
+								</table>
+
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOui}"
+												onclick="Richfaces.hideModalPanel('confirmDate');"
+												oncomplete="document.location.href='CourrierRecherche.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="data,scroller,list," /></td>
+
+									</tr>
+								</table>
+
+							</h:form>
+						</rich:modalPanel>
+
+
+
+						<rich:modalPanel id="ConfirmDeleteCourrier" autosized="true"
+							height="100" width="420">
+							<f:facet name="header">
+								<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+									<h:outputText value="#{msg.labelInfo}"
+										styleClass="popupInformationTextHeader" />
+								</h:panelGrid>
+							</f:facet>
+
+							<f:facet name="controls">
+								<h:panelGroup>
+									<h:graphicImage value="../framGraphique/images/closePopup.png"
+										width="15" height="15" id="hidelink4" />
+									<rich:componentControl for="ConfirmDeleteCourrier"
+										attachTo="hidelink4" operation="hide" event="onclick" />
+								</h:panelGroup>
+							</f:facet>
+
+
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+										<td align="left"><h:graphicImage
+												value="../framGraphique/images/information.png"
+												alt="confirm" />
+										</td>
+										<td align="center" colspan="2"><h:outputText
+												styleClass="popupInformationText" value="#{msg.msgDelete}" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+							<h:form>
+								<a4j:keepAlive beanName="courrierRechercheBean" />
+								<table align="center">
+									<tr>
+
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('ConfirmDeleteCourrier');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												onclick="document.location.href='CourrierRecherche.jsf'"
+												reRender="data,scroller,formulaireUtilisateur" /></td>
+
+
+									</tr>
+								</table>
+							</h:form>
+
+						</rich:modalPanel>
+
+					</h:form>
+				</div>
+<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,213 @@
+package xtensus.beans.common.GBO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierDossierListe;
+import xtensus.entity.Confidentialite;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Dossier;
+import xtensus.entity.Transaction;
+import xtensus.entity.Urgence;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class DossierPartageConsultationBean {
+
+	private ApplicationManager appMgr;
+	private Export export;
+	private Dossier dossier;
+	private Transaction transaction;
+	private Confidentialite confidentialite;
+	private Urgence urgence;
+	private DataModel listCourrierAffecteDM;
+	private List<CourrierDossierListe> listCourrierDossierListeAffecte;
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private long records;
+
+	public DossierPartageConsultationBean() {
+	}
+
+	@Autowired
+	public DossierPartageConsultationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,
+			@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		dossier = new Dossier();
+		transaction = new Transaction();
+		confidentialite = new Confidentialite();
+		urgence = new Urgence();
+		listCourrierAffecteDM = new ListDataModel();
+		listCourrierDossierListeAffecte = new ArrayList<CourrierDossierListe>();
+		listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+		System.out
+				.println("**************BeanInjecte DossierPartageConsultationBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		List<CourrierDossier> listDossierCourrier = new ArrayList<CourrierDossier>();
+		List<Courrier> listCourrierAffecte = new ArrayList<Courrier>();
+		CourrierDossierListe courrierDossierListe;
+		dossier = vb.getDossier();
+		confidentialite = appMgr.getConfidentialiteById(
+				dossier.getConfidentialite().getConfidentialiteId()).get(0);
+		urgence = appMgr.getUrgenceById(dossier.getUrgence().getUrgenceId())
+				.get(0);
+		transaction = vb.getTransaction();
+		listDossierCourrier = appMgr.getCourrierDossierByIdDossier(dossier
+				.getDossierId());
+		for (CourrierDossier cd : listDossierCourrier) {
+			Courrier cr = appMgr.getCourrierByIdCourrier(
+					cd.getId().getIdCourrier()).get(0);
+			listCourrierAffecte.add(cr);
+		}
+		for (Courrier cr : listCourrierAffecte) {
+			courrierDossierListe = new CourrierDossierListe();
+			courrierDossierListe.setDossier(dossier);
+			courrierDossierListe.setCourrier(cr);
+			courrierDossierListe.setNature(appMgr.getNatureById(
+					cr.getNature().getNatureId()).get(0));
+			courrierDossierListe.setConfidentialite(appMgr
+					.getConfidentialiteById(
+							cr.getConfidentialite().getConfidentialiteId())
+					.get(0));
+			courrierDossierListe.setTransmission(appMgr.getTransmissionById(
+					cr.getTransmission().getTransmissionId()).get(0));
+			courrierDossierListe.setUrgence(appMgr.getUrgenceById(
+					cr.getUrgence().getUrgenceId()).get(0));
+			listCourrierDossierListeAffecte.add(courrierDossierListe);
+		}
+		listCourrierAffecteDM.setWrappedData(listCourrierDossierListeAffecte);
+	}
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listCourrierAffecteDM == null
+				&& listCourrierAffecteDM.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<CourrierDossierListe>) listCourrierAffecteDM
+					.getWrappedData()).size();
+		return records;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setExport(Export export) {
+		this.export = export;
+	}
+
+	public Export getExport() {
+		return export;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setDossier(Dossier dossier) {
+		this.dossier = dossier;
+	}
+
+	public Dossier getDossier() {
+		return dossier;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setUrgence(Urgence urgence) {
+		this.urgence = urgence;
+	}
+
+	public Urgence getUrgence() {
+		return urgence;
+	}
+
+	public void setListCourrierAffecteDM(DataModel listCourrierAffecteDM) {
+		this.listCourrierAffecteDM = listCourrierAffecteDM;
+	}
+
+	public DataModel getListCourrierAffecteDM() {
+		return listCourrierAffecteDM;
+	}
+
+	public void setListCourrierDossierListeAffecte(
+			List<CourrierDossierListe> listCourrierDossierListeAffecte) {
+		this.listCourrierDossierListeAffecte = listCourrierDossierListeAffecte;
+	}
+
+	public List<CourrierDossierListe> getListCourrierDossierListeAffecte() {
+		return listCourrierDossierListeAffecte;
+	}
+}

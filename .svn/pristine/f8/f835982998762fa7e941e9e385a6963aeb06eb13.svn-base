@@ -1,0 +1,122 @@
+package xtensus.beans.common.GBO;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class AnnuaireRechercheUniteBean {
+	
+	private ApplicationManager appMgr;
+	private LdapOperation ldapOperation;
+	private int recordsCurrentMember;
+	private Unit unit;
+	private List<Person> listMembers;
+	private DataModel listCurrentMember;
+	@Autowired
+	private VariableGlobale vb;
+	
+	
+	@Autowired
+	public AnnuaireRechercheUniteBean(@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		ldapOperation = new LdapOperation();
+		unit = new Unit();
+		listMembers = new ArrayList<Person>();
+		listCurrentMember = new ListDataModel();
+	}
+	
+	@PostConstruct
+	public void initialize() {
+		unit = ldapOperation.getUnitById(vb.getIdUnit());
+		listMembers = unit.getMembersUnit();
+		listCurrentMember.setWrappedData(listMembers);
+	}
+	
+	public void getSelectedUser(){
+		Person person = new Person();
+		person = (Person) listCurrentMember.getRowData();
+		vb.setIdUser(person.getId());
+		vb.setRedirectUser("redirectFromADUToDetailsUser");
+	}
+	
+	//Getters and Setters
+	@SuppressWarnings("unchecked")
+	public long getRecordsCurrentMember() {
+		if (listCurrentMember == null
+				&& listCurrentMember.getWrappedData() == null)
+			recordsCurrentMember = 0;
+		else
+			recordsCurrentMember = ((List<Person>) listCurrentMember
+					.getWrappedData()).size();
+		return recordsCurrentMember;
+	}
+	
+	public void setRecordsCurrentMember(int recordsCurrentMember) {
+		this.recordsCurrentMember = recordsCurrentMember;
+	}
+	
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setListCurrentMember(DataModel listCurrentMember) {
+		this.listCurrentMember = listCurrentMember;
+	}
+
+	public DataModel getListCurrentMember() {
+		return listCurrentMember;
+	}
+
+	public void setListMembers(List<Person> listMembers) {
+		this.listMembers = listMembers;
+	}
+
+	public List<Person> getListMembers() {
+		return listMembers;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	public Unit getUnit() {
+		return unit;
+	}
+
+
+}

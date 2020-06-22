@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2020-06-11T14:07:46 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CourriesListe_RapidePoste_LettreRecommande" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="28d3fd2c-711f-4cd0-82ba-4daf5f96cf18">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\WorkspaceDRHM\\GBO_v1.5\\WebContent\\WEB-INF\\rapports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="listeSociete" class="java.util.List"/>
+	<field name="listeRapidePosteLettreRecommande" class="java.util.List">
+		<fieldDescription><![CDATA[listeRapidePosteLettreRecommande]]></fieldDescription>
+	</field>
+	<field name="destinataireNom" class="java.lang.String">
+		<fieldDescription><![CDATA[destinataireNom]]></fieldDescription>
+	</field>
+	<field name="nombreTotalCourriers" class="java.lang.Integer">
+		<fieldDescription><![CDATA[nombreTotalCourriers]]></fieldDescription>
+	</field>
+	<field name="datePeriodeAnneeAR" class="java.lang.String">
+		<fieldDescription><![CDATA[datePeriodeAnneeAR]]></fieldDescription>
+	</field>
+	<field name="datePeriodeAnneeFR" class="java.lang.String">
+		<fieldDescription><![CDATA[datePeriodeAnneeFR]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="215">
+			<subreport>
+				<reportElement x="-1" y="10" width="556" height="70" uuid="0ee6188a-3519-450a-98a3-e93a0d03ed64"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete_Ar.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="90" y="115" width="330" height="30" uuid="f808e02d-155a-4f0c-95a2-d5e0c31bfcb1"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[قائمة وصول البريد السريع و مضمون الوصول]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="154" y="151" width="210" height="30" isPrintWhenDetailOverflows="true" uuid="9f43096e-129a-4bba-bbd3-700bbd8664db"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10"/>
+					<paragraph leftIndent="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{datePeriodeAnneeAR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="200" width="210" height="15" uuid="597f85cf-08a2-4cc4-bb79-4584f9639753">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="10"/>
+					<paragraph leftIndent="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{destinataireNom}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="400" y="200" width="140" height="15" uuid="3da1dd5b-1a88-4ed0-8e48-f97d78e27768">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الهيكل المرسل اليه:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="194">
+			<subreport>
+				<reportElement x="0" y="30" width="556" height="50" uuid="1587aee1-c211-45cf-9f21-8745f5be7c5f"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeRapidePosteLettreRecommande})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["CourriesListe_RapidePoste_Recommande_SousRapport.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="51" y="0" width="150" height="30" uuid="0dabc4fc-3c10-4fdc-82ec-471092528f14">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="local_mesure_unitx" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المرسل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="201" y="0" width="173" height="30" uuid="a9de3bc0-1482-47a2-9466-1136dd3ce24a">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[عدد البريد المرجعي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="374" y="0" width="100" height="30" uuid="7c06eef9-ead3-4385-8dc7-9c898982da2e">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[تاريخ الوصول]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="99" y="80" width="120" height="15" uuid="39c1467e-bc03-476f-ac11-c12472c91984">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[العدد الجملي للمراسلات:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="79" y="97" width="140" height="15" uuid="69e75828-f3db-4714-bf1c-10e0277efef2">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الختم او الامضاء بالاستلام: ]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="-1" y="80" width="100" height="15" uuid="673d1878-7762-4794-a777-17e4057a0cd1">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombreTotalCourriers}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="230" y="164" width="118" height="30" uuid="b1b49d07-0647-4b76-a23e-eaebc312dcc0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

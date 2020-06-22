@@ -1,0 +1,532 @@
+package xtensus.beans.common.GBO0;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.entity.Confidentialite;
+import xtensus.services.ApplicationManager;
+
+@Component()
+@Scope("request")
+public class ConfidentialiteGestionBean {
+
+	private Confidentialite confidentialite;
+	private String divajouter;
+	private String divmodifier;
+	private String titre;
+	private String infoChampObligatoir;
+	private DataModel listConfidentialite;
+	private List<Confidentialite> listConf;
+	private List<Confidentialite> copylistConf;
+
+	private long records = 0;
+	private boolean openaccor;
+	private boolean openaccor1;
+	private String hidebuttonValidateUser;
+	private String hidebuttonDelUpUser;
+	private String hideAccor;
+	private boolean msgerror;
+	private String titleaccor;
+
+	@Autowired
+	private VariableGlobale vb;
+	// fixe
+
+	private ApplicationManager appMgr;
+	@Autowired
+	private LanguageManagerBean lm;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private boolean status;
+	private boolean status1;
+	private boolean status2;
+	private boolean status3;
+
+	private Confidentialite conf;
+	
+	private boolean confidentialiteLibelleShowFr;
+	private boolean confidentialiteDescriptionShowFr;
+	private boolean confidentialiteLibelleShowAr;
+	private boolean confidentialiteDescriptionShowAr;
+
+	@Autowired
+	public ConfidentialiteGestionBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		confidentialite = new Confidentialite();
+		conf = new Confidentialite();
+		listConfidentialite = new ListDataModel();
+		listConf = new ArrayList<Confidentialite>();
+		copylistConf = new ArrayList<Confidentialite>();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titleaccor = "Ajout degré de confidentialité";
+		openaccor = false;
+		openaccor1 = false;
+		msgerror = true;
+		hidebuttonValidateUser = "inline";
+		hidebuttonDelUpUser = "none";
+		hideAccor = "none";
+		System.out
+				.println("*************Bean ConfidentialiteGestionBean Injecte***************");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		titre = "Ajout degré de confidentialité";
+
+		listConf = new ArrayList<Confidentialite>();
+		copylistConf = new ArrayList<Confidentialite>();
+		try {
+			listConf = appMgr.getList(Confidentialite.class);
+			
+			if (vb.getLocale().equals("ar")) {
+				
+				setConfidentialiteLibelleShowFr(false);
+				setConfidentialiteDescriptionShowFr(false);
+				setConfidentialiteLibelleShowAr(true);
+				setConfidentialiteDescriptionShowAr(true);
+				
+			} else {
+				
+				setConfidentialiteLibelleShowFr(true);
+				setConfidentialiteDescriptionShowFr(true);
+				setConfidentialiteLibelleShowAr(false);
+				setConfidentialiteDescriptionShowAr(false);
+			}
+			
+			for (int i = listConf.size(); i >= 0; i--) {
+				conf = listConf.get(i - 1);
+				copylistConf.add(conf);
+				conf = new Confidentialite();
+			}
+
+		} catch (Exception e) {
+			System.out.println("erreur");
+		}
+		listConfidentialite.setWrappedData(copylistConf);
+
+	}
+
+	public void save() {
+		status = false;
+		status3 = false;
+
+		try {
+			appMgr.insert(confidentialite);
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			status = true;
+			// -méthode save()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("ajout",
+					"Evénement de log d'ajout de la confidentialité "
+							+ confidentialite.getConfidentialiteId() + "-"
+							+ confidentialite.getConfidentialiteLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			Initialize();
+			System.out
+					.println("***************Succes ConfidentialiteGestionBean***************");
+		} catch (Exception e) {
+			status3 = true;
+			System.out
+					.println("***************Erreur ConfidentialiteGestionBean***************");
+		}
+
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+
+		System.out.println(divajouter);
+		System.out.println(divmodifier);
+		try {
+			confidentialite = (Confidentialite) listConfidentialite
+					.getRowData();
+			vb.setConfidentialite(confidentialite);
+			// -méthode getSelectionRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("consultation",
+					"Evénement de log de consultation de la confidentialité "
+							+ confidentialite.getConfidentialiteId() + "-"
+							+ confidentialite.getConfidentialiteLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			System.out
+					.println("*******Selection ConfidentialiteGestionBean*********");
+			Initialize();
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeSelection ConfidentialiteGestionBean*******");
+		}
+		divajouter = "none";
+		divmodifier = "inline";
+		infoChampObligatoir = "inline";
+		titre = "Modifier degré de confidentialité ";
+		titleaccor =  messageSource.getMessage("Consultationdegrdeconfidentialit",new Object[] {}, lm.createLocal());
+		openaccor = true;
+		openaccor1 = true;
+		msgerror = false;
+		hideAccor = "inline";
+		hidebuttonValidateUser = "none";
+		hidebuttonDelUpUser = "inline";
+	}
+
+	public void updateSelectedRow() {
+		status1 = false;
+		status2 = false;
+		try {
+			confidentialite = vb.getConfidentialite();
+			appMgr.update(confidentialite);
+			status1 = true;
+			setMessage(messageSource.getMessage("confirmInsert",
+					new Object[] {}, lm.createLocal()));
+			System.out.println("UpdateTerminee");
+
+			// -méthode updateSelectedRow()
+			LogClass logClass = new LogClass();
+			logClass.addTrack("modification",
+					"Evénement de log de modification de la confidentialité "
+							+ vb.getConfidentialite().getConfidentialiteId()
+							+ "-"
+							+ vb.getConfidentialite()
+									.getConfidentialiteLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+			listConf = new ArrayList<Confidentialite>();
+
+			Initialize();
+			confidentialite = new Confidentialite();
+		} catch (Exception e) {
+			status2 = true;
+			setMessage(messageSource.getMessage("erreurUpdate",
+					new Object[] {}, lm.createLocal()));
+		}
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter degré de confidentialité";
+		titleaccor = messageSource.getMessage("AjoutdegresConf",new Object[] {}, lm.createLocal());
+
+	}
+
+	public void deleteSelectedRow() {
+
+		try {
+			confidentialite = vb.getConfidentialite();
+			appMgr.delete(confidentialite);
+			System.out.println("DeleteTerminee");
+			// -méthode deleteSelectedRow
+			LogClass logClass = new LogClass();
+			logClass.addTrack("suppression",
+					"Evénement de log de suppression de la confidentialité "
+							+ confidentialite.getConfidentialiteId() + "-"
+							+ confidentialite.getConfidentialiteLibelle(),
+					vb.getPerson(), "INFO", appMgr);
+
+		} catch (Exception e) {
+		}
+		listConfidentialite = new ListDataModel();
+		listConf = new ArrayList<Confidentialite>();
+		copylistConf = new ArrayList<Confidentialite>();
+		Initialize();
+	}
+
+	public void annulModif() {
+		confidentialite = new Confidentialite();
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+		titre = "Ajouter degré de confidentialité";
+	}
+
+	public void viderchamp() {
+		status = false;
+		status3 = false;
+		status1 = false;
+		status2 = false;
+		confidentialite = new Confidentialite();
+		msgerror = true;
+		titleaccor = messageSource.getMessage("AjoutdegresConf",new Object[] {}, lm.createLocal());;
+		openaccor1 = true;
+		openaccor = false;
+		hidebuttonDelUpUser = "none";
+		hidebuttonValidateUser = "inline";
+		hideAccor = "inline";
+		divajouter = "inline";
+		divmodifier = "none";
+		infoChampObligatoir = "inline";
+	}
+
+	public String valide() {
+		return ("OK");
+	}
+
+	// **************************** Getter && Setter********************
+
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listConfidentialite == null
+				&& listConfidentialite.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<Confidentialite>) listConfidentialite
+					.getWrappedData()).size();
+		return records;
+	}
+
+	public String getDivajouter() {
+		return divajouter;
+	}
+
+	public void setDivajouter(String divajouter) {
+		this.divajouter = divajouter;
+	}
+
+	public String getDivmodifier() {
+		return divmodifier;
+	}
+
+	public void setDivmodifier(String divmodifier) {
+		this.divmodifier = divmodifier;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
+	}
+
+	public String getInfoChampObligatoir() {
+		return infoChampObligatoir;
+	}
+
+	public void setInfoChampObligatoir(String infoChampObligatoir) {
+		this.infoChampObligatoir = infoChampObligatoir;
+	}
+
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
+	}
+
+	public boolean isOpenaccor() {
+		return openaccor;
+	}
+
+	public void setOpenaccor(boolean openaccor) {
+		this.openaccor = openaccor;
+	}
+
+	public boolean isOpenaccor1() {
+		return openaccor1;
+	}
+
+	public void setOpenaccor1(boolean openaccor1) {
+		this.openaccor1 = openaccor1;
+	}
+
+	public String getHidebuttonValidateUser() {
+		return hidebuttonValidateUser;
+	}
+
+	public void setHidebuttonValidateUser(String hidebuttonValidateUser) {
+		this.hidebuttonValidateUser = hidebuttonValidateUser;
+	}
+
+	public String getHidebuttonDelUpUser() {
+		return hidebuttonDelUpUser;
+	}
+
+	public void setHidebuttonDelUpUser(String hidebuttonDelUpUser) {
+		this.hidebuttonDelUpUser = hidebuttonDelUpUser;
+	}
+
+	public String getHideAccor() {
+		return hideAccor;
+	}
+
+	public void setHideAccor(String hideAccor) {
+		this.hideAccor = hideAccor;
+	}
+
+	public boolean isMsgerror() {
+		return msgerror;
+	}
+
+	public void setMsgerror(boolean msgerror) {
+		this.msgerror = msgerror;
+	}
+
+	public String getTitleaccor() {
+		return titleaccor;
+	}
+
+	public void setTitleaccor(String titleaccor) {
+		this.titleaccor = titleaccor;
+	}
+
+	public boolean isStatus2() {
+		return status2;
+	}
+
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+
+	public boolean isStatus3() {
+		return status3;
+	}
+
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+
+	public void setConfidentialite(Confidentialite confidentialite) {
+		this.confidentialite = confidentialite;
+	}
+
+	public Confidentialite getConfidentialite() {
+		return confidentialite;
+	}
+
+	public void setListConfidentialite(DataModel listConfidentialite) {
+		this.listConfidentialite = listConfidentialite;
+	}
+
+	public DataModel getListConfidentialite() {
+		return listConfidentialite;
+	}
+
+	public void setCopylistConf(List<Confidentialite> copylistConf) {
+		this.copylistConf = copylistConf;
+	}
+
+	public List<Confidentialite> getCopylistConf() {
+		return copylistConf;
+	}
+
+	public void setListConf(List<Confidentialite> listConf) {
+		this.listConf = listConf;
+	}
+
+	public List<Confidentialite> getListConf() {
+		return listConf;
+	}
+
+	public void setConf(Confidentialite conf) {
+		this.conf = conf;
+	}
+
+	public Confidentialite getConf() {
+		return conf;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setConfidentialiteLibelleShowFr(boolean confidentialiteLibelleShowFr) {
+		this.confidentialiteLibelleShowFr = confidentialiteLibelleShowFr;
+	}
+
+	public boolean isConfidentialiteLibelleShowFr() {
+		return confidentialiteLibelleShowFr;
+	}
+
+	public void setConfidentialiteDescriptionShowFr(
+			boolean confidentialiteDescriptionShowFr) {
+		this.confidentialiteDescriptionShowFr = confidentialiteDescriptionShowFr;
+	}
+
+	public boolean isConfidentialiteDescriptionShowFr() {
+		return confidentialiteDescriptionShowFr;
+	}
+
+	public void setConfidentialiteLibelleShowAr(boolean confidentialiteLibelleShowAr) {
+		this.confidentialiteLibelleShowAr = confidentialiteLibelleShowAr;
+	}
+
+	public boolean isConfidentialiteLibelleShowAr() {
+		return confidentialiteLibelleShowAr;
+	}
+
+	public void setConfidentialiteDescriptionShowAr(
+			boolean confidentialiteDescriptionShowAr) {
+		this.confidentialiteDescriptionShowAr = confidentialiteDescriptionShowAr;
+	}
+
+	public boolean isConfidentialiteDescriptionShowAr() {
+		return confidentialiteDescriptionShowAr;
+	}
+
+}

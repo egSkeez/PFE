@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<title>Liste Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<f:view locale="#{languageManager.locale}">
+<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+	<h:form>
+	<applet height="100px" width="400px" code="xtensus/TEST/TestApplet.class" ></applet>
+		<rich:extendedDataTable value="#{testAuctionDataModel}" var="nature" id="data"
+			rows="10"  styleClass="rich-panel">
+			<rich:column width="12%" sortBy="#{nature.natureId}"
+										filterBy="#{nature.natureId}" filterEvent="onkeyup">
+				<f:facet name="header">
+					<h:outputText value="#{msg.Reference}" />
+				</f:facet>
+				<div align="center">
+					<h:outputText value="#{nature.natureId}" />
+				</div>
+			</rich:column>
+			<rich:column width="20%" sortBy="#{nature.natureLibelle}"
+										filterBy="#{nature.natureLibelle}" filterEvent="onkeyup">
+				<f:facet name="header">
+					<h:outputText value="#{msg.libelle1}" />
+				</f:facet>
+				<h:outputText value="#{nature.natureLibelle}" />
+			</rich:column>
+			<rich:column width="20%" >
+			   <f:facet name="header">
+					<h:outputText value="Operation" />
+				</f:facet>
+			    <a4j:commandLink id="ed" actionListener="#{testAuctionDataModelBean.getRowData}" ajaxSingle="true">
+						<h:graphicImage value="../framGraphique/images/Edit.png"
+													alt="editer" />
+							<f:setPropertyActionListener value="#{nature}" target="#{testAuctionDataModelBean.selectedNature}"></f:setPropertyActionListener>
+						</a4j:commandLink>
+			
+			</rich:column>
+		</rich:extendedDataTable>
+		<rich:datascroller for="data" id="scroller" />
+
+
+	</h:form>
+	</div>
+	</div>
+	<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+   </div>
+</f:view>
+</body>
+	</html>
+</ui:composition>

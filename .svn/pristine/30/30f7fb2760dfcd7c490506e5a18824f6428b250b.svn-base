@@ -1,0 +1,3 @@
+Ldap.url=ldap://192.168.1.40:389/dc=xtensus,dc=com
+ldap.userDn=cn=admin,dc=xtensus,dc=com
+ldap.pwd=ikhlass

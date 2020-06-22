@@ -1,0 +1,583 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<head>
+<title>GBO | Consultation des Mails et Faxes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+	</head>
+
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<h:form id="formGeneral">
+						<rich:panel styleClass="rich-panel">
+							<div id="barreIcone">
+								<div id="barreIconeGauche">
+									<a4j:commandLink id="mail"
+										action="#{consulterMailBean.synchroniseList}"
+										reRender="MailFax,compt1,compt2,datatable,datatable2,scroller1,scroller2,faxList,mailList,FaxTab,MailTab"
+										status="ajaxStatus">
+										<h:graphicImage value="../framGraphique/images/reload.png"
+											alt="retour" />
+									</a4j:commandLink>
+									<a4j:status id="ajaxStatus"
+										onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+										onstop="#{rich:component('waitPanel')}.hide()" />
+
+									<rich:modalPanel id="waitPanel" style="text-align:center">
+										<h:outputText value="#{msg.messageAttente}"
+											style="font-weight:bold;font-size:large" />
+
+										<div align="center">
+											<h:graphicImage value="../framGraphique/images/timeOut.gif"
+												alt="timeOut" />
+										</div>
+									</rich:modalPanel>
+									<rich:toolTip for="mail" value="#{msg.RafListeLabel}" />
+									
+									<a4j:commandLink id="fax"
+										oncomplete="document.location.href='envoiFax.jsf'">
+										<h:graphicImage value="../framGraphique/images/fax.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="fax" value="#{msg.EnvoiFaxLabel}" />
+								</div>
+								<div id="barreIconeDroite">
+								  <a4j:commandLink id="helpButton"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+
+									<h:commandLink id="pdf"
+										action="#{rapportMailList.printMailPDF}">
+										<h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf" />
+									</h:commandLink>
+									
+									<rich:toolTip for="pdf" value="#{msg.pdfExportMail}"
+										direction="top-right" />
+										<h:commandLink id="csv1"
+										action="#{rapportMailList.printMailExcel}"
+										status="ajaxStatusRapport">
+										<h:graphicImage value="../framGraphique/images/excel-petite.png"
+											onmouseover="this.src='../framGraphique/images/excel-petite.png'"
+											onmouseout="this.src='../framGraphique/images/excel-petite.png'"
+											alt="csv"/>
+									</h:commandLink>
+									<rich:toolTip for="csv1" value="#{msg.csvExportMail}"
+										direction="top-right" />
+									<h:commandLink id="pdf2"
+										action="#{rapportFaxList.printMailPDF}">
+										<h:graphicImage value="../framGraphique/images/PDFFAX.png"
+											alt="pdf" style="height:25px; width : 25px;" width="25px" />
+									</h:commandLink>
+									<rich:toolTip for="pdf2" value="#{msg.pdfExportFax}"
+										direction="top-right" />
+										<h:commandLink id="csv"
+										action="#{rapportFaxList.printFaxExcel}"
+										status="ajaxStatusRapport">
+										<h:graphicImage value="../framGraphique/images/excel-petite.png"
+											onmouseover="this.src='../framGraphique/images/excel-petite.png'"
+											onmouseout="this.src='../framGraphique/images/excel-petite.png'"
+											alt="csv"/>
+									</h:commandLink>
+									<rich:toolTip for="csv" value="#{msg.csvExportFax}"
+										direction="top-right" />
+								</div>
+							</div>
+
+						</rich:panel>
+
+						<rich:panel styleClass="rich-panel">
+
+							<f:facet name="header">
+								<h:panelGrid columns="1" styleClass="xtePanelGrid">
+									<h:outputText value="#{msg.listemailFaxLabel}"
+										styleClass="xteEnregistrementLabelOutput" />
+								</h:panelGrid>
+							</f:facet>
+
+							<rich:tabPanel id="MailFax" switchType="client">
+								<rich:tab id="MailTab"
+									label="#{msg.MailsLabel} ( #{consulterMailBean.compteur} ) ">
+
+									<rich:dataTable value="#{consulterMailBean.listmailDM}"
+										var="mailItem" rows="10" styleClass="rich-dataTable"
+										id="mailList">
+
+										<rich:column sortBy="#{mailItem.mailId}"
+											filterBy="#{mailItem.mailId}" filterEvent="onkeyup"
+											label="id" width="5%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.RefMailLabel}" />
+											</f:facet>
+											<h:outputText value="#{mailItem.mailId}" />
+										</rich:column>
+
+										<rich:column sortBy="#{mailItem.mailFromName}"
+											filterBy="#{mailItem.mailFromName}" filterEvent="onkeyup"
+											label="senderName">
+											<f:facet name="header">
+												<h:outputText value="#{msg.expediteurLabel}" />
+											</f:facet>
+											<h:outputText value="#{mailItem.mailFromName}" />
+										</rich:column>
+
+										<rich:column sortBy="#{mailItem.mailFromAddress}"
+											filterBy="#{mailItem.mailFromAddress}" filterEvent="onkeyup"
+											label="senderAddress">
+											<f:facet name="header">
+												<h:outputText value="#{msg.expediteurMail}" />
+											</f:facet>
+											<h:outputText value="#{mailItem.mailFromAddress}" />
+										</rich:column>
+
+										<rich:column sortBy="#{mailItem.mailToAddress}"
+											filterBy="#{mailItem.mailToAddress}" filterEvent="onkeyup"
+											label="receiver">
+											<f:facet name="header">
+												<h:outputText value="#{msg.DestinataireLabel}" />
+											</f:facet>
+											<h:outputText value="#{mailItem.mailToAddress}" />
+										</rich:column>
+
+										<rich:column sortBy="#{mailItem.mailSubject}"
+											filterBy="#{mailItem.mailSubject}" filterEvent="onkeyup"
+											label="subject">
+											<f:facet name="header">
+												<h:outputText value="#{msg.ObjetLabel}" />
+											</f:facet>
+											<h:outputText value="#{mailItem.mailSubject}" />
+										</rich:column>
+
+										<rich:column sortBy="#{mailItem.mailReceivedDate}"
+											filterBy="#{mailItem.mailReceivedDate}" filterEvent="onkeyup"
+											label="date" width="15%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.Datedereception}" />
+											</f:facet>
+											<h:outputText value="#{mailItem.mailReceivedDate}">
+												<f:convertDateTime pattern="d/M/yyyy à HH:mm:ss	" />
+											</h:outputText>
+										</rich:column>
+
+										<rich:column>
+											<f:facet name="header">
+												<h:outputText value="#{msg.ColonneOperation}" />
+											</f:facet>
+
+											<div align="center">
+												<h:panelGrid columns="5">
+													<a4j:keepAlive beanName="consulterMailBean" />
+													<a4j:commandLink action="#{consulterMailBean.details}"
+														id="details">
+														<h:graphicImage
+															value="../framGraphique/images/icone-detail.png"
+															alt="Details" />
+													</a4j:commandLink>
+													<a4j:commandLink
+														action="#{consulterMailBean.getSelectionRow}" id="traiter"
+														oncomplete="if(#{consulterMailBean.status}==true)#{rich:component('msgPanal')}.show();"
+														reRender="msgPanal">
+														<h:graphicImage
+															value="../framGraphique/images/process.png" alt="traiter" />
+													</a4j:commandLink>
+													<rich:toolTip for="traiter"
+														value="#{msg.TransfertMailLabel}" />
+													<a4j:commandLink id="supprimer"
+														action="#{consulterMailBean.getSelectionRowForDelete}"
+														oncomplete="#{rich:component('askDelete')}.show()">
+														<h:graphicImage value="../framGraphique/images/Delete.png"
+															alt="Supprimer" />
+													</a4j:commandLink>
+													<rich:toolTip for="supprimer" value="#{msg.labelDelete}" />
+												</h:panelGrid>
+											</div>
+										</rich:column>
+									</rich:dataTable>
+									<rich:datascroller for="mailList" id="scroller1" />
+									<div align="center">
+										<h:outputText value="#{msg.NombreEnregistrement} : "
+											styleClass="xteNombreEnregistrementLabelOutput" />
+
+										<h:outputText id="compt1"
+											value="#{consulterMailBean.compteur}"
+											styleClass="xteNombreEnregistrementLabelOutput" />
+									</div>
+								</rich:tab>
+								<rich:tab id="FaxTab"
+									label="#{msg.FaxLabel} ( #{consulterFaxBean.compteur} ) ">
+									<rich:dataTable value="#{consulterFaxBean.listfaxDM}"
+										var="faxItem" rows="10" styleClass="rich-dataTable"
+										id="faxList">
+										<rich:column sortBy="#{faxItem.faxMailId}"
+											filterBy="#{faxItem.faxMailId}" filterEvent="onkeyup"
+											label="id" width="5%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.RefMailLabel}" />
+											</f:facet>
+											<h:outputText value="#{faxItem.faxMailId}" />
+										</rich:column>
+
+										<rich:column sortBy="#{faxItem.faxMailFromName}"
+											filterBy="#{faxItem.faxMailFromName}" filterEvent="onkeyup"
+											label="senderName">
+											<f:facet name="header">
+												<h:outputText value="#{msg.expediteurLabel}" />
+											</f:facet>
+											<h:outputText value="#{faxItem.faxMailFromName}" />
+										</rich:column>
+
+										<rich:column sortBy="#{faxItem.faxMailFromAdress}"
+											filterBy="#{faxItem.faxMailFromAdress}" filterEvent="onkeyup"
+											label="senderAddress">
+											<f:facet name="header">
+												<h:outputText value="#{msg.expediteurMail}" />
+											</f:facet>
+											<h:outputText value="#{faxItem.faxMailFromAdress}" />
+										</rich:column>
+
+										<rich:column sortBy="#{faxItem.faxMailToAdress}"
+											filterBy="#{faxItem.faxMailToAdress}" filterEvent="onkeyup"
+											label="receiver">
+											<f:facet name="header">
+												<h:outputText value="#{msg.DestinataireLabel}" />
+											</f:facet>
+											<h:outputText value="#{faxItem.faxMailToAdress}" />
+										</rich:column>
+
+										<rich:column sortBy="#{faxItem.faxMailSubject}"
+											filterBy="#{faxItem.faxMailSubject}" filterEvent="onkeyup"
+											label="subject">
+											<f:facet name="header">
+												<h:outputText value="#{msg.ObjetLabel}" />
+											</f:facet>
+											<h:outputText value="#{faxItem.faxMailSubject}" />
+										</rich:column>
+
+										<rich:column sortBy="#{faxItem.faxMailReceivedDate}"
+											filterBy="#{faxItem.faxMailReceivedDate}"
+											filterEvent="onkeyup" label="date" width="15%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.Datedereception}" />
+											</f:facet>
+											<h:outputText value="#{faxItem.faxMailReceivedDate}">
+												<f:convertDateTime pattern="d/M/yyyy à HH:mm:ss	" />
+											</h:outputText>
+										</rich:column>
+
+										<rich:column width="15%">
+											<f:facet name="header">
+												<h:outputText value="#{msg.ColonneOperation}" />
+											</f:facet>
+											<div align="center">
+												<h:panelGrid columns="5">
+													<a4j:keepAlive beanName="consulterFaxBean" />
+													<a4j:commandLink action="#{consulterFaxBean.details}"
+														id="details">
+														<h:graphicImage
+															value="../framGraphique/images/icone-detail.png"
+															alt="Details" />
+													</a4j:commandLink>
+													<a4j:commandLink
+														action="#{consulterFaxBean.getSelectionRow}" id="traiter"
+														oncomplete="if(#{consulterFaxBean.status}==true)#{rich:component('msgPanalFax')}.show();"
+														reRender="msgPanalFax">
+														<h:graphicImage
+															value="../framGraphique/images/process.png" alt="traiter" />
+													</a4j:commandLink>
+													<rich:toolTip for="traiter"
+														value="#{msg.transfoemerencourrier}" />
+												</h:panelGrid>
+											</div>
+										</rich:column>
+									</rich:dataTable>
+
+									<rich:datascroller for="faxList" id="scroller2" />
+
+									<div align="center">
+										<h:outputText value="#{msg.NombreEnregistrement} : "
+											styleClass="xteNombreEnregistrementLabelOutput" />
+
+										<h:outputText id="compt2" value="#{consulterFaxBean.compteur}"
+											styleClass="xteNombreEnregistrementLabelOutput" />
+									</div>
+
+								</rich:tab>
+							</rich:tabPanel>
+
+						</rich:panel>
+					</h:form>
+					<!-- *********ask Delete*********** -->
+					<rich:modalPanel id="askDelete" autosized="true" height="90"
+						width="350">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<h:outputText value="#{msg.labelConfirm}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink2" alt="Fermer" />
+								<rich:componentControl for="askDelete" attachTo="hidelink2"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<a4j:keepAlive beanName="consulterMailBean" />
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/interrogation.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.confirmDelete}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOui}"
+									action="#{consulterMailBean.deleteSelectedMail}"
+									oncomplete="Richfaces.hideModalPanel('askDelete'); #{rich:component('msgPanalCD')}.show();"
+									type="submit" ajaxSingle="true" styleClass="submitButton" />
+								<rich:spacer width="10" />
+								<a4j:commandButton value="#{msg.buttonNon}"
+									styleClass="submitButton"
+									onclick="Richfaces.hideModalPanel('askDelete');" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+					<!-- *****popup Info validation de suppression******* -->
+					<rich:modalPanel id="msgPanalCD" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="consulterMailBean" ajaxOnly="true" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<a4j:commandLink id="upd1" reRender="formGeneral">
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" />
+							</a4j:commandLink>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{msg.confirmSuppression}" /></td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									oncomplete="Richfaces.hideModalPanel('msgPanalCD');"
+									type="submit" ajaxSingle="true" styleClass="submitButton"
+									reRender="formGeneral" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+					<!-- *********popup Transfere Mail********* -->
+					<rich:modalPanel id="msgPanal" autosized="true" height="90"
+						width="300">
+						<a4j:keepAlive beanName="consulterMailBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{consulterMailBean.message}" /></td>
+								</tr>
+							</table>
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.buttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanal');"
+											type="submit" ajaxSingle="true" styleClass="submitButton" />
+									</td>
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+					<!-- *********popup Transfere FAX********* -->
+					<rich:modalPanel id="msgPanalFax" autosized="true" height="90"
+						width="300">
+						<a4j:keepAlive beanName="consulterFaxBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink1Fax" />
+								<rich:componentControl for="msgPanalFax" attachTo="hidelink1Fax"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/avertissement.png" /></td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="#{consulterFaxBean.message}" /></td>
+								</tr>
+							</table>
+							<table align="center">
+								<tr>
+									<td align="center"><a4j:commandButton
+											value="#{msg.buttonOk}"
+											oncomplete="Richfaces.hideModalPanel('msgPanalFax');"
+											type="submit" ajaxSingle="true" styleClass="submitButton" />
+									</td>
+								</tr>
+							</table>
+						</h:form>
+					</rich:modalPanel>
+
+					<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="#{msg.help} : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+									value="../framGraphique/images/AideEnLigne/GBO-List-Mail-Fax-FR.png"
+									width="750" height="490" id="aidehidelink" />
+									<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+										value="../framGraphique/images/AideEnLigne/GBO-List-Mail-Fax-AR.png"
+										width="750" height="490" id="aidehidelinkAR" />
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+
+							</h:form>
+						</div>
+					</rich:modalPanel>
+				</div>
+
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</ui:composition>

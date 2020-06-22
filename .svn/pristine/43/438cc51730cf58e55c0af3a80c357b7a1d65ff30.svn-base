@@ -1,0 +1,97 @@
+package xtensus.beans.common.GBO;
+
+import java.util.List;
+
+import javax.faces.event.ActionEvent;
+import org.ajax4jsf.model.Range;
+
+import org.ajax4jsf.event.AjaxEvent;
+import org.richfaces.component.UIDataTable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.entity.Transaction;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class NewhireList extends PaginatingDataModel<Transaction, Range> {
+	/** */
+	private static final long serialVersionUID = 2672142810059859813L;
+
+	/** */
+	@Autowired
+	private ApplicationManager appMgr;
+	private int rowCounts;
+	private Range range;
+
+	/**
+	 * @see PaginatingDataModel#getId(java.lang.Object)
+	 */
+	@Override
+	public Integer getId(Transaction object) {
+		return object.getTransactionId();
+	}
+
+	public void test(ActionEvent e) {
+		System.out.println("bien tapé");
+	}
+
+	/**
+	 * @see PaginatingDataModel#findObjects(int, int, java.lang.String, boolean)
+	 */
+	@Override
+	public List<Transaction> findObjects(int firstRow, int numberOfRows,
+			String sortField, boolean descending) {
+		return appMgr.getListTransactionTest(firstRow, numberOfRows);
+	}
+
+	public void myListener(AjaxEvent event) {
+		System.out.println("event" + event);
+		UIDataTable table = (UIDataTable) event.getSource();
+		table.getComponentState().getRange();
+
+	}
+
+	/**
+	 * @see PaginatingDataModel#getObjectById(java.lang.Object)
+	 */
+	@Override
+	public Transaction getObjectById(Integer id) {
+		return appMgr.getListTransactionByIdTransaction(id).get(0);
+	}
+
+	/**
+	 * @see PaginatingDataModel#getDefaultSortField()
+	 */
+	@Override
+	public String getDefaultSortField() {
+		return "attribute(EOD)";
+	}
+
+	/**
+	 * @see PaginatingDataModel#getNumRecords()
+	 */
+	@Override
+	public int getNumRecords() {
+		return (int) appMgr.getRowCount();
+	}
+
+	public void setRowCounts(int rowCounts) {
+		this.rowCounts = rowCounts;
+	}
+
+	public int getRowCounts() {
+		return getNumRecords();
+	}
+
+	public void setRange(Range range) {
+		this.range = range;
+	}
+
+	public Range getRange() {
+		return range;
+	}
+
+}

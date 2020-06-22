@@ -1,0 +1,11 @@
+mail.store.protocol=pop3s
+mail.pop3.host=pop.gmail.com
+mail.pop3.user=xgbo.test@gmail.com
+#mail.pop3.socketFactory=995
+mail.pop3.socketFactory.class=javax.net.ssl.SSLSocketFactory
+mail.pop3.port=995
+mail.pop3.pass=xgbotest2020
+mail.pop3.auth=true
+#mail.pop3.starttls.enable = false
+#mail.pop3.starttls.required = false
+mail.pop3s.ssl.trust=*

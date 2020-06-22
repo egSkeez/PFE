@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2020-06-11T15:38:20 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Bordereau_Courrier_Arrivee" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="3f4e9b68-833c-4cd7-a185-dc0f5fd133fd">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="defaultStyle"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="listeSociete" class="java.util.List">
+		<fieldDescription><![CDATA[listeSociete]]></fieldDescription>
+	</field>
+	<field name="uniteConnecte" class="java.lang.String">
+		<fieldDescription><![CDATA[uniteConnecte]]></fieldDescription>
+	</field>
+	<field name="selectedUnit" class="xtensus.ldap.model.Unit">
+		<fieldDescription><![CDATA[selectedUnit]]></fieldDescription>
+	</field>
+	<field name="dateReception" class="java.util.Date">
+		<fieldDescription><![CDATA[dateReception]]></fieldDescription>
+	</field>
+	<field name="numero" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numero]]></fieldDescription>
+	</field>
+	<field name="dateRecep" class="java.util.Date">
+		<fieldDescription><![CDATA[dateRecep]]></fieldDescription>
+	</field>
+	<field name="expediteurNom" class="java.lang.String">
+		<fieldDescription><![CDATA[expediteurNom]]></fieldDescription>
+	</field>
+	<field name="listeDestinataire" class="java.lang.String">
+		<fieldDescription><![CDATA[listeDestinataire]]></fieldDescription>
+	</field>
+	<field name="objet" class="java.lang.String">
+		<fieldDescription><![CDATA[objet]]></fieldDescription>
+	</field>
+	<field name="reference" class="java.lang.String">
+		<fieldDescription><![CDATA[reference]]></fieldDescription>
+	</field>
+	<field name="referencePostale" class="java.lang.String">
+		<fieldDescription><![CDATA[referencePostale]]></fieldDescription>
+	</field>
+	<field name="listeCourrierInterne" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourrierInterne]]></fieldDescription>
+	</field>
+	<field name="listeCourrierExterne" class="java.util.List">
+		<fieldDescription><![CDATA[listeCourrierExterne]]></fieldDescription>
+	</field>
+	<field name="datePeriodeAnneeAR" class="java.lang.String">
+		<fieldDescription><![CDATA[datePeriodeAnneeAR]]></fieldDescription>
+	</field>
+	<field name="datePeriodeAnneeFR" class="java.lang.String">
+		<fieldDescription><![CDATA[datePeriodeAnneeFR]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="231" splitType="Stretch">
+			<subreport>
+				<reportElement x="-1" y="0" width="555" height="90" uuid="674bbf8d-36a8-4362-b187-2e7ffdffee8b"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeSociete})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["entete.jasper"]]></subreportExpression>
+			</subreport>
+			<textField isBlankWhenNull="true">
+				<reportElement x="400" y="104" width="145" height="30" uuid="d2275c2c-151c-423b-a375-2bb65b15c791"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{selectedUnit}.getNameUnit()]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement x="0" y="151" width="554" height="80" uuid="10f1bf70-8c3d-437f-9aa2-3dc724c81b08"/>
+				<box>
+					<topPen lineWidth="0.3" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.3" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.3" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.3" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</frame>
+			<staticText>
+				<reportElement x="0" y="151" width="540" height="30" uuid="9f4fe31d-cac7-4e64-8ce5-077893b7dfa3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[BORDEREAU DES COURRIERS ARRIVES]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy à HH:mm" isBlankWhenNull="true">
+				<reportElement x="418" y="199" width="136" height="15" isPrintWhenDetailOverflows="true" uuid="82e40482-7b77-4722-a7f9-8669d14eb2ef">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{datePeriodeAnneeFR}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="357" y="199" width="61" height="15" uuid="6b3e56ca-3e05-4296-862b-1a247203d754">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[Situation du : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="104" width="100" height="30" uuid="26f4859b-ab3b-46e7-81dc-612d5b50ad30">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Destinataire :]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="120">
+			<staticText>
+				<reportElement positionType="Float" x="0" y="10" width="211" height="20" uuid="6b1922e9-3cff-4b57-9d9b-4d3175358451"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[COURRIERS ARRIVES EXTERNES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="45" width="20" height="25" uuid="f1aaf04d-a669-4ae5-87b4-322ed10d8c25">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N°]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="20" y="45" width="60" height="25" uuid="7e019178-3542-41b9-90b3-9b6db3b34a86">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emetteur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="80" y="45" width="80" height="25" uuid="9c1e4642-d9b2-40d5-9e25-d501a57acbe0">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.4" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.4" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.4" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.4" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[  Date réception]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="160" y="45" width="90" height="25" uuid="4784469f-bd00-44dc-b007-1fc10d4e85da">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Référence]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="250" y="45" width="125" height="25" uuid="c517d064-f875-477d-be86-77cb31c6e2a3">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Transféré à]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="375" y="45" width="178" height="25" uuid="8cd4fa75-02c4-48e7-9341-928e3f2e4643">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Objet]]></text>
+			</staticText>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="70" width="554" height="50" isPrintWhenDetailOverflows="true" uuid="57688461-b14c-4559-b8fd-6b2c0cd6e107"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeCourrierExterne})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["Courrier_Arrivee_Interne_Sous_Rapport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="110">
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="211" height="20" uuid="1eea8423-4c1b-48fc-a831-ffe219ce5bba"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[COURRIERS ARRIVES INTERNES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="30" width="20" height="25" uuid="63028016-5cf7-4db4-a3ed-bd502a274b03">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N°]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="20" y="30" width="60" height="25" uuid="3634d758-4daf-4add-9879-23d2a6e5cada">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emetteur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="80" y="30" width="80" height="25" uuid="af5660d5-28e5-4b37-bef1-920854a16eda">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date réception]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="160" y="30" width="90" height="25" uuid="d63241e8-8fdc-497c-b2cc-fe0e518c950c">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Référence]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="250" y="30" width="125" height="25" uuid="155a3caf-ab0a-4cf0-a93c-4df3f9f4811f">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Transféré à]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="375" y="30" width="178" height="25" uuid="1af0b38f-4af2-4665-ad08-af4cf8b6c331">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Objet]]></text>
+			</staticText>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="55" width="554" height="55" isPrintWhenDetailOverflows="true" uuid="c56f3280-3932-4dec-afcc-88a01026849c"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{listeCourrierInterne})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["ListeCourriers_Arrivee_Interne.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="44">
+			<textField>
+				<reportElement x="230" y="14" width="100" height="30" uuid="f28f97d2-3bfb-441e-a8bc-b08697337426"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

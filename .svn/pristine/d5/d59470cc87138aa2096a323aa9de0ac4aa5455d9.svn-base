@@ -1,0 +1,924 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Répondre Courrier</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<script type="text/javascript">
+	/*            */
+	function reactToChangedRadio(i,j) {
+		
+		var check = i.value;
+		var indexcomment = j;
+		
+	
+		var picklist = 'myFormId:monPanneau1:'+indexcomment+':picklistAnnotation';
+		var commentbox = 'myFormId:monPanneau1:'+indexcomment+':inputAnnComm';
+		
+		if (check == 'tous') {
+			document.getElementById(picklist).style.display = 'inline';
+			document.getElementById(commentbox).style.display = 'none';
+		} else if (check == 'autre') {
+			document.getElementById(picklist).style.display = 'none';
+			document.getElementById(commentbox).style.display = 'inline';
+		}
+	}
+	/*        */
+</script>
+
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<table align="center" id="t1" style="width: 100%;">
+						<tr>
+							<td id="content"><rich:panel styleClass="rich-panel"
+									style="margin-left:-5px; margin-left:-5px;">
+									<f:facet name="header">
+										<h:panelGrid columns="1" styleClass="xtePanelGrid">
+											<h:outputText value="#{courrierRepondreBean.labelName}"
+												styleClass="xteEnregistrementLabelOutput" />
+										</h:panelGrid>
+									</f:facet>
+									<h:form id="myFormId">
+										<table align="center" class="frameTableClient"
+											style="width: 100%;">
+											<rich:messages ajaxRendered="true" errorClass="msgError"
+												styleClass="error" />
+
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client"
+														style="margin:-4px;" headerClass="rich-stglpanel-header">
+														<f:facet name="header">
+															<h:panelGrid columns="2" style="margin:-3px;">
+																<h:outputText value="#{msg.PanelBarItem3}"
+																	styleClass="xteEnregistrementLabelOutput" />
+																<h:column>
+
+																</h:column>
+															</h:panelGrid>
+														</f:facet>
+														<table width="100%">
+															<tr>
+																<td width="50%"><h:panelGrid columns="6"
+																		rendered="#{courrierRepondreBean.showFacetUser}">
+																		<h:column>
+																			<h:outputText value="#{msg.CourrierExp}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<h:column>
+																			<h:selectOneRadio
+																				style="direction:#{languageManager.direction};"
+																				styleClass="xteDetailLabelOutput"
+																				value="#{courrierRepondreBean.typeSender}"
+																				layout="pageDirection">
+																				<a4j:support event="onchange" ajaxSingle="true"
+																					actionListener="#{courrierRepondreBean.eventChooseTypeSender}" />
+																				<f:selectItem
+																					itemLabel="#{courrierRepondreBean.associatedLabel} : #{courrierRepondreBean.associatedUnit} "
+																					itemValue="MonUnite"
+																					itemDisabled="variableGlobale.itemDisabledForAssociatedUnit" />
+																				<f:selectItem
+																					itemLabel="A mon propre Nom : #{variableGlobale.person.prenom} #{variableGlobale.person.nom}"
+																					itemValue="MoiMeme" />
+																				
+																			</h:selectOneRadio>
+																		</h:column>
+																		<rich:spacer width="70px" />
+																		<a4j:commandLink rendered="false"
+																			action="#{courrierRepondreBean.goToListSender}"
+																			ajaxSingle="true">
+																			<h:graphicImage
+																				value="../framGraphique/images/Loupe-2---26pix.png" />
+																		</a4j:commandLink>
+																		<h:column>
+																			<rich:spacer width="10px" />
+																			<h:outputText value="#{msg.CourrierDest}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																		</h:column>
+																		<h:outputText value="#{variableGlobale.destNom}"
+																			styleClass="xteDetailLabelOutput"
+																			style="margin-left: 2px; margin-right: 2px; width: 221px; margin-top: 2px; margin-bottom: 2px; height: 46px; " />
+																	</h:panelGrid> <h:panelGrid columns="8"
+																		rendered="#{courrierRepondreBean.showFacetBoc}">
+																		<h:selectOneRadio id="selectoneRadioId"
+																			styleClass="xteDetailLabelOutput"
+																			style="direction:#{languageManager.direction};"
+																			value="#{courrierRepondreBean.typeCourrier}"
+																			layout="pageDirection">
+																			<a4j:support event="onchange" ajaxSingle="true"
+																				actionListener="#{courrierRepondreBean.eventChooseTypeCourrier}" />
+																			<f:selectItem itemLabel="Arrivé" itemValue="arrive" />
+																			<f:selectItem itemLabel="Départ" itemValue="depart" />
+																		</h:selectOneRadio>
+																		<h:column>
+																			<rich:spacer width="5px" />
+																			<h:outputText value="#{msg.CourrierExp}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																			<rich:spacer width="10px" />
+																		</h:column>
+																		<h:outputText
+																			value="#{variableGlobale.person.prenom} #{variableGlobale.person.nom}"
+																			required="true" styleClass="xteDetailLabelOutput"
+																			style="margin-left: 2px; margin-right: 2px; width: 200px; margin-top: 2px; margin-bottom: 2px; height: 46px; "
+																			requiredMessage="* #{msg.CourrierExp} #{msg.champsobligatoire}" />
+																		<h:column>
+																			<rich:spacer width="10px" />
+																			<a4j:commandLink
+																				action="#{courrierRepondreBean.goToListSender}"
+																				ajaxSingle="true">
+																				<h:graphicImage
+																					value="../framGraphique/images/Loupe-2---26pix.png" />
+																			</a4j:commandLink>
+																		</h:column>
+																		<h:column>
+																			<rich:spacer width="5px" />
+																			<h:outputText value="#{msg.CourrierDest}"
+																				styleClass="xteDetailLabel" style=" width :100px;" />
+																			<rich:spacer width="10px" />
+																			<h:outputText value="*" styleClass="error" />
+																		</h:column>
+																		<h:outputText value="#{variableGlobale.destNom}"
+																			required="true" styleClass="xteDetailLabelOutput"
+																			style="margin-left: 2px; margin-right: 2px; width: 200px; margin-top: 2px; margin-bottom: 2px; height: 46px; "
+																			requiredMessage="* #{msg.ColonneDest} #{msg.champsobligatoire}" />
+																	</h:panelGrid>
+																</td>
+															</tr>
+														</table>
+													</rich:simpleTogglePanel>
+												</td>
+											</tr>
+											<tr>
+												<td><rich:simpleTogglePanel switchType="client"
+														style="margin:-4px; " label="#{msg.PanelBarItem1}">
+
+														<h:panelGrid columns="4" style=" width : 100%">
+															<h:column>
+																<h:outputText value="" styleClass="xteDetailLabel" />
+															</h:column>
+															<h:outputText value="" styleClass="xteDetailLabel">
+															</h:outputText>
+															<h:outputText value="" styleClass="xteDetailLabel" />
+															<h:outputText value="" styleClass="xteDetailLabel" />
+														</h:panelGrid>
+														<h:panelGrid columns="2">
+														 <h:column>
+																<h:outputText value="#{msg.courrierRefOriginaleLabel} "
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="5" />
+															</h:column>
+															<h:outputText
+																value="#{courrierRepondreBean.courrier.courrierRefOriginale}"
+																styleClass="xteDetailLabelOutput"
+																style=" width : 128px;" />
+														
+														
+														</h:panelGrid>
+
+														<h:panelGrid columns="2">
+														 
+
+															<h:column>
+																<h:outputText value="#{msg.CourrierObjet}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+
+															</h:column>
+															<h:inputText id="obj"
+																value="#{courrierRepondreBean.newCourrier.courrierObjet}"
+																style=" width : 770px !important; height : 20px"
+																required="true"
+																requiredMessage="* #{msg.CourrierObjet} #{msg.champsobligatoire}">
+																<a4j:support event="onchange"
+																	action="#{courrierRepondreBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:inputText>
+														</h:panelGrid>
+
+
+														<h:panelGrid columns="4">
+
+															<h:outputText value="#{msg.CourrierDes}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:inputTextarea id="desc" styleClass="textarea"
+																value="#{courrierRepondreBean.newCourrier.courrierCommentaire}"
+																style=" width : 240px; height : 80px;">
+																<a4j:support event="onchange"
+																	action="#{courrierRepondreBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:inputTextarea>
+
+															<h:outputText value="#{msg.DocumentCommentaire}"
+																styleClass="xteDetailLabel" style=" width :100px;" />
+															<h:inputTextarea id="commentaire" styleClass="textarea"
+																value="#{courrierRepondreBean.courrierCommentaire}"
+																style=" width : 240px; height : 80px;" />
+															<h:column>
+																<h:outputText value="#{msg.CourrierConfidentialite}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="conf"
+																value="#{courrierRepondreBean.selectedItemConf}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneConfidentialite} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierRepondreBean.selectItemsConf}" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierCategorie} : "
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+															</h:column>
+															<h:selectOneMenu id="rdBtnCat"
+																value="#{courrierRepondreBean.selectedItemCategorie}"
+																required="true"
+																requiredMessage="* #{msg.CourrierCategorie} #{msg.champsobligatoire}"
+																style=" width : 133px;">
+																<f:selectItems
+																	value="#{courrierRepondreBean.selectItemsNatCategorie}" />
+																<a4j:support event="onchange" ajaxSingle="true"
+																	reRender="rdBtnNature"
+																	actionListener="#{courrierRepondreBean.chargerNature}" />
+															</h:selectOneMenu>
+															<h:column>
+																<h:outputText value="#{msg.CourrierUrgence}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="urg"
+																value="#{courrierRepondreBean.selectedItemUg}"
+																style=" width : 133px;" required="true"
+																requiredMessage="* #{msg.ColonneUrgence} #{msg.champsobligatoire}">
+																<f:selectItems
+																	value="#{courrierRepondreBean.selectItemsUg}" />
+															</h:selectOneMenu>
+
+															<h:column>
+																<h:outputText value="#{msg.CourrierNature}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+																<rich:spacer width="10px" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:selectOneMenu id="rdBtnNature"
+																value="#{courrierRepondreBean.selectedItemNature}"
+																required="true"
+																requiredMessage="* #{msg.ColonneNature} #{msg.champsobligatoire}"
+																style=" width : 133px;">
+																<f:selectItems
+																	value="#{courrierRepondreBean.selectItemsNat}" />
+																<a4j:support event="onchange"
+																	action="#{courrierRepondreBean.saveTempValue}"
+																	ajaxSingle="true"
+																	reRender="monPanneauCheque,monPanneauCheque2" />
+															</h:selectOneMenu>
+
+
+
+
+															<h:column>
+																<h:outputText value="#{msg.CourrierMode}"
+																	styleClass="xteDetailLabel" style=" width :100px;" />
+															</h:column>
+															<h:column>
+																<h:selectOneMenu id="rdBtnTransmission"
+																	value="#{courrierRepondreBean.selectedItemsTr}"
+																	label="Choisir le mode" style=" width : 133px;"
+																	required="true"
+																	requiredMessage="* #{msg.CourrierMode} #{msg.champsobligatoire}">
+																	<f:selectItems
+																		value="#{courrierRepondreBean.selectItemsTr}" />
+																	<a4j:support event="onchange"
+																		action="#{courrierRepondreBean.saveTempValue}"
+																		ajaxSingle="true"
+																		reRender="monPanneauTransmission,monPanneauTransmission2" />
+																</h:selectOneMenu>
+																<h:outputText
+																	value="#{courrierRepondreBean.selectedItemsTr}"
+																	rendered="#{courrierRepondreBean.transformationMailFax}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:column />
+															<h:column />
+															<h:column>
+
+																<a4j:outputPanel id="monPanneauTransmission">
+																	<a4j:repeat
+																		value="#{courrierRepondreBean.listComposantDynamiqueTransmission}" rendered="#{courrierRepondreBean.afficheChampsSpecTansmission}"
+																		var="field">
+																		<h:panelGrid columns="2">
+
+																			<h:outputText value="#{field.name} : "
+																				style="margin-left: -3px"
+																				styleClass="xteDetailLabel" />
+																			<h:outputText value="*" styleClass="error" />
+																		</h:panelGrid>
+																	</a4j:repeat>
+																</a4j:outputPanel>
+															</h:column>
+															<h:column>
+																<a4j:outputPanel id="monPanneauTransmission2" >
+																	<a4j:repeat
+																	 rendered="#{courrierRepondreBean.afficheChampsSpecTansmission}"
+																		value="#{courrierRepondreBean.listComposantDynamiqueTransmission}"
+																		var="field">
+																		<h:panelGrid columns="1">
+																			<h:inputText value="#{field.colonne}"
+																				style="margin-left: -3px"
+																				rendered="#{field.type=='TEXT'}" />
+																			<h:inputTextarea value="#{field.colonne}"
+																				style="margin-left: -3px"
+																				rendered="#{field.type== 'TEXTAREA'}" />
+																			<rich:calendar value="#{field.colonne}"
+																				style="margin-left: -3px" datePattern="dd/MM/yyyy"
+																				rendered="#{field.type== 'DATE'}" />
+																			<h:selectOneRadio value="#{field.colonne}"
+																				style="margin-left: -3px"
+																				styleClass="xteDetailLabelOutput" id="transmission"
+																				rendered="#{field.type=='RADIO'}"
+																				layout="lineDirection">
+																				<f:selectItem
+																					itemLabel="#{msg.ajoutcourrierNonLabeNon}"
+																					itemValue="false" rendered="#{field.type=='RADIO'}" />
+																				<f:selectItem
+																					itemLabel="#{msg.msgajoutcourrierNonLabeOui}"
+																					itemValue="true" rendered="#{field.type=='RADIO'}" />
+																			</h:selectOneRadio>
+
+																		</h:panelGrid>
+																	</a4j:repeat>
+
+																</a4j:outputPanel>
+															</h:column>
+															
+															
+															
+															<h:column />
+															<h:outputText value=""/>
+															<h:column>
+
+																<a4j:outputPanel id="monPanneauCheque"  >
+																	<a4j:repeat
+																		value="#{courrierRepondreBean.listComposantDynamique}"
+																		rendered ="#{courrierRepondreBean.showCheque}"
+																		var="field">
+																		<h:panelGrid columns="2">
+																		<h:outputText value="#{field.name} : "
+																			styleClass="xteDetailLabel" />
+																		<h:outputText value="*" styleClass="error"
+																			rendered="#{field.champOblig}" />
+																			</h:panelGrid>
+																	</a4j:repeat>
+
+																</a4j:outputPanel>
+															</h:column>
+															<h:column >
+
+																<a4j:outputPanel id="monPanneauCheque2">
+																	<a4j:repeat
+																		value="#{courrierRepondreBean.listComposantDynamique}"
+																		rendered ="#{courrierRepondreBean.showCheque}"
+																		var="field">
+																		<h:panelGrid columns="1">
+																		<h:inputText value="#{field.colonne}"
+																			rendered="#{field.type=='TEXT'}" >
+																			</h:inputText>
+																		<h:inputTextarea value="#{field.colonne}"
+																			rendered="#{field.type== 'TEXTAREA'}" />
+																		<rich:calendar value="#{field.colonne}"
+																			datePattern="dd/MM/yyyy"
+																			rendered="#{field.type== 'DATE'}" />
+																		<h:selectOneRadio value="#{field.colonne}"
+																			styleClass="xteDetailLabelOutput" id="chequePanneau"
+																			rendered="#{field.type=='RADIO'}"
+																			layout="lineDirection">
+
+																			<f:selectItem
+																				itemLabel="#{msg.ajoutcourrierNonLabeNon}"
+																				itemValue="False" rendered="#{field.type=='RADIO'}" />
+																			<f:selectItem
+																				itemLabel="#{msg.msgajoutcourrierNonLabeOui}"
+																				itemValue="True" rendered="#{field.type=='RADIO'}" />
+
+																		</h:selectOneRadio>
+																		</h:panelGrid>
+
+																	</a4j:repeat>
+
+																</a4j:outputPanel>
+															</h:column>
+															<h:column />
+															<h:column />
+
+															<h:column>
+																<h:outputText value="#{msg.avecReceptionPhysique} :"
+																	styleClass="xteDetailLabel" />
+
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+
+															<h:selectOneRadio id="checkReception"
+																styleClass="xteDetailLabelOutput"
+																value="#{courrierRepondreBean.necessiteReceptionPhysique}"
+																required="true" style="margin-left: -8px"
+																requiredMessage="* #{msg.avecReceptionPhysique} #{msg.champsobligatoire}"
+																layout="lineDirection">
+
+																<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}"
+																	itemValue="Non" />
+																<f:selectItem
+																	itemLabel="#{msg.msgajoutcourrierNonLabeOui}"
+																	itemValue="Oui" />
+																<a4j:support event="onchange"
+																	action="#{courrierRepondreBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:selectOneRadio>
+															<h:column />
+															<h:column />
+															<h:column>
+																<h:outputText value="#{msg.CourrierNecessite}"
+																	styleClass="xteDetailLabel" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+
+															<h:selectOneRadio id="checkTransfert"
+																styleClass="xteDetailLabelOutput"
+																value="#{courrierRepondreBean.necessiteReponse}"
+																required="true" style="margin-left: -8px"
+																requiredMessage="* #{msg.CourrierNecessite} #{msg.champsobligatoire}"
+																layout="lineDirection">
+																<a4j:support event="onchange"
+																	reRender="monPanneauEcheance,monPanneauEcheance2"
+																	ajaxSingle="true"
+																	actionListener="#{courrierRepondreBean.evenementChoixTransfert}" />
+																<f:selectItem itemLabel="#{msg.ajoutcourrierNonLabeNon}"
+																	itemValue="Non" />
+																<f:selectItem
+																	itemLabel="#{msg.msgajoutcourrierNonLabeOui}"
+																	itemValue="Oui" />
+																<a4j:support event="onchange"
+																	action="#{courrierRepondreBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:selectOneRadio>
+
+															<h:column>
+
+																<a4j:outputPanel id="monPanneauEcheance">
+																	<h:panelGrid id="panelInstalle1" columns="3"
+																		style="font: inherit;"
+																		rendered="#{courrierRepondreBean.afficheEcheance}">
+																		<h:column>
+																			<h:outputText value="#{msg.CourrierDateRep}"
+																				id="date2" styleClass="xteDetailLabel" />
+
+																			<h:outputText value="*" styleClass="error" />
+																		</h:column>
+
+
+																	</h:panelGrid>
+																</a4j:outputPanel>
+
+															</h:column>
+															<h:column>
+																<a4j:outputPanel id="monPanneauEcheance2">
+																	<h:panelGrid id="panelInstalle2" columns="3"
+																		style="font: inherit;"
+																		rendered="#{courrierRepondreBean.afficheEcheance}">
+
+
+																		<rich:calendar id="Cal"
+																			value="#{courrierRepondreBean.courrier.courrierDateReponse}"
+																			datePattern="dd/MM/yyyy" required="true"
+																			requiredMessage="* #{msg.CourrierDateRep} #{msg.champsobligatoire}"
+																			locale="#{calendarBean.locale}"
+																			monthLabels="#{calendarBean.listMois}">
+																			<a4j:support ajaxSingle="true" event="onchanged"
+																				action="#{courrierRepondreBean.saveTempValue}"
+																				reRender="data, scroller" />
+																		</rich:calendar>
+																	</h:panelGrid>
+																</a4j:outputPanel>
+															</h:column>
+
+															<h:column>
+																<h:outputText value="#{msg.passageParBoLabel} :"
+																rendered="#{courrierRepondreBean.affichagePassageBO}"
+																	styleClass="xteDetailLabel" />
+
+																<h:outputText value="*" styleClass="error" rendered="#{courrierRepondreBean.affichagePassageBO}" />
+															</h:column>
+
+															<h:selectOneRadio id="checkBO" style="margin-left: -8px"
+															rendered="#{courrierRepondreBean.affichagePassageBO}"
+																styleClass="xteDetailLabelOutput" 
+																value="#{courrierRepondreBean.passageParBO}"
+																required="true" 
+																requiredMessage="* #{msg.passageParBoLabel} #{msg.champsobligatoire}"
+																layout="lineDirection">
+
+																<f:selectItem itemLabel="#{msg.passageParBoNon}"
+																	itemValue="Non" />
+																<f:selectItem itemLabel="#{msg.passageParBoOui}"
+																	itemValue="Oui" />
+																<a4j:support event="onchange"
+																	action="#{courrierRepondreBean.saveTempValue}"
+																	ajaxSingle="true" />
+															</h:selectOneRadio>
+
+														</h:panelGrid>
+														<hr></hr>
+														<div>
+															<a4j:repeat value="#{courrierRepondreBean.destinataires}" id="monPanneau1"
+																var="dest" rowKeyVar="indexcomment">
+																<rich:simpleTogglePanel id="panelanno" opened="false"
+																	switchType="client" headerClass="rich-stglpanel-header">
+																	<f:facet name="header">
+																		<h:outputText
+																			value="#{msg.annotationsPour} #{dest.destinataireName}" />
+																	</f:facet>
+																	<h:panelGrid columns="3">
+																		<h:column>
+																			<h:outputText id="libAnnotTrans"
+																				value="#{msg.CourrierAnnot}"
+																				styleClass="xteDetailLabel" />
+																		</h:column>
+																		<rich:spacer width="65px" />
+																		<h:column>
+																			<h:selectOneRadio id="r#{dest.destinataireId}"
+																				onclick="reactToChangedRadio(this,'#{indexcomment}');"
+																				styleClass="xteDetailLabelOutput"
+																				value="#{courrierRepondreBean.chooseAnnotationType}"
+																				layout="lineDirection">
+																				<f:selectItem itemLabel="#{msg.tous}"
+																					itemValue="tous" />
+																				<f:selectItem itemLabel="#{msg.autre}"
+																					itemValue="autre" />
+																				<a4j:support event="onchange"
+																					action="#{courrierRepondreBean.saveTempValue}"
+																					ajaxSingle="true">
+																					<f:setPropertyActionListener
+																						target="#{courrierRepondreBean.listAnno}"
+																						value="#{dest}" />
+																				</a4j:support>
+																			</h:selectOneRadio>
+																		</h:column>
+
+
+																	</h:panelGrid>
+																	<div align="center">
+																		<h:panelGrid
+																			id="otherAnnotationId#{dest.destinataireId}">
+																			<h:panelGrid id="annot" style=" width : 100%; ">
+																				<rich:pickList
+																					id="picklistAnnotation#{dest.destinataireId}"
+																					listsHeight="90px" sourceListWidth="170"
+																					targetListWidth="165"
+																					styleClass="xteDetailLabelOutput"
+																					copyAllControlLabel="#{msg.PickListCopierTout}"
+																					copyControlLabel="#{msg.PickListCopier}"
+																					removeAllControlLabel="#{msg.PickListEnleverTout}"
+																					removeControlLabel="#{msg.PickListEnlever} "
+																					value="#{courrierRepondreBean.selectedItemsAnnotation}"
+																					showButtonsLabel="false">
+																					<f:selectItems
+																						value="#{courrierRepondreBean.selectItems1}" />
+																					<a4j:support event="onlistchange"
+																						action="#{courrierRepondreBean.saveTempValue}"
+																						ajaxSingle="true">
+																						<f:setPropertyActionListener
+																							target="#{courrierRepondreBean.listAnno}"
+																							value="#{dest}" />
+																					</a4j:support>
+
+																				</rich:pickList>
+																			</h:panelGrid>
+																			<h:panelGrid id="inputAnnComm#{dest.destinataireId}"
+																				style=" width : 100%; display:none;">
+																				<h:inputTextarea
+																					value="#{courrierRepondreBean.otherAnnotation}"
+																					required="false"
+																					requiredMessage="#{msg.autreCommentaireObligatoire}"
+																					style="height:90px;" styleClass="textarea">
+																					<a4j:support event="onchange"
+																						action="#{courrierRepondreBean.saveTempValue}"
+																						ajaxSingle="true" >
+																						
+																						<f:setPropertyActionListener
+																						target="#{courrierRepondreBean.listAnno}"
+																						value="#{dest}" />
+																						
+																						</a4j:support>
+																				</h:inputTextarea>
+																			</h:panelGrid>
+																		</h:panelGrid>
+																	</div>
+																</rich:simpleTogglePanel>
+															</a4j:repeat>
+														</div>
+
+
+													</rich:simpleTogglePanel></td>
+											</tr>
+											<tr>
+												<td align="center" colspan="2"><rich:spacer
+														height="20px" /> <a4j:commandButton
+														value="#{msg.bouttonValider}" type="submit"
+														action="#{courrierRepondreBean.repondreCourrier}"
+														oncomplete="if(#{courrierRepondreBean.status}==true)
+									 #{rich:component('msgPanal')}.show(); 
+									 if(#{courrierRepondreBean.status1}==true)
+									  #{rich:component('msgPanal2')}.show();"
+														reRender="msgPanal,msgPanal2">
+													</a4j:commandButton> <rich:spacer width="10px" /> <a4j:commandButton
+														ajaxSingle="true" value="#{msg.bouttonAnnuler}"
+														type="submit"
+														onclick="history.go(-1)"></a4j:commandButton>
+												</td>
+											</tr>
+
+										</table>
+									</h:form>
+									<rich:spacer height="10" />
+									<div align="left">
+										<h:outputText value="#{msg.infoChampObligatoir}" />
+									</div>
+									<!-- *****popup Info******* -->
+									<rich:modalPanel id="msgPanal" autosized="true" height="100"
+										width="400">
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+
+												<h:outputText value="#{msg.labelInfo}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink1" />
+												<rich:componentControl for="msgPanal" attachTo="hidelink1"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<a4j:keepAlive beanName="courrierRepondreBean" />
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/interrogation.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.courrierReponseDocument}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOui}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal');"
+															type="submit" ajaxSingle="true" styleClass="submitButton"
+															onclick="document.location.href='documentAjout.jsf'" />
+													</td>
+													<td><a4j:commandButton value="#{msg.bouttonNon}"
+															styleClass="submitButton"
+															onclick="document.location.href='courrierConsulterDetails.jsf'" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<!-- *****popup Erreur****** -->
+									<rich:modalPanel id="msgPanal2" autosized="true" height="100"
+										width="400">
+										<a4j:keepAlive beanName="courrierRepondreBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink2" />
+												<rich:componentControl for="msgPanal2" attachTo="hidelink2"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.labelError}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal2');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanal3" autosized="true" height="100"
+										width="400">
+										<a4j:keepAlive beanName="courrierRepondreBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink3" />
+												<rich:componentControl for="msgPanal3" attachTo="hidelink3"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.MsgErreurDateRecep}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal3');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanal4" autosized="true" height="90"
+										width="300">
+										<a4j:keepAlive beanName="courrierRepondreBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink4" />
+												<rich:componentControl for="msgPanal4" attachTo="hidelink4"
+													operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="#{msg.CourrierAjoutMsgErreur}" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanal4');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+									<rich:modalPanel id="msgPanalExpDest" autosized="true"
+										height="90" width="300">
+										<a4j:keepAlive beanName="courrierRepondreBean" />
+										<f:facet name="header">
+											<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+												<rich:spacer width="2" />
+												<h:outputText value="#{msg.labelError}"
+													styleClass="xtePopupInformationTextHeader" />
+											</h:panelGrid>
+										</f:facet>
+										<f:facet name="controls">
+											<h:panelGroup>
+												<h:graphicImage value="../framGraphique/images/close.png"
+													width="15" height="15" id="hidelink5" />
+												<rich:componentControl for="msgPanalExpDest"
+													attachTo="hidelink5" operation="hide" event="onclick" />
+											</h:panelGroup>
+										</f:facet>
+										<h:form>
+											<table align="center">
+												<tr>
+													<td align="left"><h:graphicImage
+															value="../framGraphique/images/erreurrrrr.png"
+															alt="confirm" /></td>
+													<td align="center" colspan="2"><h:outputText
+															styleClass="popupInformationText"
+															value="destinataite invalide" /></td>
+												</tr>
+											</table>
+											<table align="center">
+												<tr>
+													<td align="center"><a4j:commandButton
+															value="#{msg.bouttonOk}"
+															oncomplete="Richfaces.hideModalPanel('msgPanalExpDest');"
+															type="submit" ajaxSingle="true" styleClass="submitButton" />
+													</td>
+												</tr>
+											</table>
+										</h:form>
+									</rich:modalPanel>
+								</rich:panel></td>
+						</tr>
+					</table>
+				</div>
+				<div id="corpsDroite">
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<script type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script>
+						</div>
+					</div>
+					<div class="dayenc">
+						<script type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

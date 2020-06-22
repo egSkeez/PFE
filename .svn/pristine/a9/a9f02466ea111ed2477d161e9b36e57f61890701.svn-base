@@ -1,0 +1,566 @@
+package xtensus.beans.common.GBO;
+
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Map.Entry;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+
+import org.drools.lang.DRLParser.boolean_key_return;
+import org.drools.lang.DRLParser.new_key_return;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.DownloadException;
+import xtensus.beans.common.Ged;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.CourrierInformations;
+import xtensus.beans.utils.ListeDocument;
+import xtensus.dao.utils.DMSConnexionImplement;
+import xtensus.entity.Courrier;
+import xtensus.entity.Document;
+import xtensus.entity.DocumentCategorie;
+import xtensus.entity.Etat;
+import xtensus.entity.Expdest;
+import xtensus.entity.NatureCategorie;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.entity.TransactionDocument;
+import xtensus.entity.TransactionDocumentId;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class CourrierReceptionPhysiqueBean {
+	private ApplicationManager appMgr;
+	@Autowired
+	private VariableGlobale vb;
+
+	private Date dateReceptionPhysique;
+	private Etat etatReceptionnPhysique;
+	private CourrierInformations cif;
+	private List<TransactionDestination> listtransactionDestination;
+	private TransactionDestination transactionDest;
+	private TransactionDestination transactionDestination;
+	private TransactionDocument transactionDoc;
+    
+	private Transaction transaction;
+	private Expdest expdest;
+	private  Courrier courrier;
+	private String commentaireReceptionPhysique;
+	private List<SelectItem> selectedItems;
+	private String selectItems;
+	//private Integer selectItems;
+	// Document
+	private Document document;
+	private DataModel listDDM;
+	private boolean showGedErrorMessage;
+	@Autowired
+	private Ged ged;
+	private List<Document> documents;
+    private boolean status;
+  private String hideaccor;
+  private String hideaccorr;
+	//
+  private long records = 0;
+	private boolean status1;
+	private boolean status2;
+	private boolean statusAddDocum;
+	private boolean statusConsult;
+	private boolean ajoutOK;
+	private int transactionId; 
+	private List<TransactionDestination> listTransactionDestination;
+
+	public boolean isStatusConsult() {
+		return statusConsult;
+	}
+	public void setStatusConsult(boolean statusConsult) {
+		this.statusConsult = statusConsult;
+	}
+	private boolean status3;
+	@Autowired
+	public CourrierReceptionPhysiqueBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+	     	this.appMgr = appMgr;
+	     	selectedItems = new ArrayList<SelectItem>();
+	     	dateReceptionPhysique = new Date();
+	    	commentaireReceptionPhysique ="";
+	    	etatReceptionnPhysique = new Etat();
+	    	cif =new CourrierInformations();
+	    	courrier = new Courrier();
+	     	transactionDestination = new TransactionDestination();
+	     	transactionDest  = new TransactionDestination();
+	         transaction = new Transaction();
+	        expdest = new Expdest();
+	     	status3=false;
+	     	document = new Document();
+	     	transactionDoc = new TransactionDocument();
+	     	listDDM = new ListDataModel();
+	     	listTransactionDestination=new ArrayList<TransactionDestination>();
+	     	System.out.println("******************Begin CourrierReceptionPhysiqueBean*****************");
+	     	
+	     
+	}
+    @PostConstruct
+	public void Initialize() {
+    		List<ListeDocument> listeDoc = new ArrayList<ListeDocument>();
+    		listeDoc=vb.getListeDocument();
+    	System.out.println("******************Initilize CourrierReceptionPhysiqueBean*****************");
+    	hideaccor="none";
+    	hideaccorr="block";
+    			listDDM.setWrappedData(listeDoc);
+           
+    			cif=vb.getCourDossConsulterInformations();
+    	    	courrier =vb.getCourrier();
+    	    	transactionDestination = new TransactionDestination();
+    	    	System.out.println("courrier : "+courrier);
+    	    	transaction=vb.getTransaction();
+    	    	System.out.println("transaction : "+transaction); 
+    	    	System.out.println("transaction : "+transaction.getTransactionId());    	
+    	    	
+
+    	    	transactionDestination= vb.getTransactionDestination();
+//    	    	listTransactionDestination=appMgr.getDestinationByIdTransaction(cif.getTransactionID());
+//    	    	if(listTransactionDestination != null && listTransactionDestination.size()>0){
+//    	    		transactionDestination=listTransactionDestination.get(0);
+//    	    	}
+    	    	System.out.println("2019-11-30 ============> "+transactionDestination.getTransactionDestEtatReceptionPhysique().getEtatLibelle());
+    	    	
+    	    	if(transactionDestination != null){
+    	    	List<Transaction> listtransaction = appMgr.getListTransactionByIdTransaction(transactionDestination.getId().getIdTransaction());
+    	    	if(listtransaction != null && listtransaction.size()>0){
+    	    	transaction=listtransaction.get(0);
+    	    	vb.setTransaction(transaction);
+    	    	}
+    	    	expdest = appMgr.getListExpDestByIdExpDest(transactionDestination.getId().getIdExpDest()).get(0);
+    	    	 
+    	    	
+    	    	statusAddDocum = false;
+    	    	// recupere courrier et transaction 
+    	    	 // id du personnee coonectee
+    	    	
+    	    		 // date reception recu ou non 
+    	    		 if(transactionDestination.getTransactionDestDateReceptionPhysique()==null){
+    	    			 transactionDestination.setTransactionDestDateReceptionPhysique( new Date());
+    	    		 }
+    	    		
+    	    		 
+    			
+    	    	}
+          System.out.println("*******************fin initilize***********************");
+    	
+     
+    }	
+    	
+   
+    
+   
+    public void valider(){
+    	status1=false;
+    	status2=false;
+    	try{
+    	     	
+    	
+    			Etat etat = new Etat();
+    			etat = appMgr.listEtatByRef(8).get(0);
+    			 
+    			transactionDestination.setTransactionDestEtatReceptionPhysique(etat);
+    			
+    
+    		appMgr.update(transactionDestination);
+    		 status1=true;    		
+    		System.out.println("*****************validee avec succes*****************");
+     	}catch(Exception e){
+
+    		System.out.println(e);
+    		System.out.println("*****************validee failed*****************");
+    		status2=true;
+
+    	}
+     	 Initialize();
+    	
+    }
+//    public void save(){
+//    	System.out.println("******************save() CourrierReceptionPhysiqueBean*****************");
+//                try {
+//                	System.out.println("try");
+//                	System.out.println("ajoutOK");
+//		    ajoutOK=false;	
+//		    System.out.println("ajoutOK: "+ajoutOK);
+//			DocumentCategorie docCategorie = appMgr.getDocumentCategorieById(1);
+//			 System.out.println("docCategorie: "+docCategorie.getDocumentCategorieLibelle());
+//			 System.out.println(vb.getDocumentType());
+//			System.out.println("vb.getDocumentType() : "+vb.getDocumentType());
+//			System.out.println("vb.getUploadType()  "+vb.getUploadType());
+//			
+//			if(vb.getUploadType().equalsIgnoreCase("non")){
+//				document.setDocumentIdDocumentOriginal(document.getDocumentParent().getIdDocument());
+//			}
+//			
+//			if (vb.getUploadType().equals("scanner")) {
+//				 System.out.println("UploadType scanner ");	
+//				document.setDocumentType(".pdf");
+//				System.out.println("1 type doc : "+document.getDocumentType());
+//			} else {
+//				document.setDocumentType(vb.getDocumentType());
+//				System.out.println("2 type doc : "+document.getDocumentType());
+//			}
+//			
+//			System.out.println(" type document  : "+document.getDocumentType());
+//			document.setDocumentCategorie(docCategorie);
+//			document.setDocumentDateInsertion(new Date());
+//			document.setDocumentProprietaire(vb.getPerson().getId());
+//			document.setDocumentSupprime(true);
+//			document.setDocumentParent(document);
+//		 	
+//		    System.out.println("insert document");
+//			appMgr.insert(document);
+//			System.out.println("Objet Document :  "+document.getDocumentObjet());
+//			
+//			// inserer dans la table transactionDocument
+//			 
+//			TransactionDocument transactionDocument = new TransactionDocument();
+//			 
+//			TransactionDocumentId id = new TransactionDocumentId();
+//			
+//			id.setIdExpDest(expdest.getIdExpDest());
+//			id.setIdDocument(document.getIdDocument());
+//			id.setIdTransaction(transaction.getTransactionId());
+//			
+//			transactionDocument.setId(id);
+//		 
+//			
+//			System.out.println("2 Insertion dans table transactionDocument ");
+//			
+//			appMgr.insert(transactionDocument);
+//			vb.setTransactionDocument(transactionDocument);
+//			System.out.println(transactionDocument.getId());
+//           
+//			// ----------------COUCHE ACCES GED ----------------
+//             System.out.println("bean upload document physique begin ");
+//		     ged.uploadDocumentPhysique(document);
+//			// ----------------COUCHE ACCES GED ----------------
+//		     document = nouveauDoc();
+//		    ajoutOK=true;
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			status = false;
+//			ajoutOK=false;
+//			System.out.println(e.getMessage());
+//			System.out.println(e.getCause());
+//
+//		}
+//    	
+//    	
+//    	
+//    	System.out.println("*****************save END****************");
+//    	
+//    }
+    public Document nouveauDoc() {
+		document = new Document();
+		vb.setUploadType("");
+		return document;
+	}
+public void deleteSelectedRow() {
+		try {
+			document = vb.getDocument();
+			System.out.println(" selected row to delete: "+document);
+			document.setDocumentSupprime(false);
+			appMgr.update(document);
+			// a ajouter
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"suppression",
+					"Evénement de log de suppression du document "
+							+ document.getIdDocument() + "-"
+							+ document.getDocumentReference(), vb.getPerson(),
+					"INFO", appMgr);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+    
+public void getSelectionRowConsult() {
+	statusConsult = false;
+	System.out.println("*******getSelectionRowConsult**************");
+
+		try {
+			document = (Document) listDDM.getRowData();
+			vb.setDocument(document);
+			statusConsult=true;
+			System.out.println("get selected row : "+document);
+		 
+ 	 
+		} catch (Exception e) {
+			e.printStackTrace();
+			statusConsult=false;
+		}
+	}
+public void getSelecRow() {
+	 
+	System.out.println("*******getSelectionRow**************");
+
+		try {
+			document = (Document) listDDM.getRowData();
+			vb.setDocument(document);
+		 
+			System.out.println("get selection row : "+document);
+		 
+ 	 
+		} catch (Exception e) {
+			e.printStackTrace();
+			 
+		}
+	}
+    // GETTERS AND SETTERS 
+	public ApplicationManager getAppMgr() {
+		return appMgr;
+	}
+	public void setAppMgr(ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+	}
+	public VariableGlobale getVb() {
+		return vb;
+	}
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+	public Date getDateReceptionPhysique() {
+		return dateReceptionPhysique;
+	}
+	public void setDateReceptionPhysique(Date dateReceptionPhysique) {
+		this.dateReceptionPhysique = dateReceptionPhysique;
+	}
+	public Etat getEtatReceptionnPhysique() {
+		return etatReceptionnPhysique;
+	}
+	public void setEtatReceptionnPhysique(Etat etatReceptionnPhysique) {
+		this.etatReceptionnPhysique = etatReceptionnPhysique;
+	}
+	public CourrierInformations getCif() {
+		return cif;
+	}
+	public void setCif(CourrierInformations cif) {
+		this.cif = cif;
+	}
+	public String getCommentaireReceptionPhysique() {
+		return commentaireReceptionPhysique;
+	}
+	public void setCommentaireReceptionPhysique(String commentaireReceptionPhysique) {
+		this.commentaireReceptionPhysique = commentaireReceptionPhysique;
+	}
+	public List<TransactionDestination> getListtransactionDestination() {
+		return listtransactionDestination;
+	}
+	public void setListtransactionDestination(
+			List<TransactionDestination> listtransactionDestination) {
+		this.listtransactionDestination = listtransactionDestination;
+	}
+	public Courrier getCourrier() {
+		return courrier;
+	}
+	public void setCourrier(Courrier courrier) {
+		this.courrier = courrier;
+	}
+	public List<SelectItem> getSelectedItems() {
+		List<Etat> listEtat = new ArrayList<Etat>();
+		selectedItems = new ArrayList<SelectItem>();
+		selectedItems.add(new SelectItem(""));
+		String libelle;
+		try {
+			listEtat.add(appMgr.listEtatByRef(8).get(0)) ;// livré
+			
+			listEtat.add(appMgr.listEtatByRef(9).get(0)) ;// non livré
+				
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		
+		for (Etat e : listEtat) {
+
+			/*if (vb.getLocale().equals("ar")) {
+				libelle = e.getMdeafVehiculeModeleCommercialLibelleAR();
+			} else {*/
+				libelle = e.getEtatLibelle();
+				System.out.println();
+			//}
+
+			selectedItems.add(new SelectItem(String.valueOf(e.getEtatId()),libelle));
+
+		}
+
+	 
+		return selectedItems;
+	}
+	public void setSelectedItems(List<SelectItem> selectedItems) {
+		this.selectedItems = selectedItems;
+	}
+	
+	public void ajoutNouveauDocument(){
+		System.out.println("DANS ajoutNouveauDocument");
+		 hideaccor="none";
+     	hideaccorr="block";
+	}
+	 
+	public String getSelectItems() {
+		return selectItems;
+	}
+	public void setSelectItems(String selectItems) {
+		this.selectItems = selectItems;
+	}
+	public TransactionDestination getTransactionDest() {
+		return transactionDest;
+	}
+	public void setTransactionDest(TransactionDestination transactionDest) {
+		this.transactionDest = transactionDest;
+	}
+	public boolean isStatus1() {
+		return status1;
+	}
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+	public boolean isStatus2() {
+		return status2;
+	}
+	public void setStatus2(boolean status2) {
+		this.status2 = status2;
+	}
+	public TransactionDestination getTransactionDestination() {
+		return transactionDestination;
+	}
+	public void setTransactionDestination(
+			TransactionDestination transactionDestination) {
+		this.transactionDestination = transactionDestination;
+	}
+	public boolean isStatusAddDocum() {
+		return statusAddDocum;
+	}
+	public void setStatusAddDocum(boolean statusAddDocum) {
+		this.statusAddDocum = statusAddDocum;
+	}
+	public Document getDocument() {
+		return document;
+	}
+	public void setDocument(Document document) {
+		this.document = document;
+	}
+	public boolean isStatus3() {
+		return status3;
+	}
+	public void setStatus3(boolean status3) {
+		this.status3 = status3;
+	}
+	public DataModel getListDDM() {
+		return listDDM;
+	}
+	public void setListDDM(DataModel listDDM) {
+		this.listDDM = listDDM;
+	}
+	public boolean isShowGedErrorMessage() {
+		return showGedErrorMessage;
+	}
+	public void setShowGedErrorMessage(boolean showGedErrorMessage) {
+		this.showGedErrorMessage = showGedErrorMessage;
+	}
+	public Ged getGed() {
+		return ged;
+	}
+	public void setGed(Ged ged) {
+		this.ged = ged;
+	}
+	public List<Document> getDocuments() {
+		return documents;
+	}
+	public void setDocuments(List<Document> documents) {
+		this.documents = documents;
+	}
+	public boolean isStatus() {
+		return status;
+	}
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	
+	public Transaction getTransaction() {
+		return transaction;
+	}
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+	public Expdest getExpdest() {
+		return expdest;
+	}
+	public void setExpdest(Expdest expdest) {
+		this.expdest = expdest;
+	}
+	public String getHideaccor() {
+		return hideaccor;
+	}
+	public void setHideaccor(String hideaccor) {
+		this.hideaccor = hideaccor;
+	}
+	 
+	public String getHideaccorr() {
+		return hideaccorr;
+	}
+	public void setHideaccorr(String hideaccorr) {
+		this.hideaccorr = hideaccorr;
+	}
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listDDM != null && listDDM.getWrappedData() != null)
+			records = ((List<Document>) listDDM.getWrappedData()).size();
+		
+		else
+			records = 0;
+		return records;
+	}
+	public void setRecords(long records) {
+		this.records = records;
+	}
+	public boolean isAjoutOK() {
+		return ajoutOK;
+	}
+	public void setAjoutOK(boolean ajoutOK) {
+		this.ajoutOK = ajoutOK;
+	}
+	public int getTransactionId() {
+		return transactionId;
+	}
+	public void setTransactionId(int transactionId) {
+		this.transactionId = transactionId;
+	}
+	public TransactionDocument getTransactionDoc() {
+		return transactionDoc;
+	}
+	public void setTransactionDoc(TransactionDocument transactionDoc) {
+		this.transactionDoc = transactionDoc;
+	}
+	public void setListTransactionDestination(
+			List<TransactionDestination> listTransactionDestination) {
+		this.listTransactionDestination = listTransactionDestination;
+	}
+	public List<TransactionDestination> getListTransactionDestination() {
+		return listTransactionDestination;
+	}
+
+  
+}

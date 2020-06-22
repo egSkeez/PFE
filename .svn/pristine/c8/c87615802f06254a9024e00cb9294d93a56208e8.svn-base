@@ -1,0 +1,621 @@
+package xtensus.beans.common.GBO0;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.swing.JFileChooser;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.common.LanguageManagerBean;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.ExpediteurType;
+import xtensus.beans.utils.NotificationListAddress;
+import xtensus.entity.Expdestexterne;
+import xtensus.entity.Groupecontact;
+import xtensus.entity.Groupecontactmailing;
+import xtensus.entity.GroupecontactmailingId;
+import xtensus.entity.Groupecontactpppm;
+import xtensus.entity.Pm;
+import xtensus.entity.Pp;
+import xtensus.entity.Sujetmailing;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class GroupeMailingChoixSujetValidationBean {
+
+	private ApplicationManager appMgr;
+
+	@Autowired
+	private LanguageManagerBean lm;
+	private Groupecontact groupecontact;
+	private Sujetmailing sujetmailing;
+	private DataModel listContactAffecteDM;
+
+	@Autowired
+	private VariableGlobale vb;
+	@Autowired
+	private MessageSource messageSource;
+	private String message;
+	private String modeEnvoi;
+	List<ExpediteurType> listContactGroupecontactListeAffecte;
+	private int variableNombreEnvoiMailingParMedium;
+	private int variablePeriodeEnvoiMailing;
+	private boolean status7;
+	private boolean status;
+	private boolean status1;
+	private int records;
+	private String pathFile;
+	private Timer timer;
+	private int index;
+	private EmailUtil emailUtil;
+	
+	// ** progressBar
+	 private Long startTime;
+	 private Long currentValue;
+	 private Boolean enableProgressBar;
+	// **
+
+	@Autowired
+	public GroupeMailingChoixSujetValidationBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		groupecontact = new Groupecontact();
+		sujetmailing = new Sujetmailing();
+		listContactAffecteDM = new ListDataModel();
+		pathFile = " ";
+	}
+	 
+	
+
+
+	@PostConstruct
+	public void Initialize() {
+		enableProgressBar = false;
+		currentValue = 0L;
+		listContactGroupecontactListeAffecte = new ArrayList<ExpediteurType>();
+		variableNombreEnvoiMailingParMedium = Integer.parseInt(appMgr.listVariablesByLibelle("nombre_envoi_mailing_par_medium").get(0).getVaraiablesValeur());
+		variablePeriodeEnvoiMailing = Integer.parseInt(appMgr.listVariablesByLibelle("periode_envoi_mailing").get(0).getVaraiablesValeur());
+		emailUtil = new EmailUtil();
+		index = 0;
+		try {
+			groupecontact = vb.getGroupecontact();
+			sujetmailing = vb.getSujetmailing();
+			List<Expdestexterne> listContactAffecte = new ArrayList<Expdestexterne>();
+			List<Groupecontactpppm> listGroupecontactContact = new ArrayList<Groupecontactpppm>();
+			int refGroupecontact = groupecontact.getIdgroupecontact();
+			listGroupecontactContact = appMgr
+					.getContactGroupecontactByIdGroupecontact(refGroupecontact);
+
+			/**** Liste courrier Affecter ******/
+			Expdestexterne cr;
+			for (Groupecontactpppm cd : listGroupecontactContact) {
+				cr = new Expdestexterne();
+				cr = appMgr.getExpediteurById(
+						cd.getId().getIdExpDestExterne()).get(0);
+				listContactAffecte.add(cr);
+			}
+
+			ExpediteurType exptype = new ExpediteurType();
+			for (Expdestexterne exp : listContactAffecte) {
+				Pp pp = new Pp();
+				Pm pm = new Pm();
+				exptype.setExpdestexterne(exp);
+				int refTypeUtilisateur = exp.getTypeutilisateur()
+						.getTypeUtilisateurId();
+				int refexpediteur = exp.getIdExpDestExterne();
+				if (refTypeUtilisateur == 2) {
+					exptype.setType("PM");
+					if (!appMgr.getPMByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pm = appMgr.getPMByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPm(pm);
+						exptype.setSociete(exp.getExpDestExterneNom());
+					}
+				} else if (refTypeUtilisateur == 1) {
+					exptype.setType("PP");
+					if (!appMgr.getPPByReferenceExpediteur(refexpediteur)
+							.isEmpty()) {
+						pp = appMgr.getPPByReferenceExpediteur(refexpediteur)
+								.get(0);
+						exptype.setPp(pp);
+						if (pp.getPm() != null) {
+							int refpm = pp.getPm().getPmid();
+							pm = appMgr.getPMByIDPM(refpm).get(0);
+							int refexp = pm.getExpdestexterne()
+									.getIdExpDestExterne();
+							Expdestexterne e = new Expdestexterne();
+							e = appMgr.getExpediteurById(refexp).get(0);
+							exptype.setSociete(e.getExpDestExterneNom());
+						}
+					}
+				}
+				listContactGroupecontactListeAffecte.add(exptype);
+				pp = new Pp();
+				pm = new Pm();
+				exptype = new ExpediteurType();
+			}
+
+		} catch (Exception e) {
+			System.out
+					.println("*******ErreurDeChargement GroupeMailingHistoriqueBean *******");
+			e.printStackTrace();
+		}
+		records = listContactGroupecontactListeAffecte.size();
+		listContactAffecteDM.setWrappedData(listContactGroupecontactListeAffecte);
+	}
+	
+	@SuppressWarnings("static-access")
+	public void chooseFile(){
+		pathFile = " ";
+		System.out.println("Dans choose File");
+        JFileChooser dialogue = new JFileChooser();
+        dialogue.setAcceptAllFileFilterUsed(true);
+        dialogue.showOpenDialog(null);
+        File fichier;
+        if (dialogue.APPROVE_SELECTION.equals(JFileChooser.APPROVE_SELECTION)) {
+        	System.out.println("In choose File");
+            fichier = dialogue.getSelectedFile();
+            pathFile = fichier.getAbsolutePath();
+        }
+		
+//		System.out.println("Dans choose File");
+//		JFileChooser dialogue = new JFileChooser();
+//		int s = dialogue.showOpenDialog(null);
+//		if (dialogue.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+//			
+//			pathFile = dialogue.getSelectedFile().getAbsolutePath();
+//		}
+		
+		System.out.println("FIN choose FILE");
+		
+		
+	}
+	
+	public void eventChooseModeEnvoi(ActionEvent actionEvent){
+		if (modeEnvoi.equals("email")) {
+			for (int i = 0; i < listContactGroupecontactListeAffecte.size(); i++) {
+				listContactGroupecontactListeAffecte.get(i).setSentByEmail(true);
+				listContactGroupecontactListeAffecte.get(i).setSentByFax(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByPorter(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByPostal(false);
+			}
+		} else if (modeEnvoi.equals("fax")) {
+			for (int i = 0; i < listContactGroupecontactListeAffecte.size(); i++) {
+				listContactGroupecontactListeAffecte.get(i).setSentByEmail(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByFax(true);
+				listContactGroupecontactListeAffecte.get(i).setSentByPorter(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByPostal(false);
+			}
+		} else if (modeEnvoi.equals("parPorteur")) {
+			for (int i = 0; i < listContactGroupecontactListeAffecte.size(); i++) {
+				listContactGroupecontactListeAffecte.get(i).setSentByEmail(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByFax(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByPorter(true);
+				listContactGroupecontactListeAffecte.get(i).setSentByPostal(false);
+			}
+		} else {
+			for (int i = 0; i < listContactGroupecontactListeAffecte.size(); i++) {
+				listContactGroupecontactListeAffecte.get(i).setSentByEmail(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByFax(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByPorter(false);
+				listContactGroupecontactListeAffecte.get(i).setSentByPostal(true);
+			}
+		}
+		listContactAffecteDM.setWrappedData(listContactGroupecontactListeAffecte);
+	}
+	
+	public void uncheckForEmail(ActionEvent actionEvent){
+		ExpediteurType expediteurType = (ExpediteurType) listContactAffecteDM.getRowData();
+		if (expediteurType.isSentByEmail()) {
+			int index = listContactGroupecontactListeAffecte.indexOf(expediteurType);
+			listContactGroupecontactListeAffecte.get(index).setSentByFax(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByPorter(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByPostal(false);
+			listContactAffecteDM.setWrappedData(listContactGroupecontactListeAffecte);
+		}
+	}
+	
+	public void uncheckForFax(ActionEvent actionEvent){
+		ExpediteurType expediteurType = (ExpediteurType) listContactAffecteDM.getRowData();
+		if (expediteurType.isSentByFax()) {
+			int index = listContactGroupecontactListeAffecte.indexOf(expediteurType);
+			listContactGroupecontactListeAffecte.get(index).setSentByEmail(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByPorter(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByPostal(false);
+			listContactAffecteDM.setWrappedData(listContactGroupecontactListeAffecte);
+		}
+	}
+
+	public void uncheckForPorter(ActionEvent actionEvent){
+		ExpediteurType expediteurType = (ExpediteurType) listContactAffecteDM.getRowData();
+		if (expediteurType.isSentByPorter()) {
+			int index = listContactGroupecontactListeAffecte.indexOf(expediteurType);
+			listContactGroupecontactListeAffecte.get(index).setSentByEmail(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByFax(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByPostal(false);
+			listContactAffecteDM.setWrappedData(listContactGroupecontactListeAffecte);
+		}
+	}
+
+	public void uncheckForPostal(ActionEvent actionEvent){
+		ExpediteurType expediteurType = (ExpediteurType) listContactAffecteDM.getRowData();
+		if (expediteurType.isSentByPostal()) {
+			int index = listContactGroupecontactListeAffecte.indexOf(expediteurType);
+			listContactGroupecontactListeAffecte.get(index).setSentByEmail(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByFax(false);
+			listContactGroupecontactListeAffecte.get(index).setSentByPorter(false);
+			listContactAffecteDM.setWrappedData(listContactGroupecontactListeAffecte);
+		}
+	}
+
+    public void run(ActionEvent event){
+    	System.out.println("YES -- I'm Here");
+    	for (int i = 0; i < 1000; i++) {
+    		currentValue = new Date().getTime() - startTime /1000;
+		}
+    }
+	public void enableThem(){
+		startTime = new Date().getTime();
+        enableProgressBar =true;
+        currentValue = new Date().getTime() - startTime /1000;
+	}
+	public void envoiMailing() {
+		try {
+			startTime = new Date().getTime();
+	        //enableProgressBar =true;
+	        currentValue = new Date().getTime() - startTime /1000;
+     		System.out.println("Période : "+variablePeriodeEnvoiMailing);
+			timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					System.out.println(" --");
+					runTask();
+				}}, 0, variablePeriodeEnvoiMailing*1000);
+			//**
+			LogClass logClass = new LogClass();
+			logClass.addTrack("EnvoieSujetMailing",
+					"Evénement de log d'envoie de sujet de mailing " + sujetmailing.getIdsujetmailing() + " au groupe "
+							+ groupecontact.getIdgroupecontact() + "-"
+							+ groupecontact.getGroupecontactLibelle(), vb.getPerson(), "INFO", appMgr);
+			//**
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+	}
+	
+	private void runTask(){
+		if(listContactGroupecontactListeAffecte.size()!=0){
+		System.out.println("RUN...");
+		System.out.println("size list : "+listContactGroupecontactListeAffecte.size());
+		System.out.println("Période : "+variablePeriodeEnvoiMailing);
+		System.out.println("Medium : "+variableNombreEnvoiMailingParMedium);
+		
+		Groupecontactmailing gcm;
+		GroupecontactmailingId gcmId;
+		NotificationListAddress notificationNomDestinataire;
+		List<NotificationListAddress> listMailNomDestinataire ;
+		try {
+			int i = 0;
+			currentValue = new Date().getTime() - startTime /1000;
+			do {
+				currentValue = new Date().getTime() - startTime /1000;
+				gcm = new Groupecontactmailing();
+				gcmId = new GroupecontactmailingId();
+				listMailNomDestinataire = new ArrayList<NotificationListAddress>();;
+				gcmId.setIdgroupecontact(groupecontact.getIdgroupecontact());
+				gcmId.setIdsujetmailing(sujetmailing.getIdsujetmailing());
+				gcmId.setIdExpDestExterne(listContactGroupecontactListeAffecte.get(index).getExpdestexterne().getIdExpDestExterne());
+				gcm.setId(gcmId);
+				gcm.setDateEnvoi(new Date());
+				
+				
+					gcm.setModeEnvoi("E-mail");
+					notificationNomDestinataire = new NotificationListAddress();
+					notificationNomDestinataire.setMailDestinataire(listContactGroupecontactListeAffecte.get(index).getExpdestexterne().getExpDestExterneMail());
+					notificationNomDestinataire.setNomDestinataire(listContactGroupecontactListeAffecte.get(index).getExpdestexterne().getExpDestExternePrenom()+" "+listContactGroupecontactListeAffecte.get(index).getExpdestexterne().getExpDestExterneNom());
+					listMailNomDestinataire.add(notificationNomDestinataire);
+//					if (!pathFile.equals(" ")) {
+//						gcm.setPathFile(pathFile);
+//						emailUtil.sendEmailSSL(sujetmailing.getSujetmailingObjet(), sujetmailing.getSujetmailingDescription(), pathFile, listMailNomDestinataire, "Admin", "");
+//					} else {
+//						System.out.println("   *null");
+					System.out.println("* : " +sujetmailing.getSujetmailingObjet());
+					System.out.println("* : " +sujetmailing.getSujetmailingDescription());
+					emailUtil.sendEmailSSLMailing(sujetmailing.getSujetmailingObjet(), sujetmailing.getSujetmailingDescription(), listMailNomDestinataire, "CST", "");
+//					}
+				 
+				appMgr.insert(gcm);
+				index ++;
+				i++;
+				currentValue = new Date().getTime() - startTime /1000;
+		    } while (i<variableNombreEnvoiMailingParMedium && index <listContactGroupecontactListeAffecte.size());
+			if (index == listContactGroupecontactListeAffecte.size()) {
+				timer.cancel();
+				System.out.println("Timer canceled");
+				status = true;
+				currentValue = new Date().getTime() - startTime /1000;
+			}
+			currentValue = new Date().getTime() - startTime /1000;
+//			for (int i = index; i < listContactGroupecontactListeAffecte.size(); i++) {
+//				if (index == listContactGroupecontactListeAffecte.size()) {
+//					
+//				} else {
+//					gcm = new Groupecontactmailing();
+//					gcmId = new GroupecontactmailingId();
+//					gcmId.setIdgroupecontact(groupecontact.getIdgroupecontact());
+//					gcmId.setIdsujetmailing(sujetmailing.getIdsujetmailing());
+//					gcmId.setIdExpDestExterne(listContactGroupecontactListeAffecte.get(i).getExpdestexterne().getIdExpDestExterne());
+//					gcm.setId(gcmId);
+//					if (!pathFile.equals(" ")) {
+//						gcm.setPathFile(pathFile);
+//					}
+//					if (listContactGroupecontactListeAffecte.get(i).isSentByEmail()) {
+//						gcm.setModeEnvoi("E-mail");
+//					} else if (listContactGroupecontactListeAffecte.get(i).isSentByFax()) {
+//						gcm.setModeEnvoi("Fax");
+//					} else if (listContactGroupecontactListeAffecte.get(i).isSentByPorter()) {
+//						gcm.setModeEnvoi("Par Porteur");
+//					} else {
+//						gcm.setModeEnvoi("Voie Postale");
+//					}
+//					appMgr.insert(gcm);
+//					index ++;
+//				}
+//			}
+			setStatus7(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		}else{
+		setStatus7(true);
+		}
+	}
+
+	/************** Getters && setters ********************/
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public DataModel getListContactAffecteDM() {
+		return listContactAffecteDM;
+	}
+
+	public void setListContactAffecteDM(DataModel listContactAffecteDM) {
+		this.listContactAffecteDM = listContactAffecteDM;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public boolean isStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(boolean status1) {
+		this.status1 = status1;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public LanguageManagerBean getLm() {
+		return lm;
+	}
+
+	public void setLm(LanguageManagerBean lm) {
+		this.lm = lm;
+	}
+
+	public Groupecontact getGroupecontact() {
+		return groupecontact;
+	}
+
+	public void setGroupecontact(Groupecontact groupecontact) {
+		this.groupecontact = groupecontact;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public void setSujetmailing(Sujetmailing sujetmailing) {
+		this.sujetmailing = sujetmailing;
+	}
+
+	public Sujetmailing getSujetmailing() {
+		return sujetmailing;
+	}
+
+	public void setRecords(int records) {
+		this.records = records;
+	}
+
+	public int getRecords() {
+		return records;
+	}
+
+	public void setModeEnvoi(String modeEnvoi) {
+		this.modeEnvoi = modeEnvoi;
+	}
+
+	public String getModeEnvoi() {
+		return modeEnvoi;
+	}
+
+	public List<ExpediteurType> getListContactGroupecontactListeAffecte() {
+		return listContactGroupecontactListeAffecte;
+	}
+
+	public void setListContactGroupecontactListeAffecte(
+			List<ExpediteurType> listContactGroupecontactListeAffecte) {
+		this.listContactGroupecontactListeAffecte = listContactGroupecontactListeAffecte;
+	}
+
+
+
+	public void setVariableNombreEnvoiMailingParMedium(
+			int variableNombreEnvoiMailingParMedium) {
+		this.variableNombreEnvoiMailingParMedium = variableNombreEnvoiMailingParMedium;
+	}
+
+
+
+	public int getVariableNombreEnvoiMailingParMedium() {
+		return variableNombreEnvoiMailingParMedium;
+	}
+
+
+
+	public void setPathFile(String pathFile) {
+		this.pathFile = pathFile;
+	}
+
+
+
+	public String getPathFile() {
+		return pathFile;
+	}
+
+
+
+	public int getVariablePeriodeEnvoiMailing() {
+		return variablePeriodeEnvoiMailing;
+	}
+
+
+
+	public void setVariablePeriodeEnvoiMailing(int variablePeriodeEnvoiMailing) {
+		this.variablePeriodeEnvoiMailing = variablePeriodeEnvoiMailing;
+	}
+
+
+
+	public Timer getTimer() {
+		return timer;
+	}
+
+
+
+	public void setTimer(Timer timer) {
+		this.timer = timer;
+	}
+
+
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+
+
+	public int getIndex() {
+		return index;
+	}
+
+
+
+	public void setEmailUtil(EmailUtil emailUtil) {
+		this.emailUtil = emailUtil;
+	}
+
+
+
+	public EmailUtil getEmailUtil() {
+		return emailUtil;
+	}
+
+
+
+
+	public Long getStartTime() {
+		return startTime;
+	}
+
+
+
+
+	public void setStartTime(Long startTime) {
+		this.startTime = startTime;
+	}
+
+
+
+
+	public Long getCurrentValue() {
+		System.out.println("Get(*)");
+		return currentValue;
+	}
+
+
+
+
+	public void setCurrentValue(Long currentValue) {
+		this.currentValue = currentValue;
+	}
+
+
+
+
+	public Boolean getEnableProgressBar() {
+		return enableProgressBar;
+	}
+
+
+
+
+	public void setEnableProgressBar(Boolean enableProgressBar) {
+		this.enableProgressBar = enableProgressBar;
+	}
+
+
+
+
+	public void setStatus7(boolean status7) {
+		this.status7 = status7;
+	}
+
+
+
+
+	public boolean isStatus7() {
+		return status7;
+	}
+
+}

@@ -1,0 +1,150 @@
+package xtensus.faxmail.utils;
+
+import gnu.hylafax.HylaFAXClient;
+import gnu.hylafax.HylaFAXClientProtocol;
+import gnu.hylafax.Job;
+
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+/***
+ * 41 * This class implements most of the faxstat program as supplied with the
+ * 42 * HylaFAX distribution. The following command line options are supported.
+ * 43 *
+ * <P>
+ * 44 * 45 *
+ * 
+ * <PRE>
+ * 46   * 
+ * 47   * -a get status of archive/ (IGNORED) -d get status of doneq/ -f get status of
+ * 48   * docq/ -g display GMT timestamps -h<host>specifiy server hostname -l display
+ * 49   * local timestamps -i get additional status info -r get status of receive queue
+ * 50   * -s get status of send queue -u user to login to the server with -v verbose
+ * 51   * mode
+ * 52   * 
+ * 53   *
+ * </PRE>
+ * 
+ * 54 * 55 *
+ * <P>
+ * 56 * Refer to the faxstat man page (from the HylaFAX distribution) for more
+ * 57 * information. This program depends on the gnu.getopt package for command
+ * line 58 * parsing. gnu.getopt (java-getopt) can be found at <a 59 *
+ * http://www.urbanophile.com/arenn/ 60 * </a> 61
+ */
+public class FaxStatistique {
+
+	public static void main(String arguments[]) {
+		Vector list = new Vector();
+		HylaFAXClient c = new HylaFAXClient();
+		try {
+			c.open("192.168.211.129");
+
+			try {
+				c.user("xtensus");
+				c.pass("xtensus");
+
+				c.tzone(HylaFAXClientProtocol.TZONE_LOCAL);
+				for (int i = 1; i <= 2; i++) {
+					list = c.getList(i == 1 ? "sendq" : "doneq");
+					list.addAll(c.getList(""));
+					Enumeration lines = list.elements();
+					String line;
+					long jobidL = -1;
+					while (lines.hasMoreElements()) {
+						try {
+							line = (String) lines.nextElement();
+							String jobid = new StringTokenizer(line)
+									.nextToken();
+							// --> First time returns "206...", next time
+							// returns "[Job time limit..."
+							jobidL = Long.parseLong(jobid);
+							Job j = c.getJob(jobidL);
+							String etatEnvoi = j.getProperty("STATE");
+							// --> hylafax replied FAILED
+							etatEnvoi = j.getProperty("STATE");
+							// --> hylafax replied FAILED
+							etatEnvoi = j.getProperty("STATE");
+							// --> hylafax replied FAILED
+							etatEnvoi = j.getProperty("STATE");
+							// --> hylafax replied FAILED
+							String status = j.getProperty("STATUS");
+							// --> hylafax replied \ [Job time limit exceeded]\
+							status = j.getProperty("STATUS");
+							// --> hylafax replied \ [Job time limit exceeded]\
+							status = j.getProperty("STATUS");
+							// --> hylafax replied \ [Job time limit exceeded]\
+							status = j.getProperty("STATUS");
+							// --> hylafax replied \ [Job time limit exceeded]\
+							// String IDtelecopie = j.getProperty("JOBINFO");
+							// --> command jparm JOBINFO doesn't appear in the
+							// log
+							String sDateEnvoi = j.getProperty("SENDTIME");
+							// --> hylafax replied 20050523133531
+							sDateEnvoi = j.getProperty("SENDTIME");
+							// --> hylafax replied 20050523133531
+							sDateEnvoi = j.getProperty("SENDTIME");
+							// --> hylafax replied 20050523133531
+							sDateEnvoi = j.getProperty("SENDTIME");
+							// --> hylafax replied 20050523133531
+							sDateEnvoi = j.getProperty("SENDTIME");
+							// --> hylafax replied 20050523133531
+							int nbPages = Integer.parseInt(j
+									.getProperty("TOTPAGES"));
+							nbPages = Integer.parseInt(j
+									.getProperty("TOTPAGES"));
+							nbPages = Integer.parseInt(j
+									.getProperty("TOTPAGES"));
+							nbPages = Integer.parseInt(j
+									.getProperty("TOTPAGES"));
+							nbPages = Integer.parseInt(j
+									.getProperty("TOTPAGES"));
+							// --> command jparm TOTPAGES doesn't appear in the
+							// log...
+							String correspondant = j.getProperty("EXTERNAL");
+							// --> hylafax replied 0475019884
+							correspondant = j.getProperty("EXTERNAL");
+							// --> hylafax replied 0475019884
+							correspondant = j.getProperty("EXTERNAL");
+							// --> hylafax replied 0475019884
+							correspondant = j.getProperty("EXTERNAL");
+							// --> hylafax replied 0475019884
+							correspondant = j.getProperty("EXTERNAL");
+							// --> hylafax replied 0475019884
+							String initColl = j.getProperty("OWNER");
+							// --> command jparm OWNER doesn't appear in the
+							initColl = j.getProperty("OWNER");
+							// --> command jparm OWNER doesn't appear in the
+							initColl = j.getProperty("OWNER");
+							// --> command jparm OWNER doesn't appear in the
+							initColl = j.getProperty("OWNER");
+							// --> command jparm OWNER doesn't appear in the
+							initColl = j.getProperty("OWNER");
+							// --> command jparm OWNER doesn't appear in the
+							// log...
+							// IDtelecopie = j.getProperty("JOBINFO"); // yes,
+							// another
+							// time...
+							// --> hylafax replied 000000213082
+							// --> exception
+							// ...some statements...
+							// ...write the status and message error in our
+							// logs...
+
+						} finally {
+							if (i == 2) // if doneq, delete the job
+								c.jdele(jobidL);
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
+	}// main
+}// FaxStat

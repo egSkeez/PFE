@@ -1,0 +1,87 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags" >
+
+	<div align="center">
+		<h:form id="formToolBar">
+			<div align="center">
+				<rich:toolBar styleClass="rich-toolbar-item" id="toolBarId" >
+
+					<h:graphicImage value="../framGraphique/images/accueil.png"
+						onclick="document.location.href='../GBO/accueil.jsf'"
+						onmouseover="this.src='../framGraphique/images/accueilActif.png'"
+						onmouseout="this.src='../framGraphique/images/accueil.png'">
+					</h:graphicImage>
+						<rich:dropDownMenu value="#{msg.GestionCourrier}" direction="#{languageManager.directionToolBar}" >
+						<rich:menuItem submitMode="ajax" value="#{msg.AjouterCourrier}" 
+							action="#{menuBean.interfaceAjouterCourrier}" />
+						<rich:menuItem submitMode="ajax" value="#{msg.RechercherCourrier}" 
+							action="#{menuBean.interfaceRechercherCourrier}" />
+						<rich:menuItem submitMode="ajax" 
+							value="#{msg.RechercherCourrierAvance}"
+							action="#{menuBean.interfaceRechercherCourrierAvance}" />
+					</rich:dropDownMenu>
+
+					<rich:dropDownMenu value="#{msg.GestionDossier}" direction="#{languageManager.directionToolBar}">
+						<rich:menuItem submitMode="ajax" value="#{msg.GestionDossier}" 
+							action="#{menuBean.interfaceGestionDossier}" />
+						<rich:menuItem submitMode="ajax" value="#{msg.RechercherDossier}" 
+							action="#{menuBean.interfaceRechercherDossier}" />
+						<rich:menuItem submitMode="ajax" 
+							value="#{msg.RechercherDossierAvance}"
+							action="#{menuBean.interfaceRechercherDossierAvance}" />
+					</rich:dropDownMenu>
+
+					<rich:dropDownMenu value="#{msg.GestionContact}" id="menuContact" direction="#{languageManager.directionToolBar}">
+
+						<rich:menuItem submitMode="ajax" value="#{msg.AjouterContact}" labelClass="richMenuItemIcon"  
+							action="#{menuBean.interfaceAjouterContact}" />
+
+						<rich:menuItem submitMode="ajax" value="#{msg.RechercherContact}" 
+							action="#{menuBean.interfaceRechercherContact}" />
+					</rich:dropDownMenu>
+
+					<rich:dropDownMenu  direction="#{languageManager.directionToolBar}">
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.GestionUtili}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem submitMode="ajax" value="#{msg.GererUtili}" 
+							action="#{menuBean.interfaceGestionUtilisateur}" />
+
+					</rich:dropDownMenu>
+					<rich:dropDownMenu  id="menuGroup" direction="#{languageManager.directionToolBar}">
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.GestionGroup}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem submitMode="ajax" value="#{msg.GererGroup}" 
+							action="#{menuBean.interfaceGestionGroupe}" />
+					</rich:dropDownMenu>
+					
+					<rich:dropDownMenu  id="menuUnit" direction="#{languageManager.directionToolBar}">
+						<f:facet name="label">
+							<h:panelGroup>
+								<h:outputText value="#{msg.GestionUnite}" />
+							</h:panelGroup>
+						</f:facet>
+						<rich:menuItem submitMode="ajax" value="#{msg.GererUnite}" 
+							action="#{menuBean.interfaceGestionUnite}" />
+					</rich:dropDownMenu>
+
+					<rich:menuItem submitMode="ajax" value="#{msg.Parametrages}"  
+						action="#{menuBean.interfaceParametrages}" id="menuParameter">
+					</rich:menuItem>
+				</rich:toolBar>
+			</div>
+
+		</h:form>
+	</div>
+
+</ui:composition>

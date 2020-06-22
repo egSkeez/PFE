@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Rapports Courriers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+<style>
+.centerOverDiv {
+	left: 50%;
+	top: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	position: absolute;
+}
+
+.rich-panel-header {
+	padding: 5px !important;
+}
+
+.rich-panel-header>span {
+	color: white !important;
+	font-size: 12px !important;
+}
+</style>
+</head>
+<body onload="loadStatistics()">
+	<f:view locale="#{languageManager.locale}">
+
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					 
+						<rich:panel styleClass="rich-panel">
+						<h:form>
+							<div id="barreIcone">
+							
+								<div id="barreIconeDroite">
+
+									<a4j:commandLink id="helpButton"
+										action="#{aideEnLigneBean.resultat}"
+										oncomplete="#{rich:component('aidePanal')}.show();"
+										reRender="aidePanal">
+										<h:graphicImage id="j"
+											value="../framGraphique/images/help.png" />
+									</a4j:commandLink>
+									<rich:toolTip for="helpButton" value="#{msg.help}" />
+								</div>
+							</div>
+						</h:form>
+						
+						<!-- ********************AIDE********************** -->
+					<rich:modalPanel id="aidePanal" autosized="true" height="500"
+						width="800">
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+								<h:graphicImage value="../framGraphique/images/help_16.png"
+									id="help" />
+								<h:outputText
+									value="Aide : Interface #{aideEnLigneBean.titreInterface}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="aidehidelink" />
+								<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<div class="scroll_div">
+							<h:form>
+								<a4j:keepAlive beanName="aideEnLigneBean" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'fr_FR'}"
+									value="../framGraphique/images/AideEnLigne/GBO-Tableau-Bord.jpg"
+									width="780" height="490" id="aidehidelink" />
+								<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+									value="../framGraphique/images/AideEnLigne/GBO-Acceuil-GBO-AR.png"
+									width="750" height="490" id="aidehidelinkAR" />
+								<rich:spacer height="10" />
+								<table align="center">
+									<tr>
+										<td align="center"><a4j:commandButton
+												value="#{msg.bouttonOk}"
+												oncomplete="Richfaces.hideModalPanel('aidePanal');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</td>
+									</tr>
+								</table>
+							</h:form>
+							<!-- popoup wait -->
+							<a4j:status id="ajaxStatus" forceId="true"
+								onstart="#{rich:component('waitPanel')}.show('',{height:'85px', width:'250px'})"
+								onstop="#{rich:component('waitPanel')}.hide()" />
+							<rich:modalPanel id="waitPanel" style="text-align:center">
+								<h:outputText value="#{msg.messageAttente}"
+									style="font-weight:bold;font-size:large" />
+								<div align="center">
+									<h:graphicImage value="../framGraphique/images/timeOut.gif"
+										alt="timeOut" />
+								</div>
+							</rich:modalPanel>
+						</div>
+					</rich:modalPanel>
+						</rich:panel>	
+										
+						<rich:panel styleClass="rich-panel">
+						<f:facet name="header">
+													<h:outputText value="Rapports Courriers"
+														styleClass="xteDetailLabel" />
+						                             </f:facet>
+						<h:form id="result">
+						<a4j:keepAlive beanName="rapportsCourriersBean" />
+						<div align="center">
+						
+						<table width="100%" border="0">
+									<tr>
+										<td width="50%" valign="top">
+												
+												<h:panelGroup id="blocChoix">
+												<h:outputText value="#{msg.datePeriode} : "
+													styleClass="xteDetailLabel" />
+												<h:selectOneMenu id="selectOneMenuId"
+													styleClass="xteDetailLabelOutput" style="width:100px;"
+													value="#{rapportsCourriersBean.typeDate}" layout="pageDirection">
+													<a4j:support event="onchange" reRender="blocDates"
+														ajaxSingle="true"
+														actionListener="#{rapportsCourriersBean.chooseTypeDate}" />
+													<f:selectItem itemLabel="  " itemValue="  " />	
+													<f:selectItem itemLabel="Jour" itemValue="jour" />
+													<f:selectItem itemLabel="Mois" itemValue="mois" />
+													<f:selectItem itemLabel="Année" itemValue="annee" />
+													<f:selectItem itemLabel="Période" itemValue="periode" />
+												</h:selectOneMenu>
+												</h:panelGroup>
+												<h:panelGroup id="blocDates">
+												<rich:spacer width="5px"/>
+												<h:selectOneMenu id="selectOneMenuMonthId"
+													rendered="#{rapportsCourriersBean.showInputMonth}"
+													styleClass="xteDetailLabelOutput" style="width:100px;"
+													value="#{rapportsCourriersBean.choixMois}" layout="pageDirection">
+													<a4j:support event="onchange" reRender="blocDates" ajaxSingle="true"
+														actionListener="#{rapportsCourriersBean.save}" />
+													<f:selectItem itemLabel="  " itemValue="0" />
+													<f:selectItem itemLabel="Janvier" itemValue="1" />
+													<f:selectItem itemLabel="Février" itemValue="2" />
+													<f:selectItem itemLabel="Mars" itemValue="3" />
+													<f:selectItem itemLabel="Avril" itemValue="4" />
+													<f:selectItem itemLabel="Mai" itemValue="5" />
+													<f:selectItem itemLabel="Juin" itemValue="6" />
+													<f:selectItem itemLabel="Juillet" itemValue="7" />
+													<f:selectItem itemLabel="Aout" itemValue="8" />
+													<f:selectItem itemLabel="Septembre" itemValue="9" />
+													<f:selectItem itemLabel="Octobre" itemValue="10" />
+													<f:selectItem itemLabel="Novembre" itemValue="11" />
+													<f:selectItem itemLabel="Décembre" itemValue="12" />
+												</h:selectOneMenu>
+												<rich:spacer width="5px"/>
+												<h:selectOneMenu id="selectOneMenuYearId"
+													rendered="#{rapportsCourriersBean.showInputYear}"
+													styleClass="xteDetailLabelOutput" style="width:100px;"
+													value="#{rapportsCourriersBean.choixAnnee}"
+													layout="pageDirection">
+													<a4j:support event="onchange" reRender="blocDates" ajaxSingle="true"
+														actionListener="#{rapportsCourriersBean.save}" />
+													<f:selectItems value="#{rapportsCourriersBean.selectItemsYear}" />
+												</h:selectOneMenu>
+												<rich:spacer width="5px"/>
+												<rich:calendar datePattern="yyyy/MM/dd" id="selectedDate"
+													value="#{rapportsCourriersBean.selectedDate}"
+													rendered="#{rapportsCourriersBean.showInputDay}"
+													locale="#{calendarBean.locale}"
+													monthLabels="#{calendarBean.listMois}"
+													 >
+													<a4j:support event="onchanged"
+																	actionListener="#{rapportsCourriersBean.save}"
+																	ajaxSingle="true" />
+												</rich:calendar>
+												<rich:spacer width="5px"/>
+												<rich:calendar datePattern="yyyy/MM/dd" id="selectedDateF"
+													value="#{rapportsCourriersBean.selectedDateF}"
+													rendered="#{rapportsCourriersBean.showdateF}"
+													locale="#{calendarBean.locale}"
+													monthLabels="#{calendarBean.listMois}"
+													 >
+													<a4j:support event="onchanged"
+																	actionListener="#{rapportsCourriersBean.save}"
+																	ajaxSingle="true" />
+												</rich:calendar>
+										
+												
+												</h:panelGroup>
+											
+											<h:panelGrid columns="6">
+											<h:outputText value="Unité : " styleClass="xteDetailLabel" />
+												<h:selectOneMenu id="btnUnite"
+																value="#{rapportsCourriersBean.selectedItemUnite}"
+																required="true"
+																requiredMessage="*  unite #{msg.champsobligatoire}"
+																style=" width : 133px;">															
+																<f:selectItems
+																	value="#{rapportsCourriersBean.selectItemsUnitee}" >															
+																</f:selectItems>
+											 					<a4j:support event="onclick"
+																	actionListener="#{rapportsCourriersBean.save}"
+																	ajaxSingle="true" />													
+																</h:selectOneMenu>
+											</h:panelGrid>
+											
+										</td>
+									</tr>
+									</table>
+									</div>
+									</h:form>
+									</rich:panel>
+									<rich:panel styleClass="rich-panel" >
+									<f:facet name="header">
+													<h:outputText value="Rapports Courriers"
+														styleClass="xteDetailLabel" />
+						                             </f:facet>
+						<h:form>
+									
+									<table>
+									<tr>
+										<td width="50%" valign="top">
+										<h:panelGrid columns="2">
+											 <h:column>
+					 	<h:outputText value="#{msg.listecourriersRapideposte}"
+					 	style="width: 350px !important;" styleClass="xteDetailLabel"></h:outputText> 
+					 </h:column>
+					 
+					  <h:commandLink id="crRapide"  action="#{rapportCourriersListe.printPDFRapidePoste}">
+					  <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf1" /></h:commandLink>
+					 <h:column>
+					 <h:outputText value="#{msg.bordereauCourrierArriveeExterne}" 
+					 style="width: 350px !important;" styleClass="xteDetailLabel"></h:outputText>
+					 </h:column>
+					 <h:commandLink id="crArrivee"  action="#{rapportCourriersListe.printPDFBordereauCourrierArrivee}">
+					   <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf2" /></h:commandLink>
+					 <h:column>
+					 <h:outputText value="#{msg.etatCheques}" 
+					 style="width: 350px !important;" styleClass="xteDetailLabel"></h:outputText>
+					</h:column>
+					<h:commandLink id="etatCheq" action="#{rapportCourriersListe.printPDFEtatCheque}">
+					    <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf3" /></h:commandLink>
+											<h:column>
+					 <h:outputText value="#{msg.etatChequesImpayes}" 
+					 style="width: 350px !important;" styleClass="xteDetailLabel"></h:outputText>
+					</h:column>
+					<h:commandLink id="etatCheqImpayes" action="#{rapportCourriersListe.printPDFEtatChequeImpayes}">
+					    <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf3" /></h:commandLink>
+											<h:column>
+					 <h:outputText value="#{msg.etatChequesAgent}" 
+					 style="width: 350px !important;" styleClass="xteDetailLabel"></h:outputText>
+					</h:column>
+					<h:commandLink id="etatCheqAgent" action="#{rapportCourriersListe.printPDFEtatChequeAgent}">
+					    <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf3" /></h:commandLink>
+					<h:column>
+					 <h:outputText value="#{msg.etatsuivireclamations}"
+					  style="width: 350px !important;" styleClass="xteDetailLabel"></h:outputText>
+					 </h:column>
+					
+					     <h:commandLink id="suiviReclamation" action="#{rapportCourriersListe.printPDFListReclamation}" >
+					     <h:graphicImage value="../framGraphique/images/PDF.png"
+											onmouseover="this.src='../framGraphique/images/PDF.png'"
+											onmouseout="this.src='../framGraphique/images/PDF.png'"
+											alt="pdf4" /></h:commandLink>
+										
+										</h:panelGrid>
+										</td>
+									</tr>
+						</table>
+						</h:form>
+					</rich:panel>
+					
+					
+					    
+					
+				
+				</div>
+				<div id="inter" />
+				<div id="corpsDroite">
+					<ui:include src="../framGraphique/right.xhtml"></ui:include>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+		</div>
+	</f:view>
+	
+</body>
+	</html>
+</ui:composition>

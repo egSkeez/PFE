@@ -1,0 +1,1923 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<title>Gestion unités/bureaux d'ordes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu" style="height: auto;">
+				<div style="width: 1200px;">
+					<div id="corpsGaucheUnite">
+						<rich:panel styleClass="rich-panel">
+							
+							<rich:modalPanel id="aidePanal" autosized="true" height="500"
+								width="800">
+								<f:facet name="header">
+									<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+
+										<h:graphicImage value="../framGraphique/images/help_16.png"
+											id="help" />
+										<h:outputText
+											value="#{msg.uniteBocGestionAide} #{aideEnLigneBean.titreInterface}"
+											styleClass="xtePopupInformationTextHeader" />
+									</h:panelGrid>
+								</f:facet>
+								<f:facet name="controls">
+									<h:panelGroup>
+										<h:graphicImage value="../framGraphique/images/close.png"
+											width="15" height="15" id="aidehidelink" />
+										<rich:componentControl for="aidePanal" attachTo="aidehidelink"
+											operation="hide" event="onclick" />
+									</h:panelGroup>
+								</f:facet>
+								<div class="scroll_div">
+									<h:form>
+										<a4j:keepAlive beanName="aideEnLigneBean" />
+										<h:graphicImage
+											rendered="#{variableGlobale.locale eq 'fr_FR'}"
+											value="../framGraphique/images/AideEnLigne/GBO-Gestion-Boc.jpg"
+											width="750" height="490" id="aidehidelink" />
+										<h:graphicImage rendered="#{variableGlobale.locale eq 'ar'}"
+											value="../framGraphique/images/AideEnLigne/GBO-Unit-Boc-Gestion-AR.png"
+											width="750" height="490" id="aidehidelinkAR" />
+										<rich:spacer height="10" />
+										<table align="center">
+											<tr>
+												<td align="center"><a4j:commandButton
+														value="#{msg.bouttonOk}"
+														oncomplete="Richfaces.hideModalPanel('aidePanal');"
+														type="submit" ajaxSingle="true" styleClass="submitButton" />
+												</td>
+											</tr>
+										</table>
+									</h:form>
+								</div>
+							</rich:modalPanel>
+						</rich:panel>
+						<div>
+							<h:form>
+								<a4j:keepAlive beanName="uniteBocGestionBean" />
+								<rich:simpleTogglePanel id="aco" styleClass="rich-panel"
+									switchType="client" opened="true">
+									<f:facet name="header">
+										<h:panelGrid columns="2" style="margin:-3px;">
+											<h:outputText value="#{msg.structureHierarchiquePrincipale}"
+												styleClass="xteEnregistrementLabelOutput" />
+										</h:panelGrid>
+									</f:facet>
+
+									<rich:tree value="#{uniteBocGestionBean.stationNodesPrincipal}"
+										var="station"
+										reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,form10,form11,tree"
+										id="treePrincipal" ajaxSingle="true"
+										nodeSelectListener="#{uniteBocGestionBean.getSelectedNodeForPrincipalTree}"
+										icon="../framGraphique/images/dep.png"
+										ajaxSubmitSelection="true" switchType="client">
+
+										<rich:treeNode
+											iconCollapsed="../framGraphique/images/hc_Addd.gif"
+											iconExpanded="../framGraphique/images/hc_Add11.png"
+											iconLeaf="../framGraphique/images/dep.png">
+											<h:outputText value="#{station}" style="color:#666666;" />
+
+										</rich:treeNode>
+									</rich:tree>
+
+
+								</rich:simpleTogglePanel>
+							</h:form>
+						</div>
+						<div style="margin-top: -15px;">
+							<h:form id="form11"
+								style=" display: #{uniteBocGestionBean.showHierarchicStructureForm};">
+								<div>
+									<rich:panel>
+										<f:facet name="header">
+											<h:outputText value="#{msg.structureHierarchique}"
+												styleClass="xtePopupInformationTextHeader" />
+										</f:facet>
+										<rich:tree value="#{uniteBocGestionBean.stationNodes}"
+											var="station"
+											reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,dataDetailsUnit,scrollerDetailsUnit,recordDetailsUnit,dataDetailsBOC,scrollerDetailsBOC,recordDetailsBOC,tree"
+											id="tree" ajaxSingle="true"
+											style="width:auto;height:400px;overflow-x:scroll ; overflow-y: scroll;"
+											nodeSelectListener="#{uniteBocGestionBean.getSelectedNode}"
+											icon="../framGraphique/images/dep.png"
+											ajaxSubmitSelection="true" switchType="client">
+
+											<rich:treeNode
+												iconCollapsed="../framGraphique/images/hc_Addd.gif"
+												iconExpanded="../framGraphique/images/hc_Add11.png"
+												iconLeaf="../framGraphique/images/dep.png">
+												<h:outputText value="#{station}" style="color:#666666;" />
+
+											</rich:treeNode>
+										</rich:tree>
+									</rich:panel>
+								</div>
+							</h:form>
+						</div>
+					</div>
+					<div id="corpsDroiteUnite">
+
+						<div style="width: 100%;">
+							<div>
+								<h:form id="form1"
+									style=" display: #{uniteBocGestionBean.showUnitPanelForm};">
+									<rich:panel styleClass="rich-panel">
+										<h:panelGrid columns="12">
+											<rich:spacer width="10px" />
+											<h:column>
+												<a4j:commandLink id="add"
+													action="#{uniteBocGestionBean.loadAddUnitInterface}"
+													reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree">
+													<h:graphicImage id="add1"
+														value="../framGraphique/images/icone-add.png"
+														onmouseover="this.src='../framGraphique/images/icone-addMouseOver.png'"
+														onmouseout="this.src='../framGraphique/images/icone-add.png'" />
+												</a4j:commandLink>
+												<rich:toolTip for="add1" direction="top-right"
+													value="#{msg.labelAjoutSousUnite}" />
+											</h:column>
+											<rich:spacer width="10px" />
+											<h:column>
+												<a4j:commandLink id="delete"
+													oncomplete="if(#{uniteBocGestionBean.status1}==true) #{rich:component('askDelete1')}.show(); if(#{uniteBocGestionBean.status2}==true) #{rich:component('askDelete2')}.show(); if(#{uniteBocGestionBean.status3}==true) #{rich:component('askDelete3')}.show();"
+													action="#{uniteBocGestionBean.getDeleteUnit}"
+													reRender="askDelete1,askDelete2,askDelete3">
+													<h:graphicImage id="delete1"
+														value="../framGraphique/images/icone-delete.png"
+														onmouseover="this.src='../framGraphique/images/icone-deleteMouseOver.png'"
+														onmouseout="this.src='../framGraphique/images/icone-delete.png'" />
+												</a4j:commandLink>
+												<rich:toolTip for="delete" direction="top-right"
+													value="#{msg.labelDeleteUnit}" />
+											</h:column>
+											<rich:spacer width="10px" />
+											<h:column>
+												<a4j:commandLink id="update"
+													action="#{uniteBocGestionBean.loadUpdateUnitInterface}"
+													reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree">
+													<h:graphicImage id="update1"
+														value="../framGraphique/images/edit_barreMenu.png"
+														onmouseover="this.src='../framGraphique/images/edit_barreMenuMouseOver.png'"
+														onmouseout="this.src='../framGraphique/images/edit_barreMenu.png'" />
+												</a4j:commandLink>
+												<rich:toolTip for="update" direction="top-right"
+													value="#{msg.labelUpdateUnit}" />
+											</h:column>
+											<rich:spacer width="10px" />
+											<h:column>
+												<a4j:commandLink id="affect"
+													action="#{uniteBocGestionBean.loadAffectUnitInterface}"
+													reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,menu,showControl">
+													<h:graphicImage id="affect1"
+														value="../framGraphique/images/mem.png" />
+												</a4j:commandLink>
+												<rich:toolTip for="affect" direction="top-right"
+													value="#{msg.labelAffectUnit}" />
+											</h:column>
+											<rich:spacer width="485"></rich:spacer>
+											<h:column>
+												<a4j:commandLink id="helpButton"
+													action="#{aideEnLigneBean.resultat}"
+													oncomplete="#{rich:component('aidePanal')}.show();"
+													reRender="aidePanal">
+													<h:graphicImage id="j"
+														value="../framGraphique/images/help.png" />
+												</a4j:commandLink>
+												<rich:toolTip for="helpButton" value="#{msg.help}" />
+											</h:column>
+
+										</h:panelGrid>
+										<a4j:keepAlive beanName="uniteBocGestionBean" />
+									</rich:panel>
+								</h:form>
+								<!-- ******popup delete 1****** -->
+								<rich:modalPanel id="askDelete1" autosized="true" height="90"
+									width="320">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelConfirm}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel" alt="Fermer" />
+											<rich:componentControl for="askDelete1"
+												attachTo="hidelinkdel" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{uniteBocGestionBean.message}" /></td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOui}"
+												action="#{uniteBocGestionBean.deleteUnit}"
+												oncomplete="Richfaces.hideModalPanel('askDelete1'); #{rich:component('msgPanalCD')}.show();"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+											<rich:spacer width="10" />
+											<a4j:commandButton value="#{msg.buttonNon}"
+												styleClass="submitButton"
+												onclick="Richfaces.hideModalPanel('askDelete1');" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******popup delete 2****** -->
+								<rich:modalPanel id="askDelete2" autosized="true" height="110"
+									width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelAlerte}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel1" alt="Fermer" />
+											<rich:componentControl for="askDelete2"
+												attachTo="hidelinkdel1" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/avertissement.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{uniteBocGestionBean.message}" /></td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												action="#{uniteBocGestionBean.loadAffectUnitInterface}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree"
+												oncomplete="Richfaces.hideModalPanel('askDelete2'); "
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+											<rich:spacer width="10" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******popup delete 3****** -->
+								<rich:modalPanel id="askDelete3" autosized="true" height="110"
+									width="410">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelAlerte}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel3" alt="Fermer" />
+											<rich:componentControl for="askDelete3"
+												attachTo="hidelinkdel3" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/avertissement.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{uniteBocGestionBean.message}" />
+											</td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree"
+												action="#{uniteBocGestionBean.firstInitializeAffectation}"
+												oncomplete="Richfaces.hideModalPanel('askDelete3');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Info validation de suppression******* -->
+								<rich:modalPanel id="msgPanalCD" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<a4j:commandLink id="upd1"
+											action="#{uniteBocGestionBean.afterDelete}">
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" />
+										</a4j:commandLink>
+
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmSuppression}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCD');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.afterDelete}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,treePrincipal" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</div>
+
+							<div>
+								<h:form id="form2"
+									style="height:auto; display: #{uniteBocGestionBean.showDetailsUnitForm};">
+									<div>
+										<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+										<rich:panel styleClass="rich-panel">
+											<f:facet name="header">
+												<h:panelGrid columns="1" styleClass="xtePanelGrid">
+													<h:outputText value="#{uniteBocGestionBean.unitTitle}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<table width="100%">
+												<tr>
+													<td width="50%" style="vertical-align: top;"><h:panelGrid
+															columns="2">
+															<h:column>
+																<h:outputText
+																	value="#{msg.reference}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:column>
+																<h:outputLabel
+																	value="#{uniteBocGestionBean.unitReference}"
+																	styleClass="xteDetailLabelOutput" />
+															</h:column>
+															<h:column>
+																<h:outputText
+																	value="#{uniteBocGestionBean.unitNameLabel}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+
+															<h:column>
+																<h:outputText value="#{uniteBocGestionBean.unitName}"
+																	styleClass="xteDetailLabelOutput" />
+															</h:column>
+															<h:column>
+																<h:outputText
+																	value="#{msg.abreviation}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:column>
+																<h:outputLabel
+																	value="#{uniteBocGestionBean.unitShortName}"
+																	styleClass="xteDetailLabelOutput" />
+															</h:column>
+
+
+
+														</h:panelGrid></td>
+													<td width="50%" valign="top"><h:panelGrid columns="2">
+															<h:column  rendered="#{uniteBocGestionBean.affichageRattachement}">
+																<h:outputText
+																	value="#{msg.BORattachement}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:column  rendered="#{uniteBocGestionBean.affichageRattachement}">
+																<h:outputText
+																	value="#{uniteBocGestionBean.associatedBoc}"
+																	styleClass="xteDetailLabelOutput" />
+															</h:column >
+															<h:column rendered="#{uniteBocGestionBean.affichageRattachement}">
+																<h:outputText
+																	value="#{msg.uniteRattachement}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:column  rendered="#{uniteBocGestionBean.affichageRattachement}">
+																<h:outputText
+																	value="#{uniteBocGestionBean.associatedUnit}"
+																	styleClass="xteDetailLabelOutput" />
+															</h:column>
+															<h:column>
+																<h:outputText value="#{msg.comment}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" style="width:160px;" />
+															</h:column>
+															<h:column>
+																<h:outputLabel
+																	value="#{uniteBocGestionBean.unitDescription}"
+																	styleClass="xteDetailLabelOutput" />
+															</h:column>
+														</h:panelGrid></td>
+												</tr>
+											</table>
+
+										</rich:panel>
+									</div>
+								</h:form>
+							</div>
+
+							<div>
+								<h:form id="form3"
+									style="height:auto; display: #{uniteBocGestionBean.showAddUnitForm};">
+									<div>
+										<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+										<rich:panel id="accor1" styleClass="rich-panel">
+											<f:facet name="header">
+												<h:panelGrid columns="3">
+													<h:outputText value="#{uniteBocGestionBean.unitTitle}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<rich:messages ajaxRendered="true" errorClass="msgError"
+												styleClass="error" />
+												<div align="center">
+														<h:panelGrid columns="2">
+															<h:column>
+																<h:outputText  rendered="#{not(uniteBocGestionBean.affichageListeRattachement)}"
+																	value="#{msg.choixTypeUnite}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+																<rich:spacer width="5" />
+															</h:column>
+															<h:column>
+																<h:selectOneMenu id="inputt"  rendered="#{not(uniteBocGestionBean.affichageListeRattachement)}"
+																	value="#{uniteBocGestionBean.selectedUnit}"
+																	styleClass="xteDetailLabelcombox"
+																	style=" width : 141px; height : 20px;">
+																	<a4j:support event="onchange"
+																		reRender="output1boc,checkUnit,content,outputTitle,form9,inputt1,inputt2boc,outputURboc"
+																		ajaxSingle="true"
+																		actionListener="#{uniteBocGestionBean.eventChooseUnitBoc}" />
+																	<f:selectItems
+																		value="#{uniteBocGestionBean.selectItemsT}" />
+																</h:selectOneMenu>
+															</h:column>
+														</h:panelGrid>
+													</div>
+													
+											<table width="100%">
+												<tr>
+													<td style="width: 50%; vertical-align: top;"><h:panelGrid
+															columns="2">
+															<h:column>
+																<h:outputText id="outputURboc"
+																	value="#{uniteBocGestionBean.unitNameLabel}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+																<rich:spacer width="5" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:column>
+																<h:inputText id="inputt1boc"
+																	value="#{uniteBocGestionBean.unitName}" required="true"
+																	requiredMessage="* #{msg.prenom} #{msg.champsobligatoire}"
+																	maxlength="255">
+																</h:inputText>
+															</h:column>
+															<h:column>
+																<h:outputText
+																	value="#{msg.abreviation}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+																<rich:spacer width="5" />
+																<h:outputText value="*" styleClass="error" />
+															</h:column>
+															<h:column>
+																<h:inputText id="abrev"
+																	value="#{uniteBocGestionBean.unitShortName}"
+																	maxlength="255" >
+																</h:inputText>
+															</h:column>
+															<h:column>
+																<h:outputText rendered="false"
+																	value="#{msg.noeudRattachement}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+															</h:column>
+															<h:column>
+																<h:selectOneMenu id="inputtAssocatedUnite" rendered="false"
+																	value="#{uniteBocGestionBean.selectedAssociatedUnitrattachement}"
+																	styleClass="xteDetailLabelcombox"  
+																	style=" width : 141px; height : 20px;">
+
+																	<f:selectItems
+																		value="#{uniteBocGestionBean.selectItemsUnits}" />
+																</h:selectOneMenu>
+															</h:column>
+
+															
+														</h:panelGrid></td>
+													<td style="width: 50%;" valign="top"><h:panelGrid columns="2">
+															<h:column>
+																<h:outputText value="#{msg.comment}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+																<rich:spacer width="5" />
+															</h:column>
+														
+															<h:column>
+																<h:inputTextarea id="inputt2boc"
+																	value="#{uniteBocGestionBean.unitDescription}"
+																	required="false" />
+															</h:column>
+														</h:panelGrid></td>
+												</tr>
+											</table>
+											<rich:spacer height="10" />
+											<div align="center">
+												<div id="buttonAddUnit"
+													style="display:#{uniteBocGestionBean.showButtonAddUnit};">
+													<a4j:commandButton value="#{msg.buttonValidate}"
+														type="submit"
+														oncomplete="if(#{uniteBocGestionBean.status1}==true) #{rich:component('msgPanalCA')}.show(); if(#{uniteBocGestionBean.status2}==true) #{rich:component('msgPanalErrRemainName')}.show(); "
+														action="#{uniteBocGestionBean.save}"
+														reRender="msgPanalCA,msgPanalErrRemainName"></a4j:commandButton>
+													<a4j:commandButton value="#{msg.buttonCancel}"
+														type="submit" action="#{uniteBocGestionBean.cancel}"
+														ajaxSingle="true"
+														reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9"></a4j:commandButton>
+												</div>
+												<div id="buttonUpdateUnit"
+													style="display:#{uniteBocGestionBean.showButtonUpdateUnit};">
+													<a4j:commandButton value="#{msg.buttonModifier}"
+														type="submit"
+														oncomplete="if(#{uniteBocGestionBean.status1}==true) #{rich:component('msgPanal')}.show(); if(#{uniteBocGestionBean.status2}==true) #{rich:component('msgPanalErreur')}.show(); "
+														action="#{uniteBocGestionBean.update}"
+														reRender="msgPanal,msgPanalErreur"></a4j:commandButton>
+													<a4j:commandButton value="#{msg.buttonCancel}"
+														type="submit" action="#{uniteBocGestionBean.cancel}"
+														reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9"></a4j:commandButton>
+												</div>
+											</div>
+											<rich:spacer height="10" />
+											<div align="left">
+												<h:outputText value="#{msg.infoChampObligatoir}" />
+											</div>
+										</rich:panel>
+									</div>
+								</h:form>
+								<!-- *****popup Erreur d'ajout remaining name****** -->
+								<rich:modalPanel id="msgPanalErrRemainName" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErrRemainName" />
+											<rich:componentControl for="msgPanalErrRemainName"
+												attachTo="hidelinkErrRemainName" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrRemainName');"
+												action="#{uniteBocGestionBean.initializeSave}" type="submit"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree"
+												ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *******popup Info Validation d'ajout -->
+								<rich:modalPanel id="msgPanalCA" autosized="true" height="110"
+									width="380">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkCA" />
+											<rich:componentControl for="msgPanalCA" attachTo="hidelinkCA"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOui}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCA');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.loadListOtherUser}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,data1,scroller1,record1,treePrincipal" />
+											<rich:spacer width="10" />
+											<a4j:commandButton value="#{msg.buttonNon}"
+												oncomplete="document.location.href='uniteBocGestion.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.initializeSave}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,treePrincipal" />
+											<rich:spacer width="10" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******************popup validation de modification*********************** -->
+								<rich:modalPanel id="msgPanal" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelink1" />
+											<rich:componentControl for="msgPanal" attachTo="hidelink1"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												action="#{uniteBocGestionBean.initializeUpdate}"
+												oncomplete="Richfaces.hideModalPanel('msgPanal');if(#{uniteBocGestionBean.refreshPage}==true)document.location.href='uniteBocGestion.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,data1111,scroller1111,record1111,treePrincipal" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Erreur de modification****** -->
+								<rich:modalPanel id="msgPanalErreur" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErreur" />
+											<rich:componentControl for="msgPanalErreur"
+												attachTo="hidelinkErreur" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErreur');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</div>
+
+							<div>
+								<h:form id="form4"
+									style="height:auto; display:#{uniteBocGestionBean.showAddBOCForm};">
+									<div>
+										<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+										<rich:panel id="accor11" styleClass="rich-panel">
+											<f:facet name="header">
+												<h:panelGrid columns="3">
+													<h:outputText id="outputTitle"
+														value="#{uniteBocGestionBean.unitTitle}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<rich:spacer height="10" />
+											<div>
+												<div>
+													<rich:messages ajaxRendered="true" errorClass="msgError"
+														styleClass="error" />
+													<div align="center">
+														<h:panelGrid columns="2">
+															<h:column>
+																<h:outputText
+																	value="#{msg.choixTypeUnite}#{msg.pointvirgule}"
+																	styleClass="xteDetailLabel" />
+																<rich:spacer width="5" />
+															</h:column>
+															<h:column>
+																<h:selectOneMenu id="inputt"
+																	value="#{uniteBocGestionBean.selectedUnit}"
+																	styleClass="xteDetailLabelcombox"
+																	style=" width : 141px; height : 20px;">
+																	<a4j:support event="onchange"
+																		reRender="output1,checkUnit,content,outputTitle,form9,inputt1,inputt2,outputUR"
+																		ajaxSingle="true"
+																		actionListener="#{uniteBocGestionBean.eventChooseUnitBoc}" />
+																	<f:selectItems
+																		value="#{uniteBocGestionBean.selectItemsT}" />
+																</h:selectOneMenu>
+															</h:column>
+														</h:panelGrid>
+													</div>
+													<rich:spacer height="15" />
+													<table width="100%">
+														<tr>
+															<td style="width: 50%; vertical-align: top;"><h:panelGrid
+																	columns="2">
+																	<h:column>
+																		<h:outputText id="outputUR"
+																			value="#{uniteBocGestionBean.unitNameLabel}#{msg.pointvirgule}"
+																			styleClass="xteDetailLabel" />
+																		<rich:spacer width="5" />
+																		<h:outputText value="*" styleClass="error" />
+																	</h:column>
+																	<h:column>
+																		<h:inputText id="inputt1"
+																			value="#{uniteBocGestionBean.unitName}"
+																			required="true"
+																			requiredMessage="* #{msg.prenom} #{msg.champsobligatoire}"
+																			maxlength="255">
+																		</h:inputText>
+																	</h:column>
+																	<h:column>
+																		<h:outputText
+																			value="#{msg.abreviation}#{msg.pointvirgule}"
+																			styleClass="xteDetailLabel" />
+																		<rich:spacer width="5" />
+																		<h:outputText value="*" styleClass="error" />
+																	</h:column>
+																	<h:column>
+																		<h:inputText id="abrev1"
+																			value="#{uniteBocGestionBean.unitShortName}"
+																			maxlength="255" required="true"
+																			requiredMessage="* #{msg.abreviation} #{msg.champsobligatoire}">
+																		</h:inputText>
+																	</h:column>
+																</h:panelGrid>
+															</td>
+															<td style="width: 50%; vertical-align: top;"><h:panelGrid
+																	columns="2" style="vertical-align :top; float:left;">
+																	<h:column>
+																		<h:outputText
+																			value="#{msg.comment}#{msg.pointvirgule}"
+																			styleClass="xteDetailLabel" />
+																		<rich:spacer width="5" />
+																	</h:column>
+																
+																		<h:inputTextarea id="inputt2"
+																			value="#{uniteBocGestionBean.unitDescription}"
+																			required="false" />
+																	
+																</h:panelGrid>
+															</td>
+														</tr>
+													</table>
+													<rich:spacer height="10" />
+													<div align="center">
+														<div>
+															<a4j:commandButton value="#{msg.buttonValidate}"
+																type="submit" action="#{uniteBocGestionBean.save}"
+																oncomplete="if(#{uniteBocGestionBean.status3}==true) #{rich:component('msgPan')}.show(); if(#{uniteBocGestionBean.status1}==true) #{rich:component('msgPanalCABOC')}.show(); if(#{uniteBocGestionBean.status2}==true) #{rich:component('msgPanalErrRemainNameBOC')}.show(); "
+																reRender="msgPan,msgPanalCABOC,msgPanalErrRemainNameBOC"></a4j:commandButton>
+															<a4j:commandButton value="#{msg.buttonCancel}"
+																ajaxSingle="true" type="submit"
+																action="#{uniteBocGestionBean.cancel}"
+																reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree"></a4j:commandButton>
+														</div>
+													</div>
+													<rich:spacer height="10" />
+													<div align="left">
+														<h:outputText value="#{msg.infoChampObligatoir}" />
+													</div>
+												</div>
+											</div>
+										</rich:panel>
+									</div>
+								</h:form>
+								<!-- *****popup Erreur d'ajout remaining name****** -->
+								<rich:modalPanel id="msgPanalErrRemainNameBOC" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErrRemainNameBOC" />
+											<rich:componentControl for="msgPanalErrRemainNameBOC"
+												attachTo="hidelinkErrRemainNameBOC" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrRemainNameBOC');"
+												action="#{uniteBocGestionBean.initializeSave}" type="submit"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree"
+												ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *******popup Info Validation d'ajout -->
+								<rich:modalPanel id="msgPanalCABOC" autosized="true"
+									height="110" width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkCABOC" />
+											<rich:componentControl for="msgPanalCABOC"
+												attachTo="hidelinkCABOC" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOui}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCABOC');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.loadListOtherUser}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree" />
+											<a4j:commandButton value="#{msg.buttonNon}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCABOC');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.initializeSave}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree" />
+											<rich:spacer width="10" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *******popup Info Validation d'ajout -->
+								<rich:modalPanel id="msgPan" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelin" />
+											<rich:componentControl for="msgPan" attachTo="hidelin"
+												operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" />
+												</td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" />
+												</td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+											oncomplete="document.location.href='uniteBocGestion.jsf'"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.initializeSave}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,treePrincipal,data1111,scroller1111,record1111" />
+
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</div>
+
+							<div>
+								<h:form id="form5"
+									style="height:auto; display: #{uniteBocGestionBean.showAffectationUnitForm};">
+									<a4j:keepAlive beanName="uniteBocGestionBean" />
+								
+								<rich:panel styleClass="rich-panel" id="accor2"
+							>
+							<f:facet name="header">
+								<h:outputText value="#{msg.affectDesaffectMember}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>	
+									
+
+										<div>
+										
+											<rich:extendedDataTable groupingColumn="job"
+												height="#{uniteBocGestionBean.heightExtendableDataTable}"
+												value="#{uniteBocGestionBean.listCurrentMember}"
+												var="memberVar" id="data1" rows="10"
+												style="width=:730px;"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+												<f:facet name="header">
+													<h:outputText value="#{msg.listDirectionMembers}" />
+												</f:facet>
+												<rich:column sortBy="#{memberVar.id}"
+													filterBy="#{memberVar.id}" filterEvent="onkeyup"
+													label="#{msg.Reference}" width="10%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.Reference}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.id}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.prenom}"
+													filterBy="#{memberVar.prenom}" filterEvent="onkeyup"
+													label="#{msg.prenom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.prenom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.prenom}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.nom}"
+													filterBy="#{memberVar.nom}" filterEvent="onkeyup"
+													label="#{msg.nom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.nom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.nom}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup" label="#{msg.email}"
+													sortBy="#{memberVar.nom}" filterBy="#{memberVar.nom}"
+													width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.email}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.email}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.telephoneNumber}"
+													filterBy="#{memberVar.telephoneNumber}"
+													filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.telephone}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.telephoneNumber}" />
+												</rich:column>
+												<rich:column width="13%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.operation}" />
+													</f:facet>
+													<a4j:keepAlive beanName="uniteBocGestionBean"
+														ajaxOnly="true" />
+													<center>
+														<h:panelGrid columns="1">
+															<a4j:commandLink id="upd2"
+																action="#{uniteBocGestionBean.desaffectUser}"
+																reRender="buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,showControl,menu">
+																<h:graphicImage
+																	value="../framGraphique/images/Delete.png"
+																	alt="details" style=" width : 16px;" />
+															</a4j:commandLink>
+														</h:panelGrid>
+													</center>
+													<rich:toolTip for="upd2" direction="top-right"
+														value="#{msg.labelDesaffect}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup"
+													sortBy="#{memberVar.title}" filterBy="#{memberVar.title}"
+													id="job" label="#{msg.role}" width="1%" visible="false">
+													<f:facet name="header">
+														<h:outputText value="#{msg.role}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.title}" />
+												</rich:column>
+											</rich:extendedDataTable>
+											<div align="center">
+												<rich:datascroller for="data1" id="scroller1" />
+												<h:outputText value="#{msg.nbEnregistrement}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="record1"
+													value="#{uniteBocGestionBean.recordsCurrentMember}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+
+											<rich:spacer width="100%" height="8" />
+											<rich:separator lineType="double" height="4" width="100%"
+												align="center" />
+											<rich:spacer width="100%" height="20" />
+											<rich:dataTable value="#{uniteBocGestionBean.listOtherUser}"
+												var="availableUser" styleClass="rich-dataTableAffectation"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+												id="data2" rows="10" style="margin-left: 4px !important;">
+												<f:facet name="header">
+													<h:outputText value="#{msg.otherUsers}" />
+												</f:facet>
+												<rich:column width="10%" sortBy="#{availableUser.id}"
+													filterBy="#{availableUser.id}}" filterEvent="onkeyup"
+													label="#{msg.Reference}">
+													<f:facet name="header">
+														<h:outputText value="#{msg.Reference}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.id}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.prenom}"
+													filterBy="#{availableUser.prenom}" filterEvent="onkeyup"
+													label="#{msg.prenom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.prenom}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.prenom}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.nom}"
+													filterBy="#{availableUser.nom}" filterEvent="onkeyup"
+													label="#{msg.nom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.nom}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.nom}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.email}"
+													filterBy="#{availableUser.email}" filterEvent="onkeyup"
+													label="#{msg.email}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.email}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.email}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.telephoneNumber}"
+													filterBy="#{availableUser.telephoneNumber}"
+													filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.telephone}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.telephoneNumber}" />
+												</rich:column>
+												<rich:column width="10%" id="operationColumn">
+													<f:facet name="header">
+														<h:outputText value="#{msg.operation}" />
+													</f:facet>
+													<div align="center">
+														<a4j:commandLink id="commandLinkForAffect"
+															reRender="buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,menu,showControl"
+															action="#{uniteBocGestionBean.affectUser}">
+															<rich:componentControl event="oncomplete"
+																for="#{uniteBocGestionBean.operationForComponentControl}"
+																id="showControl" operation="show" />
+															<h:graphicImage
+																value="../framGraphique/images/hc_Add.jpg" alt="details" />
+														</a4j:commandLink>
+
+													</div>
+												</rich:column>
+											</rich:dataTable>
+											<rich:contextMenu id="menu" attached="false"
+												disabledItemClass="disabledItem" submitMode="ajax">
+												<rich:menuItem ajaxSingle="true"
+													action="#{uniteBocGestionBean.affectResponsable}"
+													disabled="#{uniteBocGestionBean.itemDisabledDirector}"
+													value="#{msg.uniteBocGestionResponsable}"
+													reRender="buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,showControl,menu" />
+												<rich:menuItem ajaxSingle="true"
+													action="#{uniteBocGestionBean.affectSecretary}"
+													disabled="#{uniteBocGestionBean.itemDisabledSecretary}"
+													value="#{msg.Secretary}"
+													reRender="buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,showControl,menu" />
+												<rich:menuItem ajaxSingle="true"
+													action="#{uniteBocGestionBean.affectAgent}"
+													value="#{msg.uniteBocGestionAgent}"
+													reRender="buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,showControl,menu" />
+											</rich:contextMenu>
+											<div align="center">
+												<rich:datascroller for="data2" id="scroller2" />
+												<h:outputText value="#{msg.nbEnregistrement}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="records2"
+													value="#{uniteBocGestionBean.recordsOtherUser}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+										</div>
+
+								</rich:panel>
+								</h:form>
+							</div>
+
+							<div>
+								<h:form id="form8"
+									style="height:auto; display: #{uniteBocGestionBean.showDetailsMemberBOCForm};">
+									<div>
+										<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+										<rich:panel styleClass="rich-panel">
+											<f:facet name="header">
+												<h:panelGrid columns="1" styleClass="xtePanelGrid">
+													<h:outputText value="#{msg.listBocMembers}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<div>
+											
+												<rich:extendedDataTable groupingColumn="jobBocList" 
+													value="#{uniteBocGestionBean.listCurrentMember}"
+													width="100%" var="memberVar" id="dataDetailsBOC" rows="10"
+													styleClass="rich-panel"
+													onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+													onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+													<rich:column sortBy="#{memberVar.id}"
+														filterBy="#{memberVar.id}" filterEvent="onkeyup"
+														label="#{msg.matricule}" width="10%">
+														<f:facet name="header">
+															<h:outputText value="#{msg.matricule}" />
+														</f:facet>
+														<h:outputText value="#{memberVar.id}" />
+													</rich:column>
+													<rich:column sortBy="#{memberVar.prenom}"
+														filterBy="#{memberVar.prenom}" filterEvent="onkeyup"
+														label="#{msg.prenom}" width="20%">
+														<f:facet name="header">
+															<h:outputText value="#{msg.prenom}" />
+														</f:facet>
+														<h:outputText value="#{memberVar.prenom}" />
+													</rich:column>
+													<rich:column sortBy="#{memberVar.nom}"
+														filterBy="#{memberVar.nom}" filterEvent="onkeyup"
+														label="#{msg.nom}" width="20%">
+														<f:facet name="header">
+															<h:outputText value="#{msg.nom}" />
+														</f:facet>
+														<h:outputText value="#{memberVar.nom}" />
+													</rich:column>
+													<rich:column filterEvent="onkeyup" label="#{msg.email}"
+														sortBy="#{memberVar.nom}" filterBy="#{memberVar.nom}"
+														width="20%">
+														<f:facet name="header">
+															<h:outputText value="#{msg.email}" />
+														</f:facet>
+														<h:outputText value="#{memberVar.email}" />
+													</rich:column>
+													<rich:column sortBy="#{memberVar.telephoneNumber}"
+														filterBy="#{memberVar.telephoneNumber}"
+														filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+														<f:facet name="header">
+															<h:outputText value="#{msg.telephone}" />
+														</f:facet>
+														<h:outputText value="#{memberVar.telephoneNumber}" />
+													</rich:column>
+													<rich:column width="13%">
+														<f:facet name="header">
+															<h:outputText value="#{msg.operation}" />
+														</f:facet>
+														<a4j:keepAlive beanName="uniteBocGestionBean"
+															ajaxOnly="true" />
+														<center>
+															<h:panelGrid columns="1">
+																<a4j:commandLink id="up"
+																	action="#{uniteBocGestionBean.getSelectedRowUser}"
+																	oncomplete="document.location.href='../GBO/annuaireRechercheUtilisateurDetails.jsf'">
+																	<h:graphicImage
+																		value="../framGraphique/images/icone-detail.png"
+																		alt="details" style=" width : 16px;" />
+																</a4j:commandLink>
+															</h:panelGrid>
+														</center>
+														<rich:toolTip for="up" direction="top-right"
+															value="#{msg.Consult}" />
+													</rich:column>
+													<rich:column filterEvent="onkeyup"
+														sortBy="#{memberVar.title}" filterBy="#{memberVar.title}"
+														id="jobBocList" label="#{msg.role}" width="1%"
+														visible="false">
+														<f:facet name="header">
+															<h:outputText value="#{msg.role}" />
+														</f:facet>
+														<h:outputText value="#{memberVar.title}" />
+													</rich:column>
+												</rich:extendedDataTable>
+												<div align="center">
+													<rich:datascroller for="dataDetailsBOC"
+														id="scrollerDetailsBOC" />
+													<h:outputText value="#{msg.nbEnregistrement}"
+														styleClass="xteNombreEnregistrementLabelOutput" />
+													<h:outputText id="recordDetailsBOC"
+														value="#{uniteBocGestionBean.recordsCurrentMember}"
+														styleClass="xteNombreEnregistrementLabelOutput" />
+												</div>
+											</div>
+										</rich:panel>
+									</div>
+								</h:form>
+							</div>
+
+							<div>
+								<h:form id="form6"
+									style="display: #{uniteBocGestionBean.showListBOCsForm};">
+									<a4j:keepAlive beanName="uniteBocGestionBean" />
+									
+									<rich:panel styleClass="rich-panel" id="accorrrrrr"
+							>
+							<f:facet name="header">
+								<h:outputText value="#{msg.listBoc}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+									
+									
+										<div>
+											<rich:dataTable
+												value="#{uniteBocGestionBean.listAdjoiningBOC}"
+												var="memberVar" id="data1111" rows="10"
+												styleClass="rich-dataTable1"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+												<rich:column sortBy="#{memberVar.idBOC}"
+													filterBy="#{memberVar.idBOC}" filterEvent="onkeyup"
+													label="#{msg.Reference}" width="15%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.Reference}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.idBOC}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.nameBOC}"
+													filterBy="#{memberVar.nameBOC}" filterEvent="onkeyup"
+													label="#{msg.nom}" width="30%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.nom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.nameBOC}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup" label="#{msg.comment}"
+													sortBy="#{memberVar.descriptionBOC}"
+													filterBy="#{memberVar.descriptionBOC}" width="30%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.comment}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.descriptionBOC}" />
+												</rich:column>
+												<rich:column width="12%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.operation}" />
+													</f:facet>
+													<a4j:keepAlive beanName="uniteBocGestionBean"
+														ajaxOnly="true" />
+													<center>
+														<h:panelGrid columns="2">
+															<h:column>
+																<a4j:commandLink id="upd211"
+																	oncomplete="#{rich:component('askDelete11')}.show();"
+																	action="#{uniteBocGestionBean.getSelectedRowForDelete}"
+																	reRender="askDelete11">
+																	<h:graphicImage
+																		value="../framGraphique/images/Delete.png"
+																		alt="details" />
+																</a4j:commandLink>
+																<rich:toolTip for="upd211" direction="top-right"
+																	value="#{msg.labelDelete}" />
+															</h:column>
+															<h:column>
+																<a4j:commandLink id="del"
+																	action="#{uniteBocGestionBean.getSelectedRowForUpdate}"
+																	reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9">
+																	<h:graphicImage
+																		value="../framGraphique/images/Edit.png" alt="details" />
+																</a4j:commandLink>
+																<rich:toolTip for="del" direction="top-right"
+																	value="#{msg.bouttonModifier}" />
+															</h:column>
+														</h:panelGrid>
+													</center>
+
+												</rich:column>
+											</rich:dataTable>
+											<div align="center">
+												<rich:datascroller for="data1111" id="scroller1111" />
+												<h:outputText value="#{msg.nbEnregistrement}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="record1111"
+													value="#{uniteBocGestionBean.recordsAdjoiningBoc}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+										</div>
+										<rich:spacer width="100%" height="8" />
+
+									</rich:panel>
+								</h:form>
+								<!-- ******popup delete 1****** -->
+								<rich:modalPanel id="askDelete11" autosized="true" height="90"
+									width="320">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelConfirm}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel11" alt="Fermer" />
+											<rich:componentControl for="askDelete11"
+												attachTo="hidelinkdel11" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/interrogation.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{msg.confirmDeleteAdjBOC}" /></td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOui}"
+												action="#{uniteBocGestionBean.deleteBos}"
+												oncomplete="if(#{uniteBocGestionBean.status1}==true) #{rich:component('msgPanalCD11')}.show(); if(#{uniteBocGestionBean.status2}==true) #{rich:component('askDelete31')}.show();"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+											<rich:spacer width="10" />
+											<a4j:commandButton value="#{msg.buttonNon}"
+												styleClass="submitButton" type="submit" ajaxSingle="true"
+												onclick="Richfaces.hideModalPanel('askDelete11');" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- ******popup delete 3****** -->
+								<rich:modalPanel id="askDelete31" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkdel31" alt="Fermer" />
+											<rich:componentControl for="askDelete31"
+												attachTo="hidelinkdel31" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<table align="center">
+										<tr>
+											<td align="left"><h:graphicImage
+													value="../framGraphique/images/erreur.png" /></td>
+											<td align="center" colspan="2"><h:outputText
+													styleClass="xtePopupInformationText"
+													value="#{uniteBocGestionBean.message}" />
+											</td>
+										</tr>
+									</table>
+									<h:form>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree"
+												action="#{uniteBocGestionBean.initializeSave}"
+												oncomplete="Richfaces.hideModalPanel('askDelete31');"
+												type="submit" ajaxSingle="true" styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *****popup Info validation de suppression******* -->
+								<rich:modalPanel id="msgPanalCD11" autosized="true" height="90"
+									width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<a4j:commandLink id="upd2"
+											action="#{uniteBocGestionBean.initializeDeleteBos}">
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" />
+										</a4j:commandLink>
+
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmSuppression}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCD11');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.initializeDeleteBos}"
+												reRender="form1,form2,form3,form4,form5,form6,form7,form8,form9,tree,data1111,scroller1111,record1111" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</div>
+
+							<div>
+								<h:form id="form9"
+									style="height:auto; display: #{uniteBocGestionBean.showDetailsMemberUnitForm};">
+									<div>
+										<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+										<rich:panel styleClass="rich-panel">
+											<f:facet name="header">
+												<h:panelGrid columns="1" styleClass="xtePanelGrid">
+													<h:outputText value="#{msg.listDirectionMembers}"
+														styleClass="xteEnregistrementLabelOutput" />
+												</h:panelGrid>
+											</f:facet>
+											<rich:extendedDataTable groupingColumn="job"
+												height="#{uniteBocGestionBean.heightExtendableDataTable}"
+												value="#{uniteBocGestionBean.listCurrentMember}"
+												width="100%" var="memberVar" id="dataDetailsUnit" rows="10"
+												styleClass="rich-panel"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+
+												<rich:column sortBy="#{memberVar.id}"
+													filterBy="#{memberVar.id}" filterEvent="onkeyup"
+													label="#{msg.matricule}" width="10%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.matricule}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.id}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.prenom}"
+													filterBy="#{memberVar.prenom}" filterEvent="onkeyup"
+													label="#{msg.prenom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.prenom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.prenom}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.nom}"
+													filterBy="#{memberVar.nom}" filterEvent="onkeyup"
+													label="#{msg.nom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.nom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.nom}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup" label="#{msg.email}"
+													sortBy="#{memberVar.nom}" filterBy="#{memberVar.nom}"
+													width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.email}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.email}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.telephoneNumber}"
+													filterBy="#{memberVar.telephoneNumber}"
+													filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.telephone}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.telephoneNumber}" />
+												</rich:column>
+												<rich:column width="13%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.operation}" />
+													</f:facet>
+													<a4j:keepAlive beanName="uniteBocGestionBean"
+														ajaxOnly="true" />
+													<center>
+														<h:panelGrid columns="1">
+															<a4j:commandLink id="up2"
+																action="#{uniteBocGestionBean.getSelectedRowUser}"
+																oncomplete="document.location.href='../GBO/annuaireRechercheUtilisateurDetails.jsf'">
+																<h:graphicImage
+																	value="../framGraphique/images/icone-detail.png"
+																	alt="details" />
+															</a4j:commandLink>
+														</h:panelGrid>
+													</center>
+													<rich:toolTip for="up2" direction="top-right"
+														value="#{msg.Consult}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup"
+													sortBy="#{memberVar.title}" filterBy="#{memberVar.title}"
+													id="job" label="#{msg.role}" width="17%" visible="false">
+													<f:facet name="header">
+														<h:outputText value="#{msg.role}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.title}" />
+												</rich:column>
+											</rich:extendedDataTable>
+											<div align="center">
+												<rich:datascroller for="dataDetailsUnit"
+													id="scrollerDetailsUnit" />
+												<h:outputText value="#{msg.nbEnregistrement}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="recordDetailsUnit"
+													value="#{uniteBocGestionBean.recordsCurrentMember}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+
+										</rich:panel>
+									</div>
+								</h:form>
+							</div>
+
+							<div>
+								<h:form id="form7"
+									style="width: 653px; margin-left: 0px;margin-top: 0px;height:auto; display: #{uniteBocGestionBean.showAffectationBOCForm};">
+									<a4j:keepAlive beanName="uniteBocGestionBean" />
+									<rich:panel styleClass="rich-panel"  id="accorrrr"  >
+							<f:facet name="header">
+								<h:outputText value="#{msg.affectDesaffectMember}"
+									styleClass="xteEnregistrementLabelOutput" />
+							</f:facet>
+									
+									
+										<div>
+											<rich:extendedDataTable groupingColumn="jobBoc" 
+												value="#{uniteBocGestionBean.listCurrentMember}"
+												var="memberVar" id="data111" rows="10"
+												style="width=:730px;"
+												styleClass="rich-dataTable1"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+												<f:facet name="header">
+													<h:outputText value="#{msg.listBocMembers}" />
+												</f:facet>
+												<rich:column sortBy="#{memberVar.id}"
+													filterBy="#{memberVar.id}" filterEvent="onkeyup"
+													label="#{msg.matricule}" width="10%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.matricule}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.id}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.prenom}"
+													filterBy="#{memberVar.prenom}" filterEvent="onkeyup"
+													label="#{msg.prenom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.prenom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.prenom}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.nom}"
+													filterBy="#{memberVar.nom}" filterEvent="onkeyup"
+													label="#{msg.nom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.nom}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.nom}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup" label="#{msg.email}"
+													sortBy="#{memberVar.nom}" filterBy="#{memberVar.nom}"
+													width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.email}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.email}" />
+												</rich:column>
+												<rich:column sortBy="#{memberVar.telephoneNumber}"
+													filterBy="#{memberVar.telephoneNumber}"
+													filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.telephone}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.telephoneNumber}" />
+												</rich:column>
+												<rich:column width="13%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.operation}" />
+													</f:facet>
+													<a4j:keepAlive beanName="uniteBocGestionBean"
+														ajaxOnly="true" />
+													<center>
+														<h:panelGrid columns="1">
+															<a4j:commandLink id="upd211"
+																action="#{uniteBocGestionBean.desaffectUserBoc}"
+																reRender="buttonValidate11,buttonValidate110,data211,scroller211,records211,data111,scroller111,record111,data2112">
+																<h:graphicImage
+																	value="../framGraphique/images/Delete.png"
+																	alt="details" />
+															</a4j:commandLink>
+														</h:panelGrid>
+													</center>
+													<rich:toolTip for="upd211" direction="top-right"
+														value="#{msg.labelDesaffect}" />
+												</rich:column>
+												<rich:column filterEvent="onkeyup"
+													sortBy="#{memberVar.title}" filterBy="#{memberVar.title}"
+													id="jobBoc" label="#{msg.role}" width="1%" visible="false">
+													<f:facet name="header">
+														<h:outputText value="#{msg.role}" />
+													</f:facet>
+													<h:outputText value="#{memberVar.title}" />
+												</rich:column>
+											</rich:extendedDataTable>
+											<div align="center">
+												<rich:datascroller for="data111" id="scroller111" />
+												<h:outputText value="#{msg.nbEnregistrement}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="record111"
+													value="#{uniteBocGestionBean.recordsCurrentMember}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+
+											<rich:spacer width="100%" height="8" />
+											<rich:separator lineType="double" height="4" width="100%"
+												align="center" />
+
+
+											<rich:dataTable value="#{uniteBocGestionBean.listOtherUser}"
+												var="availableUser" styleClass="rich-dataTableAffectation"
+												onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+												onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+												id="data2112" rows="10" style="margin-left: 4px !important;">
+												<f:facet name="header">
+													<h:outputText value="#{msg.otherUsers}" />
+												</f:facet>
+												<rich:column width="10%" sortBy="#{availableUser.id}"
+													filterBy="#{availableUser.id}" filterEvent="onkeyup"
+													label="#{msg.Reference}">
+													<f:facet name="header">
+														<h:outputText value="#{msg.Reference}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.id}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.prenom}"
+													filterBy="#{availableUser.prenom}" filterEvent="onkeyup"
+													label="#{msg.prenom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.prenom}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.prenom}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.nom}"
+													filterBy="#{availableUser.nom}" filterEvent="onkeyup"
+													label="#{msg.nom}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.nom}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.nom}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.email}"
+													filterBy="#{availableUser.email}" filterEvent="onkeyup"
+													label="#{msg.email}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.email}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.email}" />
+												</rich:column>
+												<rich:column sortBy="#{availableUser.telephoneNumber}"
+													filterBy="#{availableUser.telephoneNumber}"
+													filterEvent="onkeyup" label="#{msg.telephone}" width="20%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.telephone}" />
+													</f:facet>
+													<h:outputText value="#{availableUser.telephoneNumber}" />
+												</rich:column>
+												<rich:column width="10%">
+													<f:facet name="header">
+														<h:outputText value="#{msg.operation}" />
+													</f:facet>
+													<div align="center">
+														<a4j:commandLink id="upd1111" rendered="false"
+															action="#{uniteBocGestionBean.affectUserBoc}"
+															reRender="buttonValidate11,buttonValidate110,data211,scroller211,records211,data111,scroller111,record111">
+															<h:graphicImage
+																value="../framGraphique/images/hc_Add.jpg" alt="details" />
+														</a4j:commandLink>
+														<a4j:commandLink id="commandLinkForAffectBoct"
+															reRender="showControlBoct,buttonValidate11,buttonValidate110,data211,scroller211,records211,data111,scroller111,record111"
+															action="#{uniteBocGestionBean.affectUserBoct}">
+															<rich:componentControl event="oncomplete"
+																for="#{uniteBocGestionBean.operationForComponentControlBoct}"
+																id="showControlBoct" operation="show" />
+															<h:graphicImage
+																value="../framGraphique/images/hc_Add.jpg" alt="details" />
+														</a4j:commandLink>
+													</div>
+													<rich:toolTip for="upd1111" direction="top-right"
+														value="#{msg.buttonAffecter}" />
+												</rich:column>
+											</rich:dataTable>
+											<rich:contextMenu id="menuBoc" attached="false"
+												disabledItemClass="disabledItem" submitMode="ajax">
+												<rich:menuItem ajaxSingle="true"
+													action="#{uniteBocGestionBean.affectResponsableBoct}"
+													value="#{msg.uniteBocGestionResponsable}"
+													reRender="showControl,menuBoc,buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,showControl,menu,data2112,data111" />
+												<rich:menuItem ajaxSingle="true"
+													action="#{uniteBocGestionBean.affectAgentBoct}"
+													value="#{msg.uniteBocGestionAgent}"
+													reRender="showControl,menuBoc,buttonValidate,buttonValidateCopy,checkRole,toolTip,data2,scroller2,records2,data1,scroller1,record1,showControl,menu,accor2,form5,data2112,data111" />
+											</rich:contextMenu>
+											<div align="center">
+												<rich:datascroller for="data2112" id="scroller211" />
+												<h:outputText value="#{msg.nbEnregistrement}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+												<h:outputText id="records211"
+													value="#{uniteBocGestionBean.recordsOtherUser}"
+													styleClass="xteNombreEnregistrementLabelOutput" />
+											</div>
+										</div>
+
+									</rich:panel>
+								</h:form>
+								<!-- *********popup Info erreur Affectation******** -->
+								<rich:modalPanel id="msgPanalErrAffBoc" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" ajaxOnly="true" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelError}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkErrAffBoc" />
+											<rich:componentControl for="msgPanalErrAffBoc"
+												attachTo="hidelinkErrAffBoc" operation="hide"
+												event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/erreur.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{uniteBocGestionBean.message}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												onclick="Richfaces.hideModalPanel('msgPanalErrAffBoc');"
+												action="#{uniteBocGestionBean.initializeAffect}"
+												type="submit" reRender="case2" ajaxSingle="true"
+												styleClass="submitButton" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+								<!-- *******popup Info Validation d'affectation -->
+								<rich:modalPanel id="msgPanalCAffBoc" autosized="true"
+									height="90" width="350">
+									<a4j:keepAlive beanName="uniteBocGestionBean" />
+									<f:facet name="header">
+										<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<rich:spacer width="2" />
+											<h:outputText value="#{msg.labelInfo}"
+												styleClass="xtePopupInformationTextHeader" />
+										</h:panelGrid>
+									</f:facet>
+									<f:facet name="controls">
+										<h:panelGroup>
+											<h:graphicImage value="../framGraphique/images/close.png"
+												width="15" height="15" id="hidelinkCAffBoc" />
+											<rich:componentControl for="msgPanalCAffBoc"
+												attachTo="hidelinkCAffBoc" operation="hide" event="onclick" />
+										</h:panelGroup>
+									</f:facet>
+									<h:form>
+										<table align="center">
+											<tr>
+												<td align="left"><h:graphicImage
+														value="../framGraphique/images/information.png" /></td>
+												<td align="center" colspan="2"><h:outputText
+														styleClass="xtePopupInformationText"
+														value="#{msg.confirmAffectation}" /></td>
+											</tr>
+										</table>
+										<div align="center">
+											<a4j:commandButton value="#{msg.buttonOk}"
+												reRender="buttonValidate11,buttonValidate110,form1,form2,form3,form4,form5,form6,form7,form8,form9"
+												oncomplete="Richfaces.hideModalPanel('msgPanalCAffBoc');"
+												type="submit" ajaxSingle="true" styleClass="submitButton"
+												action="#{uniteBocGestionBean.initializeAffect}" />
+										</div>
+									</h:form>
+								</rich:modalPanel>
+							</div>
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

@@ -1,0 +1,1330 @@
+package xtensus.beans.common.GBO;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.PostConstruct;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.aop.LogClass;
+import xtensus.beans.common.EmailUtil;
+import xtensus.beans.common.VariableGlobale;
+import xtensus.beans.utils.Informations;
+import xtensus.beans.utils.NotificationListAddress;
+import xtensus.beans.utils.RapportEnteteDePage;
+import xtensus.beans.utils.RapportExpediteurDestinataire;
+import xtensus.beans.utils.RapportPiedDePage;
+import xtensus.beans.utils.RapportSociete;
+import xtensus.beans.utils.SuiviCourrier;
+import xtensus.beans.utils.SuiviCourrierCourrier;
+import xtensus.entity.Courrier;
+import xtensus.entity.CourrierDossier;
+import xtensus.entity.Expdest;
+import xtensus.entity.Relance;
+import xtensus.entity.Relancetransaction;
+import xtensus.entity.RelancetransactionId;
+import xtensus.entity.Transaction;
+import xtensus.entity.TransactionDestination;
+import xtensus.gnl.entity.Templatenotification;
+import xtensus.gnl.entity.VariablesNotification;
+import xtensus.ldap.business.LdapOperation;
+import xtensus.ldap.model.Person;
+import xtensus.ldap.model.Unit;
+import xtensus.services.ApplicationManager;
+import xtensus.services.Export;
+
+@Component
+@Scope("request")
+public class CourrierRelanceBean {
+
+	private long CONST_DURATION_OF_DAY = 1000l * 60 * 60 * 24;
+	private ApplicationManager appMgr;
+	private DataModel listTransactionCourrier;
+	private long records = 0;
+	private LdapOperation ldapOperation;
+	private String type;
+	private String typeRelance;
+	private String methodeCalled;
+	private boolean showAllImage;
+	private boolean hideAllImage;
+	private boolean showDayImage;
+	private boolean hideDayImage;
+	private boolean showWeekImage;
+	private boolean hideWeekImage;
+	private boolean showNegatifImage;
+	private boolean hideNegatifImage;
+	private boolean disableSelectRadio;
+	private SuiviCourrierCourrier informationDestinataire;
+	private Export export;
+	private int necessitnatReponseTotal;
+	private int necessitnatReponseAujourdhui;
+	private int necessitnatReponseSemaine;
+	private int necessitnatReponseMois;
+	private List<RapportExpediteurDestinataire> rapportExpediteurDestinatairelist;
+	private RapportExpediteurDestinataire rapportExpediteurDestinataire;
+	@Autowired
+	private VariableGlobale vb;
+	private RapportCourrierRetard test;
+	private boolean testPass=false;
+	private String titreRapp="";
+
+	private Timer timer;
+	private int variablePeriodeEnvoiMailing;
+	private int variableNombreEnvoiMailingParMedium;
+	private List<RapportEnteteDePage> enteteDePage = new ArrayList<RapportEnteteDePage>();
+	
+	private List<RapportPiedDePage>piedDePage = new ArrayList<RapportPiedDePage>();
+	private List<RapportSociete>listeSociete= new ArrayList<RapportSociete>();
+ 
+	private EmailUtil emailUtil;
+	private Expdest expDest;
+	List<SuiviCourrierCourrier> result;
+	private Integer indexForRelance;
+	List<SuiviCourrierCourrier> listCourrier;
+	private int refTransaction;
+	private Transaction tr;
+
+	@Autowired
+	public CourrierRelanceBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr,@Qualifier("export") Export export) {
+		this.appMgr = appMgr;
+		this.export = export;
+		listTransactionCourrier = new ListDataModel();
+		listTransactionCourrier
+				.setWrappedData(new ArrayList<SuiviCourrierCourrier>());
+		emailUtil = new EmailUtil();
+		listCourrier = new ArrayList<SuiviCourrierCourrier>();
+		/*statusLoadall = false;
+		statusLoadWeekMinus= false;
+		 statusLoadDayMinus=false;
+		statusLoadOutOfDate=false;*/
+		System.out.println(listTransactionCourrier);
+		type = "";
+		System.out
+				.println("**************BeanInjecte CourrierSuiviBean *********");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		variablePeriodeEnvoiMailing = Integer.parseInt(appMgr
+				.listVariablesById(8).get(0).getVaraiablesValeur());
+		variableNombreEnvoiMailingParMedium = Integer.parseInt(appMgr
+				.listVariablesById(6).get(0).getVaraiablesValeur());
+		ldapOperation = new LdapOperation();
+		if (vb.getPerson().isResponsable()) {
+			type = "sub_" + String.valueOf(vb.getPerson().getId());
+		} else if (vb.getPerson().isSecretary()) {
+			type = "secretary_" + String.valueOf(vb.getPerson().getId());
+		} else if (vb.getPerson().isAgent()) {
+			type = "agent_" + String.valueOf(vb.getPerson().getId());
+		} else if (vb.getPerson().isBoc()) {
+			type = "boc_" + String.valueOf(vb.getPerson().getId());
+		}
+		//MM  ----------------------------------------------------
+		//Modifier le 01/06/2016
+		//desc : ce code est ajouter pour tester le cas ou lexpediteur est une unité
+		//else if (vb.getPerson().getAssociatedDirection() != null) {
+//			type="unit_"
+//					+ String.valueOf(vb.getPerson().getAssociatedDirection().getIdUnit());
+			
+		//	}
+		indexForRelance = 0;
+		showAllImage = true;
+		hideAllImage = false;
+		showDayImage = true;
+		hideDayImage = false;
+		showWeekImage = true;
+		hideWeekImage = false;
+		showNegatifImage = true;
+		hideNegatifImage = false;
+		disableSelectRadio = true;
+		System.out.println("showAllImage = "+showAllImage);
+		System.out.println("sous titre = "+vb.getSousTitreRapportRelance());
+	
+	}
+	public String toDest() {
+		vb.getListSelectedItem().clear();
+		vb.setDestNom("");
+		vb.setExpNom("");
+		vb.setRedirect("rediretFromPDFToListSender2");
+		return "rediretFromPDFToListSender2";
+		
+	}
+	
+	public void printPDF(){
+		try {
+			testPass=false;
+			RapportRetardBean rapport=new RapportRetardBean();
+			List<RapportRetardBean> rapports =new ArrayList<RapportRetardBean>();
+			Calendar calendar = Calendar.getInstance();
+			Date date = calendar.getTime();
+			date.setHours(00);
+			date.setMinutes(00);
+			date.setSeconds(00);
+			rapport.setTitle("Liste des rapports en retard");
+			String patternString = "yyyy-MM-dd";
+		    SimpleDateFormat format = new SimpleDateFormat(patternString);
+
+		    String dateJourD = format.format(date);
+		    
+			
+			List<TransactionDestination> transactionDestinations = new ArrayList<TransactionDestination>();
+			if (vb.getPerson().isBoc()) {
+				transactionDestinations = appMgr
+						.getTransactionDestinationForBoostOutOfDateBOC(type, dateJourD);
+				
+			} else {
+				transactionDestinations = appMgr
+						.getTransactionDestinationForBoostOutOfDateByType(type, dateJourD);
+
+			}
+			rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+			
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			
+			RapportSociete rs = new RapportSociete();
+			if(vb.getPerson().isBoc()){
+				rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			}else{
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+			rs.setSocieteNom(rapport.getSocieteNom());
+			rs.setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+			rs.setSocieteRepublique(rapport.getSocieteRepublique());
+			rs.setSocieteVille(rapport.getSocieteVille());
+			listeSociete.add(rs);
+			
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			System.out.println(nomProjet);
+			
+			String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+			.get(0).getSocieteLibelle();
+			rapport.setAdresse(adr);
+			
+			List<SuiviCourrierCourrier> suiviCourrier=new ArrayList<SuiviCourrierCourrier>();
+			suiviCourrier=loadData(transactionDestinations);
+			System.out.println("suiviCourrier : " +suiviCourrier.size());
+				for (SuiviCourrierCourrier s : suiviCourrier) {
+					vb.setExpNom("");
+					vb.setDestNom("");
+					System.out.println("***vb.getExpNom()*** : "+vb.getExpNom());
+					System.out.println("***vb.getDestNom()*** : "+vb.getDestNom());
+					
+					System.out.println("je suis là");
+					
+					
+					//////////////KBS Transaction
+					
+					refTransaction = s.getTransaction().getTransactionId();
+					System.out.println("refTransaction = s.getTransaction().getTransactionId()   " + refTransaction);
+					List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+					if (transaction != null)
+					{
+						tr = transaction.get(0);
+					}
+					System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+					
+					
+					String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+					
+					s.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+					//rapport.setRef("nouvelleRefCourrier");
+					
+					/////////////// KBS Transaction
+					
+					if(!vb.getExpNom().equals(null)||!vb.getDestNom().equals(null)){
+						System.out.println("if(!vb.getExpNom().equals(null)||!vb.getDestNom().equals(null)){");
+						System.out.println("****s.getDestinataireReelle()***** : "+s.getDestinataireReelle());
+						if(s.getDestinataireReelle().equalsIgnoreCase(vb.getExpNom())||s.getExpediteur().equalsIgnoreCase(vb.getExpNom())){
+							System.out.println("if(s.getDestinataireReelle().equalsIgnoreCase(vb.getExpNom())||s.getExpediteur().equalsIgnoreCase(vb.getExpNom())){");
+							System.out.println(s.getExpediteur()+ " / "+vb.getExpNom()+" / "+s.getDestinataireReelle());
+							rapport.setRef(s.getCourrier().getCourrierReferenceCorrespondant());
+							rapport.setObj(s.getCourrier().getCourrierObjet());
+							rapport.setNature(s.getCourrier().getNature().getNatureLibelle());
+							rapport.setExpedeteur(s.getExpediteur());
+							rapport.setListDestinataire(s.getDestinataireReelle());
+							
+							rapport.setDateRecep(s.getTransaction().getTransactionDateTransaction());
+							rapport.setDateRep(s.getTransactionDestination().getTransactionDestDateReponse());
+							rapport.setDelais(s.getToleranceRange());
+							rapport.setNomProjet(nomProjet);
+							
+							rapport.setTitle(vb.getExpNom());
+							
+							rapports.add(rapport);
+							rapport=new RapportRetardBean();
+							
+						} else{
+							System.out.println("else{");
+							rapport.setRef(s.getCourrier().getCourrierReferenceCorrespondant());
+							rapport.setObj(s.getCourrier().getCourrierObjet());
+							rapport.setNature(s.getCourrier().getNature().getNatureLibelle());
+							rapport.setExpedeteur(s.getExpediteur());
+							rapport.setListDestinataire(s.getDestinataireReelle());
+							System.out.println(s.getDestinataireReelle());
+							rapport.setDateRecep(s.getTransaction().getTransactionDateTransaction());
+							rapport.setDateRep(s.getTransactionDestination().getTransactionDestDateReponse());
+							rapport.setDelais(s.getToleranceRange());
+							rapport.setNomProjet(nomProjet);
+							
+							rapport.setTitle(vb.getExpNom());
+							
+							rapports.add(rapport);
+							rapport=new RapportRetardBean();
+						}
+												
+					} 
+				}
+				
+				rapport.setNomProjet(nomProjet);
+				rapport.setAdresse(adr);
+				rapports.add(rapport);
+				rapport=new RapportRetardBean();
+				if(!vb.getExpNom().equals(null)||!vb.getDestNom().equals(null)){
+					rapports.get(0).setListeSociete(listeSociete);
+					RapportPiedDePage rpdp= new RapportPiedDePage();
+					rpdp.setAdresse("test");
+					piedDePage.add(rpdp);
+					
+					System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+					rapports.get(0).setPiedDePage(piedDePage);
+				export.exportToPDF(rapports, "CourrierRetard","CourrierRetard");
+				}
+//				else{
+//					rapports.get(0).setListeSociete(listeSociete);
+//					RapportPiedDePage rpdp= new RapportPiedDePage();
+//					rpdp.setAdresse("test");
+//					piedDePage.add(rpdp);
+//					
+//					System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+//					rapports.get(0).setPiedDePage(piedDePage);
+//					export.exportToPDF(rapports, "CourrierRetardTous","CourrierRetardTous");
+//				}
+				vb.getListSelectedItem().clear();
+				vb.setDestNom("");
+				listeSociete.clear();
+//				System.out.println("*****clear*** : "+listeSociete.get(0).getSocieteNom());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	public void printPDF2(){
+		try {
+			testPass=true;
+			RapportRetardBean rapport=new RapportRetardBean();
+			List<RapportRetardBean> rapports =new ArrayList<RapportRetardBean>();
+			Calendar calendar = Calendar.getInstance();
+			Date date = calendar.getTime();
+			date.setHours(00);
+			date.setMinutes(00);
+			date.setSeconds(00);
+			System.out.println("vb sous titre = "+vb.getSousTitreRapportRelance());
+			List<TransactionDestination> transactionDestinations = new ArrayList<TransactionDestination>();
+			if (vb.getPerson().isBoc()) {
+				transactionDestinations = appMgr.getTransactionDestinationForBoostOutOfDateBOCTraite(type, date);
+				
+			} else {
+				transactionDestinations = appMgr.getTransactionDestinationForBoostOutOfDateByTypeTraite(type,date);
+
+			}
+			System.out.println("transaction taille :"+transactionDestinations.size());
+			rapportExpediteurDestinatairelist = new ArrayList<RapportExpediteurDestinataire>();
+			rapportExpediteurDestinataire = new RapportExpediteurDestinataire();
+			
+			String societeNom = appMgr.listSocieteByLibelle("Nom_Societe")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteNom(societeNom);
+			String societeOrganismeParent = appMgr
+					.listSocieteByLibelle("Ministere_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteOrganismeParent(societeOrganismeParent);
+			String societeRepublique = appMgr
+					.listSocieteByLibelle("Republique_Nom").get(0)
+					.getSocieteLibelle();
+			rapport.setSocieteRepublique(societeRepublique);
+			String societeVille = appMgr.listSocieteByLibelle("Ville_Nom")
+					.get(0).getSocieteLibelle();
+			rapport.setSocieteVille(societeVille);
+			
+			RapportSociete rs = new RapportSociete();
+			
+			
+			// KHA : unite connectee 
+			rs.setSocieteNom(societeNom);
+			if(vb.getPerson().isBoc()){
+			rs.setUniteConnecte(vb.getPerson().getAssociatedBOC().getNameBOC());
+			System.out.println();
+			}else{
+				rs.setUniteConnecte(vb.getPerson().getAssociatedDirection().getNameUnit());
+			}
+	 
+			rs.setSocieteNom(rapport.getSocieteNom());
+			rs.setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());
+			rs.setSocieteRepublique(rapport.getSocieteRepublique());
+			rs.setSocieteVille(rapport.getSocieteVille());
+			listeSociete.add(rs);
+			// FIN KHA
+	       /* 
+	        * /*rs.setSocieteNom("aaaa");
+			rs.setSocieteOrganismeParent("bbbbb");
+			rs.setSocieteRepublique("ccccc");
+			rs.setSocieteVille("dddddd");
+	        listeSociete.add(rs);
+			listeSociete.get(0).setSocieteNom(rapport.getSocieteNom());
+			listeSociete.get(0).setSocieteRepublique(rapport.getSocieteRepublique());
+			listeSociete.get(0).setSocieteVille(rapport.getSocieteVille());
+			listeSociete.get(0).setSocieteOrganismeParent(rapport.getSocieteOrganismeParent());*/
+			
+			// Variables
+			String nomProjet = appMgr
+					.listVariablesByLibelle("Footer_Nom_Projet").get(0)
+					.getVariablesContenu();
+			rapport.setNomProjet(nomProjet);
+			
+			String adr = appMgr.listSocieteByLibelle("Adresse_Societe")
+				.get(0).getSocieteLibelle();
+			rapport.setAdresse(adr);
+			
+			System.out.println(nomProjet);
+			List<SuiviCourrierCourrier> suiviCourrier=new ArrayList<SuiviCourrierCourrier>();
+			suiviCourrier=loadData(transactionDestinations);
+			
+			System.out.println("///////////////////je suis là");
+
+				for (SuiviCourrierCourrier s : suiviCourrier) {
+					//////////////KBS Transaction
+					
+					refTransaction = s.getTransaction().getTransactionId();
+					System.out.println("refTransaction = s.getTransaction().getTransactionId()   " + refTransaction);
+					List<Transaction> transaction=appMgr.getListTransactionByIdTransaction(refTransaction);
+					if (transaction != null)
+					{
+						tr = transaction.get(0);
+					}
+					System.out.println("///////////getCourrierReferenceCorrespondant"+ tr.getCourrierReferenceCorrespondant());
+					
+					
+					String nouvelleRefCourrier=tr.getCourrierReferenceCorrespondant();
+					
+					s.getCourrier().setCourrierReferenceCorrespondant(nouvelleRefCourrier);
+					
+					/////////////// KBS Transaction
+					if(!vb.getExpNom().isEmpty()){
+						
+						
+
+						System.out.println("dest"+s.getListDestinataire() +":"+vb.getExpNom());
+						if(s.getListDestinataire().equalsIgnoreCase(vb.getExpNom())){
+							rapport.setRef(s.getCourrier().getCourrierReferenceCorrespondant());
+							rapport.setObj(s.getCourrier().getCourrierObjet());
+							rapport.setNature(s.getCourrier().getNature().getNatureLibelle());
+							rapport.setExpedeteur(s.getExpediteur());
+							rapport.setListDestinataire(s.getDestinataireReelle());
+							System.out.println(s.getDestinataireReelle());
+							rapport.setDateRecep(s.getTransaction().getTransactionDateTransaction());
+							rapport.setDateRep(s.getTransactionDestination().getTransactionDestDateReponse());
+							rapport.setDelais(s.getToleranceRange());
+							rapport.setNomProjet(nomProjet);
+							rapport.setTitle("Agent : "+s.getDestinataireReelle());
+							rapports.add(rapport);
+							rapport=new RapportRetardBean();
+						}
+							
+					}
+					else{
+						
+						rapport.setRef(s.getCourrier().getCourrierReferenceCorrespondant());
+						rapport.setObj(s.getCourrier().getCourrierObjet());
+						rapport.setNature(s.getCourrier().getNature().getNatureLibelle());
+						rapport.setExpedeteur(s.getExpediteur());
+						rapport.setListDestinataire(s.getDestinataireReelle());
+						System.out.println("dest reelle "+s.getDestinataireReelle());
+						System.out.println("dest reelle"+s.getListDestinataire());
+						rapport.setDateRecep(s.getTransaction().getTransactionDateTransaction());
+						rapport.setDateRep(s.getTransactionDestination().getTransactionDestDateReponse());
+						rapport.setDelais(s.getToleranceRange());
+						rapport.setNomProjet(nomProjet);
+						rapport.setTitle("Liste des Courriers Traités");
+						rapports.add(rapport);
+						rapport=new RapportRetardBean();
+					}
+					
+				}
+				System.out.println(rapports.size());
+				rapport.setNomProjet(nomProjet);
+				rapport.setTitle("Liste des Courriers Traités");
+				rapports.add(rapport);
+				rapport=new RapportRetardBean();
+				
+				rapports.get(0).setListeSociete(listeSociete);
+				RapportPiedDePage rpdp= new RapportPiedDePage();
+				rpdp.setAdresse("test");
+				piedDePage.add(rpdp);
+				
+				System.out.println("Pied de page: "+piedDePage.get(0).getAdresse());
+				rapports.get(0).setPiedDePage(piedDePage);
+	            System.out.println("------------------KHA : soustitreRapportTraité ------------------");
+	   		 
+
+				RapportEnteteDePage  rpep= new  RapportEnteteDePage();
+				rpep.setSousTitreRapportCourrier(vb.getSousTitreRapportRelance());	
+				System.out.println("SousTitreRapportCourrier = "+rpep.getSousTitreRapportCourrier());
+				enteteDePage.add(rpep);
+				rapports.get(0).setEnteteDePage(enteteDePage);
+				
+				System.out.println("--------------------FIN : soustitreRapportTraité ----------------");
+				
+				
+				export.exportToPDF(rapports, "CourrierTriate","CourrierTraité");
+				
+				vb.getListSelectedItem().clear();
+				vb.setDestNom("");
+				testPass=false;
+				// KHA 
+				listeSociete.clear();
+			    enteteDePage.clear();
+				/*rapports.clear();
+				suiviCourrier.clear();*/
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	@SuppressWarnings("deprecation")
+	public List<SuiviCourrierCourrier> loadData(
+			List<TransactionDestination> transactionDestinations) {
+		try {
+			result = new ArrayList<SuiviCourrierCourrier>();
+			SuiviCourrierCourrier suiviCourrier;
+			Transaction transaction;
+			CourrierDossier courrierDossier;
+			Courrier courrier;
+			Expdest expDest;
+			String destinataire = "";
+			Date date;
+			Date dateJour = new Date();
+			for (TransactionDestination transactionDestination : transactionDestinations) {
+				destinataire = "";
+				courrierDossier = new CourrierDossier();
+				courrier = new Courrier();
+				suiviCourrier = new SuiviCourrierCourrier();
+				transaction = new Transaction();
+				transaction = appMgr.getListTransactionByIdTransaction(
+						transactionDestination.getId().getIdTransaction()).get(
+						0);
+				suiviCourrier.setTransaction(transaction);
+				suiviCourrier.setTransactionDestination(transactionDestination);
+				expDest = new Expdest();
+				if (transactionDestination.getTransactionDestTypeIntervenant() != null
+						&& transactionDestination
+								.getTransactionDestTypeIntervenant().equals(
+										type)) {
+					suiviCourrier.setMailSent(false);
+					suiviCourrier.setListDestinataire(vb.getPerson().getCn());
+					expDest = appMgr.getListExpDestByIdExpDest(
+							transaction.getExpdest().getIdExpDest()).get(0);
+				} else {
+					suiviCourrier.setMailSent(true);
+					suiviCourrier.setExpediteur(vb.getPerson().getCn());
+					expDest = appMgr.getListExpDestByIdExpDest(
+							transactionDestination.getId().getIdExpDest()).get(
+							0);
+				}
+				if (expDest.getTypeExpDest().equals("Interne-Person")) {
+					Person person = new Person();
+					person = ldapOperation.getUserById(expDest
+							.getIdExpDestLdap());
+					destinataire = person.getCn();
+				} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+					Unit unit = new Unit();
+					unit = ldapOperation
+							.getUnitById(expDest.getIdExpDestLdap());
+					destinataire = unit.getNameUnit();
+				} else if (expDest.getTypeExpDest().equals("Externe")) {
+					if(expDest.getExpdestexterne()!=null){
+						if (expDest.getExpdestexterne().getTypeutilisateur()
+								.getTypeUtilisateurLibelle().equals("PP")) {
+							destinataire = expDest.getExpdestexterne()
+									.getExpDestExterneNom() + " (PP)";
+						}
+						else {
+							destinataire = expDest.getExpdestexterne()
+									.getExpDestExterneNom() + " (PM)";
+						}
+					}
+					 
+				}
+				if (transactionDestination.getTransactionDestTypeIntervenant() != null
+						&& transactionDestination
+								.getTransactionDestTypeIntervenant().equals(
+										type)) {
+					suiviCourrier.setExpediteur(destinataire);
+				} else {
+					suiviCourrier.setListDestinataire(destinataire);
+				}
+				suiviCourrier.setDestinataireReelle(destinataire);
+				courrierDossier = appMgr.getCourrierDossierByIdDossier(
+						transaction.getDossier().getDossierId()).get(0);
+				courrier = appMgr.getCourrierByIdCourrier(
+						courrierDossier.getId().getIdCourrier()).get(0);
+				suiviCourrier.setCourrier(courrier);
+				date = transactionDestination.getTransactionDestDateReponse();
+				System.out.println("Courrier : "
+						+ courrier.getCourrierReferenceCorrespondant());
+				if(!testPass){
+					if (date.getDate() == dateJour.getDate()
+							&& date.getMonth() == dateJour.getMonth()
+							&& date.getYear() == dateJour.getYear()) {
+						suiviCourrier.setToleranceRange("0J");
+					} else if (date.after(dateJour)) {
+						suiviCourrier.setToleranceRange("+"
+								+ compareTwoDates(dateJour, date, 1) + "J");
+					} else if (date.before(dateJour)) {
+						suiviCourrier.setToleranceRange("-"
+								+ compareTwoDates(dateJour, date, 0) + "J");
+					}
+				}
+				
+				result.add(suiviCourrier);
+			}
+			System.out.println("size result : " + result.size());
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public void eventChooseTypeRelance(ActionEvent actionEvent) {
+		// List<SuiviCourrierCourrier> listCourriers = result;
+		List<SuiviCourrierCourrier> listArriver = new ArrayList<SuiviCourrierCourrier>();
+		List<SuiviCourrierCourrier> listrecue = new ArrayList<SuiviCourrierCourrier>();
+		if (typeRelance.equals("Arrive")) {
+			for (SuiviCourrierCourrier suiviCourrierCourrier : result) {
+				if (!suiviCourrierCourrier.isMailSent()) {
+					listrecue.add(suiviCourrierCourrier);
+				}
+			}
+			listTransactionCourrier.setWrappedData(listrecue);
+		} else if (typeRelance.equals("Tous")) {
+			listTransactionCourrier.setWrappedData(result);
+		} else {
+			for (SuiviCourrierCourrier suiviCourrierCourrier : result) {
+				if (suiviCourrierCourrier.isMailSent()) {
+					listArriver.add(suiviCourrierCourrier);
+					
+				}
+			}
+			listTransactionCourrier.setWrappedData(listArriver);
+		}
+
+	}
+
+	public void loadAll() {
+		necessitnatReponseTotal = 0;
+		typeRelance = "Tous";
+		showAllImage = false;
+		hideAllImage = true;
+		showDayImage = true;
+		hideDayImage = false;
+		showWeekImage = true;
+		hideWeekImage = false;
+		showNegatifImage = true;
+		hideNegatifImage = false;
+		disableSelectRadio = false;
+		List<TransactionDestination> transactionDestinations = new ArrayList<TransactionDestination>();
+		if (vb.getPerson().isBoc()) {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostAllBOC();
+		} else {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostAllByType(type);
+		}
+		methodeCalled = "allMail";
+		listTransactionCourrier
+				.setWrappedData(loadData(transactionDestinations));
+		necessitnatReponseTotal = listTransactionCourrier.getRowCount();
+		// KHA 
+	 
+		vb.setSousTitreRapportRelance("Tous");
+		System.out.println("Loadall : SousTitreRapportRelance = "+vb.getSousTitreRapportRelance());
+		
+	}
+
+	@SuppressWarnings("deprecation")
+	public void loadDayMinus() {
+		necessitnatReponseAujourdhui = 0;
+		typeRelance = "Tous";
+		showAllImage = true;
+		hideAllImage = false;
+		showDayImage = false;
+		hideDayImage = true;
+		showWeekImage = true;
+		hideWeekImage = false;
+		showNegatifImage = true;
+		hideNegatifImage = false;
+		disableSelectRadio = false;
+		Calendar calendar1 = Calendar.getInstance();
+		Date dateDebut = calendar1.getTime();
+		calendar1.add(Calendar.DATE, 1);
+
+		Date dateFin = calendar1.getTime();
+		// dateDebut.setHours(00);
+		dateDebut.setHours(23);
+		dateFin.setHours(23);
+		// dateDebut.setMinutes(00);
+		dateDebut.setMinutes(59);
+		dateFin.setMinutes(59);
+		// dateDebut.setSeconds(00);
+		dateDebut.setSeconds(59);
+
+		dateFin.setSeconds(59);
+		
+		
+		String patternString = "yyyy-MM-dd";
+	    SimpleDateFormat format = new SimpleDateFormat(patternString);
+
+	    String dateDebutD = format.format(dateDebut);
+	    String dateFinD = format.format(dateFin);
+
+		
+		System.out.println("dateJourD"+dateDebutD);
+		System.out.println("dateD"+dateFinD);
+		
+		
+		
+		List<TransactionDestination> transactionDestinations;
+		System.out.println("TYPE : " + type);
+		if (vb.getPerson().isBoc()) {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostBOC(type, dateDebutD,
+							dateFinD);
+		} else {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostByType(type, dateDebutD,
+							dateFinD);
+		}
+		// System.out.println("   hh : resultat req :: "+transactionDestinations.size());
+		methodeCalled = "dayMinusMail";
+		listTransactionCourrier
+				.setWrappedData(loadData(transactionDestinations));
+		// necessitnatReponseAujourdhui = listTransactionCourrier.getRowCount();
+		// System.out.println("   hh : resultat lis :: "+necessitnatReponseAujourdhui);
+
+		System.out.println("ééédemain : "
+				+ listTransactionCourrier.getRowCount());
+		
+		// KHA 
+	 
+	 
+		 vb.setSousTitreRapportRelance("Necessitent réponse demain");
+		 System.out.println("LoadDayMinus : SousTitreRapportRelance = "+vb.getSousTitreRapportRelance());
+	}
+
+	@SuppressWarnings("deprecation")
+	public void loadWeekMinus() {
+		necessitnatReponseSemaine = 0;
+		typeRelance = "Tous";
+		showAllImage = true;
+		hideAllImage = false;
+		showDayImage = true;
+		hideDayImage = false;
+		showWeekImage = false;
+		hideWeekImage = true;
+		showNegatifImage = true;
+		hideNegatifImage = false;
+		disableSelectRadio = false;
+		Calendar calendar = Calendar.getInstance();
+		Date dateJour = calendar.getTime();
+		// nader kassas
+		// calendar.add(Calendar.DATE, 7);
+		// nader kassas
+
+		// ** khaled saoudi
+		String semaineCalendaire = appMgr.listVariablesById(11).get(0)
+				.getVaraiablesValeur();
+		
+		System.out.println("semaineCalendaire"+semaineCalendaire);
+		
+		
+		if (semaineCalendaire.equals("Non")) {// semaine calendaire
+			calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+			calendar.add(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek() + 4);
+		} else { 
+			// semaine non calendaire:les relances se font sur les courriers qui ont une date de réponse dans la semaine courante de la date du jour du lancement de la relance
+			calendar.add(Calendar.DATE, 7);
+		}
+		Date date = calendar.getTime();
+		date.setHours(00);
+		dateJour.setHours(00);
+		date.setMinutes(00);
+		dateJour.setMinutes(00);
+		date.setSeconds(00);
+		dateJour.setSeconds(00);
+		System.out.println("dateJour"+dateJour);
+		System.out.println("date"+date);
+		
+		
+		String patternString = "yyyy-MM-dd";
+	    SimpleDateFormat format = new SimpleDateFormat(patternString);
+
+	    String dateD = format.format(date);
+	    String dateJourD = format.format(dateJour);
+
+		
+		System.out.println("dateJourD"+dateJourD);
+		System.out.println("dateD"+dateD);
+		
+		List<TransactionDestination> transactionDestinations = new ArrayList<TransactionDestination>();
+		
+		
+		if (vb.getPerson().isBoc()) {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostBOC(type, dateJourD, dateD);
+		} else {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostByType(type, dateJourD,
+							dateD);
+		}
+		methodeCalled = "weekMinusMail";
+		listTransactionCourrier
+				.setWrappedData(loadData(transactionDestinations));
+		necessitnatReponseSemaine = listTransactionCourrier.getRowCount();
+		// KHA 
+	     vb.setSousTitreRapportRelance("Necessitent réponse cete semaine");
+		 System.out.println("LoadWeekMinus : SousTitreRapportRelance = "+vb.getSousTitreRapportRelance());
+	}
+
+	@SuppressWarnings("deprecation")
+	public void loadOutOfDate() {
+		
+		necessitnatReponseMois = 0;
+		typeRelance = "Tous";
+		showAllImage = true;
+		hideAllImage = false;
+		showDayImage = true;
+		hideDayImage = false;
+		showWeekImage = true;
+		hideWeekImage = false;
+		showNegatifImage = false;
+		hideNegatifImage = true;
+		disableSelectRadio = false;
+		Calendar calendar = Calendar.getInstance();
+		Date date = calendar.getTime();
+		date.setHours(00);
+		date.setMinutes(00);
+		date.setSeconds(00);
+		
+		String patternString = "yyyy-MM-dd";
+	    SimpleDateFormat format = new SimpleDateFormat(patternString);
+
+	    String dateJourD = format.format(date);
+		
+		List<TransactionDestination> transactionDestinations = new ArrayList<TransactionDestination>();
+		if (vb.getPerson().isBoc()) {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostOutOfDateBOC(type, dateJourD);
+		} else {
+			transactionDestinations = appMgr
+					.getTransactionDestinationForBoostOutOfDateByType(type,
+							dateJourD);
+		}
+		methodeCalled = "outOfDateMail";
+		listTransactionCourrier
+				.setWrappedData(loadData(transactionDestinations));
+		necessitnatReponseMois = listTransactionCourrier.getRowCount();
+		// KHA 
+
+		vb.setSousTitreRapportRelance("Date de réponse a été dépassé");
+		System.out.println("loadOutOfDate : SousTitreRapportRelance = "+vb.getSousTitreRapportRelance());
+	}
+
+	@SuppressWarnings("deprecation")
+	private long compareTwoDates(Date date1, Date date2, int range) {
+		long numberOfDay;
+		date1.setHours(0);
+		date1.setMinutes(0);
+		date1.setSeconds(0);
+		date2.setHours(0);
+		date2.setMinutes(0);
+		date2.setSeconds(0);
+		long diff = Math.abs(date1.getTime() - date2.getTime());
+		numberOfDay = (long) diff / CONST_DURATION_OF_DAY;
+		return numberOfDay + range;
+	}
+
+	public void getSelectedRow() {
+		SuiviCourrierCourrier suiviCourrierCourrier = new SuiviCourrierCourrier();
+		suiviCourrierCourrier = (SuiviCourrierCourrier) listTransactionCourrier
+				.getRowData();
+		vb.setSuiviCourrierCourrier(suiviCourrierCourrier);
+		vb.setCourrier(suiviCourrierCourrier.getCourrier());
+	}
+
+	public void getSelectedRowForBoost() {
+		informationDestinataire = new SuiviCourrierCourrier();
+		informationDestinataire = (SuiviCourrierCourrier) listTransactionCourrier
+				.getRowData();
+	}
+
+	public void envoiMailing() {
+		timer = new Timer();
+		
+		timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				System.out.println(" --" + indexForRelance + "--***");
+				boostAll();
+			}
+		}, 0, variablePeriodeEnvoiMailing * 1000);
+	}
+
+	public void boostAll() {
+		List<String> listDestinataire = new ArrayList<String>();
+		System.out.println("variablePeriodeEnvoiMailing : " + variablePeriodeEnvoiMailing);
+		int i=0;
+		do {
+			System.out.println("i : " + i);
+			SuiviCourrierCourrier suiviCourrier = result.get(indexForRelance);
+			if (suiviCourrier.isMailSent()) {
+				TransactionDestination transactionDestination = suiviCourrier
+						.getTransactionDestination();
+				Expdest expDest = appMgr.getListExpDestByIdExpDest(
+						transactionDestination.getId().getIdExpDest()).get(0);
+				if (expDest.getTypeExpDest().equals("Interne-Person")) {
+					Person person = new Person();
+					person = ldapOperation.getUserById(expDest
+							.getIdExpDestLdap());
+					listDestinataire.add(person.getEmail());
+					suiviCourrier.setExpediteur(person.getPrenom()+ " " + person.getNom());
+				} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+					Unit unit = new Unit();
+					unit = ldapOperation
+							.getUnitById(expDest.getIdExpDestLdap());
+					listDestinataire.add(unit.getResponsibleUnit().getEmail());
+					suiviCourrier.setExpediteur(unit.getNameUnit());
+				}
+				suiviCourrier.setListDestinataire(listDestinataire.get(0));
+				boostMail(suiviCourrier);
+			}
+			indexForRelance++;
+			i++;
+			
+		} while (i< variableNombreEnvoiMailingParMedium && indexForRelance <result.size());
+		if (indexForRelance == result.size()) {
+			timer.cancel();
+			System.out.println("Timer canceled");
+		}
+		System.out.println("en Attente .............. ");
+	}
+
+	public void boost() {
+		try {
+
+			List<String> listDestinataire = new ArrayList<String>();
+			TransactionDestination transactionDestination = new TransactionDestination();
+			// String delai = informationDestinataire.getToleranceRange();
+			transactionDestination = informationDestinataire
+					.getTransactionDestination();
+			Expdest expDest = new Expdest();
+			expDest = appMgr.getListExpDestByIdExpDest(
+					transactionDestination.getId().getIdExpDest()).get(0);
+			if (expDest.getTypeExpDest().equals("Interne-Person")) {
+				Person person = new Person();
+				person = ldapOperation.getUserById(expDest.getIdExpDestLdap());
+				listDestinataire.add(person.getEmail());
+				informationDestinataire.setExpediteur(person.getPrenom()+ " " + person.getNom());
+			} else if (expDest.getTypeExpDest().equals("Interne-Unité")) {
+				Unit unit = new Unit();
+				unit = ldapOperation.getUnitById(expDest.getIdExpDestLdap());
+				listDestinataire.add(unit.getResponsibleUnit().getEmail());
+				informationDestinataire.setExpediteur(unit.getNameUnit());
+			}
+			// **
+			// List<SuiviCourrierCourrier> listCourrier = new
+			// ArrayList<SuiviCourrierCourrier>();
+			// listCourrier.add(informationDestinataire);
+			informationDestinataire.setListDestinataire(listDestinataire.get(0));
+			
+			boostMail(informationDestinataire);
+			// **
+			System.out.println("verif mail : " + listDestinataire.get(0));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void boostMail(SuiviCourrierCourrier courrierForBoost) {
+		try {
+			System.out.println("DEBUT BOOST");
+			Relance relance = new Relance();
+			Relancetransaction relanceTransaction;
+			RelancetransactionId relanceTransactionId;
+			relance.setRelanceIdUtilisateur(vb.getPerson().getId());
+			relance.setRelanceDate(new Date());
+			appMgr.insert(relance);
+			relance.setRelanceLibelle("relance_" + relance.getRelanceId());
+			appMgr.update(relance);
+			relanceTransaction = new Relancetransaction();
+			relanceTransactionId = new RelancetransactionId();
+			relanceTransactionId.setRelanceId(relance.getRelanceId());
+			relanceTransactionId.setTransactionId(courrierForBoost
+					.getTransaction().getTransactionId());
+			relanceTransaction.setId(relanceTransactionId);
+			appMgr.insert(relanceTransaction);
+			// ENVOIE de notification par mail
+			// content a partir BD
+			 SimpleDateFormat formaterDate = new SimpleDateFormat("dd/MM/yyyy");
+			
+			Templatenotification templateNotificationDestinataire = appMgr.listTemplateNotificationByNotification(8).get(0);
+			StringBuilder content = new StringBuilder(templateNotificationDestinataire.getTemplateNotificationDescription());
+			Map<String,String> paramValue = new HashMap<String,String>();
+			paramValue.put("#p", courrierForBoost.getExpediteur());
+			paramValue.put("#d", formaterDate.format(courrierForBoost.getCourrier().getCourrierDateReponse()));
+			paramValue.put("#r", courrierForBoost.getCourrier().getCourrierReferenceCorrespondant());
+		
+			String mailContent = replaceParam(paramValue, content);
+			// list des mail destinataire
+			NotificationListAddress notificationNomDestinataire = new NotificationListAddress();
+			List<NotificationListAddress> listMailNomDestinataire = new ArrayList<NotificationListAddress>();
+			notificationNomDestinataire.setMailDestinataire(courrierForBoost.getListDestinataire());
+			listMailNomDestinataire.add(notificationNomDestinataire);
+			emailUtil.sendEmailSSL(templateNotificationDestinataire.getTemplateNotificationObjet(), mailContent,
+					listMailNomDestinataire, "Admin", "");
+
+			LogClass logClass = new LogClass();
+			logClass.addTrack(
+					"relance",
+					"Evénement de log de relance des courriers nécessitant une réponse, référence "
+							+ relance.getRelanceId() + "-"
+							+ relance.getRelanceLibelle(), vb.getPerson(),
+					"INFO", appMgr);
+			System.out.println("FIN BOOST");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	 public String replaceParam(Map<String,String> ma,StringBuilder matcher){
+	    	Pattern p;
+	    	Matcher m;
+	    	StringBuffer sb = null;
+	    	for (Entry<String, String> entry : ma.entrySet()) {
+	    		 p = Pattern.compile(entry.getKey());
+	        	 m = p.matcher(matcher);
+	        	 sb = new StringBuffer();
+	        	while (m.find()) {
+	    			m.appendReplacement(sb, entry.getValue());
+	    		}
+	        	m.appendTail(sb);
+	        	matcher = new StringBuilder(sb);
+			}
+	    	return sb.toString();
+	  }
+//	public String changeVariableNotification(String templateTexteOrigine,
+//			List<Informations> listInfo, ApplicationManager appMgr) {
+//
+//		// typeObject = vb.getTypeObject();
+//		List<Informations> listInfo1 = new ArrayList<Informations>();
+//		listInfo1 = listInfo;
+//		List<VariablesNotification> variablesNotificationList = new ArrayList<VariablesNotification>();
+//		String templateTexteFinal;
+//
+//		try {
+//			variablesNotificationList = appMgr
+//					.getList(VariablesNotification.class);
+//		} catch (Exception e1) {
+//			System.err.println("Erreur dans le Trace");
+//			System.err.println(e1);
+//		}
+//		templateTexteFinal = templateTexteOrigine;
+//
+//		for (Informations inf : listInfo1) {
+//			String tempInfoVar = inf.getVar();
+//			String tempInfoCont = inf.getContenu();
+//
+//			for (VariablesNotification vn : variablesNotificationList) {
+//				String valvr = vn.getVariableValeur();
+//				String tmp;
+//				String txtReplaceValvr = tempInfoCont;
+//
+//				int lgFindvar = valvr.length();
+//				int lgReplaceVar = txtReplaceValvr.length();
+//
+//				for (int k = 0; k < (templateTexteFinal.length()); k++) {
+//					try {
+//						tmp = templateTexteFinal.substring(k, k + lgFindvar);
+//					} catch (Exception e) {
+//						break;
+//					}
+//					if (tmp.equalsIgnoreCase(valvr) && tmp.equals(tempInfoVar)) {
+//						templateTexteFinal = templateTexteFinal.substring(0, k)
+//								+ txtReplaceValvr
+//								+ templateTexteFinal.substring(k + lgFindvar,
+//										templateTexteFinal.length());
+//						k = k + lgReplaceVar;
+//					}
+//				}
+//			}
+//		}
+//
+//		return templateTexteFinal;
+//
+//	}
+	// ************Getter & Setter********************
+	@SuppressWarnings("unchecked")
+	public long getRecords() {
+		if (listTransactionCourrier == null
+				&& listTransactionCourrier.getWrappedData() == null)
+			records = 0;
+		else
+			records = ((List<SuiviCourrier>) listTransactionCourrier
+					.getWrappedData()).size();
+		return records;
+	}
+
+	public VariableGlobale getVb() {
+		return vb;
+	}
+
+	public void setVb(VariableGlobale vb) {
+		this.vb = vb;
+	}
+
+	public void setListTransactionCourrier(DataModel listTransactionCourrier) {
+		this.listTransactionCourrier = listTransactionCourrier;
+	}
+
+	public DataModel getListTransactionCourrier() {
+		return listTransactionCourrier;
+	}
+
+	public void setLdapOperation(LdapOperation ldapOperation) {
+		this.ldapOperation = ldapOperation;
+	}
+
+	public LdapOperation getLdapOperation() {
+		return ldapOperation;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setTypeRelance(String typeRelance) {
+		this.typeRelance = typeRelance;
+	}
+
+	public String getTypeRelance() {
+		return typeRelance;
+	}
+
+	public void setMethodeCalled(String methodeCalled) {
+		this.methodeCalled = methodeCalled;
+	}
+
+	public String getMethodeCalled() {
+		return methodeCalled;
+	}
+
+	public boolean isShowAllImage() {
+		return showAllImage;
+	}
+
+	public void setShowAllImage(boolean showAllImage) {
+		this.showAllImage = showAllImage;
+	}
+
+	public boolean isHideAllImage() {
+		return hideAllImage;
+	}
+
+	public void setHideAllImage(boolean hideAllImage) {
+		this.hideAllImage = hideAllImage;
+	}
+
+	public boolean isShowDayImage() {
+		return showDayImage;
+	}
+
+	public void setShowDayImage(boolean showDayImage) {
+		this.showDayImage = showDayImage;
+	}
+
+	public boolean isHideDayImage() {
+		return hideDayImage;
+	}
+
+	public void setHideDayImage(boolean hideDayImage) {
+		this.hideDayImage = hideDayImage;
+	}
+
+	public boolean isShowWeekImage() {
+		return showWeekImage;
+	}
+
+	public void setShowWeekImage(boolean showWeekImage) {
+		this.showWeekImage = showWeekImage;
+	}
+
+	public boolean isHideWeekImage() {
+		return hideWeekImage;
+	}
+
+	public void setHideWeekImage(boolean hideWeekImage) {
+		this.hideWeekImage = hideWeekImage;
+	}
+
+	public boolean isShowNegatifImage() {
+		return showNegatifImage;
+	}
+
+	public void setShowNegatifImage(boolean showNegatifImage) {
+		this.showNegatifImage = showNegatifImage;
+	}
+
+	public boolean isHideNegatifImage() {
+		return hideNegatifImage;
+	}
+
+	public void setHideNegatifImage(boolean hideNegatifImage) {
+		this.hideNegatifImage = hideNegatifImage;
+	}
+
+	public void setDisableSelectRadio(boolean disableSelectRadio) {
+		this.disableSelectRadio = disableSelectRadio;
+	}
+
+	public boolean isDisableSelectRadio() {
+		return disableSelectRadio;
+	}
+
+	public void setInformationDestinataire(
+			SuiviCourrierCourrier informationDestinataire) {
+		this.informationDestinataire = informationDestinataire;
+	}
+
+	public SuiviCourrierCourrier getInformationDestinataire() {
+		return informationDestinataire;
+	}
+
+	public void setNecessitnatReponseTotal(int necessitnatReponseTotal) {
+		this.necessitnatReponseTotal = necessitnatReponseTotal;
+	}
+
+	public int getNecessitnatReponseTotal() {
+		return necessitnatReponseTotal;
+	}
+
+	public void setNecessitnatReponseAujourdhui(int necessitnatReponseAujourdhui) {
+		this.necessitnatReponseAujourdhui = necessitnatReponseAujourdhui;
+	}
+
+	public int getNecessitnatReponseAujourdhui() {
+		return necessitnatReponseAujourdhui;
+	}
+
+	public void setNecessitnatReponseSemaine(int necessitnatReponseSemaine) {
+		this.necessitnatReponseSemaine = necessitnatReponseSemaine;
+	}
+
+	public int getNecessitnatReponseSemaine() {
+		return necessitnatReponseSemaine;
+	}
+
+	public void setNecessitnatReponseMois(int necessitnatReponseMois) {
+		this.necessitnatReponseMois = necessitnatReponseMois;
+	}
+
+	public int getNecessitnatReponseMois() {
+		return necessitnatReponseMois;
+	}
+
+	public List<SuiviCourrierCourrier> getResult() {
+		return result;
+	}
+
+	public void setResult(List<SuiviCourrierCourrier> result) {
+		this.result = result;
+	}
+
+	public void setPiedDePage(List<RapportPiedDePage> piedDePage) {
+		this.piedDePage = piedDePage;
+	}
+
+	public List<RapportPiedDePage> getPiedDePage() {
+		return piedDePage;
+	}
+
+	public List<RapportEnteteDePage> getEnteteDePage() {
+		return enteteDePage;
+	}
+
+	public void setEnteteDePage(List<RapportEnteteDePage> enteteDePage) {
+		this.enteteDePage = enteteDePage;
+	}
+	public List<RapportSociete> getListeSociete() {
+		return listeSociete;
+	}
+
+	public void setListeSociete(List<RapportSociete> listeSociete) {
+		this.listeSociete = listeSociete;
+	}
+
+	public int getVariableNombreEnvoiMailingParMedium() {
+		return variableNombreEnvoiMailingParMedium;
+	}
+
+	public void setVariableNombreEnvoiMailingParMedium(
+			int variableNombreEnvoiMailingParMedium) {
+		this.variableNombreEnvoiMailingParMedium = variableNombreEnvoiMailingParMedium;
+	}
+
+ 
+	
+
+}

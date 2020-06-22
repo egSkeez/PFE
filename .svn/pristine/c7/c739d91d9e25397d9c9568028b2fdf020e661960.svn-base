@@ -1,0 +1,159 @@
+package xtensus.beans.common.GNL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import xtensus.beans.common.VariableGlobale;
+import xtensus.gnl.entity.Message;
+import xtensus.services.ApplicationManager;
+
+@Component
+@Scope("request")
+public class ConsultMessageBean {
+
+	public ConsultMessageBean() {
+	}
+
+	private DataModel listMessageDM;
+	private ApplicationManager appMgr;
+	private Message message;
+	private List<Message> listMessage;
+	private int compteur;
+
+	@Autowired
+	private MessageSource messageSource;
+	private String messageText;
+	@Autowired
+	private VariableGlobale vbg;
+
+	@Autowired
+	public ConsultMessageBean(
+			@Qualifier("applicationManager") ApplicationManager appMgr) {
+		this.appMgr = appMgr;
+		message = new Message();
+		listMessage = new ArrayList<Message>();
+		setListMessageDM(new ListDataModel());
+		System.out.println("**Bean Consult messages Injecte***");
+	}
+
+	@PostConstruct
+	public void Initialize() {
+		try {
+			int ref = vbg.getPerson().getId();
+			listMessage = appMgr.listMessageByUser(ref);
+			listMessageDM.setWrappedData(listMessage);
+			System.out.println("****ChargementListMessageAvecSucces****");
+			
+		} catch (Exception e) {
+			System.out.println("***ErreurDeChargementListMessages***");
+		}
+	}
+	public String valide() {
+		return ("OK");
+	}
+
+	public String retour() {
+		return ("retour");
+	}
+
+	// Get Selection Rows
+	public void getSelectionRow() {
+		try {
+			message = (Message) listMessageDM.getRowData();
+			vbg.setMessage(message);
+			System.out.println(message.getMessageId());
+		} catch (Exception e) {
+
+		}
+	}
+
+	public void updateSelectedRow() {
+		try {
+			appMgr.update(message);
+			Initialize();
+		} catch (Exception e) {
+		}
+	}
+	
+	public Message nouveauMessage() {
+		message = new Message();
+		return (message);
+	}
+	//
+	// getteur & setteur
+
+	public DataModel getListMessageDM() {
+		return listMessageDM;
+	}
+
+	public void setListMessageDM(DataModel listMessageDM) {
+		this.listMessageDM = listMessageDM;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public int getCompteur() {
+		try {
+			compteur = ((List<Message>) listMessageDM.getWrappedData()).size();
+			return compteur;
+		} catch (NullPointerException n) {
+			compteur = 0;
+			return compteur;
+		}
+	}
+
+	public void setCompteur(int compteur) {
+		this.compteur = compteur;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public String getMessageText() {
+		return messageText;
+	}
+
+	public void setMessageText(String messageText) {
+		this.messageText = messageText;
+	}
+
+	public Message getMessage() {
+		return message;
+	}
+
+	public void setMessage(Message message) {
+		this.message = message;
+	}
+
+	public List<Message> getListMessage() {
+		return listMessage;
+	}
+
+	public void setListMessage(List<Message> listMessage) {
+		this.listMessage = listMessage;
+	}
+
+	public VariableGlobale getVbg() {
+		return vbg;
+	}
+
+	public void setVbg(VariableGlobale vbg) {
+		this.vbg = vbg;
+	}
+
+}

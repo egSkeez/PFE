@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+	<html>
+<head>
+<title>Détails évènement</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/#{languageManager.calendar}"
+	type="text/javascript"></script>
+</head>
+<body>
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../framGraphique/#{languageManager.css}" title="css"></link>
+		<div id="page">
+			<div id="header">
+				<ui:include src="../framGraphique/header.xhtml"></ui:include>
+			</div>
+			<div id="menuPrincipale">
+				<ui:include src="../framGraphique/toolbar.xhtml"></ui:include>
+			</div>
+			<div id="contenu">
+				<div id="corpsGauche">
+					<!--*************** 
+		Le tableau d'affichage du donnée 
+		*****************-->
+					<rich:panel styleClass="rich-panel">
+						<h:form>
+							<h:panelGrid columns="14">
+								<a4j:commandLink id="retour"
+									onclick="document.location.href='ConsultEvenement.jsf'">
+									<h:graphicImage value="../framGraphique/images/retour.png"
+										alt="retour" />
+								</a4j:commandLink>
+								<rich:toolTip for="retour" value="#{msg.buttonRetour}" />
+							</h:panelGrid>
+						</h:form>
+					</rich:panel>
+					<rich:panel>
+						<rich:simpleTogglePanel id="accor11" styleClass="rich-panel"
+							switchType="client" label="#{msg.Detailevenement}" opened="true">
+							<table width="100%" style="vertical-align: top;">
+								<tr>
+									<td width="50%"><h:panelGrid columns="2">
+											<h:column>
+												<h:outputText value="#{msg.libelle}" styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputText id="Libelle"
+													value="#{detailEvenementBean.evenement.evenementLibelle}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+
+											<h:column>
+												<h:outputText value="#{msg.ContactType}" styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputText id="Type"
+													value="#{detailEvenementBean.typeEvenement}"
+													styleClass="xteDetailLabelOutput"
+													style="text-transform:uppercase" />
+											</h:column>
+											<h:column>
+												<h:outputText value="#{msg.CourrierDes}"
+													styleClass="xteDetailLabel" />
+											</h:column>
+											<h:column>
+												<h:outputText id="Description"
+													value="#{detailEvenementBean.evenement.evenementDescription}"
+													styleClass="xteDetailLabelOutput" />
+											</h:column>
+										</h:panelGrid>
+									</td>
+								</tr>
+							</table>
+						</rich:simpleTogglePanel>
+					</rich:panel>
+					<h:form>
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="1">
+									<h:outputText value="#{msg.Listedesnotifications}" />
+								</h:panelGrid>
+							</f:facet>
+							<rich:dataTable value="#{detailEvenementBean.listNotificationDM}"
+								var="notidt" id="data" rows="10" styleClass="rich-dataTable"
+								onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+								onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+
+								<rich:column sortBy="#{notidt.notification.notificationId}"
+									filterBy="#{notidt.notification.notificationId}"
+									filterEvent="onkeyup" label="notificationId" width="8%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.ExpId}" />
+									</f:facet>
+									<div align="center">
+										<h:outputText value="#{notidt.notification.notificationId}" />
+									</div>
+								</rich:column>
+
+								<rich:column sortBy="#{notidt.notification.notificationLibelle}"
+									filterBy="#{notidt.notification.notificationLibelle}"
+									filterEvent="onkeyup" label="LibelleNotification">
+									<f:facet name="header">
+										<h:outputText value="#{msg.libelle1}" />
+									</f:facet>
+									<h:outputText
+										value="#{notidt.notification.notificationLibelle}" />
+								</rich:column>
+
+								<rich:column label="notificationEtatActivation" width="15%">
+									<f:facet name="header">
+										<h:outputText value="#{msg.EtatLabel}" escape="false" />
+									</f:facet>
+									<div align="center">
+										<h:selectBooleanCheckbox id="checkboxAdmin"
+											value="#{notidt.notification.notificationActivation}"
+											title="click pour aciver ou désactiver la notification"
+											disabled="true" style="outline: 1px solid red">
+										</h:selectBooleanCheckbox>
+									</div>
+								</rich:column>
+							</rich:dataTable>
+							<rich:datascroller for="data" id="scroller" />
+							<div align="center">
+								<h:outputText value="#{msg.NombreEnregistrement}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+								<h:outputText id="compt" value="#{detailEvenementBean.compteur}"
+									styleClass="xteNombreEnregistrementLabelOutput" />
+							</div>
+						</rich:panel>
+						<br />
+						<div align="center">
+							<a4j:commandButton value="#{msg.buttonValidate}"
+								actionListener="#{detailEvenementBean.validate}"
+								reRender="msgPanal"
+								oncomplete="if(#{detailEvenementBean.status}==true) #{rich:component('msgPanal')}.show();">
+							</a4j:commandButton>
+						</div>
+					</h:form>
+					<!-- *****popup Info******* -->
+					<rich:modalPanel id="msgPanal" autosized="true" height="90"
+						width="350">
+						<a4j:keepAlive beanName="detailEvenementBean" />
+						<f:facet name="header">
+							<h:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<rich:spacer width="2" />
+								<h:outputText value="#{msg.labelInfo}"
+									styleClass="xtePopupInformationTextHeader" />
+							</h:panelGrid>
+						</f:facet>
+						<f:facet name="controls">
+							<h:panelGroup>
+								<h:graphicImage value="../framGraphique/images/close.png"
+									width="15" height="15" id="hidelink1" />
+								<rich:componentControl for="msgPanal" attachTo="hidelink1"
+									operation="hide" event="onclick" />
+							</h:panelGroup>
+						</f:facet>
+						<h:form>
+							<table align="center">
+								<tr>
+									<td align="left"><h:graphicImage
+											value="../framGraphique/images/information.png" />
+									</td>
+									<td align="center" colspan="2"><h:outputText
+											styleClass="xtePopupInformationText"
+											value="Etats de notifications sont mis à jour" />
+									</td>
+								</tr>
+							</table>
+							<div align="center">
+								<a4j:commandButton value="#{msg.buttonOk}"
+									oncomplete="Richfaces.hideModalPanel('msgPanal');"
+									type="submit"
+									onclick="document.location.href='ConsultEvenement.jsf'"
+									ajaxSingle="true" styleClass="submitButton" reRender="data" />
+							</div>
+						</h:form>
+					</rich:modalPanel>
+				</div>
+				<div id="corpsDroite">
+
+					<div class="monthenc">
+						<script type="text/javascript">
+							//         
+							document.write(monthi8[w4s.getMonth()]); //
+						</script>
+					</div>
+					<div class="datebx">
+						<script type="text/javascript">
+							//         
+							document.write(s6ix[s3x]); //
+						</script>
+						<div class="dateenc">
+							<a href="http://www.websiteadministrator.com.au/"><script
+									type="text/javascript">
+								//         
+								document.write(w4s.getDate()); //
+							</script> </a>
+						</div>
+					</div>
+					<div class="dayenc">
+						<a href="http://www.websiteadministrator.com.au/"><script
+								type="text/javascript">
+							//         
+							document.write(s0x[w4s.getDay()]); //
+						</script> </a>
+					</div>
+					<div class="yearenc">
+						<script type="text/javascript">
+							//         
+							document.write(w4s.getFullYear()); //
+						</script>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div id="footer">
+				<ui:include src="../framGraphique/footer.xhtml"></ui:include>
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

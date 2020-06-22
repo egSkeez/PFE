@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<html>
+<head>
+<title>Authentification</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../framGraphique/calander.js" type="text/javascript"></script>
+</head>
+<body background="#335c91" >
+	<f:view locale="#{languageManager.locale}">
+		<link rel="STYLESHEET" type="text/css"
+			href="../Ilogin/xte-style-gbo.css" title="css"></link>
+		<div id="page_login">
+			<div id="header_login"></div>
+			<div id="menuPrincipale"></div>
+			<div id="page_login_center">
+				<!-- *************************************************** -->
+				<div align="center">
+					<div class="login-left">
+						<div id="logo-gmp">
+							<img class="logo" src="../framGraphique/images/logo-GBO.gif"
+								alt="logo" />
+						</div>
+						<h:outputText value="" styleClass="xteDetailLabelOutputLogo" />
+					</div>
+
+					<div class="login-right">
+						<h:panelGrid columns="1">
+							<h:outputText style="color: #FFFFFF" value="Licence accordée à"
+								styleClass="xteDetailLabelOutput" />
+							<h:graphicImage
+								value="../framGraphique/images/logo_entreprise.png"
+								alt="logo_entreprise" style="width : 98px; height : 102px;"/>
+						</h:panelGrid>
+					</div>
+					<div id="contenu_login">
+						<rich:panel styleClass="rich-panel">
+							<f:facet name="header">
+								<h:panelGrid columns="2" styleClass="xtePanelGrid">
+									<rich:spacer width="5" />
+									<h:outputText value="Bienvenue dans GBO"
+										styleClass="authentification" />
+								</h:panelGrid>
+							</f:facet>
+							<div id="arrierPlan" align="center">
+
+								<h:form id="LoginForm" prependId="false">
+									<rich:messages ajaxRendered="true" errorClass="msgError"
+										styleClass="error" />
+									<rich:spacer height="15px" />
+									<fieldset
+										style="border-color: #FFFFFF; border-style: solid; border-width: 2px; padding: 5px; width: 280px;">
+										<h:outputText value="Authentification "
+											styleClass="xteDetailLabel" />
+									</fieldset>
+									<rich:spacer height="10" />
+									<table cellspacing="0" style="width: 265px;">
+										<tr>
+											<td class="label_name"><label for="usernameId">
+													<h:outputText value="Nom d'utilisateur : "
+														styleClass="xteDetailLabel" /> </label></td>
+											<td><h:inputText id="usernameId" required="true" value="#{loginAdminBean.login}"
+													requiredMessage="* Vous devez saisir votre Login" 
+													validator="#{loginAdminBean.validerLogin}"
+													validatorMessage="* Veuillez vérifier votre Login"/></td>
+										</tr>
+										<tr>
+											<td class="label_name"><label for="passwordId">
+													<h:outputText value="Mot de passe : "
+														styleClass="xteDetailLabel" /><br /> </label></td>
+
+											<td><h:inputSecret id="passwordId" required="true" value="#{loginAdminBean.motPasse}"
+													requiredMessage="* Vous devez saisir votre Mot de Passe" 
+													validator="#{loginAdminBean.validerMotPasse}"
+													validatorMessage="* Veuillez vérifier votre Mot de Passe"/>
+											</td>
+										</tr>
+										
+										<tr>
+											<td class="label_name"><label for="codeId">
+													<h:outputText value="Code de Sécurité : "
+														styleClass="xteDetailLabel" 
+														>
+														</h:outputText><br /> </label></td>
+
+											<td><h:inputSecret id="codeId" required="true" value="#{loginAdminBean.codeSecurite}"
+												validator="#{loginAdminBean.validerCodeSecurite}"
+													validatorMessage="* Veuillez vérifier votre Code de Sécurité"
+													requiredMessage="* Vous devez saisir votre Code de Sécurité" />
+											</td>
+										</tr>
+									</table>
+									<rich:spacer height="10" />
+
+									<a4j:keepAlive beanName="loginAdminBean" />
+									<div align="right">
+									
+										<h:commandButton type="submit" id="login" 
+											action="#{loginAdminBean.connecter}" value="Se connecter" 
+											/>
+									</div>
+									
+									
+								</h:form>
+							</div>
+						</rich:panel>
+					</div>
+					<div id="panel-footer"></div>
+					<rich:spacer height="10" />
+					<div id="panel-xtensus">
+						<table width="100%" style="text-align: right;">
+							<tr>
+								<td><h:outputText style="color: #FFFFFF"
+										value="Produit conçu, développé et commercialisé par Xtensus"
+										styleClass="xteDetailLabelOutput" /></td>
+								<td><h:graphicImage
+										value="../framGraphique/images/Logo-Xtensus-Small.png"
+										alt="logo_entreprise" /></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+
+		</div>
+	</f:view>
+</body>
+	</html>
+</ui:composition>

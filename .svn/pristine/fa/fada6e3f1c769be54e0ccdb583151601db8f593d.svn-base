@@ -1,0 +1,43 @@
+package xtensus.beans.common.GBO0;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import xtensus.entity.Sujetmailing;
+
+public class GroupeMailingHistorique {
+
+	private Sujetmailing sujetmailing;
+	private String dateEnvoie;
+	private String dateFin;
+	SimpleDateFormat sdf;
+	
+	public GroupeMailingHistorique(){
+		sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	}
+
+	public void setSujetmailing(Sujetmailing sujetmailing) {
+		this.sujetmailing = sujetmailing;
+	}
+
+	public Sujetmailing getSujetmailing() {
+		return sujetmailing;
+	}
+
+	public void setDateEnvoie(Date dateEnvoie) {
+		this.dateEnvoie = sdf.format(dateEnvoie);
+	}
+
+	public String getDateEnvoie() {
+		return dateEnvoie;
+	}
+
+	public void setDateFin(Date dateFin) {
+		this.dateFin = sdf.format(dateFin);
+	}
+
+	public String getDateFin() {
+		return dateFin;
+	}
+
+}

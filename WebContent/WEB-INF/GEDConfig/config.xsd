@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:complexType name="folderType">
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="pathElementType">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="parameterRef" type="xsd:string"
+					use="required" />
+				<xsd:attribute name="paramLenght" type="xsd:integer"
+					use="optional" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="backupElementType">
+
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="parameterRef" type="xsd:string"
+					use="required" />
+				<xsd:attribute name="paramLenght" type="xsd:integer"
+					use="optional" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+
+	<xsd:element name="documents">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="document" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:all>
+							<xsd:element name="parameters">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="parameter" maxOccurs="unbounded">
+											<xsd:complexType>
+												<xsd:attribute name="name" type="xsd:string"
+													use="required" />
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="documentname">
+								<xsd:complexType>
+									<xsd:sequence maxOccurs="unbounded">
+										<xsd:element name="nameElement">
+											<xsd:complexType>
+												<xsd:simpleContent>
+													<xsd:extension base="xsd:string">
+														<xsd:attribute name="parameterRef" type="xsd:string"
+															use="required" />
+														<xsd:attribute name="paramLenght" type="xsd:integer"
+															use="optional" />
+													</xsd:extension>
+												</xsd:simpleContent>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+									<xsd:attribute name="separator" type="xsd:string" />
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="parentpath">
+								<xsd:complexType>
+									<xsd:choice maxOccurs="unbounded">
+										<xsd:element name="pathElement" type="pathElementType" />
+										<xsd:element name="folder" type="folderType" />
+									</xsd:choice>
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="backuppath">
+								<xsd:complexType>
+									<xsd:choice maxOccurs="unbounded">
+										<xsd:element name="backupElement" type="backupElementType">
+										</xsd:element>
+										<xsd:element name="folder" type="folderType" />
+									</xsd:choice>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:all>
+						<xsd:attribute name="name" type="xsd:string" use="required" />
+						<xsd:attribute name="mimetype" type="xsd:string"
+							use="required" />
+					</xsd:complexType>
+					<xsd:key name="parameterKey">
+						<xsd:selector xpath="parameters/parameter" />
+						<xsd:field xpath="@name" />
+					</xsd:key>
+					<xsd:keyref name="parameterKeyRef" refer="parameterKey">
+						<xsd:selector xpath="documentname/nameElement" />
+						<xsd:field xpath="@parameterRef" />
+					</xsd:keyref>
+					<xsd:keyref name="pathElementAttributeKeyRef" refer="parameterKey">
+						<xsd:selector xpath="parentpath/pathElement" />
+						<xsd:field xpath="@parameterRef" />
+					</xsd:keyref>
+					<xsd:keyref name="backupElementAttributeKeyRef" refer="parameterKey">
+						<xsd:selector xpath="backuppath/backupElement" />
+						<xsd:field xpath="@parameterRef" />
+					</xsd:keyref>
+
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="rootPath" type="xsd:string" use="required" />
+			<xsd:attribute name="byHomeFolder" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string" >
+						<xsd:enumeration value="no" />
+						<xsd:enumeration value="yes" />
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+
+	</xsd:element>
+
+</xsd:schema>
